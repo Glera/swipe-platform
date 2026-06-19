@@ -1,0 +1,19 @@
+# Render.com deploy — single static site that publishes the repo root.
+# Connect on render.com (New → Static Site → pick this repo); Render reads this
+# file and provisions the service. Subsequent pushes auto-deploy.
+#
+# Contents:
+#   index.html      — the swipe feed (built from the feed-prototype project)
+#   <id>.html       — each mini-game's SWIPE build (from playables/<id>/dist-swipe)
+# The feed loads ./<id>.html as same-origin siblings, so off-screen pause and the
+# postMessage completion bridge work.
+services:
+  - type: web
+    name: swipe-platform
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: ./
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
