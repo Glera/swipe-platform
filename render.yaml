@@ -16,4 +16,6 @@ services:
     headers:
       - path: /*
         name: Cache-Control
-        value: public, max-age=3600
+        # Short cache during active iteration so deploys show up immediately (avoids
+        # "I still see the old version" from a 1h cache). Raise for production.
+        value: public, max-age=60
