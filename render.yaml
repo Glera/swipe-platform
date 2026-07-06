@@ -13,6 +13,12 @@ services:
     runtime: static
     buildCommand: ""
     staticPublishPath: ./
+    # Same-origin API proxy (D6): the TMA calls /api/* on its own origin and Render
+    # forwards to the backend Web Service — no CORS, no preflight RTT on event batches.
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://swipe-backend-541t.onrender.com/api/*
     headers:
       - path: /*
         name: Cache-Control
