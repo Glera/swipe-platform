@@ -9,9 +9,9 @@
     "mountCost": "light"
   },
   "merge-locked-v1-swipe": {
-    "version": "cab08299aa",
+    "version": "560b0e718e",
     "htmlBytes": 2375232,
-    "payloadBytes": 1437566,
+    "payloadBytes": 1437631,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
@@ -54,18 +54,18 @@
     "mountCost": "heavy"
   },
   "merge-timepress-v1-swipe": {
-    "version": "1771472894",
+    "version": "b9e76bfaca",
     "htmlBytes": 2434592,
-    "payloadBytes": 1406074,
+    "payloadBytes": 1406139,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "heavy"
   },
   "merge-timepress-v2-swipe": {
-    "version": "0b53c5fa37",
+    "version": "baba7cb728",
     "htmlBytes": 1679175,
-    "payloadBytes": 1596580,
+    "payloadBytes": 1596645,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
