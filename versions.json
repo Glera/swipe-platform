@@ -1,13 +1,127 @@
 {
-  "marble-sort-swipe": "05acaddb9b",
-  "merge-locked-v1-swipe": "ef55c21cae",
-  "merge-second-board-v1-swipe": "af3dad73c2",
-  "merge-second-board-v2-swipe": "de71f00e30",
-  "merge-timepress-no-orders-v1-swipe": "be725a4973",
-  "merge-timepress-no-orders-v2-swipe": "e2b0be505b",
-  "merge-timepress-v1-swipe": "5a61c7207e",
-  "merge-timepress-v2-swipe": "ef97ecc369",
-  "pins-swipe": "3ce63ab47f",
-  "pins-v1-swipe": "881f5527d6",
-  "short-drama-swipe": "02b69bc2e4"
+  "marble-sort-swipe": {
+    "version": "056721f2d5",
+    "htmlBytes": 963,
+    "payloadBytes": 129999,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 0,
+    "mountCost": "light"
+  },
+  "merge-locked-v1-swipe": {
+    "version": "ca9960e1bc",
+    "htmlBytes": 2375232,
+    "payloadBytes": 1436977,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 0,
+    "mountCost": "heavy"
+  },
+  "merge-second-board-v1-swipe": {
+    "version": "bd7dc4e6ac",
+    "htmlBytes": 1883847,
+    "payloadBytes": 500980,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 1417999,
+    "mountCost": "heavy"
+  },
+  "merge-second-board-v2-swipe": {
+    "version": "3a1706b15a",
+    "htmlBytes": 1367946,
+    "payloadBytes": 499006,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 1599038,
+    "mountCost": "heavy"
+  },
+  "merge-timepress-no-orders-v1-swipe": {
+    "version": "7930a72077",
+    "htmlBytes": 1738767,
+    "payloadBytes": 361054,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 2352093,
+    "mountCost": "heavy"
+  },
+  "merge-timepress-no-orders-v2-swipe": {
+    "version": "e2b0be505b",
+    "htmlBytes": 2342536,
+    "payloadBytes": 334225,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 962501,
+    "mountCost": "heavy"
+  },
+  "merge-timepress-v1-swipe": {
+    "version": "cd542d8b7e",
+    "htmlBytes": 2434592,
+    "payloadBytes": 1405485,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 0,
+    "mountCost": "heavy"
+  },
+  "merge-timepress-v2-swipe": {
+    "version": "30eb35fc61",
+    "htmlBytes": 1679175,
+    "payloadBytes": 1595991,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 0,
+    "mountCost": "heavy"
+  },
+  "pins-swipe": {
+    "version": "5c40ea4a46",
+    "htmlBytes": 956,
+    "payloadBytes": 622689,
+    "assetBytes": 1313956,
+    "assets": [
+      "pins-swipe.asset-0724332dbfcf.png",
+      "pins-swipe.asset-1190e33eb0a6.avif",
+      "pins-swipe.asset-34ebcdf0b03d.png",
+      "pins-swipe.asset-4a16cad1b97a.png",
+      "pins-swipe.asset-52020881e470.webp",
+      "pins-swipe.asset-6561c1711d61.png",
+      "pins-swipe.asset-65c08f8cb952.png",
+      "pins-swipe.asset-c2624576d2e6.webp",
+      "pins-swipe.asset-e97ef3506f71.avif"
+    ],
+    "mediaBytes": 1678872,
+    "mountCost": "heavy"
+  },
+  "pins-v1-swipe": {
+    "version": "9039dd0064",
+    "htmlBytes": 959,
+    "payloadBytes": 590454,
+    "assetBytes": 822884,
+    "assets": [
+      "pins-v1-swipe.asset-1190e33eb0a6.avif",
+      "pins-v1-swipe.asset-52020881e470.webp",
+      "pins-v1-swipe.asset-6561c1711d61.png",
+      "pins-v1-swipe.asset-c2624576d2e6.webp",
+      "pins-v1-swipe.asset-e97ef3506f71.avif",
+      "pins-v1-swipe.asset-fb3beb32af9a.png"
+    ],
+    "mediaBytes": 1678872,
+    "mountCost": "heavy"
+  },
+  "short-drama-swipe": {
+    "version": "34df98cc56",
+    "htmlBytes": 3930779,
+    "payloadBytes": 336484,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 18806514,
+    "mountCost": "heavy"
+  },
+  "merge-restoration-swipe": {
+    "version": "e8d70a2653",
+    "htmlBytes": 3625942,
+    "payloadBytes": 334173,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 0,
+    "mountCost": "heavy"
+  }
 }
