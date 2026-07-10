@@ -1,6 +1,6 @@
 {
   "marble-sort-swipe": {
-    "version": "1cfebad94c",
+    "version": "f9dc546ee6",
     "htmlBytes": 963,
     "payloadBytes": 138942,
     "assetBytes": 0,
@@ -36,9 +36,9 @@
     "mountCost": "heavy"
   },
   "merge-timepress-no-orders-v1-swipe": {
-    "version": "e4df72eea1",
+    "version": "e419aefae9",
     "htmlBytes": 1738767,
-    "payloadBytes": 361057,
+    "payloadBytes": 361349,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 2352093,
@@ -54,27 +54,27 @@
     "mountCost": "heavy"
   },
   "merge-timepress-v1-swipe": {
-    "version": "3bbf35bd32",
+    "version": "1771472894",
     "htmlBytes": 2434592,
-    "payloadBytes": 1405488,
+    "payloadBytes": 1406074,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "heavy"
   },
   "merge-timepress-v2-swipe": {
-    "version": "700b298ce9",
+    "version": "0b53c5fa37",
     "htmlBytes": 1679175,
-    "payloadBytes": 1595994,
+    "payloadBytes": 1596580,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "heavy"
   },
   "pins-swipe": {
-    "version": "17212c4065",
+    "version": "5526e98b1e",
     "htmlBytes": 956,
-    "payloadBytes": 732806,
+    "payloadBytes": 733098,
     "assetBytes": 8412957,
     "assets": [
       "pins-swipe.asset-005d5d00f130.png",
@@ -103,9 +103,9 @@
     "mountCost": "heavy"
   },
   "pins-v1-swipe": {
-    "version": "9943fae9ca",
+    "version": "5106ba0b59",
     "htmlBytes": 959,
-    "payloadBytes": 590457,
+    "payloadBytes": 590749,
     "assetBytes": 822884,
     "assets": [
       "pins-v1-swipe.asset-1190e33eb0a6.avif",
@@ -119,9 +119,9 @@
     "mountCost": "heavy"
   },
   "short-drama-swipe": {
-    "version": "7515b65001",
+    "version": "f4323bec84",
     "htmlBytes": 3930779,
-    "payloadBytes": 336487,
+    "payloadBytes": 337150,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 18806514,
