@@ -72,22 +72,34 @@
     "mountCost": "heavy"
   },
   "pins-swipe": {
-    "version": "5c40ea4a46",
+    "version": "456deb57b4",
     "htmlBytes": 956,
-    "payloadBytes": 622689,
-    "assetBytes": 1313956,
+    "payloadBytes": 732803,
+    "assetBytes": 8412957,
     "assets": [
+      "pins-swipe.asset-005d5d00f130.png",
       "pins-swipe.asset-0724332dbfcf.png",
       "pins-swipe.asset-1190e33eb0a6.avif",
+      "pins-swipe.asset-349b14053a3d.png",
       "pins-swipe.asset-34ebcdf0b03d.png",
+      "pins-swipe.asset-3b3a0f637a1d.webp",
+      "pins-swipe.asset-44f5ff543ce3.png",
       "pins-swipe.asset-4a16cad1b97a.png",
       "pins-swipe.asset-52020881e470.webp",
+      "pins-swipe.asset-54829f784adb.png",
+      "pins-swipe.asset-5eb4a01b6eaf.png",
+      "pins-swipe.asset-604516aa82e0.png",
       "pins-swipe.asset-6561c1711d61.png",
       "pins-swipe.asset-65c08f8cb952.png",
+      "pins-swipe.asset-8740cae1fb30.webp",
+      "pins-swipe.asset-9d6b4295d4e8.png",
       "pins-swipe.asset-c2624576d2e6.webp",
-      "pins-swipe.asset-e97ef3506f71.avif"
+      "pins-swipe.asset-e4710ae90ced.webp",
+      "pins-swipe.asset-e97ef3506f71.avif",
+      "pins-swipe.asset-f74512070438.webp",
+      "pins-swipe.asset-f873f0ce24cc.png"
     ],
-    "mediaBytes": 1678872,
+    "mediaBytes": 3025826,
     "mountCost": "heavy"
   },
   "pins-v1-swipe": {
