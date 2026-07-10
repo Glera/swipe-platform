@@ -9,27 +9,27 @@
     "mountCost": "light"
   },
   "merge-locked-v1-swipe": {
-    "version": "d731acb312",
+    "version": "7a4d64233e",
     "htmlBytes": 2375232,
-    "payloadBytes": 1436980,
+    "payloadBytes": 1437114,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "heavy"
   },
   "merge-second-board-v1-swipe": {
-    "version": "34112910f2",
+    "version": "85e47c607f",
     "htmlBytes": 1883847,
-    "payloadBytes": 500983,
+    "payloadBytes": 501212,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 1417999,
     "mountCost": "heavy"
   },
   "merge-second-board-v2-swipe": {
-    "version": "a0d7eaceb1",
+    "version": "2f13ffeabb",
     "htmlBytes": 1367946,
-    "payloadBytes": 499009,
+    "payloadBytes": 499231,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 1599038,
