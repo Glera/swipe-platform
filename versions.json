@@ -119,9 +119,9 @@
     "mountCost": "heavy"
   },
   "short-drama-swipe": {
-    "version": "45a505b880",
+    "version": "e8b4e4ba55",
     "htmlBytes": 3930779,
-    "payloadBytes": 337914,
+    "payloadBytes": 337945,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 18806514,
