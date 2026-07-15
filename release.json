@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-07-15 04:17 UTC",
-  "feedCommit": "f264657fcb1da0fcb1ed6cc50ed37e8980c0db55",
+  "builtAt": "2026-07-15 05:09 UTC",
+  "feedCommit": "ff006866c151b844986a49ecdb3f306fcb94283d",
   "exportedPlayablesCommit": null,
-  "deployToolingCommit": "bfeb5258be530b3859fb577a1bb6f66d8f3f5871",
+  "deployToolingCommit": "c747cd70de669439424ffe35ef01e55c1eb6340d",
   "catalogDogfood": {
     "schema": "catalog-dogfood-release-profile.v1",
     "profile": "exact-user",
