@@ -1,0 +1,49 @@
+# Workspace meta-repo: отслеживает ТОЛЬКО workspace tooling/docs
+# (scripts/, docs/, VISION.md, AGENTS.md, CLAUDE.md, README.md, .claude/skills/).
+# Вложенные репозитории игнорируются ЯВНЫМ списком (не glob-ом «всё»),
+# чтобы новый tooling-файл в корне был виден как untracked, а не терялся молча.
+# Спецификация: docs/specs/dev-loop.md (WS0).
+
+.DS_Store
+node_modules/
+.artifacts/
+
+# --- вложенные git-репозитории (явный список) ---
+dungeon-dig/
+feed-prototype/
+figma-playground/
+liveops-shared/
+mahjong-core/
+mahjong_temp/
+merge-event/
+p4g-platform/
+platform-bot/
+play4good/
+play4good_test/
+playables/
+playables-export/
+solitaire-core/
+swipe-agents/
+swipe-backend/
+swipe-bot/
+swipe-generator/
+swipe-platform/
+swipe-ugc/
+treasure-hunt/
+
+# --- worktree-копии вложенных репо: имена изменчивы, поэтому по семействам.
+# Без этих масок новая worktree-копия попала бы под git add -A целиком.
+feed-prototype-*/
+playables-*/
+swipe-backend-*/
+swipe-generator-*/
+swipe-ugc-*/
+
+# --- не-репозиторные рабочие директории ---
+ai-generated-art/
+art/
+art-references/
+
+# --- локальные настройки Claude Code; skills — версионируются ---
+.claude/*
+!.claude/skills/
