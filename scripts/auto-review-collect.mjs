@@ -17,9 +17,12 @@
 // Requirements: Node >= 20, ES modules, built-in modules only (no npm deps).
 //
 // Usage:
-//   node scripts/auto-review-collect.mjs <repo-path>
+//   node scripts/auto-review-collect.mjs [--allow-large-binary <path>]... <repo-path>
 //       -> collects the patch, builds the isolated checkout, prints the JSON
 //          manifest to stdout. The checkout is LEFT ON DISK for the reviewer.
+//          --allow-large-binary (repeatable) opts a specific untracked binary
+//          path (repo-relative) out of the >5MB fail-closed size exclusion;
+//          admitted paths are recorded in the manifest as allowedLargeBinaries.
 //   node scripts/auto-review-collect.mjs --cleanup <checkoutPath>
 //       -> removes the isolated worktree (git worktree remove --force) on
 //          behalf of its owning source repo.
@@ -38,9 +41,10 @@ import fs from 'node:fs';
 
 const TEXT_DIFF_LIMIT_BYTES = 300 * 1024; // v1 limit: 300 KB of reviewer text.
 const BINARY_SNIFF_BYTES = 8000; // git's own NUL-sniff window.
-// Full untracked-text content is scanned for secrets up to this cap. A larger
-// text file is treated as suspicious and excluded fail-closed with reason
-// "size" (we refuse to hand an unbounded blob to the reviewer or the checkout).
+// Full untracked content (text AND binary) is scanned for secrets up to this
+// cap. A larger file cannot be fully scanned, so it is treated as suspicious
+// and excluded fail-closed with reason "size"; a specific oversized BINARY may
+// be opted back in with --allow-large-binary <path> (recorded in the manifest).
 const SECRET_CONTENT_SCAN_LIMIT_BYTES = 5 * 1024 * 1024; // 5 MB.
 
 // --- Secret guard: fail-closed deny-list (WS2 "secret guard (fail-closed)").
@@ -124,6 +128,8 @@ function isSecretName(basename) {
   return SECRET_NAME_RULES.some((r) => r(n));
 }
 // Scan the FULL content (capped at the scan limit) for any secret signature.
+// Applies to text AND binary buffers alike: latin1 decoding maps every byte
+// 1:1, so ASCII secret signatures embedded in binary payloads still match.
 function isSecretContent(buf) {
   const scan =
     buf.length > SECRET_CONTENT_SCAN_LIMIT_BYTES
@@ -172,7 +178,7 @@ function parseNameStatusZ(z) {
 // ---------------------------------------------------------------------------
 // Main collection flow.
 // ---------------------------------------------------------------------------
-function collect(repoPathArg) {
+function collect(repoPathArg, allowLargeBinaryPaths = new Set()) {
   const repo = path.resolve(process.cwd(), repoPathArg);
   if (!fs.existsSync(repo)) fail(`repo path does not exist: ${repo}`);
   if (!gitTry(repo, ['rev-parse', '--git-dir']).ok) {
@@ -309,6 +315,7 @@ function collect(repoPathArg) {
   const untrackedPaths = untrackedZ.split('\0').filter((t) => t.length > 0);
 
   const excludedSecrets = [];
+  const allowedLargeBinaries = []; // >5MB binaries explicitly opted in via flag
   const untrackedReviewer = []; // non-secret untracked paths (text + binary)
   const untrackedCopy = []; // { path, binary } to copy into the checkout
   const untrackedTextParts = [];
@@ -324,20 +331,28 @@ function collect(repoPathArg) {
     if (!st.isFile()) continue; // skip dirs/symlinks in v1
     const buf = fs.readFileSync(abs);
     const basename = path.basename(p);
-    // Fail-closed exclusions, each recorded with a reason. Name rule wins first.
+    // Fail-closed exclusions, each recorded with a reason. Name rule wins
+    // first; then the content scan (text AND binary — a credential embedded in
+    // a binary payload must never reach the checkout); then the size cap.
     if (isSecretName(basename)) {
       excludedSecrets.push({ path: p, reason: 'name' });
-      continue;
-    }
-    const binary = looksBinary(buf);
-    if (!binary && buf.length > SECRET_CONTENT_SCAN_LIMIT_BYTES) {
-      // Oversized text file: too large to fully scan -> suspicious, exclude.
-      excludedSecrets.push({ path: p, reason: 'size' });
       continue;
     }
     if (isSecretContent(buf)) {
       excludedSecrets.push({ path: p, reason: 'content' });
       continue; // fail-closed: never in reviewer text, never in checkout
+    }
+    const binary = looksBinary(buf);
+    if (buf.length > SECRET_CONTENT_SCAN_LIMIT_BYTES) {
+      // Too large to fully scan -> suspicious. Only a BINARY may be opted back
+      // in, per explicit --allow-large-binary <path>; the content scan above
+      // has still covered its first 5 MB.
+      if (binary && allowLargeBinaryPaths.has(p)) {
+        allowedLargeBinaries.push(p);
+      } else {
+        excludedSecrets.push({ path: p, reason: 'size' });
+        continue;
+      }
     }
     untrackedReviewer.push(p);
     untrackedCopy.push({ path: p, binary });
@@ -448,6 +463,7 @@ function collect(repoPathArg) {
     },
     binaryManifest, // [{path, layer, size, sha256}] — content NOT in text diff
     excludedSecrets, // [{path, reason}] fail-closed; never in reviewer text/checkout
+    allowedLargeBinaries, // >5MB binaries admitted via --allow-large-binary
     secretsOmittedFromCheckout: true, // secrets are omitted from the checkout too
     checkoutPath,
     diffPath, // full text diff of all layers, on disk next to the checkout
@@ -495,10 +511,23 @@ function main() {
     cleanup(args[1]);
     return;
   }
-  if (args.length !== 1 || args[0].startsWith('--')) {
-    fail('usage: auto-review-collect.mjs <repo-path> | --cleanup <checkoutPath>');
+  const usage =
+    'usage: auto-review-collect.mjs [--allow-large-binary <path>]... ' +
+    '<repo-path> | --cleanup <checkoutPath>';
+  const allowLargeBinaryPaths = new Set();
+  const positional = [];
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--allow-large-binary') {
+      if (!args[i + 1]) fail(usage);
+      allowLargeBinaryPaths.add(args[++i]);
+    } else if (args[i].startsWith('--')) {
+      fail(usage);
+    } else {
+      positional.push(args[i]);
+    }
   }
-  collect(args[0]);
+  if (positional.length !== 1) fail(usage);
+  collect(positional[0], allowLargeBinaryPaths);
 }
 
 main();

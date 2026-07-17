@@ -49,8 +49,8 @@ function write(p, content) {
 }
 
 // Run the collect script; return parsed manifest (throws on non-zero exit).
-function runCollect(repoPath, extraEnv = {}) {
-  const out = execFileSync('node', [SCRIPT, repoPath], {
+function runCollect(repoPath, extraEnv = {}, extraArgs = []) {
+  const out = execFileSync('node', [SCRIPT, ...extraArgs, repoPath], {
     env: { ...GIT_ENV, ...extraEnv },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -483,6 +483,63 @@ test('(k) binary manifest hashes staged bytes and unstaged bytes separately', ()
 
   try {
     if (m.checkoutPath && fs.existsSync(m.checkoutPath)) runCleanup(m.checkoutPath);
+  } catch {
+    /* ignore */
+  }
+  fs.rmSync(base, { recursive: true, force: true });
+});
+
+// (l) secret guard is fail-closed for BINARIES too ----------------------------
+test('(l) binary content scan + >5MB binary size exclusion + --allow-large-binary opt-in', () => {
+  const base = fs.realpathSync(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'arc-binsecret-')),
+  );
+  const repo = path.join(base, 'r');
+  gitInit('-c', 'init.defaultBranch=master', 'init', repo);
+  write(path.join(repo, 'seed.txt'), 'seed\n');
+  git(repo, 'add', '-A');
+  git(repo, 'commit', '-m', 'seed');
+
+  // Binary (NUL up front) with an AKIA credential embedded after the first bytes.
+  const secretBin = Buffer.concat([
+    Buffer.from([0x00, 0x01, 0x02, 0xff]),
+    Buffer.from('payload AKIAABCDEFGHIJKLMNOP tail'),
+  ]);
+  fs.writeFileSync(path.join(repo, 'asset.bin'), secretBin);
+  // Oversized (>5MB) clean binary: excluded fail-closed unless explicitly allowed.
+  const bigBin = Buffer.alloc(6 * 1024 * 1024); // NUL-filled -> binary, no signatures
+  fs.writeFileSync(path.join(repo, 'big.bin'), bigBin);
+
+  // Run 1: no flag — both binaries are excluded fail-closed.
+  const m1 = runCollect(repo);
+  const reason1 = Object.fromEntries(m1.excludedSecrets.map((e) => [e.path, e.reason]));
+  assert.equal(reason1['asset.bin'], 'content', 'binary with embedded AKIA is caught');
+  assert.equal(reason1['big.bin'], 'size', '>5MB binary excluded with reason size');
+  assert.deepEqual(m1.allowedLargeBinaries, [], 'nothing allowed without the flag');
+  assert.ok(!fs.existsSync(path.join(m1.checkoutPath, 'asset.bin')));
+  assert.ok(!fs.existsSync(path.join(m1.checkoutPath, 'big.bin')));
+  try {
+    if (m1.checkoutPath && fs.existsSync(m1.checkoutPath)) runCleanup(m1.checkoutPath);
+  } catch {
+    /* ignore */
+  }
+
+  // Run 2: --allow-large-binary big.bin — big.bin admitted and recorded;
+  // the content-matching binary stays excluded regardless.
+  const m2 = runCollect(repo, {}, ['--allow-large-binary', 'big.bin']);
+  const reason2 = Object.fromEntries(m2.excludedSecrets.map((e) => [e.path, e.reason]));
+  assert.equal(reason2['asset.bin'], 'content', 'content match cannot be opted in');
+  assert.ok(!('big.bin' in reason2), 'allowed large binary is not excluded');
+  assert.deepEqual(m2.allowedLargeBinaries, ['big.bin'], 'opt-in recorded in manifest');
+  const entry = m2.binaryManifest.find((b) => b.path === 'big.bin' && b.layer === 'untracked');
+  assert.ok(entry, 'allowed large binary is hashed into binaryManifest');
+  assert.equal(entry.size, bigBin.length);
+  const copied = fs.readFileSync(path.join(m2.checkoutPath, 'big.bin'));
+  assert.ok(copied.equals(bigBin), 'allowed large binary copied byte-for-byte');
+  assert.ok(!fs.existsSync(path.join(m2.checkoutPath, 'asset.bin')));
+
+  try {
+    if (m2.checkoutPath && fs.existsSync(m2.checkoutPath)) runCleanup(m2.checkoutPath);
   } catch {
     /* ignore */
   }

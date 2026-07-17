@@ -28,8 +28,13 @@ description: Независимое слепое ревью текущего pat
 Из корня meta-repo:
 
 ```
-node scripts/auto-review-collect.mjs <путь-к-репо>
+node scripts/auto-review-collect.mjs [--allow-large-binary <path>]... <путь-к-репо>
 ```
+
+Untracked-бинарники > 5 MB исключаются fail-closed (reason `size`); если
+конкретный крупный бинарник заведомо нужен ревью — явно пропустить его флагом
+`--allow-large-binary <repo-относительный-путь>` (повторяемый; фиксация — в
+манифесте, поле `allowedLargeBinaries`).
 
 Скрипт печатает JSON-манифест в stdout и оставляет изолированный checkout
 живым для ревьюера. Коды выхода: `0` ок; `2` — суммарный текстовый diff > 300 KB
@@ -51,6 +56,8 @@ node scripts/auto-review-collect.mjs <путь-к-репо>
   НЕ идёт, но реальные байты уже в checkout; `layer` = слой этой записи);
 - `excludedSecrets` (`[{path, reason}]`, где `reason` ∈ `name|content|size` —
   перечислить в резюме);
+- `allowedLargeBinaries` (крупные бинарники, явно допущенные флагом
+  `--allow-large-binary` — перечислить в резюме, если непусто);
 - `secretsOmittedFromCheckout: true` (секреты отсутствуют и в checkout);
 - `checkoutPath` — корень изолированного checkout для ревьюера;
 - `diffPath` — путь к файлу полного текстового diff всех слоёв (передаётся
@@ -94,23 +101,31 @@ N. [P1|P2|P3] <файл>:<строка> — краткое описание пр
   в checkout); либо
 - **явно отклонить** с причиной.
 
-**Молчаливый пропуск запрещён.** Прежде чем идти дальше — записать findings и
-диспозиции в JSON вида
-`{findings:[{id,severity,file,line,desc}], dispositions:[{id, action:"fixed"|"rejected", reason?}]}`
-и прогнать валидатор:
+**Молчаливый пропуск запрещён.** Вести findings и диспозиции в JSON вида
+`{findings:[{id,severity,file,line,desc}], dispositions:[{id, action:"fixed"|"rejected", reason?}], verify:[...]}`
+(секция `verify` заполняется на шаге 6; механическая валидация всего файла —
+там же, после повторных проверок). Спорные findings — раскрыть ревьюеру
+план/контекст (после слепого раунда) и до-разрешить.
+
+### 6. Повторить проверки, провалидировать, собрать резюме
+
+Повторно прогнать **verify-команду затронутого репо** (из `AGENTS.md`,
+колонка `verify`) и записать команды с их exit codes в секцию `verify` того же
+JSON: `verify: [{command: "<команда>", exitCode: <целое>}]` (минимум одна
+запись).
+
+Затем прогнать валидатор над полным JSON
+(`findings` + `dispositions` + `verify`):
 
 ```
 node scripts/auto-review-validate.mjs <dispositions.json>
 ```
 
-Он падает (exit 1) при пропущенном ID, лишнем/дублирующемся ID или `rejected`
-без `reason`; идти дальше только при exit 0. Спорные findings — раскрыть
-ревьюеру план/контекст (после слепого раунда) и до-разрешить.
-
-### 6. Повторить проверки и собрать резюме
-
-Повторно прогнать **verify-команду затронутого репо** (из `AGENTS.md`,
-колонка `verify`) и зафиксировать команды и их exit codes.
+Он падает (exit 1) при: malformed ID (не `^F\d{3,}$`), невалидных полях
+finding (severity ∉ {P1,P2,P3}, пустой `file`/`desc`, `line` < 1),
+пропущенном/лишнем/дублирующемся ID, `rejected` без `reason`, отсутствующей
+или пустой секции `verify`. **Резюме формируется только после зелёного
+валидатора (exit 0).**
 
 Сформировать **Markdown-резюме**:
 
