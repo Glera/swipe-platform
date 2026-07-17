@@ -23,6 +23,11 @@ const FORBIDDEN = [
   { re: /now passes\b/i, why: '«now passes» → authority: CI' },
   { re: /tests?\s+(are|is)\s+green/i, why: 'статус тестов → authority: CI' },
   { re: /passes\s+clean\s+`?\d{4}/i, why: 'диапазон миграций как статус → authority: Alembic graph + CI' },
+  // «passes/passed … E2E» и «E2E passes» — утверждение, что прогон СЕЙЧАС
+  // зелёный. Вечная форма-гейт «… until the … E2E is green» не задевается
+  // (в ней нет pass/passed рядом с E2E).
+  { re: /pass(es|ed)\b[^.\n]{0,48}\bE2E\b/i, why: '«passes/passed … E2E» — статус прогона → authority: CI' },
+  { re: /\bE2E\s+pass(es|ed)\b/i, why: '«E2E passes» — статус прогона → authority: CI' },
 ];
 
 let violations = 0;

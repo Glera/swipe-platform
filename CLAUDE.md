@@ -48,9 +48,10 @@
   read-only Node probe re-fetches exact descriptor+sidecar+executables; the
   internal operator CLI is feature-gated, dry-run by default, pins the probe
   closure and Node binary, and has no origin/evidence arguments or HTTP route.
-  This path passed local HTTP+PostgreSQL candidate→active→replay E2E, but no
-  production active row or allocation exists until deploy verification and
-  manual device/event-order gates pass.
+  This path's candidate→active→replay closure over HTTP+PostgreSQL is a
+  coverage contract (run status with CI, not here); regardless, no production
+  active row or allocation exists until deploy verification and manual
+  device/event-order gates pass.
 - Catalog allocation core and the implicit-feed shadow path are implemented
   locally behind
   `ENABLE_CATALOG_ALLOCATION=false`: migration `0016` makes decisions
@@ -97,8 +98,9 @@
   migration roundtrips — is bound to the migration graph (Alembic) and its CI
   run, not asserted as status here. External scheduling and pilot activation are still not enabled;
   the same acceptance must run in CI/deploy with exact production bootstrap.
-  The internal published-only allocator passes PostgreSQL E2E
-  for empty→refill, exact replay, concurrency and manifest-bound ticket issue.
+  The internal published-only allocator's PostgreSQL E2E covers
+  empty→refill, exact replay, concurrency and manifest-bound ticket issue
+  (run status with CI, not here).
   Migration `0022` adds opaque player-v2 ticket/spec delivery and configured
   runtime evidence. Migration `0023` adds a separate append-only effectful plan
   and plan-bound authorization; it never promotes a shadow receipt. The main
@@ -107,8 +109,9 @@
   but only when all three default-off frontend gates are enabled:
   `VITE_CONTROL_PLANE_ENABLED`, `VITE_CATALOG_PLAYER_V2_ENABLED`, and
   `VITE_FEED_EFFECTFUL_AUTHORITY_ENABLED`. The in-app dogfood harness runs the
-  real production Feed build and passes a two-level exact series plus terminal
-  recall recovery, while its API/runtime are stubs. A separate real
+  real production Feed build over a two-level exact series plus terminal
+  recall recovery, while its API/runtime are stubs (run status with CI, not
+  here). A separate real
   HTTP→PostgreSQL E2E links one source decision through effectful plan,
   authorization, FeedDecision, ticket, configured attempt, exact level result
   and chest. Authority
@@ -124,14 +127,16 @@
   append-only evidence to ticket generation/identity and closes composite-FK
   NULL holes. V2 cannot replay through legacy wire; disabling allocation blocks
   new tickets but preserves exact replay of a committed ticket/lost response;
-  client-chosen `run_id` is serialized across tickets. A real HTTP→PostgreSQL
-  E2E passes `allocate → ticket → level → chest`, but this is backend E2E only.
+  client-chosen `run_id` is serialized across tickets. The real HTTP→PostgreSQL
+  E2E covers `allocate → ticket → level → chest`, backend-only (run status
+  with CI, not here).
   Migration `0024` adds default-off append-only recall actions: one scoped
   endpoint handles first soft/hard recall and epoch-CAS `soft→hard`; hard action,
   unfinished-ticket revocation and exact `invalidated` facts commit atomically
   under `runtime → entry → ticket`, and late replay uses the same committed
-  `recall_id`. Sequential PG lifecycle and frontend no-reward recovery are
-  green. Physical PG also proves both orderings of
-  `/results`↔hard-recall and pending-attempt-replay↔recall: committed results
-  stay exact-replayable and late attempts receive one invalidation with the
-  same action id. Operator UI and production E2E remain enable gates.
+  `recall_id`. The sequential PG lifecycle, frontend no-reward recovery, and
+  both orderings of `/results`↔hard-recall and pending-attempt-replay↔recall
+  are coverage this decision requires (run status with CI, not here); the
+  durable invariant is that committed results stay exact-replayable and late
+  attempts receive exactly one invalidation with the same action id. Operator
+  UI and production E2E remain enable gates.

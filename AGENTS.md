@@ -34,6 +34,8 @@ Legacy P4G-контур (`liveops-shared`, `solitaire-core`, `p4g-platform`, …
 Правило: документ не дублирует изменчивый факт чужого authority — он
 ссылается на него. В root `CLAUDE.md` допустимы стабильные ссылки на
 миграции как identity («инвариант X введён миграцией 0016»); запрещены
-утверждения вида «текущий head», «сейчас зелёное», «последняя миграция».
-Проверка: `node scripts/docs-boundary-lint.mjs` (advisory до завершения
-разделения документации из WS5, затем — enforcing).
+утверждения вида «текущий head», «сейчас зелёное», «последняя миграция»,
+«passes/passed … E2E». Изменчивый статус миграций и готовности живёт в
+`swipe-backend/docs/specs/IMPLEMENTATION-STATUS.md` + CI.
+Проверка: `node scripts/docs-boundary-lint.mjs` — **enforcing**, входит в
+`node --test 'scripts/*.test.mjs'` через `scripts/docs-boundary-lint.test.mjs`.
