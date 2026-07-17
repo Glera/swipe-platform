@@ -15,7 +15,7 @@ dev-loop: [docs/specs/dev-loop.md](docs/specs/dev-loop.md).
 | `swipe-ugc` | Worker: bake/preview/QA-baseline | `swipe-ugc/docs/` | `npm run verify` (lint + test + bake --check-base + test:preview) | — |
 | `playables` | Механики playable ads; 3 таргета: applovin / ftue / swipe | `playables/CLAUDE.md` | `npm run release <id>` (полный, 20 Playwright-проверок); `--no-runtime` для static; финальный гейт `npm run ship <id>` | `pins-ftue` — frozen FTUE-fork: правка = только целевой уровень; `pins-v1` frozen applovin |
 | `swipe-agents` | A1 production-ops: deterministic supervisor + watchers + Telegram + SQLite. **No LLM** | `swipe-backend/docs/specs/agent-team.md`, `swipe-agents/docs/runbook-a1.md` | `npm run typecheck && npm test` (Node ≥24) | НЕ смешивать с dev-loop; `AGENTS_ENABLE_BOT` off до B1; никаких mutating external authorities |
-| корень (meta-repo) | Workspace tooling/docs | `docs/specs/dev-loop.md` | `node --test scripts/` | Отслеживает только tooling/docs; вложенные репо — в `.gitignore` явным списком |
+| корень (meta-repo) | Workspace tooling/docs | `docs/specs/dev-loop.md` | `node --test 'scripts/*.test.mjs'` | Отслеживает только tooling/docs; вложенные репо — в `.gitignore` явным списком |
 
 Legacy P4G-контур (`liveops-shared`, `solitaire-core`, `p4g-platform`, …) —
 отдельный старый npm-workspace (`npm run verify` корневого `package.json`);

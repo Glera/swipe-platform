@@ -1,0 +1,327 @@
+// auto-review-collect.test.mjs — deterministic tests on temporary fixture repos.
+//
+// Spec: docs/specs/dev-loop.md, WS2 "Приёмка — Детерминированная (обязательная)".
+//
+// Each fixture is a self-contained git repo (plus an optional bare origin) built
+// in a fresh mkdtemp dir, driven into a known base/staged/unstaged/untracked/
+// binary/secret state. The script is run as a child process and its JSON
+// manifest / exit code / on-disk effects are asserted.
+//
+// Run: node --test scripts/auto-review-collect.test.mjs   (from the workspace root)
+
+import { test, before, after } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import crypto from 'node:crypto';
+import os from 'node:os';
+import path from 'node:path';
+import fs from 'node:fs';
+
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const SCRIPT = path.join(SCRIPT_DIR, 'auto-review-collect.mjs');
+
+// Deterministic, isolated git environment (no global/system config).
+const GIT_ENV = {
+  ...process.env,
+  GIT_CONFIG_GLOBAL: '/dev/null',
+  GIT_CONFIG_SYSTEM: '/dev/null',
+  GIT_AUTHOR_NAME: 'Fixture',
+  GIT_AUTHOR_EMAIL: 'fixture@example.com',
+  GIT_COMMITTER_NAME: 'Fixture',
+  GIT_COMMITTER_EMAIL: 'fixture@example.com',
+  GIT_AUTHOR_DATE: '2026-01-02T03:04:05 +0000',
+  GIT_COMMITTER_DATE: '2026-01-02T03:04:05 +0000',
+};
+
+function git(cwd, ...args) {
+  return execFileSync('git', ['-C', cwd, ...args], {
+    env: GIT_ENV,
+    encoding: 'utf8',
+  });
+}
+function gitInit(...args) {
+  return execFileSync('git', args, { env: GIT_ENV, encoding: 'utf8' });
+}
+function write(p, content) {
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, content);
+}
+
+// Run the collect script; return parsed manifest (throws on non-zero exit).
+function runCollect(repoPath, extraEnv = {}) {
+  const out = execFileSync('node', [SCRIPT, repoPath], {
+    env: { ...GIT_ENV, ...extraEnv },
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  return JSON.parse(out);
+}
+// Run collect expecting failure; return { status, stderr }.
+function runCollectExpectFail(repoPath, extraEnv = {}) {
+  try {
+    execFileSync('node', [SCRIPT, repoPath], {
+      env: { ...GIT_ENV, ...extraEnv },
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return { status: 0, stderr: '' };
+  } catch (e) {
+    return {
+      status: typeof e.status === 'number' ? e.status : 1,
+      stderr: e.stderr ? e.stderr.toString() : '',
+    };
+  }
+}
+function runCleanup(checkoutPath) {
+  return execFileSync('node', [SCRIPT, '--cleanup', checkoutPath], {
+    env: GIT_ENV,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+}
+
+const BINARY_BYTES = Buffer.from([
+  0x89, 0x50, 0x4e, 0x47, 0x00, 0x01, 0x02, 0x00, 0xff, 0xfe, 0x7a, 0x00,
+]); // contains NUL -> git-style binary.
+
+// Build the primary fixture with all four layers + secrets + binary.
+// Returns { base, main, checkout(after collect) }.
+function buildMainFixture() {
+  const base = fs.realpathSync(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'arc-main-')),
+  );
+  const originDir = path.join(base, 'origin.git');
+  const main = path.join(base, 'main');
+
+  gitInit('-c', 'init.defaultBranch=master', 'init', '--bare', originDir);
+  gitInit('-c', 'init.defaultBranch=master', 'init', main);
+
+  // Base commit (this becomes merge-base with origin/master).
+  write(path.join(main, 'base.txt'), 'base\n');
+  write(path.join(main, 'staged-target.txt'), 's0\n');
+  write(path.join(main, 'unstaged-target.txt'), 'u0\n');
+  git(main, 'add', '-A');
+  git(main, 'commit', '-m', 'initial');
+  git(main, 'remote', 'add', 'origin', originDir);
+  git(main, 'push', 'origin', 'master');
+  git(main, 'fetch', 'origin');
+
+  // Layer 1: one commit on a feature branch ahead of origin/master.
+  git(main, 'checkout', '-b', 'feature');
+  write(path.join(main, 'committed.txt'), 'committed\n');
+  write(path.join(main, 'base.txt'), 'base\nc1\n');
+  git(main, 'add', '-A');
+  git(main, 'commit', '-m', 'feature commit');
+
+  // Layer 2: staged (index) change.
+  write(path.join(main, 'staged-target.txt'), 's0\nstaged\n');
+  git(main, 'add', 'staged-target.txt');
+
+  // Layer 3: unstaged (working) change.
+  write(path.join(main, 'unstaged-target.txt'), 'u0\nunstaged\n');
+
+  // Layer 4: untracked text + binary; plus two secrets (name + content).
+  write(path.join(main, 'untracked.txt'), 'new untracked\n');
+  fs.writeFileSync(path.join(main, 'blob.bin'), BINARY_BYTES);
+  write(path.join(main, '.env'), 'API_SECRET=supersecret\n');
+  write(path.join(main, 'leak.txt'), 'aws = AKIAABCDEFGHIJKLMNOP done\n');
+
+  return { base, main };
+}
+
+// ---------------------------------------------------------------------------
+let fx; // primary fixture
+let statusBefore;
+let manifest;
+let statusAfter;
+
+before(() => {
+  fx = buildMainFixture();
+  statusBefore = git(fx.main, 'status', '--porcelain');
+  manifest = runCollect(fx.main);
+  statusAfter = git(fx.main, 'status', '--porcelain');
+});
+
+after(() => {
+  try {
+    if (manifest && manifest.checkoutPath && fs.existsSync(manifest.checkoutPath)) {
+      runCleanup(manifest.checkoutPath);
+    }
+  } catch {
+    /* ignore */
+  }
+  if (fx) fs.rmSync(fx.base, { recursive: true, force: true });
+});
+
+// (a) all four layers collected separately -----------------------------------
+test('(a) four layers are captured separately', () => {
+  assert.equal(manifest.upstream, 'origin/master');
+  assert.equal(manifest.baseFallback, undefined);
+
+  assert.equal(manifest.layers.commits.length, 1, 'one committed layer entry');
+  assert.equal(manifest.layers.commits[0].subject, 'feature commit');
+  assert.match(manifest.layers.commits[0].sha, /^[0-9a-f]{40}$/);
+
+  assert.deepEqual(
+    manifest.layers.staged.map((r) => `${r.status} ${r.path}`),
+    ['M staged-target.txt'],
+  );
+  assert.deepEqual(
+    manifest.layers.unstaged.map((r) => `${r.status} ${r.path}`),
+    ['M unstaged-target.txt'],
+  );
+  assert.ok(
+    manifest.layers.untracked.includes('untracked.txt'),
+    'untracked text file listed',
+  );
+});
+
+// (b) checkout reproduces the working tree; source repo untouched -------------
+test('(b) checkout is build-identical to the working tree; source unchanged', () => {
+  const co = manifest.checkoutPath;
+  const targets = [
+    'committed.txt', // layer 1 (commit)
+    'base.txt', // layer 1 (commit modifies base)
+    'staged-target.txt', // layer 2 (staged)
+    'unstaged-target.txt', // layer 3 (unstaged)
+    'untracked.txt', // layer 4 (untracked text)
+  ];
+  for (const rel of targets) {
+    const inCheckout = fs.readFileSync(path.join(co, rel));
+    const inWorking = fs.readFileSync(path.join(fx.main, rel));
+    assert.ok(
+      inCheckout.equals(inWorking),
+      `${rel}: checkout bytes must equal working-tree bytes`,
+    );
+  }
+
+  // Source worktree + index must be byte-identical before and after collect.
+  assert.equal(
+    statusAfter,
+    statusBefore,
+    'git status --porcelain of source repo must be unchanged',
+  );
+  assert.equal(
+    git(fx.main, 'diff', '--cached', '--name-status'),
+    'M\tstaged-target.txt\n',
+    'source index (staged set) must be unchanged',
+  );
+});
+
+// (c) secrets excluded from reviewer material AND from the checkout -----------
+test('(c) .env and AKIA-content file are excluded and absent from checkout', () => {
+  assert.ok(manifest.excludedSecrets.includes('.env'), '.env excluded by name');
+  assert.ok(
+    manifest.excludedSecrets.includes('leak.txt'),
+    'leak.txt excluded by AKIA content rule',
+  );
+  assert.ok(
+    !manifest.layers.untracked.includes('.env'),
+    '.env not in reviewer untracked list',
+  );
+  assert.equal(manifest.secretsOmittedFromCheckout, true);
+
+  const co = manifest.checkoutPath;
+  assert.ok(!fs.existsSync(path.join(co, '.env')), '.env must not be in checkout');
+  assert.ok(
+    !fs.existsSync(path.join(co, 'leak.txt')),
+    'leak.txt must not be in checkout',
+  );
+});
+
+// (d) binary file recorded with sha256 and copied byte-for-byte --------------
+test('(d) binary untracked file is in the manifest and copied verbatim', () => {
+  const entry = manifest.binaryManifest.find((b) => b.path === 'blob.bin');
+  assert.ok(entry, 'blob.bin present in binaryManifest');
+  assert.equal(entry.layer, 'untracked');
+  assert.equal(entry.size, BINARY_BYTES.length);
+  assert.equal(entry.sha256, crypto.createHash('sha256').update(BINARY_BYTES).digest('hex'));
+
+  const copied = fs.readFileSync(path.join(manifest.checkoutPath, 'blob.bin'));
+  assert.ok(copied.equals(BINARY_BYTES), 'blob.bin copied byte-for-byte');
+});
+
+// (e) over-limit diff exits with code 2 --------------------------------------
+test('(e) aggregate text diff over 300 KB exits with code 2', () => {
+  const base = fs.realpathSync(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'arc-big-')),
+  );
+  const repo = path.join(base, 'r');
+  gitInit('-c', 'init.defaultBranch=master', 'init', repo);
+  write(path.join(repo, 'seed.txt'), 'seed\n');
+  git(repo, 'add', '-A');
+  git(repo, 'commit', '-m', 'seed');
+  // 400 KB untracked text file -> reviewer text over the 300 KB limit.
+  fs.writeFileSync(path.join(repo, 'big.txt'), 'x'.repeat(400 * 1024));
+
+  const wtBefore = git(repo, 'worktree', 'list', '--porcelain');
+  const res = runCollectExpectFail(repo);
+  const wtAfter = git(repo, 'worktree', 'list', '--porcelain');
+
+  assert.equal(res.status, 2, 'exit code must be 2 for over-limit diff');
+  assert.match(res.stderr, /300 KB|limit/i);
+  assert.equal(wtBefore, wtAfter, 'no worktree registered for an over-limit run');
+
+  fs.rmSync(base, { recursive: true, force: true });
+});
+
+// (f) apply/build failure leaves no garbage in the source repo ---------------
+test('(f) failure while building the checkout leaves the source repo clean', () => {
+  const base = fs.realpathSync(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'arc-fail-')),
+  );
+  const repo = path.join(base, 'r');
+  gitInit('-c', 'init.defaultBranch=master', 'init', repo);
+  write(path.join(repo, 'f.txt'), 'a\n');
+  git(repo, 'add', '-A');
+  git(repo, 'commit', '-m', 'init');
+  write(path.join(repo, 'f.txt'), 'a\nb\n'); // an unstaged change to apply
+
+  const statusPre = git(repo, 'status', '--porcelain');
+  const wtPre = git(repo, 'worktree', 'list', '--porcelain');
+
+  // Inject a failure AFTER the worktree is added + layers applied.
+  const res = runCollectExpectFail(repo, { AUTO_REVIEW_TEST_FAIL_AFTER_APPLY: '1' });
+
+  const statusPost = git(repo, 'status', '--porcelain');
+  const wtPost = git(repo, 'worktree', 'list', '--porcelain');
+
+  assert.notEqual(res.status, 0, 'injected failure must produce a non-zero exit');
+  assert.equal(statusPost, statusPre, 'source status must be unchanged');
+  assert.equal(
+    wtPost,
+    wtPre,
+    'no leaked worktree registration in the source repo after failure',
+  );
+
+  fs.rmSync(base, { recursive: true, force: true });
+});
+
+// (g) local-master fallback is flagged in the manifest -----------------------
+test('(g) local-master fallback is recorded when no origin/upstream exists', () => {
+  const base = fs.realpathSync(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'arc-fallback-')),
+  );
+  const repo = path.join(base, 'r'); // no origin, no tracking branch
+  gitInit('-c', 'init.defaultBranch=master', 'init', repo);
+  write(path.join(repo, 'a.txt'), 'a\n');
+  git(repo, 'add', '-A');
+  git(repo, 'commit', '-m', 'base');
+  git(repo, 'checkout', '-b', 'feature');
+  write(path.join(repo, 'b.txt'), 'b\n');
+  git(repo, 'add', '-A');
+  git(repo, 'commit', '-m', 'feature work');
+
+  const m = runCollect(repo);
+  assert.equal(m.upstream, 'master');
+  assert.equal(m.baseFallback, 'local-master');
+  assert.equal(m.layers.commits.length, 1);
+
+  try {
+    if (m.checkoutPath && fs.existsSync(m.checkoutPath)) runCleanup(m.checkoutPath);
+  } catch {
+    /* ignore */
+  }
+  fs.rmSync(base, { recursive: true, force: true });
+});
