@@ -47,11 +47,14 @@ node scripts/auto-review-collect.mjs <путь-к-репо>
   (**зафиксировать в резюме**: база не от настроенного upstream);
 - четыре слоя: `layers.commits` (sha+subject), `layers.staged`,
   `layers.unstaged`, `layers.untracked`;
-- `binaryManifest` (путь/размер/sha256 — содержимое бинарников в diff НЕ идёт,
-  но реальные байты уже в checkout);
-- `excludedSecrets` (пути исключённых секретов — перечислить в резюме);
+- `binaryManifest` (`{path, layer, size, sha256}` — содержимое бинарников в diff
+  НЕ идёт, но реальные байты уже в checkout; `layer` = слой этой записи);
+- `excludedSecrets` (`[{path, reason}]`, где `reason` ∈ `name|content|size` —
+  перечислить в резюме);
 - `secretsOmittedFromCheckout: true` (секреты отсутствуют и в checkout);
 - `checkoutPath` — корень изолированного checkout для ревьюера;
+- `diffPath` — путь к файлу полного текстового diff всех слоёв (передаётся
+  ревьюеру на шаге 3);
 - `diffBytes` — размер текстового diff.
 
 ### 3. Вызвать независимого ревьюера (subagent, свежий контекст)
@@ -60,7 +63,8 @@ node scripts/auto-review-collect.mjs <путь-к-репо>
 Передать ему ТОЛЬКО:
 
 - путь изолированного checkout (`checkoutPath`) — работать **read-only**;
-- текстовый diff patch и список слоёв из манифеста;
+- полный текстовый diff patch из файла `diffPath` (все слои, с заголовками
+  секций) и список слоёв из манифеста;
 - `<repo>/REVIEW-INVARIANTS.md`, если существует;
 - явное указание: доступны полные затронутые файлы, их callers/consumers,
   связанные тесты, authoritative docs и соседние контракты — всё **внутри
@@ -90,9 +94,18 @@ N. [P1|P2|P3] <файл>:<строка> — краткое описание пр
   в checkout); либо
 - **явно отклонить** с причиной.
 
-**Молчаливый пропуск запрещён.** Провалидировать, что каждый ID получил
-диспозицию, прежде чем идти дальше. Спорные findings — раскрыть ревьюеру
-план/контекст (после слепого раунда) и до-разрешить.
+**Молчаливый пропуск запрещён.** Прежде чем идти дальше — записать findings и
+диспозиции в JSON вида
+`{findings:[{id,severity,file,line,desc}], dispositions:[{id, action:"fixed"|"rejected", reason?}]}`
+и прогнать валидатор:
+
+```
+node scripts/auto-review-validate.mjs <dispositions.json>
+```
+
+Он падает (exit 1) при пропущенном ID, лишнем/дублирующемся ID или `rejected`
+без `reason`; идти дальше только при exit 0. Спорные findings — раскрыть
+ревьюеру план/контекст (после слепого раунда) и до-разрешить.
 
 ### 6. Повторить проверки и собрать резюме
 

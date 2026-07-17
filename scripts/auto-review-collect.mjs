@@ -38,7 +38,10 @@ import fs from 'node:fs';
 
 const TEXT_DIFF_LIMIT_BYTES = 300 * 1024; // v1 limit: 300 KB of reviewer text.
 const BINARY_SNIFF_BYTES = 8000; // git's own NUL-sniff window.
-const SECRET_CONTENT_SCAN_BYTES = 4096; // first 4 KB scanned for secret content.
+// Full untracked-text content is scanned for secrets up to this cap. A larger
+// text file is treated as suspicious and excluded fail-closed with reason
+// "size" (we refuse to hand an unbounded blob to the reviewer or the checkout).
+const SECRET_CONTENT_SCAN_LIMIT_BYTES = 5 * 1024 * 1024; // 5 MB.
 
 // --- Secret guard: fail-closed deny-list (WS2 "secret guard (fail-closed)").
 // Name rules match the file BASENAME, case-insensitively.
@@ -52,13 +55,23 @@ const SECRET_NAME_RULES = [
   (n) => n.includes('token'),
   (n) => n.includes('secret'),
 ];
-// Content rules scan the first 4 KB (decoded as latin1 so byte offsets are exact).
+// Content rules scan the file content (decoded as latin1 so byte offsets are
+// exact). The first five are the original v1 signatures; the rest widen the net
+// per WS2 hardening (github PATs, JWTs, generic key/secret/token assignments,
+// OpenSSH private keys, AWS secret env var, full Slack token family).
 const SECRET_CONTENT_RULES = [
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
   /AKIA[0-9A-Z]{16}/,
   /gho_[A-Za-z0-9]{20,}/,
   /xox[bp]-/,
   /sk-[A-Za-z0-9]{20,}/,
+  /github_pat_[A-Za-z0-9_]{20,}/,
+  /ghp_[A-Za-z0-9]{20,}/,
+  /eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\./,
+  /(?:api[_-]?key|secret|token|passw(?:or)?d|private[_-]?key)\s*[:=]\s*['"]?[A-Za-z0-9_\-/+=]{16,}/i,
+  /-----BEGIN OPENSSH PRIVATE KEY-----/,
+  /AWS_SECRET_ACCESS_KEY/,
+  /xox[abposr]-/,
 ];
 
 // --- git helper that THROWS on non-zero exit (for the main flow). Binary-safe:
@@ -110,9 +123,14 @@ function isSecretName(basename) {
   const n = basename.toLowerCase();
   return SECRET_NAME_RULES.some((r) => r(n));
 }
+// Scan the FULL content (capped at the scan limit) for any secret signature.
 function isSecretContent(buf) {
-  const head = buf.slice(0, SECRET_CONTENT_SCAN_BYTES).toString('latin1');
-  return SECRET_CONTENT_RULES.some((r) => r.test(head));
+  const scan =
+    buf.length > SECRET_CONTENT_SCAN_LIMIT_BYTES
+      ? buf.slice(0, SECRET_CONTENT_SCAN_LIMIT_BYTES)
+      : buf;
+  const text = scan.toString('latin1');
+  return SECRET_CONTENT_RULES.some((r) => r.test(text));
 }
 
 // --- Parse `git diff --numstat` output; binary files show as "-\t-\tpath".
@@ -168,29 +186,36 @@ function collect(repoPathArg) {
   const refExists = (ref) =>
     gitTry(repo, ['rev-parse', '--verify', '--quiet', ref]).ok;
 
+  // Precedence per WS2 ("base = merge-base HEAD <upstream>, where upstream is
+  // the CONFIGURED tracking branch; master is only a fallback"):
+  //   1. the configured @{upstream} tracking branch;
+  //   2. origin/master, if no upstream is configured;
+  //   3. local master — last-resort fallback, flagged with baseFallback.
   let upstream = null;
   let baseFallback = null;
-  if (refExists('origin/master')) {
+  const up = gitTry(repo, [
+    'rev-parse',
+    '--abbrev-ref',
+    '--symbolic-full-name',
+    '@{upstream}',
+  ]);
+  const configuredUpstream = up.ok ? up.out.trim() : '';
+  if (
+    configuredUpstream &&
+    !configuredUpstream.includes('@{upstream}') &&
+    refExists(configuredUpstream)
+  ) {
+    upstream = configuredUpstream;
+  } else if (refExists('origin/master')) {
     upstream = 'origin/master';
+  } else if (refExists('master')) {
+    upstream = 'master';
+    baseFallback = 'local-master';
   } else {
-    const up = gitTry(repo, [
-      'rev-parse',
-      '--abbrev-ref',
-      '--symbolic-full-name',
-      '@{upstream}',
-    ]);
-    const val = up.ok ? up.out.trim() : '';
-    if (val && !val.includes('@{upstream}')) {
-      upstream = val;
-    } else if (refExists('master')) {
-      upstream = 'master';
-      baseFallback = 'local-master';
-    } else {
-      fail(
-        'no upstream found: origin/master, configured @{upstream}, and local ' +
-          'master are all absent — cannot determine patch base',
-      );
-    }
+    fail(
+      'no upstream found: configured @{upstream}, origin/master, and local ' +
+        'master are all absent — cannot determine patch base',
+    );
   }
 
   const base = git(repo, ['merge-base', 'HEAD', upstream]).trim();
@@ -237,33 +262,39 @@ function collect(repoPathArg) {
       sha256: sha256(bytes),
     });
   };
-  const hashTrackedBinary = (p, layer, revspec) => {
-    // Prefer the working-tree file; fall back to the git blob at revspec.
+  // Each layer must hash the blob that BELONGS to that layer, not whatever the
+  // working tree currently holds — otherwise a staged-then-modified binary would
+  // report the unstaged bytes for both layers.
+  //   committed (base..HEAD): the content at HEAD   -> git show HEAD:<path>
+  //   staged (index vs HEAD):  the content in index -> git show :<path>
+  //   unstaged (working vs index) & untracked:       the working-tree file
+  const hashFromBlob = (p, layer, blobref) => {
+    try {
+      recordBinary(p, layer, git(repo, ['show', blobref], { buffer: true }));
+    } catch {
+      /* deleted/unavailable in this layer: skip binary hash */
+    }
+  };
+  const hashFromWorkingTree = (p, layer) => {
     const abs = path.join(repo, p);
     try {
       if (fs.existsSync(abs) && fs.statSync(abs).isFile()) {
         recordBinary(p, layer, fs.readFileSync(abs));
-        return;
       }
-    } catch {
-      /* fall through to blob */
-    }
-    try {
-      recordBinary(p, layer, git(repo, ['show', `${revspec}:${p}`], { buffer: true }));
     } catch {
       /* deleted/unavailable: skip binary hash */
     }
   };
   if (commits.length) {
     for (const p of binaryPathsFromNumstat(git(repo, ['diff', '--numstat', `${base}..HEAD`]))) {
-      hashTrackedBinary(p, 'commits', 'HEAD');
+      hashFromBlob(p, 'commits', `HEAD:${p}`);
     }
   }
   for (const p of binaryPathsFromNumstat(git(repo, ['diff', '--cached', '--numstat']))) {
-    hashTrackedBinary(p, 'staged', ':');
+    hashFromBlob(p, 'staged', `:${p}`);
   }
   for (const p of binaryPathsFromNumstat(git(repo, ['diff', '--numstat']))) {
-    hashTrackedBinary(p, 'unstaged', 'HEAD');
+    hashFromWorkingTree(p, 'unstaged');
   }
 
   // --- Layer 4: untracked files (respecting .gitignore). Each is classified:
@@ -293,11 +324,21 @@ function collect(repoPathArg) {
     if (!st.isFile()) continue; // skip dirs/symlinks in v1
     const buf = fs.readFileSync(abs);
     const basename = path.basename(p);
-    if (isSecretName(basename) || isSecretContent(buf)) {
-      excludedSecrets.push(p);
-      continue; // fail-closed: never in reviewer text, never in checkout
+    // Fail-closed exclusions, each recorded with a reason. Name rule wins first.
+    if (isSecretName(basename)) {
+      excludedSecrets.push({ path: p, reason: 'name' });
+      continue;
     }
     const binary = looksBinary(buf);
+    if (!binary && buf.length > SECRET_CONTENT_SCAN_LIMIT_BYTES) {
+      // Oversized text file: too large to fully scan -> suspicious, exclude.
+      excludedSecrets.push({ path: p, reason: 'size' });
+      continue;
+    }
+    if (isSecretContent(buf)) {
+      excludedSecrets.push({ path: p, reason: 'content' });
+      continue; // fail-closed: never in reviewer text, never in checkout
+    }
     untrackedReviewer.push(p);
     untrackedCopy.push({ path: p, binary });
     if (binary) {
@@ -311,13 +352,21 @@ function collect(repoPathArg) {
 
   // --- Aggregate reviewer text and enforce the 300 KB limit BEFORE creating
   //     any worktree, so an over-limit run leaves nothing to clean up.
-  const textDiffPieces = [
-    commitsTextDiff,
-    stagedTextDiff,
-    unstagedTextDiff,
-    ...untrackedTextParts,
-  ].filter((s) => s && s.length);
-  const textDiff = textDiffPieces.join('\n');
+  // Concatenate every layer's textual diff with explicit section headers. This
+  // is the full reviewer-facing diff; it is both size-limited and persisted to
+  // <tmpBase>/patch.diff so the skill can hand a real text diff to the reviewer.
+  const sections = [];
+  if (commitsTextDiff)
+    sections.push('# ===== layer: commits (base..HEAD) =====\n' + commitsTextDiff);
+  if (stagedTextDiff)
+    sections.push('# ===== layer: staged (index) =====\n' + stagedTextDiff);
+  if (unstagedTextDiff)
+    sections.push('# ===== layer: unstaged (working tree) =====\n' + unstagedTextDiff);
+  if (untrackedTextParts.length)
+    sections.push(
+      '# ===== layer: untracked (new files) =====\n' + untrackedTextParts.join('\n'),
+    );
+  const textDiff = sections.join('\n');
   const diffBytes = Buffer.byteLength(textDiff, 'utf8');
   if (diffBytes > TEXT_DIFF_LIMIT_BYTES) {
     fail(
@@ -333,6 +382,10 @@ function collect(repoPathArg) {
     fs.mkdtempSync(path.join(os.tmpdir(), 'auto-review-')),
   );
   const checkoutPath = path.join(parent, 'checkout');
+  // Persist the full text diff next to the checkout (removed together with the
+  // temp parent on cleanup / on failure) so the reviewer gets a real diff file.
+  const diffPath = path.join(parent, 'patch.diff');
+  fs.writeFileSync(diffPath, textDiff);
   git(repo, ['worktree', 'add', '--detach', checkoutPath, base]);
 
   try {
@@ -394,9 +447,10 @@ function collect(repoPathArg) {
       untracked: untrackedReviewer, // non-secret untracked paths (text + binary)
     },
     binaryManifest, // [{path, layer, size, sha256}] — content NOT in text diff
-    excludedSecrets, // paths only; fail-closed, never in reviewer text/checkout
+    excludedSecrets, // [{path, reason}] fail-closed; never in reviewer text/checkout
     secretsOmittedFromCheckout: true, // secrets are omitted from the checkout too
     checkoutPath,
+    diffPath, // full text diff of all layers, on disk next to the checkout
     diffBytes,
   };
 
