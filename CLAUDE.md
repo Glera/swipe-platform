@@ -59,8 +59,9 @@
   identity `sort/base` separate from playable `marble-sort-swipe`, revalidates
   the complete manifest/LevelSpec/runtime closure, deduplicates seen/holds by
   `(fingerprint_version, series_fingerprint)`, and serves immutable ordered spec
-  batches. Pure, HTTP→PostgreSQL, concurrency, legacy migration and downgrade
-  tests are green. Migration `0018` adds immutable policy configs/mappings,
+  batches. Its pure/HTTP→PostgreSQL/concurrency/migration-downgrade coverage is
+  the frozen invariant; the pass/fail status of any run lives with CI, not here.
+  Migration `0018` adds immutable policy configs/mappings,
   exact run-linked manual evidence, affinity snapshots, one-shot triggers,
   opaque authorizations, runway/context sidecars and the exact factory-handoff
   impression JOIN. Migration `0019` and the shadow client bridge now add
@@ -91,9 +92,10 @@
   projection, assignment, or causal-order failures. Concurrent materializers
   elect one committed receipt and replay its exact bytes. The internal CLI is
   dry-run-first and separately gated by `ENABLE_FEED_SHADOW_OPS=false`; it has
-  no HTTP/player authority. Physical PostgreSQL now passes clean `0001→0024`,
-  planner/runner/player/effectful/recall acceptance and the guarded migration
-  roundtrips. External scheduling and pilot activation are still not enabled;
+  no HTTP/player authority. The physical-PostgreSQL closure this decision
+  requires — planner/runner/player/effectful/recall acceptance and the guarded
+  migration roundtrips — is bound to the migration graph (Alembic) and its CI
+  run, not asserted as status here. External scheduling and pilot activation are still not enabled;
   the same acceptance must run in CI/deploy with exact production bootstrap.
   The internal published-only allocator passes PostgreSQL E2E
   for empty→refill, exact replay, concurrency and manifest-bound ticket issue.
