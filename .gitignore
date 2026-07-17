@@ -33,10 +33,15 @@ treasure-hunt/
 
 # --- worktree-копии вложенных репо: имена изменчивы, поэтому по семействам.
 # Без этих масок новая worktree-копия попала бы под git add -A целиком.
+# Семейство заводится для КАЖДОГО активного репо, даже если копий ещё нет.
 feed-prototype-*/
+platform-bot-*/
 playables-*/
+swipe-agents-*/
 swipe-backend-*/
+swipe-bot-*/
 swipe-generator-*/
+swipe-platform-*/
 swipe-ugc-*/
 
 # --- не-репозиторные рабочие директории ---
