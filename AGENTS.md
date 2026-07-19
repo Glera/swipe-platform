@@ -39,3 +39,21 @@ Legacy P4G-контур (`liveops-shared`, `solitaire-core`, `p4g-platform`, …
 `swipe-backend/docs/specs/IMPLEMENTATION-STATUS.md` + CI.
 Проверка: `node scripts/docs-boundary-lint.mjs` — **enforcing**, входит в
 `node --test 'scripts/*.test.mjs'` через `scripts/docs-boundary-lint.test.mjs`.
+
+## Когда тянуться за dev-loop инструментами (для агентов)
+
+Рефлексы по умолчанию. Гид: [docs/dev-loop-guide.md](docs/dev-loop-guide.md).
+
+| Триггер | Инструмент |
+| --- | --- |
+| Готовишь нетривиальное изменение backend/generator (или любую правку логики) к commit/PR/merge | skill `auto-review` — слепой ревьюер до слияния, findings → диспозиции |
+| Изменил playable-механику/уровень | `playables/`: `npm run visual-proof <id> -- --include <пути>` — ролики before/after |
+| Конец рабочей сессии или после вливания веток | `node scripts/worktree-status.mjs` — показать stale-копии |
+| Правишь root `CLAUDE.md` | не вноси изменчивый статус (ловит docs-boundary-lint); статус → `IMPLEMENTATION-STATUS.md` + CI |
+| Идея/фича/фидбек на триаж | сверь с `VISION.md` (в направлении / мимо) |
+
+**Граница merge (детерминированное напоминание, не память):** во всех пяти
+swipe-репозиториях стоит warning-only git pre-push hook
+(`scripts/hooks/pre-push`, ставится `node scripts/install-dev-loop-hooks.mjs`).
+При push в master/main он напоминает про независимое ревью — не блокирует.
+Появился новый клон/репо — перезапусти установщик.
