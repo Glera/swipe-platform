@@ -1,0 +1,33 @@
+name: meta-verify
+
+# Meta-repo tooling gate: worktree-status, auto-review collect/validate, and
+# docs-boundary-lint tests. Pure Node built-ins — no dependencies to install.
+# This is what makes docs-boundary-lint enforcing (see AGENTS.md): a mutable
+# status claim reintroduced into CLAUDE.md fails the suite here.
+
+"on":
+  workflow_dispatch:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: meta-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run meta-repo test suite
+        run: node --test 'scripts/*.test.mjs'
