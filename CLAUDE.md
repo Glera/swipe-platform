@@ -24,8 +24,16 @@
   publish/content/runtime identity and every ordered level before Approve.
 - Catalog credentials are singleton scopes: evaluation and publication can
   never share a grant. `POST /api/catalog/publish` is absent unless both Lab
-  auth and the separate publish flag are enabled, and an approved publication
-  still creates only a `candidate`—never an automatically issuable feed item.
+  auth and the separate publish flag are enabled. A human Approve is then
+  admitted by a deterministic server-owned risk policy: content that exactly
+  reuses an already-active known-good runtime (artifact+contract+capabilities)
+  for a mechanic/variant the catalog has already published is published
+  directly; any new runtime/contract/capability boundary — or an explicit
+  operator limited-rollout request — stays a `candidate` for the
+  candidate→canary→published ladder. Every admission writes one append-only
+  `catalog_admission_receipt` bound to the exact publish receipt and its
+  server-derived digest comparison; there is still no auto-publication without
+  Approve, and recall is the safety net.
 - Canonical catalog identity is `sort/base`; runtime playable identity is
   `marble-sort-swipe`. Allocation is blocked until a server-owned release
   registry proves their mapping to a deployable payload+sidecar digest. The
