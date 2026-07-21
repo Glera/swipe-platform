@@ -1,0 +1,25 @@
+{
+  "completedCycle": true,
+  "configured": true,
+  "consoleErrorCount": 0,
+  "externalRequestCount": 0,
+  "gameplayEvents": [
+    {
+      "type": "progress"
+    },
+    {
+      "type": "progress"
+    },
+    {
+      "type": "progress"
+    }
+  ],
+  "mountMs": 669,
+  "runtimeArtifactDigest": "sha256:2851da8ea1dc3ac8f5b447cacfcc703eda256058351528df668f20c62c8a9de8",
+  "runtimeContractDigest": "b38af9aa5a66f1599b1fcb7d11facd9ed32be6bd39d1eaaff2487bc6e4a81707",
+  "schema": "merge.catalog-adapter-qa.v1",
+  "sourceHtmlSha256": "sha256:7946cf43a38bed94ea7d3caf43f4569d32a4a17dcc0f2beed7af87f366252281",
+  "sourceQaDocumentDigest": "sha256:26e13b0e098dbb6bb4d801e7e2af2a49620af2105ff25783c447181e4d88ea49",
+  "sourceQaEvidenceHash": "5322238f53841d995bd986152839ff3846a18ffd179db48a4702194defe5ebd7",
+  "specHash": "d3062e3406a6e12b7bf0a733f3bc4a9760008ade39b23f3c518f1c379e8cf8b9"
+}
