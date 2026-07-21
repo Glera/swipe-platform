@@ -1,0 +1,24 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "merge-locked-v1-swipe",
+  "digest": "sha256:4420e163a090a2ae6c1c1b5bcea705e18e06191c43e53e53b38107f652d9d5cc",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "f02c32d027186fbb0f35772863bf82fd1e545474",
+  "files": [
+    {
+      "path": "bridge.js",
+      "bytes": 4489,
+      "sha256": "sha256:7e0c17aa33fbc4a2aa72efa670c8ce5f5d4893d31d7ade17b18aea49e82da6e5"
+    },
+    {
+      "path": "index.html",
+      "bytes": 852,
+      "sha256": "sha256:f929fdd11f3b5ae588f6a0696b89a48bf385d4a63be42220ca9b27e7a86b66a9"
+    },
+    {
+      "path": "inner.html",
+      "bytes": 2819939,
+      "sha256": "sha256:10da0f34a6230c434d50620e2f2d1e9e5b5b6e00c09d62bd1a01ba41837a805c"
+    }
+  ]
+}
