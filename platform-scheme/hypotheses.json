@@ -78,6 +78,17 @@
       "next": "момент включения — явное решение оператора на шаге 3+"
     },
     {
+      "id": "k-factor",
+      "title": "Виральные петли дают заметный K-фактор",
+      "status": "queued",
+      "cohort": "share/challenge v1 на friend cohort (directional); числово — шаг 3+",
+      "metric": "K-фактор = инвайты × acceptance × активация приведённого (дейлики с сериями + возврат D2); награда токенами, не за клик",
+      "threshold": "на cohort — directional «делятся ли вообще»; числовой порог — с шага 3",
+      "funnel": ["reveal", "takeover", "action", "level", "chest", "return"],
+      "evidence": { "grade": "none", "note": "share v1 не запущен; referral ждёт attribution-спеку" },
+      "next": "share/challenge v1 к friend cohort; referral-ветка в attribution-контракте (та же identity-JOIN)"
+    },
+    {
       "id": "humangood-rate",
       "title": "Human-good/min растёт без вреда игроку",
       "status": "queued",
