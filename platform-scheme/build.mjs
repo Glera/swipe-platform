@@ -65,6 +65,9 @@ let commit = 'uncommitted';
 try {
   commit = execFileSync('git', ['log', '-1', '--format=%h', '--', 'VISION.md'],
     { cwd: path.join(here, '..'), encoding: 'utf8' }).trim() || 'uncommitted';
+  const dirty = execFileSync('git', ['status', '--porcelain', '--', 'VISION.md'],
+    { cwd: path.join(here, '..'), encoding: 'utf8' }).trim();
+  if (dirty) commit += '+draft';
 } catch { /* вне git — оставляем uncommitted */ }
 const sha = createHash('sha256').update(visionBytes).digest('hex');
 

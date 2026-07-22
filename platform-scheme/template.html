@@ -98,6 +98,21 @@ svg{display:block;width:100%;height:auto}
 #swipe-hint{display:none;margin-top:12px;padding:6px 12px;border-radius:99px;font-size:12px;
   color:var(--sub);border:1px dashed var(--frame);width:max-content}
 @media (max-width:760px){#swipe-hint{display:inline-block}}
+#modes{display:inline-flex;border:1px solid var(--frame);border-radius:9px;overflow:hidden}
+#modes button{border:0;background:transparent;color:var(--sub);cursor:pointer;
+  font:600 13px/1 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;padding:9px 14px}
+#modes button.on{background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink)}
+#modes button:focus-visible{outline:2px solid var(--gate);outline-offset:-2px}
+.mchip{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:9px;
+  letter-spacing:.05em;text-transform:uppercase;padding:1.5px 7px;border-radius:99px;
+  border:1px solid var(--frame);color:var(--sub);margin:0 4px 4px 0}
+.mchip.ev{color:var(--chip-ok);border-color:color-mix(in srgb,var(--chip-ok) 45%,transparent)}
+.mchip.ev.none{color:var(--sub);border-color:var(--frame)}
+.block.here{box-shadow:0 0 0 2px var(--gate), var(--shadow)}
+#mode-note{margin-top:10px;font-size:12.5px;color:var(--sub)}
+#mode-note .status{margin-right:6px}
+#card .f{margin:0 0 9px;color:var(--sub);font-size:13.5px;line-height:1.5}
+#card .f b{color:var(--ink);font-weight:600}
 @media (prefers-reduced-motion: reduce){
   .block,#backdrop,#card.anim{transition:none}
 }
@@ -109,20 +124,27 @@ svg{display:block;width:100%;height:auto}
   <h1>Платформа, которая сама производит, отбирает и продвигает играбельный контент</h1>
   <p>Человек — источник эталонов и вкуса. Всё остальное — конвейер: ночь генерит,
   утро отсматривает, день играет, аналитика замыкает кольцо. Кликните блок — он раскроется.</p>
-  <button id="vision-btn" data-k="vision">Читать VISION v2 →</button>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px">
+    <button id="vision-btn" data-k="vision" style="margin-top:0">Читать VISION →</button>
+    <div id="modes" role="tablist" aria-label="Режим схемы">
+      <button data-mode="vision" class="on">Вижен</button>
+      <button data-mode="today">Сегодня</button>
+      <button data-mode="auth">Authority</button>
+    </div>
+  </div>
 </header>
 
 <div id="swipe-hint">→ схема шире экрана — листайте вбок</div>
 
 <div class="diagram-scroll"><div class="diagram">
-<svg viewBox="0 0 1260 900" role="img" aria-label="Схема контуров платформы">
+<svg viewBox="0 0 1260 952" role="img" aria-label="Схема контуров платформы">
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" style="fill:var(--line)"/>
     </marker>
   </defs>
 
-  <rect class="agents-frame" x="14" y="6" width="1232" height="886" rx="16"/>
+  <rect class="agents-frame" x="14" y="6" width="1232" height="938" rx="16"/>
 
   <text class="zlabel" x="40" y="76">РОСТ</text>
   <text class="zlabel" x="290" y="200">ПРОДАКШЕН</text>
@@ -260,6 +282,16 @@ svg{display:block;width:100%;height:auto}
       Экономят внимание; authority у человека.
     </div>
   </foreignObject>
+  <foreignObject x="34" y="888" width="560" height="44">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="agents-chip" data-k="safety" tabindex="0" role="button">
+      <b>▤ Safety / rights</b> — pre-moderation UGC · recall · takedown; IP-политика отложена.
+    </div>
+  </foreignObject>
+  <foreignObject x="620" y="888" width="592" height="44">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="agents-chip" data-k="econ" tabindex="0" role="button">
+      <b>▥ Economics / budgets</b> — R&amp;D-квоты · закупка↔LTV; пороги — с когорты 30–50.
+    </div>
+  </foreignObject>
 </svg>
 </div></div>
 
@@ -268,6 +300,7 @@ svg{display:block;width:100%;height:auto}
   <span><span class="status plan">спроектировано</span> — спека заморожена, код впереди</span>
   <span><span class="status dir">направление</span> — зафиксировано как цель</span>
 </div>
+<div id="mode-note"></div>
 
 <div class="metrics">
   <div class="metric"><div class="eyebrow">north star</div>
@@ -284,50 +317,178 @@ svg{display:block;width:100%;height:auto}
 <div id="card" role="dialog" aria-modal="true" aria-labelledby="card-title"></div>
 
 <script>
+const ASOF = "22.07.2026";
 const DETAILS = {
   acq:{t:"Закупка на механики платформы",tag:"закупка",s:"dir",c:"var(--grow)",
-    x:"Игровая единица рождается плеебл-совместимой: пайплайн таргетов AppLovin / FTUE / swipe уже работает. Цель — закупать на любую механику портфеля. Встреча игрока: payload плеебла → deep-link → первый слот той же mechanic/variant (identity-JOIN, измеримая конверсия) — это же даёт новичку стартовый affinity и решает холодный старт runway. Вариации самих плееблов печёт тот же генеративный сервис."},
+    x:"Игровая единица рождается плеебл-совместимой: пайплайн таргетов AppLovin / FTUE / swipe уже работает. Цель — закупать на любую механику портфеля. Встреча игрока: payload плеебла → deep-link → первый слот той же mechanic/variant (identity-JOIN, измеримая конверсия) — это же даёт новичку стартовый affinity и решает холодный старт runway. Вариации самих плееблов печёт тот же factory kernel.",
+    today:{stage:"code",ev:"technical",line:"экспорт есть; attribution впереди",
+      proven:"экспорт 3 таргетов (applovin/ftue/swipe) в бою для рекламных сетей",
+      gate:"attribution-контракт: плеебл → deep-link → mechanic-match слот (спека)",owner:"оператор · playables/CLAUDE.md"},
+    aline:"UA-оператор: exact creative + бюджет",
+    auth:[["Инициирует","оператор (выбор механики под закупку)"],["Утверждает","UA-оператор — exact creative + бюджет кампании"],["Аудитория","внешняя (рекламные сети)"]]},
   vir:{t:"Виральность",tag:"органика",s:"plan",c:"var(--grow)",
-    x:"Второе крыло роста. Спроектировано: share/challenge — каждая ссылка это конкретный вызов, открывающийся мгновенно (план v1). Продуктовые гипотезы (не утверждены): кураторы-витрины чужих механик, порталы-дискавери в конце серий, экономика связки закупка+органика."},
+    x:"Второе крыло роста. Спроектировано: share/challenge — каждая ссылка это конкретный вызов, открывающийся мгновенно (план v1). Продуктовые гипотезы (не утверждены): кураторы-витрины чужих механик, порталы-дискавери в конце серий, экономика связки закупка+органика.",
+    today:{stage:"spec",ev:"none",line:"план v1 готов, код впереди",
+      proven:"план v1 (данные/контракты/BotFather) написан",
+      gate:"share v1 к friend cohort",owner:"оператор · SHARE_FEATURE_PLAN_V1"},
+    aline:"игрок делится своей ссылкой",
+    auth:[["Инициирует","игрок — делится собственной ссылкой-вызовом"],["Утверждает","— (шарится только уже опубликованный контент)"]]},
   market:{t:"Рынок / ресерч",tag:"вход",s:"dir",c:"var(--prod)",
-    x:"Постоянный вход: рынок поставляет проверенные жанры, market-research (частично агентский) кормит выбор следующих эталонов и research-паки для experiment-lane. Фабрика масштабирует, но не заменяет этот кураторский ввод (принцип 5)."},
+    x:"Постоянный вход: рынок поставляет проверенные жанры, market-research (частично агентский) кормит выбор следующих эталонов и research-паки для experiment-lane. Фабрика масштабирует, но не заменяет этот кураторский ввод (принцип 5).",
+    today:{stage:"ручная практика",ev:"human-good",line:"кураторская практика",
+      proven:"жанры и эталоны отбирались вручную; deep-research паки были",
+      gate:"research-паки как вход experiment-lane",owner:"оператор"},
+    aline:"оператор выбирает, что войдёт",
+    auth:[["Инициирует","ресерч (частично агентский)"],["Утверждает","оператор — выбор эталона"]]},
   etalon:{t:"Эталонная механика",tag:"человек",s:"ok",c:"var(--prod)",
-    x:"Кураторский акт человека: оператор отдаёт эталонную механику и держит вкусовой отбор. Отсюда стартует ступень 1: фабрики собирают серии этой механики в разных сеттингах."},
-  gen:{t:"Генеративный сервис",tag:"один сервис — три потребителя",s:"part",c:"var(--prod)",
-    x:"Night Generation Factory (рамка заморожена): series lane уже боевой — первая Sort-кампания дала 10/10 jobs и slot-repair; фабрика сеттинга = SkinSpec v1 (спека готова); поиск вариаций механик = experiment lane, manual-supervised (ступень 2). Всё через trusted compiler и автоплей/oracle-гейты; продакшен детерминирован, модели — только ночное R&D под квотами. Один сервис обслуживает фабрику, UGC-мету и закупочные плееблы."},
+    x:"Кураторский акт человека: оператор отдаёт эталонную механику и держит вкусовой отбор. Отсюда стартует ступень 1: фабрики собирают серии этой механики в разных сеттингах.",
+    today:{stage:"dogfood",ev:"human-good",line:"эталон Sort в проде-ленте",
+      proven:"эталон Sort прошёл весь путь до прод-ленты; вкусовой отбор работает",
+      gate:"следующая механика портфеля",owner:"оператор"},
+    aline:"оператор",
+    auth:[["Инициирует","оператор"],["Утверждает","оператор — какая механика становится эталоном"]]},
+  gen:{t:"Генеративный сервис",tag:"один kernel — три потребителя",s:"part",c:"var(--prod)",
+    x:"Night Generation Factory (рамка заморожена): series lane боевой — первая Sort-кампания дала 10/10 jobs и slot-repair; фабрика сеттинга = SkinSpec v1 (спека готова); поиск вариаций механик = experiment lane, manual-supervised (ступень 2). Всё через trusted compiler и автоплей/oracle-гейты; продакшен детерминирован, модели — только фоновое R&D под квотами. Kernel (identity/brief/бюджеты/provenance/QA/шлюз) общий; исполнители по lane разные.",
+    today:{stage:"dogfood",ev:"human-good (series lane)",line:"series lane боевой; skin/experiment — спека",
+      proven:"кампания 10/10 jobs, slot-repair, серии дошли до шлюза",
+      gate:"SkinSpec v1 срез (фабрика сеттинга)",owner:"codex+Claude · night-generation-factory.md"},
+    aline:"оператор утверждает exact campaign",
+    auth:[["Инициирует","оператор — явная вечерняя команда = утверждение exact campaign"],["Бюджет","кампания ⊂ account-wide квоты (guardian)"],["Дальше","весь выход идёт в человеческий шлюз"]]},
   gate:{t:"Человеческий шлюз",tag:"узкое место — и это нормально",s:"ok",c:"var(--gate)",
-    x:"Слепой отсмотр уровней и серий в Lab (author-blind), полное прохождение до сундука, затем TMA Approve одного exact promotion-binding. Risk-admission: контент на доказанном runtime публикуется сразу после Approve, любая новая граница идёт canary-лестницей. Recall — страховка. Зелёная метрика — evidence, не authority."},
+    x:"Слепой отсмотр уровней и серий в Lab (author-blind), полное прохождение до сундука, затем TMA Approve одного exact promotion-binding. Risk-admission: контент на доказанном runtime публикуется сразу после Approve, любая новая граница идёт canary-лестницей. Recall — страховка. Зелёная метрика — evidence, не authority.",
+    today:{stage:"dogfood",ev:"human-good",line:"полный цикл публикации пройден",
+      proven:"blind review → серийное ревью → TMA Approve → risk-admission → published: пройдено оператором",
+      gate:"friend cohort (нагрузка на шлюз реальными игроками)",owner:"оператор · catalog-operator-promotion.md"},
+    aline:"оператор-публикатор (TMA)",
+    auth:[["Инициирует","фабрика/оператор — кандидаты в очередь"],["Утверждает","оператор-публикатор — exact promotion-binding (TMA Approve)"],["Отзывает","оператор recall-полномочия"]]},
   cat:{t:"Каталог",tag:"доверенная середина",s:"ok",c:"var(--cat)",
-    x:"Доверенная середина: content-addressed runtime-релизы, раздельные evaluation/publication полномочия, candidate→canary→published, append-only решения и admission-receipts, recall с ревокацией тикетов. Делает автогенерацию безопасной by construction."},
+    x:"Доверенная середина: content-addressed runtime-релизы, раздельные evaluation/publication полномочия, candidate→canary→published, append-only решения и admission-receipts, recall с ревокацией тикетов. Делает автогенерацию безопасной by construction.",
+    today:{stage:"dogfood",ev:"technical",line:"E2E-цепочка держит прод-догфуд",
+      proven:"content-addressed релизы, canary-лестница, recall, admission-receipts — в проде для оператора",
+      gate:"levelSeries=true через прод-гейты",owner:"server-owned policy · IMPLEMENTATION-STATUS.md"},
+    aline:"server policy после человеческого Approve",
+    auth:[["Утверждает","server-owned risk policy ПОСЛЕ человеческого Approve: stable reuse → published, новая граница → canary"],["Отзывает","оператор recall-полномочия (exact entry/runtime scope)"]]},
   feed:{t:"Лента",tag:"ядро продукта",s:"plan",c:"var(--cons)",
-    x:"Слотовая лента с personal runway; спрос выводится из поведения (досмотры, перехваты, серии, сундуки) — никакого UI запроса. Continuity: сундук встроенной серии = one-shot триггер, продолжение подаётся слотом и меряется exact JOIN'ом. Код за флагами (shadow-режим доказан), включение — через прод-гейты levelSeries."},
+    x:"Слотовая лента с personal runway; спрос выводится из поведения (досмотры, перехваты, серии, сундуки) — никакого UI запроса. Continuity: сундук встроенной серии = one-shot триггер, продолжение подаётся слотом и меряется exact JOIN-ом. Код за флагами (shadow-режим доказан), включение — через прод-гейты levelSeries.",
+    today:{stage:"code",ev:"technical",line:"за default-off флагами; shadow доказан",
+      proven:"shadow-контур и E2E зелёные; выдача реальным игрокам не включена",
+      gate:"прод-гейты levelSeries → friend cohort",owner:"оператор · feed-policy.md",here:true},
+    aline:"server-owned policy; людей в выдаче нет",
+    auth:[["Решает","server-owned allocation policy (versioned config)"],["Человеческих актов","в выдаче нет — только конфиг-версии и recall выше по цепочке"]]},
   player:{t:"Игрок",tag:"игрок",s:"ok",c:"var(--cons)",
-    x:"Автоплей показывает геймплей до касания, перехват управления незаметен. Единица потребления — серия с сундуком. Игрок одновременно потребитель и (через мету) производитель контента."},
+    x:"Автоплей показывает геймплей до касания, перехват управления незаметен. Единица потребления — серия с сундуком (qualified play = серия до конца). Игрок одновременно потребитель и (через мету) производитель контента.",
+    today:{stage:"dogfood",ev:"technical",line:"один игрок — оператор; выборка = 1",
+      proven:"полный игровой цикл жив; данные единичные",
+      gate:"3–10 друзей (шаг 2 лестницы)",owner:"—"},
+    aline:"—",
+    auth:[["Роль","потребитель; в мете — автор своего острова"]]},
   tele:{t:"Телеметрия",tag:"факты",s:"ok",c:"var(--cons)",
-    x:"Append-only факты: decision → impression → attempt → outcome, durable outbox, BFCache-safe жизненный цикл, exact dwell. Оптимизируем только то, что воспроизводимо из этих фактов."},
+    x:"Append-only факты: decision → impression → attempt → outcome, durable outbox, BFCache-safe жизненный цикл, exact dwell. Оптимизируем только то, что воспроизводимо из этих фактов.",
+    today:{stage:"dogfood",ev:"technical",line:"пишет; проекция дочищается (c1.4)",
+      proven:"append-only контур в проде; 4 проекционных пробела закрыты в ветке",
+      gate:"projection-completeness merge (CI ждёт биллинг)",owner:"Claude · c1-projection-completeness",here:true},
+    aline:"append-only; никто не редактирует",
+    auth:[["Правило","append-only: факты не редактируются никем"]]},
   c1:{t:"C1-аналитика",tag:"evidence",s:"ok",c:"var(--learn)",
-    x:"Ночной cron детерминированно материализует immutable evidence-отчёты (окна D-2, replay byte-identical, честный inconclusive). Строго факты без интерпретаций; выводы (C2) — отдельная роль с человеком в цикле."},
+    x:"Ночной cron детерминированно материализует immutable evidence-отчёты (окна D-2, replay byte-identical, честный inconclusive). Строго факты без интерпретаций; выводы (C2) — отдельная роль с человеком в цикле.",
+    today:{stage:"dogfood",ev:"technical",line:"cron стабилен; отчёты honest-inconclusive",
+      proven:"автопилот D-2 без пропусков, replay noop; продуктовых вердиктов ещё нет",
+      gate:"c1.4 + трафик friend cohort",owner:"cron + оператор · content-analytics",here:true},
+    aline:"отчёты read-only; C2 — человек",
+    auth:[["Материализует","cron (server-owned, детерминированно)"],["Интерпретирует","только человек (C2 не начат)"]]},
   demand:{t:"Спрос и отвалы",tag:"топливо фабрики",s:"dir",c:"var(--learn)",
-    x:"Матрица спроса и autopsy отвалов превращаются в GenerationBrief'ы фабрикам — кольцо замыкается: аналитика становится топливом продакшена. Сейчас briefs собираются вручную; цель — регулярный полуавтомат с человеческим утверждением."},
+    x:"Матрица спроса и autopsy отвалов превращаются в GenerationBrief-ы фабрикам — кольцо замыкается: аналитика становится топливом продакшена. Сейчас briefs собираются вручную; цель — регулярный полуавтомат с человеческим утверждением.",
+    today:{stage:"target",ev:"none",line:"цель; briefs пока вручную",
+      proven:"—",
+      gate:"первые briefs из cohort-данных",owner:"оператор + аналитик"},
+    aline:"briefs утверждает оператор",
+    auth:[["Готовит","аналитик (агентская роль)"],["Утверждает","оператор — каждый brief"]]},
   meta:{t:"Мир-витрина / UGC",tag:"генеративная мета",s:"plan",c:"var(--meta)",
-    x:"Генеративная мета: остров игрока — витрина его механик; рескины генерятся тем же trusted-компилятором (E2E с телефона доказан), здания растут от чужих плеев. Кураторство не-творцов — продуктовая гипотеза. Третий источник контента и источник шаблонов для песочницы. Ведётся как один из двух параллельных мета-экспериментов."},
+    x:"Генеративная мета: остров игрока — витрина его механик; рескины генерятся тем же trusted-компилятором (E2E с телефона доказан), здания растут от чужих плеев. Кураторство не-творцов — продуктовая гипотеза. Третий источник контента и источник шаблонов для песочницы. Ведётся как один из двух параллельных мета-экспериментов.",
+    today:{stage:"dogfood",ev:"technical",line:"UGC-цикл доказан; sync-model = легаси",
+      proven:"prompt → bake → hosted artifact с телефона (E2E); синхронный model-вызов — легаси-исключение принципа 2",
+      gate:"async-рефактор острова (job → validated pack → уведомление)",owner:"оператор · ISLAND.md"},
+    aline:"автор-игрок + pre-moderation оператора",
+    auth:[["Инициирует","автор-игрок (промпт, Build)"],["Утверждает","автор + pre-moderation оператора (до явного акта автоматизации)"],["Scope","его остров; в общую ленту UGC не публикуется"]]},
   agents:{t:"Обслуживающие агенты",tag:"поперечный слой",s:"plan",c:"var(--frame)",
-    x:"Команда агентов обслуживает все контуры: аналитик (C1-дайджесты), ресерчер рынка, продакшен-оркестратор (ночные кампании, ревью-подготовка), инфра-контроль (CI, диск, бэкапы, алерты). Продукт агентов — сэкономленное внимание оператора; публикационная, финансовая и расписательная authority остаётся у человека (A1 — supervised)."},
+    x:"Команда агентов обслуживает все контуры: аналитик (C1-дайджесты), ресерчер рынка, продакшен-оркестратор (ночные кампании, ревью-подготовка), инфра-контроль (CI, диск, бэкапы, алерты). Продукт агентов — сэкономленное внимание оператора; публикационная, финансовая и расписательная authority остаётся у человека (A1 — supervised).",
+    today:{stage:"code",ev:"technical",line:"A1 готов (supervised), enablement впереди",
+      proven:"детерминированный контур A1 собран, R3.1 закрыт",
+      gate:"тихая неделя + §14 enablement",owner:"оператор · agent-team.md"},
+    aline:"никакой authority; supervised",
+    auth:[["Разрешено","аналитика, ресерч, оркестрация, инфра-контроль"],["Запрещено","публикация, финансы, расписание — сверх server-owned policy"]]},
+  safety:{t:"Safety / rights / moderation",tag:"поперечный rail",s:"plan",c:"var(--frame)",
+    x:"Pre-moderation всего публичного UGC до явного акта автоматизации (решение оператора 22.07); report/takedown обязателен до расширения аудитории UGC; recall — страховка каталога; политика IP/брендов в промптах сознательно отложена (открытый вопрос VISION).",
+    today:{stage:"частично",ev:"technical",line:"recall в бою; модерация — правило записано",
+      proven:"recall-контур E2E; pre-moderation зафиксирована как правило",
+      gate:"report/takedown до аудитории UGC",owner:"оператор · VISION §Safety"},
+    aline:"модерация и recall — оператор",
+    auth:[["Модерирует","оператор (pre-moderation UGC)"],["Отзывает","оператор recall-полномочия"]]},
+  econ:{t:"Economics / budgets",tag:"поперечный rail",s:"dir",c:"var(--frame)",
+    x:"Квотируемый R&D-бюджет моделей (guardian + reservation receipts в рамке Night Factory); закупка окупается удержанием (LTV/ROAS-цикл — ещё не запущен); токены и sink-и меты — гипотезы. Числовые пороги экономики включаются с когорты 30–50.",
+    today:{stage:"target",ev:"none",line:"квоты в рамке; LTV-цикл не запущен",
+      proven:"guardian-квоты заморожены в рамке фабрики",
+      gate:"первая закупочная кампания после cohort",owner:"оператор"},
+    aline:"все бюджеты — оператор",
+    auth:[["Тратит","только оператор: бюджеты закупки, R&D-квоты"],["Агентам","финансовая authority запрещена"]]},
   vision:{t:"VISION — swipe-платформа",tag:__VISION_META__,s:"ok",c:"var(--gate)",wide:true,
     html:__VISION_HTML__}
 };
 const badge = {ok:"работает", part:"частично работает", plan:"спроектировано", dir:"направление"};
-const backdrop = document.getElementById('backdrop');
-const card = document.getElementById('card');
-const noMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MODE_NOTE = {
+  vision:'<span class="status ok">работает</span> есть в проде/коде · <span class="status plan">спроектировано</span> спека заморожена · <span class="status dir">направление</span> цель',
+  today:'Лестница: target → spec → code → dogfood → cohort → broad · evidence: none → technical → human-good → product-settled · <b style="color:var(--gate)">⬤ вы здесь: friend cohort + projection-completeness</b>',
+  auth:'Кто инициирует, утверждает, отзывает и тратит. Правило: контент попадает к аудитории только после явного решения соответствующего человека, привязанного к exact identity.'
+};
+let mode = "vision";
+const backdrop = document.getElementById("backdrop");
+const card = document.getElementById("card");
+const modeNote = document.getElementById("mode-note");
+const noMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 let srcEl = null, isOpen = false, lastFocus = null;
-
+const origP = new Map();
+document.querySelectorAll("[data-k]").forEach(el=>{
+  const p = el.querySelector("p");
+  if(p) origP.set(el.dataset.k, p.innerHTML);
+});
+function renderMode(m){
+  mode = m;
+  document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on", b.dataset.mode===m));
+  document.querySelectorAll("[data-k]").forEach(el=>{
+    const k = el.dataset.k, d = DETAILS[k];
+    const p = el.querySelector("p");
+    if(!d || !p || !origP.has(k)) return;
+    el.classList.toggle("here", m==="today" && !!d.today?.here);
+    if(m==="vision" || !d.today){ p.innerHTML = origP.get(k); return; }
+    if(m==="today"){
+      const evClass = d.today.ev==="none" ? "mchip ev none" : "mchip ev";
+      p.innerHTML = '<span class="mchip">'+d.today.stage+'</span><span class="'+evClass+'">'+d.today.ev+'</span><br>'+d.today.line;
+    } else {
+      p.innerHTML = '<span class="mchip">authority</span><br>'+d.aline;
+    }
+  });
+  modeNote.innerHTML = MODE_NOTE[m];
+}
+function cardBody(d){
+  if(d.html) return d.html;
+  if(mode==="today" && d.today){
+    const t = d.today;
+    return '<div class="f"><b>Статус на '+ASOF+':</b> '+t.stage+' · evidence: '+t.ev+'</div>'
+      +'<div class="f"><b>Доказано:</b> '+t.proven+'</div>'
+      +'<div class="f"><b>Следующий gate:</b> '+t.gate+'</div>'
+      +'<div class="f"><b>Owner / doc:</b> '+t.owner+'</div>';
+  }
+  if(mode==="auth" && d.auth){
+    return d.auth.map(pair=>'<div class="f"><b>'+pair[0]+':</b> '+pair[1]+'</div>').join("");
+  }
+  return '<p>'+d.x+'</p>';
+}
 function targetRect(wide){
   const W = Math.min(wide ? 780 : 680, innerWidth - 32);
   return { left:(innerWidth - W)/2, top:Math.max(24, innerHeight*(wide ? 0.08 : 0.16)), width:W };
 }
 function setRect(el, r){
-  el.style.left = r.left+'px'; el.style.top = r.top+'px'; el.style.width = r.width+'px';
+  el.style.left = r.left+"px"; el.style.top = r.top+"px"; el.style.width = r.width+"px";
 }
 function openCard(k, el){
   if(isOpen) return;
@@ -335,36 +496,36 @@ function openCard(k, el){
   isOpen = true; srcEl = el; lastFocus = el;
   const from = el.getBoundingClientRect();
   card.innerHTML =
-    '<button class="x" aria-label="Закрыть">✕</button>'+
-    '<div class="eyebrow">'+d.tag+'</div>'+
-    '<h2 id="card-title">'+d.t+(d.html?'':' <span class="status '+d.s+'">'+badge[d.s]+'</span>')+'</h2>'+
-    (d.html || '<p>'+d.x+'</p>');
-  card.style.setProperty('--dzc', d.c);
-  card.classList.toggle('wide', !!d.wide);
-  card.querySelector('.x').addEventListener('click', closeCard);
+    '<button class="x" aria-label="Закрыть">✕</button>'
+    +'<div class="eyebrow">'+d.tag+'</div>'
+    +'<h2 id="card-title">'+d.t+(d.html?"":' <span class="status '+d.s+'">'+badge[d.s]+"</span>")+"</h2>"
+    +cardBody(d);
+  card.style.setProperty("--dzc", d.c);
+  card.classList.toggle("wide", !!d.wide);
+  card.querySelector(".x").addEventListener("click", closeCard);
   const to = targetRect(d.wide);
   setRect(card, to);
-  card.classList.add('shown');
-  backdrop.classList.add('on');
-  el.classList.add('src');
-  if(noMotion){ card.focus?.(); card.querySelector('.x').focus(); return; }
+  card.classList.add("shown");
+  backdrop.classList.add("on");
+  el.classList.add("src");
+  if(noMotion){ card.querySelector(".x").focus(); return; }
   const fin = card.getBoundingClientRect();
   const sx = from.width / fin.width, sy = from.height / fin.height;
-  card.style.transform = 'translate('+(from.left-fin.left)+'px,'+(from.top-fin.top)+'px) scale('+sx+','+sy+')';
-  card.style.opacity = '0.5';
+  card.style.transform = "translate("+(from.left-fin.left)+"px,"+(from.top-fin.top)+"px) scale("+sx+","+sy+")";
+  card.style.opacity = "0.5";
   card.getBoundingClientRect();
-  card.classList.add('anim');
-  card.style.transform = 'none';
-  card.style.opacity = '1';
-  setTimeout(()=>card.querySelector('.x').focus(), 300);
+  card.classList.add("anim");
+  card.style.transform = "none";
+  card.style.opacity = "1";
+  setTimeout(()=>card.querySelector(".x").focus(), 300);
 }
 function closeCard(){
   if(!isOpen) return;
-  backdrop.classList.remove('on');
+  backdrop.classList.remove("on");
   const finish = ()=>{
-    card.classList.remove('shown','anim');
-    card.style.transform=''; card.style.opacity='';
-    if(srcEl) srcEl.classList.remove('src');
+    card.classList.remove("shown","anim");
+    card.style.transform=""; card.style.opacity="";
+    if(srcEl) srcEl.classList.remove("src");
     isOpen = false;
     if(lastFocus) lastFocus.focus();
   };
@@ -372,21 +533,25 @@ function closeCard(){
   const from = srcEl.getBoundingClientRect();
   const fin = card.getBoundingClientRect();
   const sx = from.width / fin.width, sy = from.height / fin.height;
-  card.style.transform = 'translate('+(from.left-fin.left)+'px,'+(from.top-fin.top)+'px) scale('+sx+','+sy+')';
-  card.style.opacity = '0.35';
-  card.addEventListener('transitionend', function h(e){
-    if(e.propertyName !== 'transform') return;
-    card.removeEventListener('transitionend', h);
+  card.style.transform = "translate("+(from.left-fin.left)+"px,"+(from.top-fin.top)+"px) scale("+sx+","+sy+")";
+  card.style.opacity = "0.35";
+  card.addEventListener("transitionend", function h(e){
+    if(e.propertyName !== "transform") return;
+    card.removeEventListener("transitionend", h);
     finish();
   });
   setTimeout(finish, 400);
 }
-backdrop.addEventListener('click', closeCard);
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCard(); });
-const hint=document.getElementById('swipe-hint');
-if(hint){document.querySelector('.diagram-scroll').addEventListener('scroll',()=>hint.style.display='none',{once:true});}
-document.querySelectorAll('[data-k]').forEach(el=>{
-  el.addEventListener('click', ()=>openCard(el.dataset.k, el));
-  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();openCard(el.dataset.k, el);} });
+backdrop.addEventListener("click", closeCard);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeCard(); });
+const hint = document.getElementById("swipe-hint");
+if(hint){ document.querySelector(".diagram-scroll").addEventListener("scroll", ()=>hint.style.display="none", {once:true}); }
+document.querySelectorAll("#modes button").forEach(b=>{
+  b.addEventListener("click", ()=>renderMode(b.dataset.mode));
 });
+document.querySelectorAll("[data-k]").forEach(el=>{
+  el.addEventListener("click", ()=>openCard(el.dataset.k, el));
+  el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();openCard(el.dataset.k, el);} });
+});
+renderMode("vision");
 </script>
