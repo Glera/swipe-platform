@@ -56,6 +56,28 @@
       "next": "спека attribution-контракта (плеебл → deep-link → mechanic-match слот)"
     },
     {
+      "id": "cpe-inventory",
+      "title": "Playable-реклама вовлекает и продаётся по CPE",
+      "status": "queued",
+      "cohort": "рекламный пилот (после шага 4, решение оператора)",
+      "metric": "engaged-play rate рекламных плееблов против видео; evidence-backed отчёт рекламодателю из append-only фактов",
+      "threshold": "определяется при первом пилоте с реальным тайтлом",
+      "funnel": ["reveal", "takeover", "action", "level", "chest"],
+      "evidence": { "grade": "none", "note": "инвентаря нет; симметричный identity-JOIN не специфицирован" },
+      "next": "заложить двусторонность (покупаем/продаём переходы) в attribution-спеку"
+    },
+    {
+      "id": "ads-retention-safe",
+      "title": "Реклама с капом + подписка не ломают возврат",
+      "status": "queued",
+      "cohort": "числовые когорты (шаг 3+), совместно с retention-замерами",
+      "metric": "active days / возвраты при введении ad load; конверсия в подписку «без рекламы + VIP мета»",
+      "threshold": "ad load капится guardrail-метрикой удержания (VISION §Экономика)",
+      "funnel": ["reveal", "return"],
+      "evidence": { "grade": "none", "note": "монетизация не включена (мораторий до когорт)" },
+      "next": "момент включения — явное решение оператора на шаге 3+"
+    },
+    {
       "id": "humangood-rate",
       "title": "Human-good/min растёт без вреда игроку",
       "status": "queued",
