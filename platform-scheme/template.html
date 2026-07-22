@@ -1,0 +1,392 @@
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Схема платформы — swipe</title>
+<style>
+:root{
+  --bg:#12161E; --panel:#1A2029; --ink:#E8ECF2; --sub:#9AA5B4;
+  --line:#5A6474; --line-label:#8B96A6; --frame:#39424F;
+  --prod:#9B87F0; --gate:#F0A33A; --cat:#9FB0C4; --cons:#3FBDB4;
+  --grow:#F07E63; --learn:#6E9BF0; --meta:#6FC276;
+  --chip-ok:#5BC97E; --chip-plan:#E3C35A; --chip-dir:#A896F5;
+  --block-bg:#1D2430; --shadow:0 1px 2px rgba(0,0,0,.4);
+  --backdrop:rgba(6,9,14,.62);
+}
+:root[data-theme="light"]{
+  --bg:#F2F4F6; --panel:#FFFFFF; --ink:#1B2330; --sub:#5A6472;
+  --line:#8A93A1; --line-label:#66707E; --frame:#B7BFCA;
+  --prod:#6C55D4; --gate:#C77800; --cat:#3D4A5C; --cons:#0F7E78;
+  --grow:#C34A32; --learn:#3567C9; --meta:#3F8A46;
+  --chip-ok:#1E7A3C; --chip-plan:#8A6A00; --chip-dir:#6B5AC4;
+  --block-bg:#FFFFFF; --shadow:0 1px 2px rgba(20,28,40,.08),0 4px 14px rgba(20,28,40,.06);
+  --backdrop:rgba(24,30,40,.45);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;}
+.wrap{max-width:1300px;margin:0 auto;padding:28px 20px 48px}
+header h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px;text-wrap:balance}
+header p{margin:0;color:var(--sub);max-width:78ch}
+.eyebrow{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--sub)}
+#vision-btn{margin-top:14px;padding:8px 16px;border-radius:9px;cursor:pointer;
+  border:1px solid color-mix(in srgb,var(--gate) 55%,transparent);
+  background:color-mix(in srgb,var(--gate) 10%,transparent);
+  color:var(--gate);font:600 13.5px/1 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;
+  transition:background .12s ease}
+#vision-btn:hover{background:color-mix(in srgb,var(--gate) 20%,transparent)}
+#vision-btn:focus-visible{outline:2px solid var(--gate);outline-offset:2px}
+#card .doc h4{margin:18px 0 6px;font-size:14px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+#card .doc h4:first-child{margin-top:0}
+#card .doc p, #card .doc li{color:var(--sub);font-size:13.5px;line-height:1.55;margin:0 0 8px}
+#card .doc ol, #card .doc ul{margin:0 0 8px;padding-left:20px}
+#card .doc li{margin-bottom:5px}
+#card .doc b{color:var(--ink);font-weight:600}
+.diagram-scroll{overflow-x:auto;margin:22px -20px 0;padding:0 20px}
+.diagram{min-width:1180px}
+svg{display:block;width:100%;height:auto}
+.conn{fill:none;stroke:var(--line);stroke-width:1.6}
+.conn.organic{stroke-dasharray:5 5}
+.alabel{fill:var(--line-label);font-size:11.5px;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif}
+.zlabel{fill:var(--line-label);font-size:11px;letter-spacing:.09em;
+  font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.agents-frame{fill:none;stroke:var(--frame);stroke-width:1.4;stroke-dasharray:7 6}
+.block{height:100%;border-radius:10px;background:var(--block-bg);box-shadow:var(--shadow);
+  border:1px solid color-mix(in srgb,var(--zc) 45%,transparent);
+  border-top:3px solid var(--zc);padding:10px 12px;cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease, opacity .2s ease}
+.block:hover{transform:translateY(-1px)}
+.block:focus-visible{outline:2px solid var(--zc);outline-offset:2px}
+.block.src{opacity:0}
+.block h3{margin:0 0 2px;font-size:14.5px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.block p{margin:0;font-size:12px;line-height:1.38;color:var(--sub)}
+.block .zc-tag{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--zc);margin-bottom:3px}
+.block.gate-block{border:1.5px solid var(--gate);border-top:4px solid var(--gate);
+  background:color-mix(in srgb,var(--gate) 8%,var(--block-bg))}
+.agents-chip{height:100%;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);
+  cursor:pointer;border-radius:8px;padding:0 8px}
+.agents-chip:hover{background:color-mix(in srgb,var(--frame) 18%,transparent)}
+.agents-chip b{color:var(--ink);font-weight:600}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;font-size:12.5px;color:var(--sub)}
+.legend .status{margin-left:0}
+.status{display:inline-block;padding:2px 9px;border-radius:99px;
+  font-size:11px;font-weight:600;border:1px solid currentColor}
+.status.ok{color:var(--chip-ok)} .status.part{color:var(--chip-plan)} .status.plan{color:var(--chip-plan)} .status.dir{color:var(--chip-dir)}
+.metrics{display:flex;flex-wrap:wrap;gap:14px;margin-top:20px}
+.metric{flex:1 1 320px;background:var(--panel);border-radius:12px;box-shadow:var(--shadow);padding:14px 18px}
+.metric .eyebrow{margin-bottom:4px}
+.metric b{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.metric span{display:block;font-size:12.5px;color:var(--sub);margin-top:2px}
+#backdrop{position:fixed;inset:0;background:var(--backdrop);opacity:0;pointer-events:none;
+  transition:opacity .22s ease;z-index:40}
+#backdrop.on{opacity:1;pointer-events:auto}
+#card{position:fixed;z-index:50;display:none;background:var(--panel);border-radius:14px;
+  box-shadow:0 18px 60px rgba(0,0,0,.45);border-left:4px solid var(--dzc,var(--frame));
+  padding:20px 24px;transform-origin:top left;overflow:auto;max-height:70vh}
+#card.shown{display:block}
+#card.wide{max-height:84vh}
+#card.anim{transition:transform .28s cubic-bezier(.32,.9,.35,1), opacity .28s ease}
+#card .eyebrow{margin-bottom:3px;color:var(--dzc)}
+#card h2{margin:0 0 10px;font-size:19px;font-weight:700;letter-spacing:-.015em;padding-right:36px}
+#card h2 .status{vertical-align:2px;margin-left:10px}
+#card p{margin:0;color:var(--sub);line-height:1.55;font-size:14px}
+#card .x{position:absolute;top:12px;right:12px;width:30px;height:30px;border:0;border-radius:8px;
+  background:transparent;color:var(--sub);font-size:17px;line-height:1;cursor:pointer}
+#card .x:hover{background:color-mix(in srgb,var(--sub) 15%,transparent);color:var(--ink)}
+#card .x:focus-visible{outline:2px solid var(--dzc)}
+#swipe-hint{display:none;margin-top:12px;padding:6px 12px;border-radius:99px;font-size:12px;
+  color:var(--sub);border:1px dashed var(--frame);width:max-content}
+@media (max-width:760px){#swipe-hint{display:inline-block}}
+@media (prefers-reduced-motion: reduce){
+  .block,#backdrop,#card.anim{transition:none}
+}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">swipe-платформа · хай-левел схема · VISION v2 · 22.07.2026</div>
+  <h1>Платформа, которая сама производит, отбирает и продвигает играбельный контент</h1>
+  <p>Человек — источник эталонов и вкуса. Всё остальное — конвейер: ночь генерит,
+  утро отсматривает, день играет, аналитика замыкает кольцо. Кликните блок — он раскроется.</p>
+  <button id="vision-btn" data-k="vision">Читать VISION v2 →</button>
+</header>
+
+<div id="swipe-hint">→ схема шире экрана — листайте вбок</div>
+
+<div class="diagram-scroll"><div class="diagram">
+<svg viewBox="0 0 1260 900" role="img" aria-label="Схема контуров платформы">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" style="fill:var(--line)"/>
+    </marker>
+  </defs>
+
+  <rect class="agents-frame" x="14" y="6" width="1232" height="886" rx="16"/>
+
+  <text class="zlabel" x="40" y="76">РОСТ</text>
+  <text class="zlabel" x="290" y="200">ПРОДАКШЕН</text>
+  <text class="zlabel" x="630" y="200">ШЛЮЗ ВКУСА</text>
+  <text class="zlabel" x="950" y="180">ПОТРЕБЛЕНИЕ</text>
+  <text class="zlabel" x="630" y="552">МЕТА / UGC</text>
+  <text class="zlabel" x="470" y="712">LEARNING LOOP</text>
+
+  <!-- flow -->
+  <path class="conn" d="M140,280 V326" marker-end="url(#arr)"/>
+  <path class="conn" d="M250,380 H286" marker-end="url(#arr)"/>
+  <path class="conn" d="M570,270 H626" marker-end="url(#arr)"/>
+  <path class="conn" d="M770,330 V396" marker-end="url(#arr)"/>
+  <text class="alabel" x="782" y="368">Approve · risk-admission</text>
+  <path class="conn" d="M910,455 C936,455 936,262 946,256" marker-end="url(#arr)"/>
+  <path class="conn" d="M1085,310 V376" marker-end="url(#arr)"/>
+  <path class="conn" d="M1085,470 V536" marker-end="url(#arr)"/>
+  <path class="conn" d="M1085,640 C1085,724 1044,770 994,770" marker-end="url(#arr)"/>
+  <path class="conn" d="M770,770 H714" marker-end="url(#arr)"/>
+  <path class="conn" d="M470,770 C396,770 356,640 356,506" marker-end="url(#arr)"/>
+  <text class="alabel" x="368" y="646">briefs</text>
+  <!-- growth -->
+  <path class="conn" d="M405,120 C405,160 760,160 976,186" marker-end="url(#arr)"/>
+  <text class="alabel" x="600" y="152">mechanic-match встреча</text>
+  <path class="conn" d="M890,72 C940,72 1012,112 1012,186" marker-end="url(#arr)"/>
+  <path class="conn" d="M340,210 V126" marker-end="url(#arr)"/>
+  <text class="alabel" x="350" y="172">вариации плееблов</text>
+  <path class="conn organic" d="M1150,186 C1150,86 1040,58 896,58" marker-end="url(#arr)"/>
+  <text class="alabel" x="946" y="46">челленджи игроков</text>
+  <!-- meta return -->
+  <path class="conn" d="M990,470 C950,512 880,540 812,556" marker-end="url(#arr)"/>
+  <text class="alabel" x="848" y="528">игрок-производитель</text>
+  <path class="conn" d="M630,615 C556,615 486,566 444,506" marker-end="url(#arr)"/>
+  <text class="alabel" x="492" y="608">тот же compiler</text>
+
+  <!-- blocks -->
+  <foreignObject x="270" y="24" width="290" height="96">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--grow)" data-k="acq" tabindex="0" role="button">
+      <span class="zc-tag">закупка</span>
+      <h3>Закупка на механики платформы</h3>
+      <p>Плеебл на каждую механику; встреча игрока — identity-JOIN.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="600" y="24" width="290" height="96">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--grow)" data-k="vir" tabindex="0" role="button">
+      <span class="zc-tag">органика</span>
+      <h3>Виральность</h3>
+      <p>Share/challenge-ссылки; кураторы и порталы меты — гипотезы.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="30" y="190" width="220" height="90">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--prod)" data-k="market" tabindex="0" role="button">
+      <span class="zc-tag">вход</span>
+      <h3>Рынок / ресерч</h3>
+      <p>Топовые механики рынка, ресерч-паки.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="30" y="330" width="220" height="100">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--prod)" data-k="etalon" tabindex="0" role="button">
+      <span class="zc-tag">человек</span>
+      <h3>Эталонная механика</h3>
+      <p>Кураторский акт: оператор отдаёт эталон и кормит вкус.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="290" y="210" width="280" height="290">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--prod)" data-k="gen" tabindex="0" role="button">
+      <span class="zc-tag">один сервис — три потребителя</span>
+      <h3>Генеративный сервис</h3>
+      <p>• Фабрика левел-дизайна (серии)<br/>
+         • Фабрика сеттинга / стиля (рескины)<br/>
+         • Поиск вариаций механик (ступень 2)<br/><br/>
+         Trusted compiler, детерминированный продакшен, автоплей/oracle QA-гейты.
+         Модели — только ночное R&amp;D.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="630" y="210" width="280" height="120">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block gate-block" style="--zc:var(--gate)" data-k="gate" tabindex="0" role="button">
+      <span class="zc-tag">узкое место — и это нормально</span>
+      <h3>Человеческий шлюз</h3>
+      <p>Слепой отсмотр → серийное ревью → TMA Approve. Публикация — всегда человеческое решение.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="630" y="400" width="280" height="110">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--cat)" data-k="cat" tabindex="0" role="button">
+      <span class="zc-tag">доверенная середина</span>
+      <h3>Каталог</h3>
+      <p>Content-addressed идентичность, candidate→canary→published, recall как страховка.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="950" y="190" width="270" height="120">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--cons)" data-k="feed" tabindex="0" role="button">
+      <span class="zc-tag">ядро продукта</span>
+      <h3>Лента</h3>
+      <p>Слоты, personal runway, автоплей → незаметный перехват. Спрос — только из поведения.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="950" y="380" width="270" height="90">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--cons)" data-k="player" tabindex="0" role="button">
+      <span class="zc-tag">игрок</span>
+      <h3>Игрок</h3>
+      <p>Играет серии, открывает сундуки — и сам создаёт.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="950" y="540" width="270" height="100">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--cons)" data-k="tele" tabindex="0" role="button">
+      <span class="zc-tag">факты</span>
+      <h3>Телеметрия</h3>
+      <p>Append-only: decision → impression → attempt → outcome.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="630" y="560" width="280" height="110">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--meta)" data-k="meta" tabindex="0" role="button">
+      <span class="zc-tag">генеративная мета</span>
+      <h3>Мир-витрина / UGC</h3>
+      <p>Игрок генерит рескины тем же конвейером; чужие плеи растят здания.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="770" y="720" width="220" height="100">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--learn)" data-k="c1" tabindex="0" role="button">
+      <span class="zc-tag">evidence</span>
+      <h3>C1-аналитика</h3>
+      <p>Ночные детерминированные отчёты из фактов.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="470" y="720" width="240" height="100">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--learn)" data-k="demand" tabindex="0" role="button">
+      <span class="zc-tag">топливо фабрики</span>
+      <h3>Спрос и отвалы</h3>
+      <p>Матрица спроса, autopsy отвалов → briefs фабрикам.</p>
+    </div>
+  </foreignObject>
+  <foreignObject x="34" y="840" width="780" height="44">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="agents-chip" data-k="agents" tabindex="0" role="button">
+      <b>⟡ Обслуживающие агенты</b> — аналитик · ресерчер · продакшен-оркестратор · инфра-контроль.
+      Экономят внимание; authority у человека.
+    </div>
+  </foreignObject>
+</svg>
+</div></div>
+
+<div class="legend">
+  <span><span class="status ok">работает</span> — есть в проде/коде</span>
+  <span><span class="status plan">спроектировано</span> — спека заморожена, код впереди</span>
+  <span><span class="status dir">направление</span> — зафиксировано как цель</span>
+</div>
+
+<div class="metrics">
+  <div class="metric"><div class="eyebrow">north star</div>
+    <b>Удержание через «нашёл своё в разнообразии»</b>
+    <span>Лента создаёт ожидание правильной длины; continuity-JOIN — измерительный якорь, не самоцель.</span></div>
+  <div class="metric"><div class="eyebrow">метрика продакшена</div>
+    <b>Human-good серий на минуту внимания оператора</b>
+    <span>Агенты и фабрики сужают поток до решений; дешевле кормить вкус — вот их продукт.</span></div>
+</div>
+<p class="provenance" style="margin:16px 0 0;font-size:11.5px;color:var(--sub);font-family:ui-monospace,Menlo,monospace">__BUILD_INFO__</p>
+</div>
+
+<div id="backdrop"></div>
+<div id="card" role="dialog" aria-modal="true" aria-labelledby="card-title"></div>
+
+<script>
+const DETAILS = {
+  acq:{t:"Закупка на механики платформы",tag:"закупка",s:"dir",c:"var(--grow)",
+    x:"Игровая единица рождается плеебл-совместимой: пайплайн таргетов AppLovin / FTUE / swipe уже работает. Цель — закупать на любую механику портфеля. Встреча игрока: payload плеебла → deep-link → первый слот той же mechanic/variant (identity-JOIN, измеримая конверсия) — это же даёт новичку стартовый affinity и решает холодный старт runway. Вариации самих плееблов печёт тот же генеративный сервис."},
+  vir:{t:"Виральность",tag:"органика",s:"plan",c:"var(--grow)",
+    x:"Второе крыло роста. Спроектировано: share/challenge — каждая ссылка это конкретный вызов, открывающийся мгновенно (план v1). Продуктовые гипотезы (не утверждены): кураторы-витрины чужих механик, порталы-дискавери в конце серий, экономика связки закупка+органика."},
+  market:{t:"Рынок / ресерч",tag:"вход",s:"dir",c:"var(--prod)",
+    x:"Постоянный вход: рынок поставляет проверенные жанры, market-research (частично агентский) кормит выбор следующих эталонов и research-паки для experiment-lane. Фабрика масштабирует, но не заменяет этот кураторский ввод (принцип 5)."},
+  etalon:{t:"Эталонная механика",tag:"человек",s:"ok",c:"var(--prod)",
+    x:"Кураторский акт человека: оператор отдаёт эталонную механику и держит вкусовой отбор. Отсюда стартует ступень 1: фабрики собирают серии этой механики в разных сеттингах."},
+  gen:{t:"Генеративный сервис",tag:"один сервис — три потребителя",s:"part",c:"var(--prod)",
+    x:"Night Generation Factory (рамка заморожена): series lane уже боевой — первая Sort-кампания дала 10/10 jobs и slot-repair; фабрика сеттинга = SkinSpec v1 (спека готова); поиск вариаций механик = experiment lane, manual-supervised (ступень 2). Всё через trusted compiler и автоплей/oracle-гейты; продакшен детерминирован, модели — только ночное R&D под квотами. Один сервис обслуживает фабрику, UGC-мету и закупочные плееблы."},
+  gate:{t:"Человеческий шлюз",tag:"узкое место — и это нормально",s:"ok",c:"var(--gate)",
+    x:"Слепой отсмотр уровней и серий в Lab (author-blind), полное прохождение до сундука, затем TMA Approve одного exact promotion-binding. Risk-admission: контент на доказанном runtime публикуется сразу после Approve, любая новая граница идёт canary-лестницей. Recall — страховка. Зелёная метрика — evidence, не authority."},
+  cat:{t:"Каталог",tag:"доверенная середина",s:"ok",c:"var(--cat)",
+    x:"Доверенная середина: content-addressed runtime-релизы, раздельные evaluation/publication полномочия, candidate→canary→published, append-only решения и admission-receipts, recall с ревокацией тикетов. Делает автогенерацию безопасной by construction."},
+  feed:{t:"Лента",tag:"ядро продукта",s:"plan",c:"var(--cons)",
+    x:"Слотовая лента с personal runway; спрос выводится из поведения (досмотры, перехваты, серии, сундуки) — никакого UI запроса. Continuity: сундук встроенной серии = one-shot триггер, продолжение подаётся слотом и меряется exact JOIN'ом. Код за флагами (shadow-режим доказан), включение — через прод-гейты levelSeries."},
+  player:{t:"Игрок",tag:"игрок",s:"ok",c:"var(--cons)",
+    x:"Автоплей показывает геймплей до касания, перехват управления незаметен. Единица потребления — серия с сундуком. Игрок одновременно потребитель и (через мету) производитель контента."},
+  tele:{t:"Телеметрия",tag:"факты",s:"ok",c:"var(--cons)",
+    x:"Append-only факты: decision → impression → attempt → outcome, durable outbox, BFCache-safe жизненный цикл, exact dwell. Оптимизируем только то, что воспроизводимо из этих фактов."},
+  c1:{t:"C1-аналитика",tag:"evidence",s:"ok",c:"var(--learn)",
+    x:"Ночной cron детерминированно материализует immutable evidence-отчёты (окна D-2, replay byte-identical, честный inconclusive). Строго факты без интерпретаций; выводы (C2) — отдельная роль с человеком в цикле."},
+  demand:{t:"Спрос и отвалы",tag:"топливо фабрики",s:"dir",c:"var(--learn)",
+    x:"Матрица спроса и autopsy отвалов превращаются в GenerationBrief'ы фабрикам — кольцо замыкается: аналитика становится топливом продакшена. Сейчас briefs собираются вручную; цель — регулярный полуавтомат с человеческим утверждением."},
+  meta:{t:"Мир-витрина / UGC",tag:"генеративная мета",s:"plan",c:"var(--meta)",
+    x:"Генеративная мета: остров игрока — витрина его механик; рескины генерятся тем же trusted-компилятором (E2E с телефона доказан), здания растут от чужих плеев. Кураторство не-творцов — продуктовая гипотеза. Третий источник контента и источник шаблонов для песочницы. Ведётся как один из двух параллельных мета-экспериментов."},
+  agents:{t:"Обслуживающие агенты",tag:"поперечный слой",s:"plan",c:"var(--frame)",
+    x:"Команда агентов обслуживает все контуры: аналитик (C1-дайджесты), ресерчер рынка, продакшен-оркестратор (ночные кампании, ревью-подготовка), инфра-контроль (CI, диск, бэкапы, алерты). Продукт агентов — сэкономленное внимание оператора; публикационная, финансовая и расписательная authority остаётся у человека (A1 — supervised)."},
+  vision:{t:"VISION — swipe-платформа",tag:__VISION_META__,s:"ok",c:"var(--gate)",wide:true,
+    html:__VISION_HTML__}
+};
+const badge = {ok:"работает", part:"частично работает", plan:"спроектировано", dir:"направление"};
+const backdrop = document.getElementById('backdrop');
+const card = document.getElementById('card');
+const noMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let srcEl = null, isOpen = false, lastFocus = null;
+
+function targetRect(wide){
+  const W = Math.min(wide ? 780 : 680, innerWidth - 32);
+  return { left:(innerWidth - W)/2, top:Math.max(24, innerHeight*(wide ? 0.08 : 0.16)), width:W };
+}
+function setRect(el, r){
+  el.style.left = r.left+'px'; el.style.top = r.top+'px'; el.style.width = r.width+'px';
+}
+function openCard(k, el){
+  if(isOpen) return;
+  const d = DETAILS[k]; if(!d) return;
+  isOpen = true; srcEl = el; lastFocus = el;
+  const from = el.getBoundingClientRect();
+  card.innerHTML =
+    '<button class="x" aria-label="Закрыть">✕</button>'+
+    '<div class="eyebrow">'+d.tag+'</div>'+
+    '<h2 id="card-title">'+d.t+(d.html?'':' <span class="status '+d.s+'">'+badge[d.s]+'</span>')+'</h2>'+
+    (d.html || '<p>'+d.x+'</p>');
+  card.style.setProperty('--dzc', d.c);
+  card.classList.toggle('wide', !!d.wide);
+  card.querySelector('.x').addEventListener('click', closeCard);
+  const to = targetRect(d.wide);
+  setRect(card, to);
+  card.classList.add('shown');
+  backdrop.classList.add('on');
+  el.classList.add('src');
+  if(noMotion){ card.focus?.(); card.querySelector('.x').focus(); return; }
+  const fin = card.getBoundingClientRect();
+  const sx = from.width / fin.width, sy = from.height / fin.height;
+  card.style.transform = 'translate('+(from.left-fin.left)+'px,'+(from.top-fin.top)+'px) scale('+sx+','+sy+')';
+  card.style.opacity = '0.5';
+  card.getBoundingClientRect();
+  card.classList.add('anim');
+  card.style.transform = 'none';
+  card.style.opacity = '1';
+  setTimeout(()=>card.querySelector('.x').focus(), 300);
+}
+function closeCard(){
+  if(!isOpen) return;
+  backdrop.classList.remove('on');
+  const finish = ()=>{
+    card.classList.remove('shown','anim');
+    card.style.transform=''; card.style.opacity='';
+    if(srcEl) srcEl.classList.remove('src');
+    isOpen = false;
+    if(lastFocus) lastFocus.focus();
+  };
+  if(noMotion || !srcEl){ finish(); return; }
+  const from = srcEl.getBoundingClientRect();
+  const fin = card.getBoundingClientRect();
+  const sx = from.width / fin.width, sy = from.height / fin.height;
+  card.style.transform = 'translate('+(from.left-fin.left)+'px,'+(from.top-fin.top)+'px) scale('+sx+','+sy+')';
+  card.style.opacity = '0.35';
+  card.addEventListener('transitionend', function h(e){
+    if(e.propertyName !== 'transform') return;
+    card.removeEventListener('transitionend', h);
+    finish();
+  });
+  setTimeout(finish, 400);
+}
+backdrop.addEventListener('click', closeCard);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCard(); });
+const hint=document.getElementById('swipe-hint');
+if(hint){document.querySelector('.diagram-scroll').addEventListener('scroll',()=>hint.style.display='none',{once:true});}
+document.querySelectorAll('[data-k]').forEach(el=>{
+  el.addEventListener('click', ()=>openCard(el.dataset.k, el));
+  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();openCard(el.dataset.k, el);} });
+});
+</script>
