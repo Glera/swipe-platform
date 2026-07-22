@@ -87,3 +87,28 @@ mkdirSync(path.join(here, 'dist'), { recursive: true });
 const outPath = path.join(here, 'dist', 'platform-scheme.html');
 writeFileSync(outPath, html);
 process.stdout.write(`built ${outPath}\n${meta}\n`);
+
+// --- Hypothesis Scoreboard: dist/scoreboard.html из scoreboard-template.html + hypotheses.json ---
+const hypPath = path.join(here, 'hypotheses.json');
+const hypBytes = readFileSync(hypPath);
+const hypData = JSON.parse(hypBytes.toString('utf8'));
+let hypCommit = 'uncommitted';
+try {
+  hypCommit = execFileSync('git', ['log', '-1', '--format=%h', '--', 'platform-scheme/hypotheses.json'],
+    { cwd: path.join(here, '..'), encoding: 'utf8' }).trim() || 'uncommitted';
+  const hypDirty = execFileSync('git', ['status', '--porcelain', '--', 'platform-scheme/hypotheses.json'],
+    { cwd: path.join(here, '..'), encoding: 'utf8' }).trim();
+  if (hypDirty) hypCommit += '+draft';
+} catch { /* вне git */ }
+const hypSha = createHash('sha256').update(hypBytes).digest('hex');
+const hypInfo = `hypotheses.json @ ${hypCommit} · sha256 ${hypSha.slice(0, 12)} · as of ${hypData.asOf}`;
+const sbTemplate = readFileSync(path.join(here, 'scoreboard-template.html'), 'utf8');
+for (const token of ['__SCOREBOARD_DATA__', '__BUILD_INFO__']) {
+  if (!sbTemplate.includes(token)) throw new Error(`scoreboard template is missing ${token}`);
+}
+const sbHtml = sbTemplate
+  .replace('__SCOREBOARD_DATA__', JSON.stringify(hypData))
+  .replace('__BUILD_INFO__', hypInfo.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])));
+const sbOut = path.join(here, 'dist', 'scoreboard.html');
+writeFileSync(sbOut, sbHtml);
+process.stdout.write(`built ${sbOut}\n${hypInfo}\n`);

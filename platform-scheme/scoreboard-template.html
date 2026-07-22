@@ -1,0 +1,108 @@
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Hypothesis Scoreboard — swipe</title>
+<style>
+:root{
+  --bg:#12161E; --panel:#1A2029; --ink:#E8ECF2; --sub:#9AA5B4;
+  --frame:#39424F; --gate:#F0A33A; --ok:#5BC97E; --warn:#E3C35A; --dim:#6E7787;
+  --active:#3FBDB4; --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+:root[data-theme="light"]{
+  --bg:#F2F4F6; --panel:#FFFFFF; --ink:#1B2330; --sub:#5A6472;
+  --frame:#B7BFCA; --gate:#C77800; --ok:#1E7A3C; --warn:#8A6A00; --dim:#7A8494;
+  --active:#0F7E78; --shadow:0 1px 2px rgba(20,28,40,.08),0 4px 14px rgba(20,28,40,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;}
+.wrap{max-width:960px;margin:0 auto;padding:28px 20px 48px}
+.eyebrow{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--sub)}
+h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin:4px 0 6px;text-wrap:balance}
+.intro{color:var(--sub);max-width:78ch;margin:0}
+.rules{margin:16px 0 0;padding:12px 16px;border:1px dashed var(--frame);border-radius:10px;
+  font-size:13px;color:var(--sub)}
+.rules b{color:var(--ink)}
+.funnel{display:flex;align-items:stretch;gap:0;margin:22px 0 4px;overflow-x:auto;padding-bottom:4px}
+.stage{flex:1 1 0;min-width:118px;position:relative;padding:9px 10px 9px 18px;
+  background:var(--panel);border:1px solid var(--frame);border-left:0;box-shadow:var(--shadow)}
+.stage:first-child{border-left:1px solid var(--frame);border-radius:8px 0 0 8px;padding-left:12px}
+.stage:last-child{border-radius:0 8px 8px 0}
+.stage b{display:block;font-size:12px;font-weight:700;letter-spacing:-.01em}
+.stage span{display:block;font-size:10.5px;color:var(--sub);line-height:1.3;margin-top:2px}
+.stage em{position:absolute;right:-7px;top:50%;transform:translateY(-50%);z-index:2;
+  font-style:normal;color:var(--dim);font-size:12px}
+.stage:last-child em{display:none}
+.funnel-note{font-size:12px;color:var(--sub);margin:6px 0 0}
+.cards{display:flex;flex-direction:column;gap:14px;margin-top:24px}
+.hcard{background:var(--panel);border-radius:12px;box-shadow:var(--shadow);padding:16px 20px;
+  border-left:4px solid var(--hc,var(--frame))}
+.hcard.active{--hc:var(--active)}
+.hcard.queued{--hc:var(--frame)}
+.hcard h2{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.015em}
+.hrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.chip{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10.5px;font-weight:600;
+  border:1px solid currentColor;text-transform:uppercase;letter-spacing:.04em}
+.chip.st-active{color:var(--active)} .chip.st-queued{color:var(--dim)}
+.chip.g-none{color:var(--dim)} .chip.g-directional{color:var(--warn)} .chip.g-statistical{color:var(--ok)}
+.f{margin:8px 0 0;font-size:13.5px;color:var(--sub);line-height:1.5}
+.f b{color:var(--ink);font-weight:600}
+.mini{display:flex;gap:3px;margin-top:10px}
+.mini i{flex:1 1 0;height:5px;border-radius:3px;background:var(--frame);opacity:.35}
+.mini i.on{background:var(--hc);opacity:1}
+.mini-label{font-size:10.5px;color:var(--sub);margin-top:4px;font-family:ui-monospace,Menlo,monospace}
+.next{margin-top:10px;padding:8px 12px;border-radius:8px;font-size:13px;
+  background:color-mix(in srgb,var(--gate) 8%,transparent);color:var(--ink)}
+.next b{color:var(--gate)}
+.prov{margin:22px 0 0;font-size:11.5px;color:var(--sub);font-family:ui-monospace,Menlo,monospace}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">swipe-платформа · hypothesis scoreboard · защита моратория</div>
+  <h1>Что мы доказываем — и что решаем дальше</h1>
+  <p class="intro">Одна строка = одна продуктовая гипотеза. Любая новая стройка обязана двигать
+  какую-то строку; если не двигает — это мораторий. Evidence честное:
+  на 3–10 людях оно всегда directional/qualitative, не статистический A/B.</p>
+
+  <div class="rules">
+    <b>Qualified play</b> = <span id="qp"></span>. Диагностическая воронка ниже разделяет
+    гипотезы по сегментам — чтобы autoplay-гипотеза не смешивалась со сложностью уровней,
+    длиной серии и нехваткой контента.
+  </div>
+
+  <div class="funnel" id="funnel"></div>
+  <div class="funnel-note">Каждая карточка читает свой сегмент воронки (подсвечен полосой внизу карточки).</div>
+
+  <div class="cards" id="cards"></div>
+
+  <p class="prov" id="prov"></p>
+</div>
+
+<script>
+const DATA = __SCOREBOARD_DATA__;
+const GRADE = { none:"evidence: none", directional:"evidence: directional", statistical:"evidence: statistical" };
+const STATUS = { active:"активна", queued:"в очереди" };
+document.getElementById("qp").textContent = DATA.qualifiedPlay;
+const funnel = document.getElementById("funnel");
+funnel.innerHTML = DATA.funnelStages.map(s =>
+  '<div class="stage"><b>'+s.label+'</b><span>'+s.hint+'</span><em>›</em></div>').join("");
+const stageIds = DATA.funnelStages.map(s=>s.id);
+document.getElementById("cards").innerHTML = DATA.hypotheses.map(h => {
+  const mini = stageIds.map(id =>
+    '<i class="'+(h.funnel.includes(id)?"on":"")+'" title="'+id+'"></i>').join("");
+  const seg = h.funnel.join(" → ");
+  return '<div class="hcard '+h.status+'">'
+    +'<div class="hrow"><h2>'+h.title+'</h2>'
+    +'<span class="chip st-'+h.status+'">'+STATUS[h.status]+'</span>'
+    +'<span class="chip g-'+h.evidence.grade+'">'+GRADE[h.evidence.grade]+'</span></div>'
+    +'<div class="f"><b>Когорта:</b> '+h.cohort+'</div>'
+    +'<div class="f"><b>Метрика:</b> '+h.metric+'</div>'
+    +'<div class="f"><b>Порог:</b> '+h.threshold+'</div>'
+    +'<div class="f"><b>Evidence:</b> '+h.evidence.note+'</div>'
+    +'<div class="mini">'+mini+'</div>'
+    +'<div class="mini-label">'+seg+'</div>'
+    +'<div class="next"><b>Следующее решение:</b> '+h.next+'</div>'
+    +'</div>';
+}).join("");
+document.getElementById("prov").textContent = "__BUILD_INFO__";
+</script>

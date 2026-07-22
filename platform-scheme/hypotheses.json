@@ -1,0 +1,70 @@
+{
+  "schema": "hypothesis-scoreboard.v1",
+  "asOf": "2026-07-22",
+  "qualifiedPlay": "сыгранная до конца серия (до сундука)",
+  "funnelStages": [
+    { "id": "reveal", "label": "reveal", "hint": "карточка увидена в ленте (автоплей)" },
+    { "id": "takeover", "label": "takeover", "hint": "перехват управления" },
+    { "id": "action", "label": "state-changing action", "hint": "первое осмысленное действие" },
+    { "id": "level", "label": "level completion", "hint": "уровень доигран" },
+    { "id": "chest", "label": "chest", "hint": "серия до сундука = qualified play" },
+    { "id": "return", "label": "organic return", "hint": "вернулся сам, без пинга" }
+  ],
+  "hypotheses": [
+    {
+      "id": "autoplay-delight",
+      "title": "Autoplay → быстрый первый восторг",
+      "status": "active",
+      "cohort": "friend cohort (3–10, стремимся к ICP)",
+      "metric": "time-to-first-qualified-play; диагностика строго по reveal → takeover → action, чтобы не смешивать со сложностью уровней и длиной серии",
+      "threshold": "directional: первый qualified play в первой же сессии у большинства; фидбек «всё понятно»",
+      "funnel": ["reveal", "takeover", "action"],
+      "evidence": { "grade": "none", "note": "cohort не начат" },
+      "next": "запустить cohort после merge projection-completeness и levelSeries-гейтов"
+    },
+    {
+      "id": "series-return",
+      "title": "Серия → возврат",
+      "status": "active",
+      "cohort": "friend cohort (3–10)",
+      "metric": "вернулся сам, чтобы найти и пройти ещё серию; диагностика по chest → organic return",
+      "threshold": "directional: возвраты за новой серией у большинства + фидбек «хочется возвращаться»",
+      "funnel": ["chest", "return"],
+      "evidence": { "grade": "none", "note": "cohort не начат" },
+      "next": "тот же запуск; qualitative-фидбек по чек-листу exit-критерия шага 2"
+    },
+    {
+      "id": "variety-retention",
+      "title": "Разнообразие → active days",
+      "status": "queued",
+      "cohort": "30–50 закрытых (шаг 3)",
+      "metric": "active days против mechanics explored before favorite",
+      "threshold": "числовые пороги включаются на шаге 3 (D7, active days)",
+      "funnel": ["reveal", "takeover", "action", "level", "chest", "return"],
+      "evidence": { "grade": "none", "note": "на 3–10 людях статистически не видна" },
+      "next": "дизайн замера при подготовке шага 3"
+    },
+    {
+      "id": "mechanic-match",
+      "title": "Mechanic-match закупка > generic landing",
+      "status": "queued",
+      "cohort": "первая acquisition cohort (шаг 4)",
+      "metric": "конверсия в qualified play: identity-JOIN встреча против generic",
+      "threshold": "определяется в спеке attribution-контракта",
+      "funnel": ["reveal", "takeover", "action", "level", "chest"],
+      "evidence": { "grade": "none", "note": "attribution identity-JOIN не специфицирован" },
+      "next": "спека attribution-контракта (плеебл → deep-link → mechanic-match слот)"
+    },
+    {
+      "id": "humangood-rate",
+      "title": "Human-good/min растёт без вреда игроку",
+      "status": "queued",
+      "cohort": "операционные данные фабрики × player outcome",
+      "metric": "human-good серий на минуту внимания оператора при неухудшении player-guardrails",
+      "threshold": "скорборд фабрики (§10 рамки Night Factory)",
+      "funnel": ["level", "chest", "return"],
+      "evidence": { "grade": "directional", "note": "series lane выдаёт human-good серии (первая кампания); знаменатель — минуты внимания — ещё не меряется" },
+      "next": "счётчик review-минут в Lab — после cohort-приоритетов"
+    }
+  ]
+}
