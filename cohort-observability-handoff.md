@@ -1,170 +1,194 @@
-# ТЗ-handoff: Cohort Observability v1 — когортный дайджест + cohort watch
+# ТЗ-handoff: Cohort Observability v1.1 — когортный дайджест + cohort watch
 
-Дата: 23.07.2026. Оркестратор: Claude (эта сессия). Исполнитель: codex
-(отдельная сессия). Утверждено оператором как обслуживание цели
-«Cohort-ready лента» / следующей цели «Cohort live» — мораторий не
-нарушается (это измерительный инструмент шага 2 лестницы, не новый контур).
+Дата: 23.07.2026 (v1.1 после codex-ревью `42b3a78` — все 6 P1 приняты).
+Оркестратор: Claude. Исполнитель: codex (отдельная сессия, резервная машина).
+Утверждено оператором как измерительный инструмент шага 2 лестницы —
+мораторий не нарушается.
 
-Замороженный текст спеки по итогам реализации положить в
+**Текущий allowed scope реализации (GO codex):** уточнённая спека +
+безопасная C1-часть компонента A. Компонент B (watchers), production
+enablement и friend invites — за своими гейтами (см. §3, §6).
+
+Замороженный текст спеки по итогам — в
 `swipe-backend/docs/specs/cohort-observability.md`; этот файл — handoff.
 
 ## 0. Authority и контекст
 
-- Продукт: `VISION.md` (v2.3) — лестница доказательства §«Лестница», шаг 2
-  (3–10 друзей, qualitative exit/kill); North Star tree; принцип 7 (агенты
-  без authority).
-- Гипотезы и словарь стадий воронки: `platform-scheme/hypotheses.json`
-  (`funnelStages`: reveal → takeover → action → level → chest → return;
-  qualified play = серия до сундука).
-- Роли agent-team: `swipe-backend/docs/specs/agent-team.md` (A1, вотчеры,
-  тихая неделя §15, detector-config §3); ВАЖНО из
-  `night-generation-factory.md` §8: автоматическая Telegram-доставка
-  контент/дайджест-пакетов **не добавляется в A1** без расширения его
-  source/authority матрицы — поэтому доставка дайджеста живёт в backend
-  (компонент A), а в A1 остаётся только watch (компонент B).
-- Готовые кирпичи: C1 cron (`content_analytics_scheduler`, receipts,
-  replay-noop, окна D-2), проекция c1.4 (merged в master `e358b43`),
-  m2m read path для аналитики (agents-m2m, отревьюен), разовая
-  Telegram-доставка дайджеста существующим продуктовым ботом (20.07,
-  message_id 38 — шаблон), операционный чеклист
-  `feed-prototype/COHORT-PREFLIGHT.md`.
+- Продукт: `VISION.md` v2.3 (лестница §, North Star, принцип 7).
+- Границы C1/C2: `swipe-backend/docs/specs/content-analytics-report.md` —
+  **несущий документ этого ТЗ**: return_demand, first-experience,
+  segment/runway/starvation, GenerationBrief = C2 (data-gated); C1 =
+  funnels/facts.
+- Роли: `AGENT-ROLES.md` (meta-repo) с lifecycle-статусами.
+- A1: `swipe-backend/docs/specs/agent-team.md` — source matrix A1
+  исчерпывающая (health/диск/часы/сеть/локальный store); cohort-источники в
+  неё НЕ входят (§3 этого ТЗ).
+- M2M: `agents-m2m-read.md` — статус заголовка расходится с фактом
+  (backend read path принят и смержен, заголовок draft). Задача внутри
+  среза: привести authority-документ к одному источнику правды (exact
+  accepted revision + receipt), НЕ утверждая A1-допуск (agent-side
+  интеграция и freshness-watcher = B1, отдельная приёмка).
+- Кирпичи: C1 cron (receipts/replay-noop, окна D-2), c1.4 (master
+  `e358b43`), transactional outbox-паттерн
+  (`swipe-generator/src/evaluation-outbox.mjs` — образец для доставки),
+  разовая TG-доставка 20.07 (формат), `feed-prototype/COHORT-PREFLIGHT.md`.
 
 ## 1. Не цели / границы
 
-- **Никакого C2**: дайджест — факты и воронки; ни рекомендаций, ни
-  вердиктов, ни «стоит попробовать». Вердикт недели делает человек.
-  Последняя строка каждого дайджеста — литерал «Дисциплина: C2-выводов
-  нет» (наш проверенный паттерн).
-- **Никакой новой HTTP/публикационной/флаговой authority**; все чтения
-  read-only; никакой записи в продовые таблицы кроме собственных
-  append-only receipts/документов дайджеста.
-- Не трогать существующий C1-контракт задним числом: если когорте не
-  хватает поля — это additive-строка контракта (c1.x) с обычным ревью, а
-  не ad-hoc SQL мимо проекции.
-- Персональные данные: только то, что уже есть в `users` (id, имя);
-  никаких новых трекеров.
+- **Строго C1.** В v1 НЕТ: organic return / межсессионного
+  time-to-first-qualified-play / runway-starvation — это C2-extension после
+  data gate (отдельное будущее ТЗ). Разрешённая длительность в v1 — только
+  **внутрисерийная**: от первого `catalog_level_impression` до chest в
+  пределах одного immutable series ticket, и называется она
+  `inSeriesDurationMs`, не «time to qualified» и не retention.
+- Никакой новой HTTP/публикационной/флаговой authority; никаких прямых
+  DB-кредов вовне backend.
+- Никакого изменения C1-контракта задним числом (additive c1.x с ревью).
+- Friend-строки не передаются в LLM ни на каком этапе.
 
-## 2. Компонент A — когортный дневной дайджест (backend, роль «аналитик»)
+## 2. Компонент A — когортный дневной дайджест (backend)
 
-**Ключевая развилка свежести (решить в дизайне так):** канонический C1
-материализует окна D-2 (settle-lag) — для недельной когорты это слишком
-поздно как единственный слой. Дайджест несёт ДВА слоя с честной маркировкой:
+### 2.1 Scope метрик (C1-safe, исчерпывающе)
 
-1. **Operational-слой** (свежесть — часы): отдельная read-only проекция
-   `cohort-operational.v1` поверх ТЕХ ЖЕ projection-примитивов c1.4
-   (append-only факты/CP-inbox), с явной пометкой в документе
-   `settled: false` — «предварительно, до settle». Никогда не кормит
-   вердикты; расхождение с будущим settled-слоем — норма, не баг.
-2. **Settled-слой**: строки канонического C1-отчёта за готовые окна
-   (byte-identical replay, как сейчас).
+По каждому участнику когорты за окно:
 
-**Состав по каждому участнику когорты** (список id — versioned config, не
-хардкод; источник — тот же список, что `FEED_EFFECTUAL_DOGFOOD_USER_IDS`
-или его когортный преемник):
+- C1-воронки entry/level/series (счётчики стадий по словарю
+  `funnelStages` из hypotheses.json);
+- exact ordinal отвала незавершённой серии;
+- серии начаты / завершены; split builtin vs generated;
+- raw-факты ошибок: configuration_failure, loader/runtime failure;
+- `inSeriesDurationMs` завершённых серий (определение в §1);
+- same-day operational-счётчики — только с пометкой `settled:false`.
 
-- воронка за день по стадиям `funnelStages` (счётчики игроков/событий);
-- time-to-first-qualified-play (от первого reveal сессии до первого chest);
-- серии: начаты / завершены / где отвалился (последняя достигнутая стадия
-  незавершённой серии); split builtin vs generated;
-- технические сигналы: configuration_failure, loader/runtime ошибки;
-- возврат: был ли organic return (новая сессия без пинга).
+Агрегат дня: активные из N, новые игроки с завершённой серией, сводка
+ошибок. **Никаких** производных «вернулся/удержан/голодает».
 
-**Агрегат дня:** активные из N приглашённых; новые qualified-игроки;
-возвраты; сводка ошибок.
+### 2.2 Два слоя свежести + identity ревизий
 
-**Механика (по образцу C1):** immutable документ (JCS, documentDigest),
-append-only таблица дайджестов, cron-паттерн `content_analytics_scheduler`
-(lease/fencing, run-receipts, повторный запуск = noop, byte-identical
-replay). Время запуска — конфиг (первичная гипотеза: 07:00 Europe/Belgrade,
-подтвердит оператор).
+- **Operational-слой**: отдельная read-only проекция `cohort-operational.v1`
+  поверх projection-примитивов c1.4. Identity снапшота = exact input
+  manifest: `window + dataCutoffWatermark + codeDigest + configDigest +
+  cohortConfigDigest`. Поздние факты ⇒ **новая immutable revision**
+  (старые байты неизменны), не перезапись. No-op определяется по manifest,
+  не по «cohort+day».
+- **Settled-слой**: строки канонического C1 (D-2), связываются с
+  operational-ревизиями по окну; расхождение — норма и показывается как
+  таковое.
+- В спеке зафиксировать: какая ревизия доставляется; когда и как приходит
+  settled-коррекция; UTC-окно + IANA timezone расписания; поведение на DST,
+  zero-data и late arrivals.
 
-**Доставка:** существующий продуктовый бот → операторский чат (шаблон
-разовой отправки 20.07). Отправка идемпотентна (receipt с message_id;
-повторный запуск не шлёт дубль). Формат сообщения — компактная карточка:
-агрегат + по строке на друга + маркировка operational/settled.
+### 2.3 Privacy contract (обязателен ДО инвайтов)
 
-## 3. Компонент B — cohort watch (swipe-agents, роль «инфра-контроль»)
+- В immutable документах и Telegram-карточках — только псевдонимный
+  `cohortSubjectId`; telegram id/имя в JCS-документ и receipts НЕ входят.
+- Обратимое соответствие subject↔user хранится отдельно, encrypted,
+  deletable; retention и процедура удаления описаны.
+- Явное согласие участников (фиксирует оператор при инвайте; шаблон — в
+  COHORT-PREFLIGHT).
+- Доставка — exact приватный operator-to-bot чат.
+- Operator-only dry-run помечается «диагностический N=1», без
+  групповых/каузальных формулировок.
 
-Новые классы детекторов в A1 (**новая версия detector-config**, JCS-пин,
-по §3 agent-team):
+### 2.4 Механика и доставка (честный at-least-once)
 
-- `cohort_loader_failure` — доля configuration_failure/runtime-ошибок у
-  когортных пользователей над порогом;
-- `cohort_runway_starvation` — policy_runway_empty / пустая подача у
-  когортного пользователя;
-- `cohort_digest_missing` — дайджест (компонент A) не материализовался /
-  не доставлен к T+30мин от расписания.
+- Материализация: по образцу `content_analytics_scheduler`
+  (lease/fencing, run-receipts, replay = noop по manifest-identity).
+- Доставка: **transactional outbox** (образец — evaluation-outbox):
+  deterministic `deliveryId`, at-least-once, классификация
+  terminal/retryable/`outcome_unknown` (crash после send до receipt),
+  digest-id в тексте/metadata сообщения для распознавания дубля человеком,
+  bounded retry + breaker, receipt с `message_id` только после
+  подтверждённого ответа Bot API.
+- Токен продуктового бота — только outbound; никакого
+  webhook/long-polling ownership у backend; QA-бот A1 и его канал —
+  отдельный контур, токены не смешиваются.
 
-Severity по существующей шкале A1 (attention vs incident) — первичные
-пороги = versioned-гипотезы в конфиге, не литералы кода. Источники —
-те же append-only таблицы, read-only. Посты — в существующий QA-канал A1
-(это внутри уже одобренной матрицы A1; продуктовый чат A1 не трогает).
+### 2.5 Несущий гейт дисциплины (не лексика)
 
-**Последовательность (решение оператора 23.07, зафиксировать в спеке):**
-конфиг-версия с cohort-классами деплоится ДО старта тихой недели; неделя
-перезапускается один раз с боевым набором — тихая неделя и неделя когорты
-становятся одним испытанием.
+Typed schema документа: allowlist точных C1-полей, числа/labels рендерит
+validator, свободнотекстовых interpretation/advisory полей НЕТ.
+Лексический blacklist (рекоменд*/стоит/лучше) остаётся как
+defense-in-depth regression + видимая финальная строка «Дисциплина:
+C2-выводов нет».
+
+## 3. Компонент B — cohort watch: ОТДЕЛЬНАЯ ревизия A1.1/B1 (не в этом срезе)
+
+Codex-ревью верно указало: source matrix A1 исчерпывающая, cohort-источники
+в неё не входят, и физически удалённому watcher'у нечем читать backend без
+новой поверхности (прямой DB-кред запрещён). Поэтому:
+
+- Компонент B выносится в **отдельное ТЗ A1.1/B1**: поправка
+  source/authority matrix, server-owned watermarks/read surfaces, credential
+  scope, отдельные fault-injection acceptance.
+- `cohort_runway_starvation` — отложен до C2 (вместе с runway-метриками).
+- `cohort_loader_failure` — в v1 остаётся **backend-owned сигналом внутри
+  дайджеста** (raw-факты уже в scope §2.1); нужен ли B1-watcher — решение
+  при проектировании A1.1.
+- `cohort_digest_missing` — строится по **server-owned
+  materialization/delivery watermark** (внутренний факт компонента A), не
+  по догадке из Telegram; сам watcher — тоже A1.1.
+
+### Последовательность тихих недель (принято по ревью)
+
+1. Текущая A1 quiet week доигрывается как evidence базового контура —
+   разработку компонента A она не блокирует.
+2. Параллельно: спека+реализация компонента A (этот handoff).
+3. A1.1/B1: authority amendment + fault-injection acceptance.
+4. **Отдельная полная quiet week боевой cohort-конфигурации — именно она
+   invite gate.** (Если оператор хочет одну финальную неделю — она явно
+   называется A1.1/B1 acceptance week; прогресс базовой недели — evidence,
+   не замена гейта.)
 
 ## 4. Есть сейчас → роль
 
-| Есть | Роль в этом ТЗ |
+| Есть | Роль |
 |---|---|
 | C1 cron + receipts + replay-noop | образец механики и settled-слой |
-| c1.4 projection-примитивы (master) | единственный источник подсчётов |
-| agents-m2m read (отревьюен) | доступ аналитика к данным без новых кредов |
-| разовая TG-доставка 20.07 | шаблон формата и канала доставки |
-| A1 вотчеры + тихая неделя | каркас компонента B |
-| COHORT-PREFLIGHT.md | операционный чеклист запуска когорты |
-| hypotheses.json funnelStages | словарь стадий (не переизобретать) |
+| c1.4 primitives (master) | единственный источник подсчётов |
+| content-analytics-report.md | несущая граница C1/C2 |
+| evaluation-outbox (generator) | образец transactional-доставки |
+| m2m read backend path (смержен) | доступ чтения; статус-док привести к правде |
+| разовая TG-доставка 20.07 | формат карточки |
+| COHORT-PREFLIGHT.md | операционный чеклист + согласие участников |
 
-## 5. Coverage contract (статус прогонов — у CI, не здесь)
+## 5. Coverage contract (статус — у CI)
 
-- Pure-тесты генератора дайджеста (детерминизм, JCS, digest) + PG-тесты
-  (материализация, lease-гонка двух шедулеров → один receipt, replay
-  byte-identical, идемпотентная доставка).
-- Red-first на каждый watcher-класс (инъекция условия → пост нужной
-  severity; отсутствие условия → тишина).
-- Лексический гейт дисциплины: тест, что документ дайджеста не содержит
-  C2-лексики (рекоменд*/стоит/лучше…) — по образцу нашего прежнего
-  дисциплинарного чек-листа.
-- Migration roundtrip для новых таблиц в общей матрице.
+Pure+PG: детерминизм/JCS/digest; lease-гонка → один receipt; late events →
+новая revision, старые bytes нетронуты; operational vs settled divergence;
+completeness/missing denominators; смена cohort-config/membership;
+zero-data; N=1 operator; duplicate/out-of-order события; delivery: crash до
+send / после send до receipt / lost response; retry/breaker; bounded outbox;
+privacy: redaction, отдельное deletable mapping, отсутствие id/имени в
+JCS-байтах; timezone/DST; size caps; default-off rollout и rollback без
+удаления evidence; migration roundtrip в общей матрице.
 
-## 6. DoD
+## 6. DoD (для allowed scope)
 
-1. За сутки до инвайтов: боевой dry-run на operator-only данных — один
-   cron-receipt, дайджест пришёл в чат, содержит оператора как
-   единственного «участника», слои помечены.
-2. Detector-config с cohort-классами задеплоен, тихая неделя перезапущена
-   (запись в operator log).
-3. Никакой новой HTTP-authority: ревью подтверждает read-only и отсутствие
-   новых маршрутов/кредов.
-4. Откат в один шаг: выключение cron → дайджест молчит; конфиг-версия
-   вотчеров откатывается предыдущей версией; ничего больше не задето.
-5. Обычный процесс: ветка → независимое ревью (Claude) → CI → merge;
-   спека заморожена в `docs/specs/cohort-observability.md`.
+1. Спека заморожена в `docs/specs/cohort-observability.md` (v1.1-границы).
+2. Компонент A реализован за default-off флагом; полный coverage §5 зелёный
+   в CI.
+3. Dry-run на операторе (N=1, диагностический): cron-receipt +
+   доставленная карточка с пометками слоёв и privacy-контрактом.
+4. `agents-m2m-read.md` статус приведён к правде (exact revision+receipt).
+5. Ревью: Claude (полное) → codex (authority) → merge. Прод-деплой крона,
+   A1.1/B1 и инвайты — отдельные операторские акты за гейтами.
 
-## 7. Развёртывание: работать НА РЕЗЕРВНОЙ МАШИНЕ (решение оператора)
+## 7. Развёртывание: на резервной машине
 
-Эта сессия реализуется на резервном ноутбуке, с нуля:
+1. `git clone https://github.com/Glera/p4g-workspace-meta.git
+   p4g-platform-workspace && cd p4g-platform-workspace &&
+   bash bootstrap-workspace.sh`
+2. Ручной хвост: `gh auth login`, codex-auth, PostgreSQL 15, локальный
+   `DATABASE_URL`. Операторские секреты (Render ops-ключ, прод-токены) НЕ
+   переносить — реализация локальна+CI; прод-акты с основной машины.
+3. Порядок чтения: `VISION.md` → `AGENTS.md` → `AGENT-ROLES.md` →
+   `IMPLEMENTATION-STATUS.md` → `content-analytics-report.md` → этот файл.
+4. Правила: worktree-ветки, без прямых пушей в master, явные exit-коды.
 
-1. ```bash
-   git clone https://github.com/Glera/p4g-workspace-meta.git p4g-platform-workspace
-   cd p4g-platform-workspace
-   bash bootstrap-workspace.sh        # клоны 7 репо + venv + npm ci + playwright
-   ```
-2. Ручной хвост из чеклиста скрипта: `gh auth login`, codex-auth, PostgreSQL 15
-   (`brew install postgresql@15`), backend `DATABASE_URL` для локальных
-   PG-прогонов. Операторские секреты (Render ops-ключ, прод-токены ботов) НЕ
-   переносить — реализация их не требует: всё локально + CI; боевой деплой
-   cron'а и dry-run в проде исполняет оператор/оркестратор с основной машины
-   по готовой ветке.
-3. Контекст читать в порядке: `VISION.md` → `AGENTS.md` →
-   `swipe-backend/docs/specs/IMPLEMENTATION-STATUS.md` → этот файл.
-4. Правила те же, что везде: worktree-ветки, никаких прямых пушей в master
-   без ревью, проверки с явными exit-кодами; PG-acceptance доказывается в CI.
+## 8. Открытые решения оператора
 
-## 8. Открытые решения оператора (не блокируют старт реализации)
-
-- Время дайджеста и чат доставки.
-- Первичные пороги watcher-классов (в конфиг как гипотезы).
-- Финальный формат карточки друга (можно уточнить после первого dry-run).
+- Время дайджеста / чат (приватный operator-to-bot).
+- Формат карточки (после dry-run).
+- Одна финальная acceptance-неделя vs две (см. §3).
+- Пороги будущих A1.1-классов — при их ТЗ.
