@@ -47,3 +47,30 @@ attended-риск и то, что установленный релиз пред
 config-time фиксы точечные. **P1/P2 отсутствуют.** Merge-решение, релиз A1,
 три /bind, физические drills, quiet-week и production N=1 остаются отдельными
 человеческими гейтами по packet'у — этим ревью ни один из них не пройден.
+
+---
+
+## Focused rereview: e583bd6..7231f085 — ОБА P3 ПОДТВЕРЖДЕНЫ FIXED
+
+Диапазон = один коммит `7231f08` «validate cohort digest renderability at
+registration», ровно по находкам, без посторонних изменений:
+
+- **P3-1 fixed**: валидатор `CohortObservabilityConfigV1.cohort_subject_ids`
+  отклоняет subject id, содержащий любой из forbidden-токенов (общая
+  константа `DIGEST_RENDER_FORBIDDEN_SUBSTRINGS`, список расширен
+  organicreturn/retention; casefold-сравнение корректно). Delivery-проверка
+  сохранена как defense-in-depth и переведена на ту же константу.
+- **P3-2 fixed**: `digest_render_upper_bound` — консервативный worst-case
+  рендера (64-битные счётчики текстом, самый длинный quality-статус,
+  зеркало точного шаблона) — проверяется при регистрации;
+  4096-кап на доставке сохранён.
+- Тесты: reject-обе-стороны + accepted-bounded-случай; полный локальный
+  набор 831 passed (заявка автора); CI run 30015784709 — success
+  (перепроверено мной через gh).
+- Остаточная заметка (не finding): `digest_render_upper_bound` — ручное
+  зеркало шаблона рендера; при будущем изменении шаблона держать их в паре
+  (delivery-кап остаётся страховкой на случай дрейфа).
+
+**Rereview verdict: подтверждаю. P1/P2/P3 открытых нет.** Следующий гейт —
+merge-решение оператора по head `7231f085…`; merge/deploy/production этим
+ревью по-прежнему не выполняются.
