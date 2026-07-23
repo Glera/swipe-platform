@@ -7,15 +7,16 @@ quiet-week, A1.1, or B1 authority.
 
 | Repository | Review target | Pinned artifact | Verified state |
 |---|---|---|---|
-| `swipe-backend` | [PR #7](https://github.com/Glera/swipe-backend/pull/7) | `e583bd6501599ce7e8c5033c137c7e62deacc995` | All CI green: 49 PostgreSQL files (`220 passed, 25 skipped`), device flow (`14 passed`), durable-auth migration (`1 passed`), all migration roundtrips and reverse drift |
-| `swipe-agents` | [PR #2](https://github.com/Glera/swipe-agents/pull/2) | `d88ed17b3c01de6687d92b7b9dc59873f888a184` | `verify` green; local branch: unit `349/349`, acceptance `67/67`, typecheck/build green |
-| `p4g-workspace-meta` | [PR #1](https://github.com/Glera/p4g-workspace-meta/pull/1) | review request `bc23d0a0e56059b93ee63600bae57b70a00fd65c` | Meta suite `29/29`; contains the independent-review request |
+| `swipe-backend` | [PR #7](https://github.com/Glera/swipe-backend/pull/7) | current `7231f08521c913200bc6752730f435d97676977d`; independently reviewed through `e583bd6501599ce7e8c5033c137c7e62deacc995` | Review: no P1/P2, two P3 fixed; focused rereview pending. Current-head CI all green: 49 PostgreSQL files (`220 passed, 25 skipped`), device flow (`14 passed`), durable-auth migration (`1 passed`), all migration roundtrips and reverse drift |
+| `swipe-agents` | [PR #2](https://github.com/Glera/swipe-agents/pull/2) | `d88ed17b3c01de6687d92b7b9dc59873f888a184` | Independently reviewed with no P1/P2/P3; `verify` green; local branch unit `349/349`, acceptance `67/67`, typecheck/build green |
+| `p4g-workspace-meta` | [PR #1](https://github.com/Glera/p4g-workspace-meta/pull/1) | independent review `455f1ea`; author dispositions target backend `7231f08` | Meta suite `29/29`; contains review, dispositions, and this packet |
 
-The independent reviewer should start with
-`cohort-observability-implementation-review-request.md`. Review both target
-repositories at the exact heads above. The author must disposition every
-finding and rerun the relevant checks before either implementation PR becomes
-mergeable by policy.
+The independent review is recorded in
+`cohort-observability-independent-review-2026-07-23.md`. Its two P3 findings
+are accepted and fixed as recorded in
+`cohort-observability-review-dispositions-2026-07-23.md`. Only the exact
+focused backend range in that disposition document remains to be rereviewed;
+the agents head needs no further change or review.
 
 ## What is implementation-complete
 
@@ -53,9 +54,10 @@ Reserve-host evidence and exact drill procedure:
 
 ## Remaining human gates, in order
 
-1. **Independent review.** Return either numbered P1/P2/P3 findings in the
-   required format or an explicit no-findings statement for both PRs. Do not
-   merge or deploy during review.
+1. **Focused backend rereview.** Review only
+   `e583bd6501599ce7e8c5033c137c7e62deacc995..7231f08521c913200bc6752730f435d97676977d`
+   and confirm both P3 dispositions or return new numbered findings. Do not
+   merge or deploy during rereview.
 2. **Merge decision.** A human approves the exact reviewed heads. Any author
    change after review invalidates that head and requires a focused rereview.
 3. **A1 immutable release decision.** Build the reviewed merge commit into a
@@ -87,8 +89,8 @@ Reserve-host evidence and exact drill procedure:
 
 ## Smallest owner participation
 
-Until independent review is returned, none is required. After a clean review,
-the irreducible owner actions are:
+Until focused backend rereview is returned, none is required. After it is
+clean, the irreducible owner actions are:
 
 - approve or reject the two merges;
 - send three Telegram `/bind` commands;
