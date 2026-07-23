@@ -2,6 +2,18 @@
   "schema": "hypothesis-scoreboard.v1",
   "asOf": "2026-07-22",
   "qualifiedPlay": "сыгранная до конца серия (до сундука)",
+  "currentGoal": {
+    "title": "Cohort-ready лента",
+    "statement": "Первый непривилегированный игрок открывает TMA, проходит серию до сундука и возвращается — без операторских костылей; его факты читаются в ночном C1-отчёте без проекционных оговорок.",
+    "exit": [
+      "hard-гейты закрыты: real-backend browser E2E, reload/cross-origin, device/event-order, p95, прод-bootstrap",
+      "external scheduling включён; levelSeries=true",
+      "preflight: остров скрыт от когорты, recall проверен живым сценарием",
+      "контрольный проход «нулевого друга» даёт не-inconclusive строку в отчёте"
+    ],
+    "kill": "флаги off + recall — откат в один шаг; цель не открывает новых контуров (мораторий соблюдён)",
+    "owner": "Claude (оркестрация + ревью), Opus-агенты (срезы), codex — supply-цель Series Order параллельно"
+  },
   "funnelStages": [
     { "id": "reveal", "label": "reveal", "hint": "карточка увидена в ленте (автоплей)" },
     { "id": "takeover", "label": "takeover", "hint": "перехват управления" },

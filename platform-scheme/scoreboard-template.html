@@ -64,6 +64,14 @@ h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin:4px 0 6px;text-wr
   какую-то строку; если не двигает — это мораторий. Evidence честное:
   на 3–10 людях оно всегда directional/qualitative, не статистический A/B.</p>
 
+  <div id="goal" class="hcard active" style="margin-top:20px;display:none">
+    <div class="hrow"><h2 id="goal-title"></h2><span class="chip st-active">текущая цель</span></div>
+    <div class="f" id="goal-statement"></div>
+    <div class="f"><b>Exit:</b><ul id="goal-exit" style="margin:4px 0 0;padding-left:20px"></ul></div>
+    <div class="f"><b>Kill / откат:</b> <span id="goal-kill"></span></div>
+    <div class="f"><b>Кто ведёт:</b> <span id="goal-owner"></span></div>
+  </div>
+
   <div class="rules">
     <b>Qualified play</b> = <span id="qp"></span>. Диагностическая воронка ниже разделяет
     гипотезы по сегментам — чтобы autoplay-гипотеза не смешивалась со сложностью уровней,
@@ -83,6 +91,15 @@ const DATA = __SCOREBOARD_DATA__;
 const GRADE = { none:"evidence: none", directional:"evidence: directional", statistical:"evidence: statistical" };
 const STATUS = { active:"активна", queued:"в очереди" };
 document.getElementById("qp").textContent = DATA.qualifiedPlay;
+if (DATA.currentGoal) {
+  const g = DATA.currentGoal;
+  document.getElementById("goal").style.display = "block";
+  document.getElementById("goal-title").textContent = g.title;
+  document.getElementById("goal-statement").textContent = g.statement;
+  document.getElementById("goal-exit").innerHTML = g.exit.map(e=>"<li>"+e+"</li>").join("");
+  document.getElementById("goal-kill").textContent = g.kill;
+  document.getElementById("goal-owner").textContent = g.owner;
+}
 const funnel = document.getElementById("funnel");
 funnel.innerHTML = DATA.funnelStages.map(s =>
   '<div class="stage"><b>'+s.label+'</b><span>'+s.hint+'</span><em>›</em></div>').join("");
