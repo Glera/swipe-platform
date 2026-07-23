@@ -6,7 +6,7 @@ Authority/spec base: meta commit `98fc826`,
 Review targets:
 
 - `swipe-backend` PR <https://github.com/Glera/swipe-backend/pull/7>,
-  immutable author commit `69ad03afdccaf7e5527db9398e120a75927dbbad`;
+  immutable author head `e583bd6501599ce7e8c5033c137c7e62deacc995`;
 - `swipe-agents` PR <https://github.com/Glera/swipe-agents/pull/2>,
   immutable author head `d88ed17` at the time of this request.
 
@@ -40,6 +40,9 @@ Confirm the implementation remains strictly inside Component A:
    transitions and non-queued outbox INSERT.
 10. Settled is only a digest-checked bounded reference to an already committed
     canonical C1 report; its verdict rows are not copied or interpreted.
+11. The test-only generic-artifact repair at `e583bd6` is truly fixture-only:
+    the replacement `Variant.source` fits its frozen `VARCHAR(16)`, and unique
+    runtime digests make the two PostgreSQL scenarios order-independent.
 
 Inspect especially:
 
