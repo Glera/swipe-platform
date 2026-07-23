@@ -6,21 +6,45 @@
     "title": "Cohort-ready лента",
     "statement": "Первый непривилегированный игрок открывает TMA, проходит серию до сундука и возвращается — без операторских костылей; его факты читаются в ночном C1-отчёте без проекционных оговорок.",
     "exit": [
-      "hard-гейты закрыты: real-backend browser E2E, reload/cross-origin, device/event-order, p95, прод-bootstrap",
+      "hard-гейты закрыты: real-backend browser E2E (зелёный CI-гейт 23.07), reload/cross-origin, device/event-order, p95 ≤ 5с на девайс-профиле (бюджет утверждён 23.07), прод-bootstrap",
       "external scheduling включён; levelSeries=true",
-      "preflight: остров скрыт от когорты, recall проверен живым сценарием",
+      "preflight: остров скрыт от когорты (задеплоено 23.07, стамп 1790d0f), recall проверен живым сценарием",
       "контрольный проход «нулевого друга» даёт не-inconclusive строку в отчёте"
     ],
     "kill": "флаги off + recall — откат в один шаг; цель не открывает новых контуров (мораторий соблюдён)",
     "owner": "Claude (оркестрация + ревью), Opus-агенты (срезы), codex — supply-цель Series Order параллельно"
   },
   "funnelStages": [
-    { "id": "reveal", "label": "reveal", "hint": "карточка увидена в ленте (автоплей)" },
-    { "id": "takeover", "label": "takeover", "hint": "перехват управления" },
-    { "id": "action", "label": "state-changing action", "hint": "первое осмысленное действие" },
-    { "id": "level", "label": "level completion", "hint": "уровень доигран" },
-    { "id": "chest", "label": "chest", "hint": "серия до сундука = qualified play" },
-    { "id": "return", "label": "organic return", "hint": "вернулся сам, без пинга" }
+    {
+      "id": "reveal",
+      "label": "reveal",
+      "hint": "карточка увидена в ленте (автоплей)"
+    },
+    {
+      "id": "takeover",
+      "label": "takeover",
+      "hint": "перехват управления"
+    },
+    {
+      "id": "action",
+      "label": "state-changing action",
+      "hint": "первое осмысленное действие"
+    },
+    {
+      "id": "level",
+      "label": "level completion",
+      "hint": "уровень доигран"
+    },
+    {
+      "id": "chest",
+      "label": "chest",
+      "hint": "серия до сундука = qualified play"
+    },
+    {
+      "id": "return",
+      "label": "organic return",
+      "hint": "вернулся сам, без пинга"
+    }
   ],
   "hypotheses": [
     {
@@ -30,8 +54,15 @@
       "cohort": "friend cohort (3–10, стремимся к ICP)",
       "metric": "time-to-first-qualified-play; диагностика строго по reveal → takeover → action, чтобы не смешивать со сложностью уровней и длиной серии",
       "threshold": "directional: первый qualified play в первой же сессии у большинства; фидбек «всё понятно»",
-      "funnel": ["reveal", "takeover", "action"],
-      "evidence": { "grade": "none", "note": "cohort не начат" },
+      "funnel": [
+        "reveal",
+        "takeover",
+        "action"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "cohort не начат"
+      },
       "next": "запустить cohort после merge projection-completeness и levelSeries-гейтов"
     },
     {
@@ -41,8 +72,14 @@
       "cohort": "friend cohort (3–10)",
       "metric": "вернулся сам, чтобы найти и пройти ещё серию; диагностика по chest → organic return",
       "threshold": "directional: возвраты за новой серией у большинства + фидбек «хочется возвращаться»",
-      "funnel": ["chest", "return"],
-      "evidence": { "grade": "none", "note": "cohort не начат" },
+      "funnel": [
+        "chest",
+        "return"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "cohort не начат"
+      },
       "next": "тот же запуск; qualitative-фидбек по чек-листу exit-критерия шага 2"
     },
     {
@@ -52,8 +89,18 @@
       "cohort": "30–50 закрытых (шаг 3)",
       "metric": "active days против mechanics explored before favorite",
       "threshold": "числовые пороги включаются на шаге 3 (D7, active days)",
-      "funnel": ["reveal", "takeover", "action", "level", "chest", "return"],
-      "evidence": { "grade": "none", "note": "на 3–10 людях статистически не видна" },
+      "funnel": [
+        "reveal",
+        "takeover",
+        "action",
+        "level",
+        "chest",
+        "return"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "на 3–10 людях статистически не видна"
+      },
       "next": "дизайн замера при подготовке шага 3"
     },
     {
@@ -63,8 +110,17 @@
       "cohort": "первая acquisition cohort (шаг 4)",
       "metric": "конверсия в qualified play: identity-JOIN встреча против generic",
       "threshold": "определяется в спеке attribution-контракта",
-      "funnel": ["reveal", "takeover", "action", "level", "chest"],
-      "evidence": { "grade": "none", "note": "attribution identity-JOIN не специфицирован" },
+      "funnel": [
+        "reveal",
+        "takeover",
+        "action",
+        "level",
+        "chest"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "attribution identity-JOIN не специфицирован"
+      },
       "next": "спека attribution-контракта (плеебл → deep-link → mechanic-match слот)"
     },
     {
@@ -74,8 +130,17 @@
       "cohort": "рекламный пилот (после шага 4, решение оператора)",
       "metric": "engaged-play rate рекламных плееблов против видео; evidence-backed отчёт рекламодателю из append-only фактов",
       "threshold": "определяется при первом пилоте с реальным тайтлом",
-      "funnel": ["reveal", "takeover", "action", "level", "chest"],
-      "evidence": { "grade": "none", "note": "инвентаря нет; симметричный identity-JOIN не специфицирован" },
+      "funnel": [
+        "reveal",
+        "takeover",
+        "action",
+        "level",
+        "chest"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "инвентаря нет; симметричный identity-JOIN не специфицирован"
+      },
       "next": "заложить двусторонность (покупаем/продаём переходы) в attribution-спеку"
     },
     {
@@ -85,8 +150,14 @@
       "cohort": "числовые когорты (шаг 3+), совместно с retention-замерами",
       "metric": "active days / возвраты при введении ad load; конверсия в подписку «без рекламы + VIP мета»",
       "threshold": "ad load капится guardrail-метрикой удержания (VISION §Экономика)",
-      "funnel": ["reveal", "return"],
-      "evidence": { "grade": "none", "note": "монетизация не включена (мораторий до когорт)" },
+      "funnel": [
+        "reveal",
+        "return"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "монетизация не включена (мораторий до когорт)"
+      },
       "next": "момент включения — явное решение оператора на шаге 3+"
     },
     {
@@ -96,8 +167,18 @@
       "cohort": "share/challenge v1 на friend cohort (directional); числово — шаг 3+",
       "metric": "K-фактор = инвайты × acceptance × активация приведённого (дейлики с сериями + возврат D2); награда токенами, не за клик",
       "threshold": "на cohort — directional «делятся ли вообще»; числовой порог — с шага 3",
-      "funnel": ["reveal", "takeover", "action", "level", "chest", "return"],
-      "evidence": { "grade": "none", "note": "share v1 не запущен; referral ждёт attribution-спеку" },
+      "funnel": [
+        "reveal",
+        "takeover",
+        "action",
+        "level",
+        "chest",
+        "return"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "share v1 не запущен; referral ждёт attribution-спеку"
+      },
       "next": "share/challenge v1 к friend cohort; referral-ветка в attribution-контракте (та же identity-JOIN)"
     },
     {
@@ -107,8 +188,15 @@
       "cohort": "операционные данные фабрики × player outcome",
       "metric": "human-good серий на минуту внимания оператора при неухудшении player-guardrails",
       "threshold": "скорборд фабрики (§10 рамки Night Factory)",
-      "funnel": ["level", "chest", "return"],
-      "evidence": { "grade": "directional", "note": "series lane выдаёт human-good серии (первая кампания); знаменатель — минуты внимания — ещё не меряется" },
+      "funnel": [
+        "level",
+        "chest",
+        "return"
+      ],
+      "evidence": {
+        "grade": "directional",
+        "note": "series lane выдаёт human-good серии (первая кампания); знаменатель — минуты внимания — ещё не меряется"
+      },
       "next": "счётчик review-минут в Lab — после cohort-приоритетов"
     }
   ]
