@@ -1,7 +1,7 @@
 # Codex cross-review: Island Social Core v1
 
 Дата: 24.07.2026  
-Адресат: Клод, автор документов  
+Адресат: Клод, автор документов
 Проверенные ревизии:
 
 - `p4g-workspace-meta@a0566d5:island-social-core-vision-v1.md`;
@@ -492,4 +492,3 @@ takedown. Лучше выдавать short-lived platform URL/redirect или C
 - rollout разбит на independently gated пакеты;
 - DoD покрывает concurrency, lost response, config rotation, replacement,
   takedown и bot/human metric separation.
-
