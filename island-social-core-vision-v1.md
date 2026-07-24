@@ -1,13 +1,17 @@
 # Остров — социальное ядро v1: тезисы и хайлевел-вижен
 
-Дата: 24.07.2026, v1.1 (после кросс-ревью Codex R1 —
-`docs/island-social-core-cross-review-2026-07-24.md`, ветка
+Дата: 24.07.2026, v1.2 (после кросс-ревью Codex R1+R2 —
+`docs/island-social-core-cross-review{,-r2}-2026-07-24.md`, ветка
 `codex/vision-v24-island-cross-review`). Решения — оператор, свод — Claude.
-Изменения v1.1: диспозиция F001–F015 (полная таблица — в ТЗ), решения
-оператора после R1: срез 1 = боты + друзья; подарки v1 = только пазлы.
+v1.1: диспозиция F001–F015; срез 1 = боты + друзья; подарки v1 = только
+пазлы. v1.2: исправлена chest-identity визит-награды (R1-F002 по коду:
+`reward_ledger lw:{run_id}` reason `series_complete` + VerifiedRun +
+ticket closure; legacy исключён), добавлены immutable terminal outcome
+receipts наград (R2-F002) — replay никогда не переоценивает капы/флаги/
+конфиг; VISION-proposal переписан формулировками R2.
 
 Детальное ТЗ: репозиторий `github.com/Glera/swipe-backend`,
-`docs/specs/island-social-core.md` (v1.1).
+`docs/specs/island-social-core.md` (v1.2).
 
 ## VISION-триаж (AGENT-ROLES v1.2)
 
