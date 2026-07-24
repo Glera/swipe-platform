@@ -1,7 +1,7 @@
 # Reserve Mac A1 — next-decision packet (2026-07-24)
 
-Status: **implementation and attended smoke verified; physical
-backup/restore receipt pending one `p4g_runner` command.**
+Status: **implementation, attended smoke, and physical backup/restore verified;
+ready for the next human decision.**
 
 This packet is evidence, not authority. It does not authorize merges, backend
 deploy, unattended A1, A1.1/B1, reboot/takeover, or quiet-week start.
@@ -54,7 +54,7 @@ No PR below is authorized for merge by this packet.
 
 | PR | Exact head | Base | Purpose | Evidence |
 |---|---|---|---|---|
-| [swipe-agents #3](https://github.com/Glera/swipe-agents/pull/3) | `ab34b6e2f3a85b6fc29cfa8af8cd3dbc7e2be9c9` | `main` | reserve-host acceptance ledger and installed config digests | CI green |
+| [swipe-agents #3](https://github.com/Glera/swipe-agents/pull/3) | `3f5937190cf4eca89dd91a4150c5d0f1ab958102` | `main` | reserve-host acceptance ledger, installed config digests, and physical backup/restore receipt | exact-head check tracked by PR |
 | [swipe-agents #4](https://github.com/Glera/swipe-agents/pull/4) | `ee1887055b6a99e1cc5f8f814e4575f41d01e032` | `main` | build entrypoints before `npm test`, removing clean-checkout scheduling flake | 349/349 + 67/67; CI green |
 | [swipe-agents #5](https://github.com/Glera/swipe-agents/pull/5) | `8e74525f744edc93db2c7766bec2eeede7d52ee3` | PR #4 | Ajv/fast-uri/Vitest advisory fixes | `npm audit`: 0; 349/349 + 67/67; CI green |
 | [swipe-agents #6](https://github.com/Glera/swipe-agents/pull/6) | `d7c618fb64888cff286832c0eb68ae5881f6482c` | PR #4 | make backup, migration, and default-off bot direct entrypoints symlink-safe | 352/352 + 67/67; CI green |
@@ -102,7 +102,7 @@ Properties of the installed wrapper:
 Installed wrapper SHA-256:
 
 ```text
-30113f73b14213e3703db86591bb8d80add1f8b9ae620efcb019b28fb2810984
+50ab3672246e0482bbdec5a475a0d830e4f52194d4e1cf5d91d5e1617ddb1021
 ```
 
 A fully isolated synthetic store passed the same core path:
@@ -111,15 +111,33 @@ A fully isolated synthetic store passed the same core path:
 {"event":"synthetic-drill.verification","ok":true,"eventCount":1,"stuck":0,"unknown":0,"promoted":0,"integrity":"ok","drift":0,"evidenceChecked":0,"evidenceMissing":0,"evidenceMismatched":0,"rtoMs":115,"telegramCalls":0}
 ```
 
-This does **not** close the physical gate. The remaining owner action is exactly:
+The owner then ran the wrapper as `p4g_runner`. The successful physical receipt
+started at `20260724T174453Z`:
 
-```bash
-p4g-agent-backup-restore-drill
-```
+| Field | Receipt |
+|---|---|
+| Snapshot bytes / SHA-256 | `684032` / `c8ad6e2955cc29fbc5076a825d0eda98c4debeca7405ffce9b717168a1a3d97f` |
+| Source journal / events | `wal` / `792` |
+| Evidence | archived `33`; checked `33`; missing `0`; mismatched `0` |
+| Restore RTO | `176 ms`; within one hour |
+| SQLite / replay | integrity `ok`; drift before/after reconciliation `0/0` |
+| Ambiguous deliveries | stuck `0`; unknown before/after `0/0`; promoted `0` |
+| Telegram | `0` calls |
+| Live store | `liveCurrentUnchanged=true` |
+| Private receipt | `~/.local/share/swipe-agents-restore-drills/drill-20260724T174453Z/receipt.log` |
 
-After its receipt is captured, update agents PR #3 and this packet with
-snapshot bytes/hash, event/evidence counts, measured RTO, reconciliation state,
-unchanged-live proof, and the receipt path. Never copy token/env contents.
+The restore target was the fresh
+`~/.local/share/swipe-agents-restore-drills/drill-20260724T174453Z/restored-data`,
+not the live data root. The snapshot and restored copy remain available for
+operator inspection.
+
+An earlier wrapper revision attempted `git rev-parse` under the cross-owner
+release and Git correctly refused it as dubious before any drill destination
+was created. No global `safe.directory` exception was added. The successful
+wrapper instead pins the exact physical release path and checks that the
+release has zero writable paths.
+
+The physical backup/restore gate is therefore **Pass**.
 
 ## Next human decision after the physical receipt
 
