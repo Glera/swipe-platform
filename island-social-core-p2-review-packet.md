@@ -1,8 +1,9 @@
 # Island Social Core P2 — implementation/release packet
 
 Дата: 25.07.2026  
-Статус: implementation complete; feature branches pushed; PR/CI and operator
-enable gates remain. Master, Render deploy и production flags не изменялись.
+Статус: implementation complete; feature branches pushed; exact-head CI green.
+Merge/deploy и operator enable gates remain. Master, Render deploy и production
+flags на этой ревизии ещё не изменялись.
 
 ## 1. Exact review heads
 
@@ -71,6 +72,10 @@ enable gates remain. Master, Render deploy и production flags не изменя
   regression и P2 production-browser test — PASS.
 - Workspace-meta: `29/29` document/authority tests — PASS.
 - `git diff --check` — clean в трёх repo.
+- GitHub exact-head CI: backend full PostgreSQL + 17 migration/drift jobs,
+  client lint/build и meta verify — PASS. Первый backend run имел один Docker
+  pull timeout и поймал немонотонный P2 test clock; exact fix-head rerun полностью
+  green.
 
 ### Physical PostgreSQL / migration
 
