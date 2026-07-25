@@ -244,6 +244,13 @@
   on 25.07.2026: backend `01d3bf2` exposes only `202 {job_id}` and performs no
   model I/O in POST; client `2b827cd` (platform `5d0aa12`) has no dual-mode
   branch or opt-in header. VISION Part B is applied in v2.7.
+  P5 remains behind its device-spike gate. The provider-neutral private-origin
+  probe is merged in `swipe-ugc@768f478` (content-addressed single-file HTML,
+  idempotent upload, signed HEAD/GET/Range/expiry, production-origin CORS,
+  Chromium iframe/autoplay and redacted evidence). No production resolver,
+  state-schema change, UGC migration or storage credentials exist yet: those
+  are permitted only after a real private-bucket run and Telegram
+  iOS/Android/Desktop GO.
   The PG replay/idempotency/fencing/E2E/dogfood closure this
   decision requires is a coverage contract (run status with CI, not here);
   `capabilities.levelSeries=false` is unchanged.
