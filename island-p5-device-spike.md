@@ -1,6 +1,7 @@
 # Island P5 — closed UGC delivery device-spike
 
-Дата: 25.07.2026. Статус: **PREPARED; WAITING FOR STORAGE + REAL DEVICES**.
+Дата: 25.07.2026. Статус: **AUTOMATION MERGED; WAITING FOR PRIVATE
+STORAGE + REAL DEVICES**.
 
 Это не разрешение на P5 rollout. Цель спайка — доказать транспорт в Telegram
 WebView до архитектурного коммита, как требует
@@ -80,6 +81,26 @@ Presigned URL — bearer до expiry. Takedown запрещает выдачу �
 
 ## 4. Автоматическая матрица до устройств
 
+Исполняемый probe уже merged в `swipe-ugc@768f478` (PR #2):
+
+- `scripts/run-island-p5-origin-interactive.sh` — интерактивно читает endpoint,
+  bucket и scoped credentials без shell history и не сохраняет их;
+- `scripts/probe-island-p5-origin.mjs` — строит single-file artifact, делает
+  idempotent HEAD/PUT, signed HEAD/GET/Range/expiry и browser iframe probe;
+- `docs/island-p5-r2-cors.json` — точная R2 CORS policy;
+- evidence schema `island.p5.origin-probe.v1` намеренно не содержит endpoint,
+  bucket, URL/query или credentials.
+
+После локальной настройки private bucket:
+
+```bash
+bash scripts/run-island-p5-origin-interactive.sh
+```
+
+CI exact-head `1aaed31` зелёный; локально зелёные 104 Node-теста и реальный
+Chromium preview. Это доказывает harness, но не заменяет прогон против выбранного
+object storage и Telegram device-матрицу.
+
 Один run обязан сохранить evidence без URL/query/credentials:
 
 | Проверка | PASS |
@@ -121,3 +142,32 @@ fresh/resume/expiry; takedown совпадает с задокументиров
 После GO разрешается P5 implementation: private publish, resolver с exact
 building/takedown/block authority, state `rel + contentDigest`, миграция всех
 `u/*`, production smoke, затем приватизация старого UGC repo.
+
+## 7. Замороженный implementation delta после device-GO
+
+Аудит текущего production-кода (`swipe-backend@01d3bf2`) фиксирует конкретную
+границу следующего PR:
+
+1. Поднять island state schema с v4: добавить обязательный для hosted UGC
+   `contentDigest=sha256:<64 hex>`; signed URL никогда не хранить в JSONB.
+   Legacy `url` читать только на миграции и перестать принимать в новых PUT.
+2. Добавить digest/object identity в `island_bake_jobs`; publish становится
+   single-file private upload и завершает job только после проверочного HEAD.
+3. Добавить authenticated resolver `GET /island/artifact-url`, который
+   серверно находит exact current `buildingId + rel + contentDigest`,
+   fail-closed проверяет publishing, двусторонний block и последнее
+   takedown/restore по монотонному `seq`, затем возвращает короткий signed GET.
+4. `GET /island/public/{owner_id}` возвращает identity, но не bearer URL.
+   Start/complete/like/claim продолжают повторно проверять block/takedown;
+   resolver не заменяет их authority.
+5. Миграционный инструмент перепаковывает существующие multi-file `u/*` в
+   content-addressed single-file HTML, загружает private object, сверяет digest
+   и только затем CAS-обновляет island state. Повторный запуск идемпотентен;
+   несовпадение bytes/digest останавливает миграцию.
+6. После production smoke запретить публичную выдачу старых объектов. Rollback
+   до окончания окна — возврат read-path на старый origin; private копии и
+   state receipts не удаляются.
+
+Этот delta не разрешено реализовывать до device-GO: иначе архитектура окажется
+зафиксированной до проверки реальных Telegram WebView, против исходного гейта
+P5.
