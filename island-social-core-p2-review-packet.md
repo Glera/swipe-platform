@@ -8,8 +8,8 @@ production enable complete. Safety, visit-card и consent-bound delivery live.
 
 | Repo | Branch / head | PR |
 |---|---|---|
-| `swipe-backend` | implementation `master@655ad32`; both-gates enable `master@648954b` | [#12](https://github.com/Glera/swipe-backend/pull/12), [#13](https://github.com/Glera/swipe-backend/pull/13) |
-| `feed-prototype` | review `codex/island-p2@151b437`; merged `master@34642cc` | [#6](https://github.com/Glera/feed-prototype/pull/6) |
+| `swipe-backend` | implementation `655ad32`; enable `648954b`; final docs/deploy `master@36a7d2a` | [#12](https://github.com/Glera/swipe-backend/pull/12), [#13](https://github.com/Glera/swipe-backend/pull/13), [#14](https://github.com/Glera/swipe-backend/pull/14) |
+| `feed-prototype` | implementation `34642cc`; final docs `master@903ec6e` | [#6](https://github.com/Glera/feed-prototype/pull/6), [#7](https://github.com/Glera/feed-prototype/pull/7) |
 | `playables` deploy policy | merged `master@e141101`; explicit Island release profile | [#1](https://github.com/Glera/playables/pull/1) |
 | `swipe-platform` | production export `master@dd9efbd`; content commit `af3845f` | Render Static |
 | `p4g-workspace-meta` | этот packet + durable CLAUDE sync | commit этой ревизии |
@@ -126,8 +126,8 @@ native consent конкретного пользователя; синтетич
 - Оператор дал явный GO обоим контурам 25.07.2026.
 - Backend PR #13 изменил только два Render flags; exact-head CI:
   full PostgreSQL acceptance + 17 migration/drift jobs — PASS. Render deployment
-  success, health build `648954b`; award/write-access/block без auth сохраняют
-  единый `401`, без `404/5xx`.
+  success; финальный docs/deploy health build `36a7d2a`; award/write-access/block
+  без auth сохраняют единый `401`, без `404/5xx`.
 - Client выпущен source-locked deploy с exact profile `true/true/true`:
   stamp `2026-07-25 14:00 UTC · af3845f · feed 34642cc02122`,
   `swipe-platform@dd9efbd`. Production `release.json` и emitted-bundle verifier
