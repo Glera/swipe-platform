@@ -1,8 +1,10 @@
 # VISION — swipe-платформа
 
-Утверждено юзером 25.07.2026 (v2.6: аудитория Island UGC расширена до
-всех пользователей — глобальное включение, утверждено оператором
-25.07.2026; v2.5: staged post-moderation UGC вместо
+Утверждено юзером 25.07.2026 (v2.7: удалено легаси-исключение Island
+async-theme; authority-таблица приведена
+в соответствие уже утверждённой v2.6 аудитории; v2.6: аудитория Island UGC
+расширена до всех пользователей — глобальное включение, утверждено
+оператором 25.07.2026; v2.5: staged post-moderation UGC вместо
 pre-moderation — патч island social core, утверждён оператором 24.07.2026;
 v2.4 самодостаточная система + парадигма разработки; v2.3 «Виральность»,
 v2.2 «Экономика», v2.1/v2/v1 — в git-истории).
@@ -42,17 +44,14 @@ Friend cohort стремимся набирать из этого профиля
    запросе не существует синхронного model-response: всё модельное — это
    отдельный generation job → валидация trusted-компилятором → typed pack →
    уведомление о готовности. LLM никогда не участвуют в gameplay, control и
-   выдаче ленты. *Легаси-исключение: Guided UGC («остров») сегодня зовёт
-   модель синхронно в `POST /island/theme`; закрывается async-рефактором
-   (см. Горизонты) и до закрытия новых синхронных модельных фич не
-   появляется.*
+   выдаче ленты.
 3. **Контент попадает к аудитории только после явного решения
    соответствующего человека, привязанного к точной identity.**
 
    | Контент | Кто решает | Что именно утверждает | Аудитория |
    |---|---|---|---|
    | First-party серия/скин | оператор-публикатор | exact promotion-binding | вся лента |
-   | UGC-рескин | автор-игрок — initial publish exact artifact; оператор — moderation/takedown exact artifact revision | Build + machine playability gate; до первого гостевого показа действуют report/takedown и операторская очередь пост-модерации | принятые друзья автора в закрытом rollout |
+   | UGC-рескин | автор-игрок — initial publish exact artifact; оператор — moderation/takedown exact artifact revision | Build + machine playability gate; до первого гостевого показа действуют report/takedown и операторская очередь пост-модерации | все пользователи при live post-moderation контуре (решение оператора 25.07.2026) |
    | Закупочный плеебл | UA-оператор | exact creative + бюджет кампании | внешняя аудитория |
    | Recall | оператор recall-полномочия | exact entry/runtime scope | — |
 
@@ -269,8 +268,7 @@ mechanic-match закупка > generic landing; human-good/min растёт б�
 
 - **Сейчас:** friend cohort (шаг 2 лестницы) + подготовка к нему:
   projection-completeness merge, levelSeries=true через прод-гейты,
-  slot-repair merge; async-рефактор острова (закрытие легаси-исключения
-  принципа 2); SkinSpec v1 — фабрика сеттинга.
+  slot-repair merge; SkinSpec v1 — фабрика сеттинга.
 - **Следом:** experiment-lane (manual supervised) — ступень 2; закупочный
   attribution-контракт (плеебл → deep-link → mechanic-match слот); scorecard
   фабрики; share/challenge v1; когорта 30–50.

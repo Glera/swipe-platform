@@ -240,10 +240,10 @@
   traffic). Known accepted deviations: bot seed runs `--apply`
   idempotently on service startup (ТЗ §3.1 said CLI dry-run-first; no
   advisory lock — single-instance assumption, multi-instance scaling
-  requires a lock first). The supported client opts into P4 async theme with
-  `X-Island-Theme-Async: 1`; `island_theme_async_enabled=false` is only the
-  server-wide default for older callers, while the legacy sync fallback remains.
-  VISION Part B waits for actual sync-branch removal, not merely an env flip.
+  requires a lock first). P4 reached its final async-only production contract
+  on 25.07.2026: backend `01d3bf2` exposes only `202 {job_id}` and performs no
+  model I/O in POST; client `2b827cd` (platform `5d0aa12`) has no dual-mode
+  branch or opt-in header. VISION Part B is applied in v2.7.
   The PG replay/idempotency/fencing/E2E/dogfood closure this
   decision requires is a coverage contract (run status with CI, not here);
   `capabilities.levelSeries=false` is unchanged.
