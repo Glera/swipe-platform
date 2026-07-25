@@ -1,0 +1,42 @@
+{
+  "findings": [
+    {"id":"F001","severity":"P2","file":"src/island.ts","line":2520,"desc":"Transient polling failures deleted the durable theme handle."},
+    {"id":"F002","severity":"P2","file":"src/island.ts","line":3212,"desc":"Guided revisions did not persist or resume their async job."},
+    {"id":"F003","severity":"P2","file":"src/island-moderation-console.ts","line":90,"desc":"Older reload and pagination responses could overwrite a newer filter generation."},
+    {"id":"F004","severity":"P3","file":"src/island-moderation-console.ts","line":234,"desc":"Multiple report statuses could be submitted concurrently from one DOM group."},
+    {"id":"F005","severity":"P2","file":"src/island.ts","line":2526,"desc":"A ready job handle was removed before its in-memory draft was built."},
+    {"id":"F006","severity":"P2","file":"src/island.ts","line":588,"desc":"No durable identity existed before the first POST response arrived."},
+    {"id":"F007","severity":"P2","file":"src/island.ts","line":3211,"desc":"Older guided revision responses could overwrite a newer revision."},
+    {"id":"F008","severity":"P2","file":"src/island-moderation-console.ts","line":74,"desc":"Rapid armed takedown or restore taps could launch concurrent mutations."},
+    {"id":"F009","severity":"P2","file":"src/island-moderation-console.ts","line":253,"desc":"A rerender could bypass report-resolution exclusivity tied to old DOM nodes."},
+    {"id":"F010","severity":"P2","file":"src/api.ts","line":1212,"desc":"A hung theme polling GET had no timeout or abort path."},
+    {"id":"F011","severity":"P1","file":"src/island.ts","line":3240,"desc":"Revision tokens could collide with a later package generation token."},
+    {"id":"F012","severity":"P1","file":"src/island.ts","line":3325,"desc":"Building a safe candidate did not invalidate the still-running guided generation."},
+    {"id":"F013","severity":"P2","file":"src/island.ts","line":649,"desc":"The poll limit did not enforce its intended absolute wall-clock deadline."},
+    {"id":"F014","severity":"P2","file":"src/island-moderation-console.ts","line":150,"desc":"A repaint could recreate the other feed pagination button while its request remained in flight."},
+    {"id":"F015","severity":"P2","file":"src/api.ts","line":1146,"desc":"Moderation list GETs had no bounded timeout or abort path."},
+    {"id":"F016","severity":"P2","file":"src/island.ts","line":654,"desc":"A suspended WebView could resume after the polling deadline and still run a full-timeout GET."}
+  ],
+  "dispositions": [
+    {"id":"F001","action":"fixed"},
+    {"id":"F002","action":"fixed"},
+    {"id":"F003","action":"fixed"},
+    {"id":"F004","action":"fixed"},
+    {"id":"F005","action":"fixed"},
+    {"id":"F006","action":"fixed"},
+    {"id":"F007","action":"fixed"},
+    {"id":"F008","action":"fixed"},
+    {"id":"F009","action":"fixed"},
+    {"id":"F010","action":"fixed"},
+    {"id":"F011","action":"fixed"},
+    {"id":"F012","action":"fixed"},
+    {"id":"F013","action":"fixed"},
+    {"id":"F014","action":"fixed"},
+    {"id":"F015","action":"fixed"},
+    {"id":"F016","action":"fixed"}
+  ],
+  "verify": [
+    {"command":"npm run lint","exitCode":0},
+    {"command":"npm run build -- --outDir /tmp/p4g-island-integration-build --emptyOutDir","exitCode":0}
+  ]
+}

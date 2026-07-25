@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {"id":"F001","severity":"P2","file":"migrations/versions/0054_island_mod_action_seq.py","line":43,"desc":"Backfill updated moderation receipts while their append-only trigger was active."},
+    {"id":"F002","severity":"P2","file":"app/api_island_moderation.py","line":430,"desc":"A newly allowlisted moderator could violate the actor users foreign key."},
+    {"id":"F003","severity":"P2","file":"app/api_island_moderation.py","line":143,"desc":"Legacy state buildings without buildingId disappeared from moderation."},
+    {"id":"F004","severity":"P2","file":"app/api_island_social_core.py","line":600,"desc":"Friend cards omitted legacy published buildings without persisted buildingId."},
+    {"id":"F005","severity":"P2","file":"app/api_island.py","line":490,"desc":"Cancel could reuse a stale identity-map row and overwrite a ready result."},
+    {"id":"F006","severity":"P2","file":"app/api_island.py","line":700,"desc":"Theme parameter-resolution errors escaped without terminalizing the durable job."},
+    {"id":"F007","severity":"P2","file":"app/api_island_social_core.py","line":225,"desc":"A result could mutate after a concurrent takedown committed while it waited for the social lock."},
+    {"id":"F008","severity":"P1","file":"app/api_island.py","line":379,"desc":"A force-sync flip could bypass replay of a previously accepted durable request."},
+    {"id":"F009","severity":"P1","file":"app/api_island.py","line":430,"desc":"Digest dedup could return a different request id without durable aliasing and later double-charge."},
+    {"id":"F010","severity":"P2","file":"app/api_island.py","line":780,"desc":"Attempt receipts copied an inert effort setting not sent to the physical model request."},
+    {"id":"F011","severity":"P2","file":"app/api_island_social.py","line":280,"desc":"Legacy completion checked takedown before acquiring its mutation lock."},
+    {"id":"F012","severity":"P2","file":"app/api_island_social.py","line":340,"desc":"Like and unlike checked takedown before acquiring their mutation lock."}
+  ],
+  "dispositions": [
+    {"id":"F001","action":"fixed"},
+    {"id":"F002","action":"fixed"},
+    {"id":"F003","action":"fixed"},
+    {"id":"F004","action":"fixed"},
+    {"id":"F005","action":"fixed"},
+    {"id":"F006","action":"fixed"},
+    {"id":"F007","action":"fixed"},
+    {"id":"F008","action":"fixed"},
+    {"id":"F009","action":"fixed"},
+    {"id":"F010","action":"fixed"},
+    {"id":"F011","action":"fixed"},
+    {"id":"F012","action":"fixed"}
+  ],
+  "verify": [
+    {"command":"python -m pytest -q","exitCode":0},
+    {"command":"RUN_CONTROL_PLANE_POSTGRES_TESTS=1 python -m pytest -q tests/test_island_social_core_postgres.py tests/test_island_bots_postgres.py tests/test_island_theme_jobs_postgres.py tests/test_island_moderation_postgres.py","exitCode":0},
+    {"command":"RUN_ISLAND_SOCIAL_MIGRATION_TESTS=1 python -m pytest -q tests/test_island_social_core_migration_postgres.py","exitCode":0}
+  ]
+}
