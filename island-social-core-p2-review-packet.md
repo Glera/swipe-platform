@@ -1,16 +1,16 @@
 # Island Social Core P2 — implementation/release packet
 
 Дата: 25.07.2026  
-Статус: implementation complete; feature branches pushed; exact-head CI green.
-Merge/deploy и operator enable gates remain. Master, Render deploy и production
-flags на этой ревизии ещё не изменялись.
+Статус: implementation, review, merge и default-off production deploy complete.
+Safety slice live; два product enable остаются отдельными operator gates.
 
 ## 1. Exact review heads
 
 | Repo | Branch / head | PR |
 |---|---|---|
-| `swipe-backend` | `codex/island-p2@eed11a9` | [#12](https://github.com/Glera/swipe-backend/pull/12) |
-| `feed-prototype` | `codex/island-p2@151b437` | [#6](https://github.com/Glera/feed-prototype/pull/6) |
+| `swipe-backend` | review `codex/island-p2@eed11a9`; merged `master@655ad32` | [#12](https://github.com/Glera/swipe-backend/pull/12) |
+| `feed-prototype` | review `codex/island-p2@151b437`; merged `master@34642cc` | [#6](https://github.com/Glera/feed-prototype/pull/6) |
+| `swipe-platform` | production export `master@3185cb9`; content commit `361f016` | Render Static |
 | `p4g-workspace-meta` | этот packet + durable CLAUDE sync | commit этой ревизии |
 
 База обоих кодовых PR — текущий `master`; миграция P2 — линейная
@@ -99,6 +99,21 @@ flags на этой ревизии ещё не изменялись.
 
   БД сверена: award `accepted`, outcome `granted/3`, collect `granted/1`.
 
+### Production default-off release
+
+- Backend Render health после deploy возвращает build `655ad32`; migration
+  `0055` вошла через merge #12. Новые award/write-access/block поверхности
+  отвечают без auth чистым `401`, без `404/5xx`.
+- Static production feed опубликован штатным source-locked deploy:
+  stamp `2026-07-25 13:17 UTC · 361f016 · feed 34642cc02122`,
+  `release.json.feedCommit=34642cc021225fdfd2a4311ca73859ac1f1eb2a3`.
+- Shipped bundle содержит реальные remove/block и P2 API-контракты, не содержит
+  legacy simulator identifiers. Build environment не содержит
+  `VITE_ISLAND_VISIT_AWARDS_ENABLED` и `VITE_ISLAND_NOTIFICATIONS_ENABLED`;
+  backend Render blueprint сохраняет соответствующие server flags `false`.
+- Поэтому live сейчас только safety slice. Visit-card roll/renderer и native
+  consent/outbound runner остаются inert до двух независимых operator решений.
+
 ## 4. Self-adversarial fixes during closure
 
 1. Native permission accepted + transient backend failure сначала терял consent:
@@ -127,17 +142,19 @@ flags на этой ревизии ещё не изменялись.
   target для exact experiment evidence.
 - P5 closed CDN остаётся отдельным device-spike/пакетом и не входит в P2.
 
-## 6. Release order и стоп-гейты
+## 6. Выполненный release и оставшиеся стоп-гейты
 
-1. Дождаться green exact-head CI и review обоих PR.
-2. Merge backend #12, затем client #6. Это развернёт migration + remove/block,
-   но visit-card/messages останутся физически inert.
-3. После deploy проверить health/build, migration head, 401 без auth и
-   authenticated remove/block smoke.
-4. **Operator gate A:** отдельно включить visit-card backend + client build
+Выполнено: exact-head CI → backend merge/deploy → client merge/source-locked
+static deploy → health/build/unauth smoke. Authenticated remove/block и полный
+visit-card путь доказаны на production build в реальной локальной вертикали с
+PostgreSQL; production-пользователей для mutating smoke пакет не создаёт.
+
+Осталось только:
+
+1. **Operator gate A:** отдельно включить visit-card backend + client build
    (defaults 30% / holdout 10% / cap 5).
-5. **Operator gate B:** отдельно включить native consent + outbound runner и
+2. **Operator gate B:** отдельно включить native consent + outbound runner и
    подтвердить quiet hours `21:00–08:00 UTC`, max attempts `3`.
 
-Merge/deploy и оба enable являются внешними state changes. Этот пакет их не
-выполняет автоматически.
+Оба enable являются отдельными внешними state changes; default-off release их
+намеренно не выполнил.
