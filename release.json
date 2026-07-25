@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-07-25 13:30 UTC",
+  "builtAt": "2026-07-25 14:00 UTC",
   "feedCommit": "34642cc021225fdfd2a4311ca73859ac1f1eb2a3",
   "exportedPlayablesCommit": null,
   "deployToolingCommit": "e1411013afbc5d0443824898330c4f824000b1fa",
@@ -19,8 +19,8 @@
     "schema": "island-release-profile.v1",
     "gates": {
       "VITE_ISLAND_ENABLED": true,
-      "VITE_ISLAND_VISIT_AWARDS_ENABLED": false,
-      "VITE_ISLAND_NOTIFICATIONS_ENABLED": false
+      "VITE_ISLAND_VISIT_AWARDS_ENABLED": true,
+      "VITE_ISLAND_NOTIFICATIONS_ENABLED": true
     }
   }
 }
