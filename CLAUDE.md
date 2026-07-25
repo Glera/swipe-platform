@@ -153,9 +153,12 @@
   Island audience were explicitly approved and enabled 25.07.2026 under VISION
   v2.6: post-moderation/report/takedown is the protective envelope for the empty,
   zero-traffic bootstrap. P2 safety remove/block belongs to that live envelope;
-  P2 visit-card/holdout and outbound Telegram notifications remain two separate
-  default-off operator decisions. Moderation automation still requires a new
-  fraud/abuse evidence decision.
+  P2 visit-card/holdout and consent-bound outbound Telegram notifications were
+  independently approved and enabled by the operator on 25.07.2026. Their code
+  defaults and rollback controls remain separate: cards use versioned
+  30%/10%-holdout/cap-5 settings; delivery uses 21:00–08:00 UTC quiet hours and
+  max 3 physical attempts, with consent/block re-check before I/O. Moderation
+  automation still requires a new fraud/abuse evidence decision.
 - The island measurement unit is a **client-asserted completion claim**
   (never "win": there is no ticket/oracle path for UGC), gated server-side by
   visit/min-time/per-day cooldowns/caps. Claims never enter qualified-play,

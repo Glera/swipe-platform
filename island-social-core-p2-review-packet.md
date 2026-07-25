@@ -1,17 +1,17 @@
 # Island Social Core P2 — implementation/release packet
 
 Дата: 25.07.2026  
-Статус: implementation, review, merge и default-off production deploy complete.
-Safety slice live; два product enable остаются отдельными operator gates.
+Статус: implementation, review, merge, default-off release и оба независимых
+production enable complete. Safety, visit-card и consent-bound delivery live.
 
 ## 1. Exact review heads
 
 | Repo | Branch / head | PR |
 |---|---|---|
-| `swipe-backend` | review `codex/island-p2@eed11a9`; merged `master@655ad32` | [#12](https://github.com/Glera/swipe-backend/pull/12) |
+| `swipe-backend` | implementation `master@655ad32`; both-gates enable `master@648954b` | [#12](https://github.com/Glera/swipe-backend/pull/12), [#13](https://github.com/Glera/swipe-backend/pull/13) |
 | `feed-prototype` | review `codex/island-p2@151b437`; merged `master@34642cc` | [#6](https://github.com/Glera/feed-prototype/pull/6) |
 | `playables` deploy policy | merged `master@e141101`; explicit Island release profile | [#1](https://github.com/Glera/playables/pull/1) |
-| `swipe-platform` | production export `master@aacdc04`; content commit `ce531ec` | Render Static |
+| `swipe-platform` | production export `master@dd9efbd`; content commit `af3845f` | Render Static |
 | `p4g-workspace-meta` | этот packet + durable CLAUDE sync | commit этой ревизии |
 
 База обоих кодовых PR — текущий `master`; миграция P2 — линейная
@@ -29,7 +29,7 @@ Safety slice live; два product enable остаются отдельными o
   regression assertion. Карта/счётчики читают только серверные факты игроков и
   зарегистрированных server-owned ботов.
 
-### Visit-card experiment — отдельный default-off gate
+### Visit-card experiment — отдельный rollout gate, production enabled
 
 - Ролл существует только после exact server-owned chest closure:
   caller `VerifiedRun(metric_key=series)` + consumed/root `RunTicket` +
@@ -45,10 +45,11 @@ Safety slice live; два product enable остаются отдельными o
   `won && !holdout` занимает единственный post-chest prompt slot; failure quiet.
   Accept открывает реальный public island, decline закрывает карточку.
 
-Гейты: backend `ENABLE_ISLAND_VISIT_AWARDS=false`; client
-`VITE_ISLAND_VISIT_AWARDS_ENABLED=false`.
+Code/deploy defaults остаются `false`; production:
+backend `ENABLE_ISLAND_VISIT_AWARDS=true`, client
+`VITE_ISLAND_VISIT_AWARDS_ENABLED=true`.
 
-### Telegram notifications — второй независимый default-off gate
+### Telegram notifications — второй независимый rollout gate, production enabled
 
 - Native `requestWriteAccess()` вызывается на осмысленном invite action один
   раз на Telegram user. Ответ сохраняется на backend; transient API failure
@@ -60,9 +61,11 @@ Safety slice live; два product enable остаются отдельными o
   21:00–08:00 UTC. Digest watermark продвигается только после confirmed send.
 - Bot token редактируется из transport exceptions до записи в DB/log.
 
-Гейты: backend `ENABLE_ISLAND_NOTIFICATIONS=false`; client
-`VITE_ISLAND_NOTIFICATIONS_ENABLED=false`. Реальный Telegram send намеренно не
-выполнялся без отдельного operator GO.
+Code/deploy defaults остаются `false`; production:
+backend `ENABLE_ISLAND_NOTIFICATIONS=true`, client
+`VITE_ISLAND_NOTIFICATIONS_ENABLED=true`. Физический send возможен только после
+native consent конкретного пользователя; синтетический consent в production не
+создаётся.
 
 ## 3. Evidence
 
@@ -115,8 +118,27 @@ Safety slice live; два product enable остаются отдельными o
   backend Render blueprint сохраняет соответствующие server flags `false`.
 - Production browser на exact stamp видит вкладку «Мета» и четыре реальные
   friend-invite cells; backend health возвращает build `655ad32`.
-- Поэтому live сейчас только safety slice. Visit-card roll/renderer и native
-  consent/outbound runner остаются inert до двух независимых operator решений.
+- На этом промежуточном этапе live был только safety slice; visit-card и
+  consent/outbound runner оставались inert до двух независимых решений ниже.
+
+### Production enable обоих независимых гейтов
+
+- Оператор дал явный GO обоим контурам 25.07.2026.
+- Backend PR #13 изменил только два Render flags; exact-head CI:
+  full PostgreSQL acceptance + 17 migration/drift jobs — PASS. Render deployment
+  success, health build `648954b`; award/write-access/block без auth сохраняют
+  единый `401`, без `404/5xx`.
+- Client выпущен source-locked deploy с exact profile `true/true/true`:
+  stamp `2026-07-25 14:00 UTC · af3845f · feed 34642cc02122`,
+  `swipe-platform@dd9efbd`. Production `release.json` и emitted-bundle verifier
+  независимо подтверждают UI/cards/notifications = `true/true/true`.
+- Production browser видит Island tab/friend HUD, award и consent contracts;
+  legacy simulator identifiers отсутствуют. Focused browser preflight повторно
+  доказал remove/block, consent-once + backend retry и exact card actions.
+- Notification runner прошёл boot validation с production config. Он не
+  отправляет без сохранённого `allows_write_pm=true`; первый physical production
+  attempt появляется только после реального native consent и хранится в
+  append-only attempts.
 
 ## 4. Self-adversarial fixes during closure
 
@@ -153,53 +175,51 @@ Safety slice live; два product enable остаются отдельными o
   target для exact experiment evidence.
 - P5 closed CDN остаётся отдельным device-spike/пакетом и не входит в P2.
 
-## 6. Выполненный release и оставшиеся стоп-гейты
+## 6. Выполненный release и rollout
 
 Выполнено: exact-head CI → backend merge/deploy → client merge/source-locked
 static deploy → health/build/unauth smoke. Authenticated remove/block и полный
 visit-card путь доказаны на production build в реальной локальной вертикали с
 PostgreSQL; production-пользователей для mutating smoke пакет не создаёт.
 
-Осталось только:
+Оба operator gate получены и выполнены: backend authority/runner включены до
+client rollout; затем production profile атомарно переведён
+`true/false/false → true/true/true`. Frozen settings не менялись:
+30% / holdout 10% / cap 5; quiet hours `21:00–08:00 UTC`, max attempts `3`.
+Rollback anchors сохранены раздельно.
 
-1. **Operator gate A:** отдельно включить visit-card backend + client build
-   (defaults 30% / holdout 10% / cap 5).
-2. **Operator gate B:** отдельно включить native consent + outbound runner и
-   подтвердить quiet hours `21:00–08:00 UTC`, max attempts `3`.
-
-Оба enable являются отдельными внешними state changes; default-off release их
-намеренно не выполнил.
-
-### Exact operator procedure
+### Exact rollout/rollback procedure
 
 **Gate A — visit-card.**
 
-1. В backend поменять только `ENABLE_ISLAND_VISIT_AWARDS=true`, оставить
+1. Выполнено: в backend поменян только `ENABLE_ISLAND_VISIT_AWARDS=true`,
+   оставлены
    version/chance/holdout/cap без изменений; после Render deploy проверить
    health и auth boundary.
-2. Выпустить клиент штатным deploy:
+2. Выполнено: клиент выпущен штатным deploy:
    `VITE_ISLAND_VISIT_AWARDS_ENABLED=true bash scripts/deploy-swipe.sh`.
    Release-policy сама фиксирует `Island=true`, notifications остаются `false`,
    а emitted bundle и `release.json` обязаны доказать `true/true/false`.
-3. Проверить один реальный exact chest и receipt/метрики
-   `eligible_chest → accepted|declined`; holdout не должен показать карточку.
+3. Exact chest/receipt/holdout path доказан production-build vertical E2E;
+   production events появляются только после реальных chest действий игроков.
 4. Rollback: сначала клиентский профиль `true/false/false`, затем backend
    `ENABLE_ISLAND_VISIT_AWARDS=false`. Сохранённые receipts не удалять.
 
 **Gate B — consent + outbound Telegram.**
 
-1. В backend поменять только `ENABLE_ISLAND_NOTIFICATIONS=true`; boot-validator
+1. Выполнено: в backend поменян только `ENABLE_ISLAND_NOTIFICATIONS=true`;
+   boot-validator
    требует существующий `BOT_TOKEN`, social flag и config version. До client
    deploy поддерживаемый клиент не создаёт новых consent; runner всё равно
    обслуживает только явно сохранённые `allows_write_pm=true`.
-2. Выпустить клиент:
+2. Выполнено: клиент выпущен:
    `VITE_ISLAND_NOTIFICATIONS_ENABLED=true bash scripts/deploy-swipe.sh`.
    Exact release profile для отдельного B — `true/false/true`; для обоих
    включённых гейтов — `true/true/true`.
-3. На одном операторском Telegram-аккаунте пройти meaningful invite,
-   подтвердить единственный native prompt и проверить одну confirmed attempt;
-   затем контролировать outbox attempts, terminal/retryable и отсутствие
-   отправок в `21:00–08:00 UTC`.
+3. Meaningful invite теперь вызывает единственный native prompt. Без реального
+   consent строка outbox физически не создаётся; confirmed/terminal/retryable
+   evidence появится с первым consenting user и контролируется по append-only
+   attempts. Отправки в `21:00–08:00 UTC` запрещены runner'ом.
 4. Emergency rollback: сначала backend
    `ENABLE_ISLAND_NOTIFICATIONS=false` (останавливает materialize и I/O), затем
    клиентский notifications gate `false`. Consent и append-only receipts не
