@@ -1,7 +1,7 @@
 # Island Social Core — unified integration release packet
 
 Date: 2026-07-25  
-Status: **merged and deployed, rollout remains default-off**
+Status: **merged, deployed and globally enabled**
 
 This packet supersedes branch-by-branch review handoffs for P1, P4 and P3.
 Codex owns the combined integration heads below; no further P1↔P4↔P3
@@ -118,5 +118,24 @@ Default-off verification:
   four catalog gates were preserved byte-for-byte in `release.json`;
 - no Island flag was set during the production build.
 
-No Island cohort was exposed. Enabling the Island flag remains a separate
-operator decision.
+At this deployment checkpoint no Island cohort was exposed. The later global
+enablement is recorded below.
+
+## Global rollout — 2026-07-25
+
+The operator approved immediate availability for every player. The release was
+performed backend-first:
+
+| Surface | Rollout identity | Production evidence |
+|---|---|---|
+| backend enablement | `swipe-backend@a3dcdf7794d52b55fbae658a5aedfab8d9cb67fc` (PR #11) | `/api/health` reports `build: a3dcdf7`; social, moderation and bot-backed routes are mounted; startup completed the idempotent bootstrap-bot seed before API health |
+| client global build | feed source `d5600765ce47a61916ae6539c9df274d64ca0cd5` | built with `VITE_ISLAND_ENABLED=1`; production browser renders four navigation tabs including `Мета` |
+| static deploy | content `swipe-platform@19aece3`, stamp `b70fc13` | served HTML is byte-identical to the deploy repo, SHA-256 `c9cc0a6c20ec7c64d99faa572aac29b0eed4e736c8a45ca271f1de72fd8d032f`; clicking `Мета` activates the tab and mounts one `.island-world` |
+
+The backend blueprint also pins moderation authority to exact operator
+`42692410`. The pre-existing catalog release profile and its four gates remain
+unchanged.
+
+Rollback remains fail-closed and ordered: rebuild the client without
+`VITE_ISLAND_ENABLED`, then set `ENABLE_ISLAND_SOCIAL=false` and
+`ENABLE_ISLAND_BOTS=false` in the backend blueprint.
