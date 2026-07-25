@@ -1,0 +1,153 @@
+# Share/Challenge V1-A (backend) — evidence-пакет для Codex implementation-review
+
+Дата: 25.07.2026. Пакет V1-A по ТЗ `swipe-backend/docs/specs/share-challenge-v1.md`
+v1.4 + R5 GO (exact head `436a867`) + post-GO amendment v1.4.1
+(`@31c9439`, механика = marble-sort-swipe, решение оператора). Автор кода —
+Opus-субагент, внутреннее адверсариальное ревью — независимый субагент
+(author≠reviewer), оркестрация — Claude.
+
+## Ветка / коммиты
+
+`swipe-backend`, ветка **`challenge-v1`** (запушена; master не трогался),
+ребейзнута на `origin/master@36a7d2a` (включает island P2 = миграцию
+`0055_island_p2`):
+
+```
+1ac8803* Share/Challenge V1-A: migration + models + config      (rebased)
+7a75f02* Share/Challenge V1-A: endpoints + challenge_core       (rebased)
+60a0296* Share/Challenge V1-A: PostgreSQL DoD suite             (rebased)
+68843e0* Share/Challenge V1-A: source replay level-field sverka (rebased)
+6dcc9a3  Share/Challenge V1-A-fix: rebase→0056, friend-limit symmetry,
+         marble-sort adapter, challenge-scoped level bundle
+27f5cd5  Share/Challenge V1-A-fix: consolidated review tests
+```
+
+(\* — хэши до ребейза, для соответствия внутренним ревью-отчётам; актуальная
+цепочка — на ветке.)
+
+Миграция: **`0056_challenge_v1`** (down_revision=`0055_island_p2`),
+единственный alembic head, roundtrip `0055↔0056` зелёный.
+
+## Спек-путь (для контекста ревью)
+
+ТЗ прошло 5 раундов Codex spec-review (R1 концепция → R5 GO/PASS, exact
+head `436a867`) + post-GO amendment v1.4.1: после stop-the-line V1-A0
+(pins не имеет content-addressed контура: pilot policy
+`unsupported_runtime_mapping`, нет runtime-contract digest — investigation
+record `share-challenge-v1a0-bootstrap-packet.md`) оператор выбрал
+**marble-sort-swipe**; прежний V1-A0-гейт растворён — активный release
+(`sha256:d66b4e…f9293` / descriptor JCS `b899735e…586be`)
+production-активирован 14.07.
+
+## Что реализовано (exact-scope V1-A)
+
+- **Миграция 0056**: `challenge_specs` (composite FK на
+  `uq_runtime_releases_configuration_binding` — digest не может расходиться
+  с резолвимым release), `challenge_ticket_bindings` (pre-play, пишется в
+  run.start), `challenge_spec_bindings` (server-derived projection, ДВА
+  composite FK: `(run_id,ticket_id)`→verified_runs +
+  `(ticket_id,spec_digest)`→ticket_bindings — cross-ticket подмена
+  невозможна по схеме; + новый UNIQUE `(run_id,ticket_id)` на
+  verified_runs), `challenge_events` (exactly-once partial-uniques по
+  `(challenge_id[,actor,kind])`, request_id/request_digest, shape-CHECK
+  friendship_outcome), `challenge_friendship_receipts` (first-writer, FK →
+  challenges/users), `challenges.spec_digest` FK; island-CHECK
+  `+'challenge'` (та же миграция; downgrade = атомарная конверсия
+  `challenge→invite`); append-only триггеры на 5 таблиц.
+- **Эндпоинты**: create (порядок validate source → committed replay →
+  rate-limit → insert; `request_digest=sha256(JCS(body без
+  request_digest))` server-recompute; advisory-fencing без двойного
+  списания); GET view/inbox (426 по `X-P4G-Challenge-Wire-Version` на
+  spec-bound путях, НЕ на complete; TTL/блок-фильтры); accept (410 TTL,
+  блок=404+ноль строк, идемпотентная island-дружба source='challenge' +
+  first-writer receipt + dual-write legacy); **run.start
+  challenge-discriminator** (`run.start.challenge.v1`, source несёт
+  challengeSpec, recipient — только challenge_id, спека server-derived,
+  чужая challengeSpec → 409; direct-play: binding+receipt+accept-event
+  ОДНОЙ транзакцией; replay возвращает исторический release + сверяет
+  клиентские level-поля); `/results` server-derived projection + сверка
+  `applied_spec_digest` против ticket-binding (mismatch → 409 до наград);
+  complete (committed replay без side-effects/DM); **challenge-scoped
+  level bundle** `GET /challenges/tickets/{id}/level-bundle`
+  (LevelSpec из challenge_specs+release БЕЗ decision/entry/series identity,
+  поверх того же `catalog_required` handshake; owner+binding only).
+- **Адаптер marble-sort-swipe**: реестр pluggable; typed-схема =
+  существующая executable `sort.level-spec.v1` (`SortLevelParams`), pinned
+  schema digest; happy-path PG-тесты на нейтральной fixture (механика —
+  данные конфига).
+- **Флаг** `ENABLE_CHALLENGE_V1=false`: гейтит ТОЛЬКО создание новых
+  v1-объектов; существующие spec-bound маршрутизируются по `spec_digest`
+  строки независимо от флага; legacy-путь при OFF — byte-for-byte
+  (регресс-тест).
+- **Лимит друзей симметричен** (P2-фикс ревью): island
+  `_active_invite_friend_count` расширен до `source IN
+  ('invite','challenge')` — ЕДИНСТВЕННЫЙ канонический счётчик, параллельный
+  хелпер удалён; поведение прод-острова сегодня нейтрально (challenge-рёбер
+  нет до flag-on).
+
+## Внутреннее адверсариальное ревью → фиксы
+
+Вердикт: **GO-с-условиями, ноль P1** — 13 векторов атаки на инварианты
+пяти спек-раундов, все выдержали (cross-ticket, pre-play, атомарность
+direct-play, server-derived recipient-spec, historical replay, блок=ноль
+строк, request-fencing, exactly-once, флаг-семантика, downgrade-конверсия,
+island-регресс). Условия закрыты `6dcc9a3`/`27f5cd5`:
+
+| Находка | Фикс |
+|---|---|
+| P2-1 асимметрия лимита (параллельный счётчик вместо расширения island-функции) | единый счётчик source IN ('invite','challenge'); тест «invite-accept при лимите из challenge-рёбер → 409» |
+| P3-1 нет конкурентного теста лимита | Barrier-тест: параллельные accept → ровно limit рёбер, один limit-receipt |
+| P3-2 SQL-ошибка → откат accept целиком | инъекция ошибки: ни одной строки |
+| P3-3 нет byte-for-byte legacy-регресса | флаг-OFF снапшот-тест create/get/accept/complete/inbox |
+| P3-4 NOT NULL / чужой request_digest | оба теста добавлены |
+
+## Числа (финальный прогон после фикс-раунда, disposable PG 15)
+
+- Pure suite: **855 passed / 390 skipped / 0 failed**.
+- Challenge PG: **31 passed**; adapter pure: **8 passed**.
+- Island PG (core+migration): **31 passed, 3 skipped** — без изменений от
+  baseline (island в проде; counter-фикс behavior-neutral).
+- Full PG: **1173 passed / 57 skipped / 1 failed** — единственный fail =
+  предсуществующий wall-clock флейк `agents_m2m` straggler-теста (проходит
+  в изоляции; challenge/island таблиц не касается).
+- Alembic: единственный head `0056_challenge_v1`, roundtrip зелёный,
+  `alembic check` без дрейфа challenge-объектов.
+
+## R5-чекпойнты (все закрыты, с тестами)
+
+1. Direct-play одна транзакция (binding+receipt+accept-event; ошибка
+   откатывает всё; complete-без-accept невозможен) ✅
+2. Recipient spec server-derived; чужая challengeSpec → 409 ✅
+3. Source-replay: сверка клиентских level-полей + исторический runtime ✅
+4. FK receipt → challenges/users ✅
+5. Happy-path на ephemeral ACTIVE fixture; candidate — negative-path ✅
+
+## Микро-решения для подтверждения Codex
+
+1. **`CHALLENGE_LEVEL_SEED = 0`** (документировано в
+   `challenge_bundle_contract.py`): `SortLevelParams` не несёт seed (seed —
+   поле envelope `sort.level-spec.v1`); challenge-доски полностью явные
+   через `cellColorMap`, seed инертен; конвенция единая для source и
+   recipient — `expectedSpecHash` детерминирован.
+2. `wire_version` в inbox-элементах — nullable по ТЗ (legacy-строки);
+   задокументировано в legacy-регресс-тесте.
+3. `specDigest` (6-полевой challenge-digest) и `expectedSpecHash`
+   (4-полевой `sort.level-spec.v1.specHash`) — два разных хэша, оба в
+   bundle-ответе; не взаимозаменяемы (v1.4.1 §Reconciliation).
+
+## Вне скоупа V1-A (следующие пакеты)
+
+- **V1-B (клиент)**: sibling-binder поверх `catalog_required` handshake,
+  применение уровня получателем, `applied_spec_digest` в /results,
+  `share_tap`, `challenge-rail.ts` отдельным модулем, JCS golden vectors
+  Python↔browser; координация `feed.ts` с island-направлением.
+- **V1-C**: prepared inline message (best-effort), SQL K-фактора/acceptance.
+- Production deploy / flag-on — человеческие гейты (R5).
+
+## Reproduce
+
+Ветка `challenge-v1`; suites: `pytest -q` (pure);
+`RUN_CONTROL_PLANE_POSTGRES_TESTS=1 pytest tests/test_challenge_v1_postgres.py`;
+`RUN_ISLAND_SOCIAL_MIGRATION_TESTS=1 pytest
+tests/test_island_social_core_migration_postgres.py`; roundtrip
+`alembic upgrade head` / `downgrade 0055_island_p2`.
