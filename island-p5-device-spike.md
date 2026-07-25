@@ -1,7 +1,7 @@
 # Island P5 — closed UGC delivery device-spike
 
-Дата: 25.07.2026. Статус: **AUTOMATION MERGED; WAITING FOR PRIVATE
-STORAGE + REAL DEVICES**.
+Дата: 25.07.2026. Статус: **PRIVATE R2 ORIGIN GO; WAITING FOR REAL
+TELEGRAM DEVICES**.
 
 Это не разрешение на P5 rollout. Цель спайка — доказать транспорт в Telegram
 WebView до архитектурного коммита, как требует
@@ -101,6 +101,74 @@ CI exact-head `1aaed31` зелёный; локально зелёные 104 Node
 Chromium preview. Это доказывает harness, но не заменяет прогон против выбранного
 object storage и Telegram device-матрицу.
 
+### 4.1 Provider-real evidence — PASS
+
+25.07.2026 создан отдельный private Cloudflare R2 Standard bucket в auto-region
+WEUR:
+
+- public development URL выключен, custom domain отсутствует;
+- CORS после reload подтверждён для production origin, GET/HEAD и Range;
+- временный user token был ограничен Object Read & Write только этим bucket и
+  TTL 1 week; после прогона удалён, активных token rows — 0;
+- credentials не записывались в файлы/репозиторий и были очищены из процесса.
+
+Финальный redacted evidence:
+
+```json
+{
+  "schema": "island.p5.origin-probe.v1",
+  "artifact": {
+    "key": "spike/5b60e7b9da01e181ef5a84680c68aae573ae0a3af0e1357a19008be899659503.html",
+    "digest": "sha256:5b60e7b9da01e181ef5a84680c68aae573ae0a3af0e1357a19008be899659503",
+    "bytes": 140700
+  },
+  "uploaded": false,
+  "ttlSeconds": 600,
+  "checks": {
+    "immutableHead": "pass",
+    "corsPreflight": "pass",
+    "signedHead": "pass",
+    "signedGet": "pass",
+    "range": "pass",
+    "expiry": "pass",
+    "urlRedaction": "pass"
+  },
+  "browser": {
+    "iframeReady": "pass",
+    "autoplayWin": "pass",
+    "pageErrors": 0,
+    "eventTypes": [
+      "swipe-ready",
+      "static_ready",
+      "boot_timings",
+      "interactive_ready",
+      "ready",
+      "completed"
+    ]
+  }
+}
+```
+
+`uploaded=false` — доказательство идемпотентного повторного прогона: object был
+загружен первым stop-line запуском и совпал по identity при финальном PASS.
+
+Provider-real прогон нашёл две особенности, закрытые в `swipe-ugc@c03693b`
+(PR #3):
+
+1. R2 presigned HEAD отдаёт 200/type/cache/ETag/CORS, но не
+   `Content-Length`. Exact length не ослаблен: его подтверждает authenticated
+   S3 HeadObject, затем signed GET проверяется byte-for-byte по sha256, а Range
+   — по total length. Если provider всё же присылает длину и она неверна, probe
+   fail-closed.
+2. Загрузка production SPA только ради parent origin создавала отложенные 401 и
+   загрязняла iframe error-count. Harness теперь устанавливает тот же exact
+   origin через inert text/plain miss, не запуская приложение; browser errors
+   остаются URL-redacted и относятся только к тестируемому iframe.
+
+После этих исправлений полный `npm run verify`: 128 tests
+(106 pass / 22 standalone skips), base verification и реальный Chromium
+autoplay WIN.
+
 Один run обязан сохранить evidence без URL/query/credentials:
 
 | Проверка | PASS |
@@ -139,7 +207,9 @@ fresh/resume/expiry; takedown совпадает с задокументиров
 при resume, не может re-resolve после expiry, нарушает parent-message contract,
 или URL оказывается в telemetry/logs.
 
-После GO разрешается P5 implementation: private publish, resolver с exact
+Автоматическая часть GO выполнена. Полный device-GO и разрешение на P5
+implementation наступают только после трёх реальных Telegram-клиентов:
+private publish, resolver с exact
 building/takedown/block authority, state `rel + contentDigest`, миграция всех
 `u/*`, production smoke, затем приватизация старого UGC repo.
 

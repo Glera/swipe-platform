@@ -244,13 +244,15 @@
   on 25.07.2026: backend `01d3bf2` exposes only `202 {job_id}` and performs no
   model I/O in POST; client `2b827cd` (platform `5d0aa12`) has no dual-mode
   branch or opt-in header. VISION Part B is applied in v2.7.
-  P5 remains behind its device-spike gate. The provider-neutral private-origin
-  probe is merged in `swipe-ugc@768f478` (content-addressed single-file HTML,
-  idempotent upload, signed HEAD/GET/Range/expiry, production-origin CORS,
-  Chromium iframe/autoplay and redacted evidence). No production resolver,
-  state-schema change, UGC migration or storage credentials exist yet: those
-  are permitted only after a real private-bucket run and Telegram
-  iOS/Android/Desktop GO.
+  P5 remains behind its real-device gate. The private Cloudflare R2 Standard
+  origin run passed 25.07.2026: content-addressed single-file HTML, idempotent
+  upload, authenticated immutable HEAD, signed HEAD/GET/Range/expiry,
+  production-origin CORS, Chromium iframe/autoplay WIN and redacted evidence.
+  R2 omits Content-Length on presigned HEAD, so exact length remains fenced by
+  authenticated HeadObject + signed GET sha256 + Range total; any supplied
+  mismatch still fails closed. The temporary bucket-scoped token was deleted.
+  No production resolver, state-schema change or UGC migration exists yet:
+  those are permitted only after Telegram iOS/Android/Desktop GO.
   The PG replay/idempotency/fencing/E2E/dogfood closure this
   decision requires is a coverage contract (run status with CI, not here);
   `capabilities.levelSeries=false` is unchanged.
