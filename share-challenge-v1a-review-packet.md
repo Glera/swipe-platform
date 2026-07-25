@@ -180,6 +180,31 @@ head: `266bd5f`** (один узкий коммит: фиксы + тесты; м
 Числа: pure **856/0**; challenge PG + adapter **47**; island PG **31**
 (без изменений); **full PG 1182 passed / 0 failed**.
 
+## Codex diff-review R3 → fix R4 (финальный exact head)
+
+Codex R3 (@7c5218fa): NO-GO, один узкий P1 — гонка первого source
+run.start (2 конкурентных запроса, один ticket_id, разные spec → 2
+успеха / 1 binding / 2 spec-строки). Закрыт; **новый exact head:
+`f98d338`** (один коммит; ветка ребейзнута на `origin/master@01d3bf2` —
+island theme-sync removal, конфликтов нет).
+
+- **Фикс:** `source_ticket_advisory_lock` — `pg_advisory_xact_lock` по
+  ticket_id ДО первого чтения RunTicket и любых вставок; проигравший
+  ждёт коммита победителя, re-read binding под локом → трёхветочный
+  replay-путь (same spec → exact replay; different → 409
+  `challenge_spec_mismatch`); spec upsert/bind только на ветке
+  победителя → ноль orphan-spec; проигравший не тратит run-start юнит.
+- **Red-then-green:** снятие одной fence-строки → проба Codex красная
+  3/3; восстановлено → green. Тесты:
+  `test_r4_concurrent_first_source_same_spec` (оба успеха byte-identical,
+  ровно 1 ticket/binding/spec) и `..._different_spec` (1 успех + 1 typed
+  409, ноль orphans) — реальные SessionLocal + Barrier.
+- **Числа:** pure **856/0**; challenge+adapter+island PG **98 passed**;
+  full local PG **1182 / 0 failed**.
+- **Combined GitHub CI на exact head `f98d338`: SUCCESS** — Full
+  PostgreSQL acceptance, reverse-drift goldens, все 17
+  migration-roundtrip джобов (вкл. island-p2-0055).
+
 ## Reproduce
 
 Ветка `challenge-v1`; suites: `pytest -q` (pure);
