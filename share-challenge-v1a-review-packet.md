@@ -202,8 +202,37 @@ island theme-sync removal, конфликтов нет).
 - **Числа:** pure **856/0**; challenge+adapter+island PG **98 passed**;
   full local PG **1182 / 0 failed**.
 - **Combined GitHub CI на exact head `f98d338`: SUCCESS** — Full
-  PostgreSQL acceptance, reverse-drift goldens, все 17
-  migration-roundtrip джобов (вкл. island-p2-0055).
+  PostgreSQL acceptance, reverse-drift goldens, 16 migration-roundtrip
+  джобов (вкл. island-p2-0055; ранее в этой секции ошибочно значилось
+  17 — doc-nit Codex R4, исправлено).
+
+## Codex diff-review R4 → fix R5 (ФИНАЛЬНЫЙ exact head)
+
+Codex R4 (@0cd5ba6d): NO-GO, один P1 — plain run.start был вторым
+uncatalogued-писателем run_tickets вне забора (spec-bound тикет
+реплеился через legacy wire; plain first-create мог вклиниться и стать
+v1 постфактум). Закрыт; **финальный exact head: `3d9280c`**.
+
+- **Фикс:** `source_ticket_advisory_lock` →
+  **`uncatalogued_ticket_advisory_lock`** (`run-ticket:{ticket_id}`),
+  берётся ОБОИМИ путями (v1 source И plain) в одной точке — единый lock
+  order, interleave невозможен. Классификация под забором тотальна:
+  source+binding → exact replay; source без binding → 409
+  `challenge_ticket_not_bound`; **plain+binding → 426
+  `challenge_client_upgrade_required`, ноль мутаций** (spec-bound тикет
+  реплеится только v1-wire); plain без binding → legacy replay; новый
+  тикет рождается ровно в одном контуре.
+- **Red-then-green:** реверт fence — проба A красная последовательно,
+  проба B красная 4/4 конкурентно; восстановлено → green. Тесты:
+  `test_r5_spec_bound_ticket_rejects_plain_wire_replay` (426, ровно
+  1 ticket/binding/spec) и `test_r5_concurrent_plain_vs_source_first_create`
+  (Barrier: plain-победа → тикет навсегда unbound + source 409; source-
+  победа → bound с рождения + plain 426; НИКОГДА retrofit; 6× стабильно
+  на обоих исходах). R4-тесты source↔source остаются зелёными.
+- **Числа:** pure **856/0**; challenge+adapter+island PG **100 passed**;
+  full local PG **1184 / 0 failed**.
+- **Combined GitHub CI на `3d9280c`: SUCCESS** (run 30168484283; Full
+  PG acceptance + reverse-drift + 16 migration-roundtrip джобов).
 
 ## Reproduce
 
