@@ -144,6 +144,27 @@ island-регресс). Условия закрыты `6dcc9a3`/`27f5cd5`:
 - **V1-C**: prepared inline message (best-effort), SQL K-фактора/acceptance.
 - Production deploy / flag-on — человеческие гейты (R5).
 
+## Codex implementation-review R1 → fix round (эвиденс для diff-only R2)
+
+Codex R1 (`p4g-workspace-meta`, ветка `codex/challenge-v1a-review`
+@9c39f0b): NO-GO, 4 P1 + 1 P2, все воспроизведены его adversarial-пробами
+(5/5 red). Микрорешения приняты (SEED=0, два digest'а, nullable
+wire_version — PASS). Все пять закрыты; **новый exact head:
+`6aaad66`** (коммиты `6c713fe` фиксы + `6aaad66` regression-тесты по
+пробам). Harness верифицирован ревертом одного фикса (проба снова red).
+
+| Находка | Фикс | Тест (red-then-green) |
+|---|---|---|
+| P1-1 source mechanic не замкнут на playableId | server-owned `mechanic_id` в манифесте адаптера; mismatch → 409 `challenge_source_mechanic_mismatch` до любых записей | `test_r2_p1_source_mechanic_must_match_playable` |
+| P1-2 /complete: replay не exact + повторный DM | fenced `_v1_complete` под advisory-локом (challenge, actor): response-снапшот + серверный digest на complete-событии; committed replay = byte-identical, ноль мутаций/DM (в обход block/expiry — исторический ответ); side-effects только при первой записи | `test_complete_exact_replay_one_dm_and_wrong_body`, `test_r2_concurrent_complete_replay_one_dm` |
+| P1-3 level-bundle доступен после block | двусторонний block-guard в producer → 404 (source-тикет владельцу доступен) | `test_r2_p1_level_bundle_blocked_pair_404` |
+| P1-4 flag-off блокировал replay source-тикета | тикет резолвится ДО гейта: existing → replay работает при OFF (historical release); новый source при OFF → 409 | `test_r2_p1_flag_off_allows_source_ticket_replay` |
+| P2-1 receipt не терминален для графа | единый receipt-first helper `apply_challenge_friendship_once` (accept / recipient run.start / complete-fallback): существующий receipt → сохранённый outcome БЕЗ мутаций графа; удалённая дружба не воскресает | `test_r2_p2_friendship_receipt_is_terminal_no_resurrect` |
+
+Числа после фикс-раунда: pure **855/0**; challenge PG **36** + adapter
+**8**; island PG **31** (без изменений); **full PG 1179 passed / 0
+failed** (включая ранее флейковый agents_m2m-тест).
+
 ## Reproduce
 
 Ветка `challenge-v1`; suites: `pytest -q` (pure);
