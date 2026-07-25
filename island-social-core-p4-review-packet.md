@@ -129,6 +129,14 @@ Codex R1 (`p4g-workspace-meta@3043ed5`): NO-GO, 2 находки. Обе зак�
 theme PG **16 passed**; theme+island PG **58 passed**; полный pure
 **844 passed / 0 failed**; клиент tsc/build зелёные.
 
+**R2→R3:** Codex R2 нашёл одну недостачу — `wall_time_ms` писался только
+на success/validation-error путях. Закрыто **`afccc55`**: elapsed пишется
+на receipt ЛЮБОГО завершившегося физического вызова (timeout, HTTP,
+generic exception; исключение — process cancellation/crash, который
+закрывает reclaim как `interrupted`). Два новых failure-path теста
+(HTTP 502, timeout) — theme PG **18 passed**, полный pure **844 / 0
+failed**. Head для diff-only R3: backend **`afccc55`**, клиент `94f4eaf`.
+
 Ограничение №1 из «Задокументированных решений» выше (attempt-гранулярность)
 УСТРАНЕНО этим фикс-раундом — receipt теперь per физический вызов, как
 требует §5.1. Пункты 2–4 остаются в силе.
