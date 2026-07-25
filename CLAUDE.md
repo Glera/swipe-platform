@@ -222,9 +222,16 @@
   automation remains a new explicit operator decision with fraud/abuse and
   safety evidence.
 - Island migrations `0050_a11` (cohort-watch base), `0051`–`0052` (island
-  core), `0053` (async `/island/theme` jobs) and `0054` (moderation-action
-  seq) are merged to master (unified island, backend `c21d40f`, client
-  `d560076`); P1/P3/P4 passed internal adversarial review (author ≠
+  core), `0053` (async `/island/theme` jobs), `0054` (moderation-action
+  seq) and `0055_island_p2` (visit-award response/config-digest +
+  notification outbox/attempt-receipts) are merged to master (unified
+  island, backend `c21d40f`→`36a7d2a`, client `d560076`→`dd9efbd`); P2
+  (visit-card + consent-bound notifications + remove/block UI) is enabled
+  in production by operator decision 25.07.2026 with versioned config
+  (card 30%/holdout 10%/cap 5/day; notifications only after native
+  requestWriteAccess consent, quiet hours 21:00–08:00 UTC, ≤3 attempts,
+  consent+block re-checked before I/O); the legacy client visit simulator
+  is removed (server facts only); P1/P3/P4 passed internal adversarial review (author ≠
   reviewer) AND independent Codex review (GO). Island is **globally enabled
   in production** by explicit operator decision 25.07.2026 (backend
   `a3dcdf7`/PR #11: `ENABLE_ISLAND_SOCIAL`/`ENABLE_ISLAND_BOTS` on,
