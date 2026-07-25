@@ -149,14 +149,13 @@
   attempts receive exactly one invalidation with the same action id. Operator
   UI and production E2E remain enable gates.
 - Island Social Core is a separate `island_*` namespace, outside the
-  catalog/feed contours; Creator District is untouched. Rollout is packetized
-  (P1 claims/stages/owner-collect/bots/friends; P2 visit-card/notifications/
-  remove-block UI; P3 moderation; P4 async `/island/theme`; P5 closed CDN) and
-  default-off behind `ENABLE_ISLAND_SOCIAL`/`ENABLE_ISLAND_BOTS` (backend) and
-  `VITE_ISLAND_ENABLED` (client). The island stays hidden from the friend
-  cohort; showing UGC to any real person and enabling the social contour is a
-  separate explicit operator decision, never inherited from a feature flag,
-  and the step-2 ladder moratorium is not broken.
+  catalog/feed contours; Creator District is untouched. P1/P3/P4 and the global
+  Island audience were explicitly approved and enabled 25.07.2026 under VISION
+  v2.6: post-moderation/report/takedown is the protective envelope for the empty,
+  zero-traffic bootstrap. P2 safety remove/block belongs to that live envelope;
+  P2 visit-card/holdout and outbound Telegram notifications remain two separate
+  default-off operator decisions. Moderation automation still requires a new
+  fraud/abuse evidence decision.
 - The island measurement unit is a **client-asserted completion claim**
   (never "win": there is no ticket/oracle path for UGC), gated server-side by
   visit/min-time/per-day cooldowns/caps. Claims never enter qualified-play,
@@ -231,9 +230,10 @@
   traffic). Known accepted deviations: bot seed runs `--apply`
   idempotently on service startup (ТЗ §3.1 said CLI dry-run-first; no
   advisory lock — single-instance assumption, multi-instance scaling
-  requires a lock first); P4 async theme path is deployed but NOT
-  activated (`island_theme_async_enabled` default false — `/island/theme`
-  serves legacy sync; VISION Part B waits for async activation + sync
-  removal). The PG replay/idempotency/fencing/E2E/dogfood closure this
+  requires a lock first). The supported client opts into P4 async theme with
+  `X-Island-Theme-Async: 1`; `island_theme_async_enabled=false` is only the
+  server-wide default for older callers, while the legacy sync fallback remains.
+  VISION Part B waits for actual sync-branch removal, not merely an env flip.
+  The PG replay/idempotency/fencing/E2E/dogfood closure this
   decision requires is a coverage contract (run status with CI, not here);
   `capabilities.levelSeries=false` is unchanged.
