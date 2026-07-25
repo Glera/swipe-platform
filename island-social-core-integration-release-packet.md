@@ -1,7 +1,7 @@
 # Island Social Core — unified integration release packet
 
 Date: 2026-07-25  
-Status: **merge-ready, default-off; merge/deploy requires operator approval**
+Status: **merged and deployed, rollout remains default-off**
 
 This packet supersedes branch-by-branch review handoffs for P1, P4 and P3.
 Codex owns the combined integration heads below; no further P1↔P4↔P3
@@ -81,19 +81,42 @@ Both disposition files pass `scripts/auto-review-validate.mjs`. Collector
 manifests reported no excluded secrets, allowed large binaries or base fallback.
 All isolated review checkouts were removed after verification.
 
-## Scope and operational gate
+## Pre-deployment scope checkpoint (satisfied)
 
-- `master` was not changed by this integration work.
-- Nothing was deployed.
-- Island feature flags remain default-off.
+- Before operator GO, `master` was unchanged and nothing was deployed.
+- Island feature flags were held default-off through the release.
 - No quiet-week, agent-system or `cohort_*` runtime configuration was changed.
 - P2 visit card and P5 CDN/device-spike remain outside this merge.
 
-The first action requiring the operator is now the merge/deploy decision.
-Recommended order:
+The approved order was:
 
 1. merge/deploy backend integration head;
 2. verify migrations and default-off health;
 3. merge/deploy client integration head;
 4. keep flags off until a separately approved staged enablement.
 
+## Deployment closure — 2026-07-25
+
+Operator GO was received and the ordered release completed:
+
+| Surface | Merge / deploy identity | Production evidence |
+|---|---|---|
+| workspace evidence | `p4g-workspace-meta@2e681820562d7ebe214560c936d8ca713530e3d4` (PR #6) | meta verify PASS |
+| backend | `swipe-backend@c21d40f7abd8e8aa86e08583f736c05ca3cbd4d0` (PR #10) | `/api/health` reports `build: c21d40f`; startup migration completed; master PostgreSQL acceptance PASS |
+| client source | `feed-prototype@d5600765ce47a61916ae6539c9df274d64ca0cd5` (PR #2) | master lint + build PASS |
+| static deploy | content `swipe-platform@941aa21`, stamp `fe33b7d3233eabb193542e84998e7f855a21a3c8` | served `index.html` is byte-identical to the deploy repo, SHA-256 `163305ce863e115d77d4b7e2f94cbc38fdb07911b0ec64e732e44f2c24471340` |
+
+Default-off verification:
+
+- backend `/api/island/friends` returns 404, proving the P1/P3 router is not
+  mounted;
+- production browser at `/` has one feed tab, zero Meta tabs and zero island
+  roots;
+- the same browser assertion passes at `/?island=123`, proving direct island
+  entry is gated too;
+- the existing `exact-user` catalog release profile for user `42692410` and all
+  four catalog gates were preserved byte-for-byte in `release.json`;
+- no Island flag was set during the production build.
+
+No Island cohort was exposed. Enabling the Island flag remains a separate
+operator decision.
