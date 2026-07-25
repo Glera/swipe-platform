@@ -8,7 +8,7 @@ enable gates remain. Master, Render deploy и production flags не изменя
 
 | Repo | Branch / head | PR |
 |---|---|---|
-| `swipe-backend` | `codex/island-p2@23c7439` | [#12](https://github.com/Glera/swipe-backend/pull/12) |
+| `swipe-backend` | `codex/island-p2@eed11a9` | [#12](https://github.com/Glera/swipe-backend/pull/12) |
 | `feed-prototype` | `codex/island-p2@151b437` | [#6](https://github.com/Glera/feed-prototype/pull/6) |
 | `p4g-workspace-meta` | этот packet + durable CLAUDE sync | commit этой ревизии |
 
@@ -107,6 +107,9 @@ enable gates remain. Master, Render deploy и production flags не изменя
    вернул `gift.puzzles`. Исправлен только harness; полный прогон повторён green.
 6. Rerun fixture пытался удалить append-only `verified_runs`: fixture сделан
    идемпотентным и переиспользует exact chest identity.
+7. CI после 13:00 UTC поймал немонотонный test clock (`replace(hour=12)`):
+   production корректно не взял future outbox. Test clock перенесён на
+   фиксированное время `now + 2 days`; P2 PG повторён на fresh DB.
 
 ## 5. Честные residuals
 
