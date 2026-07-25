@@ -213,14 +213,27 @@
   `artifact_rel`; a mismatched revision is 409. The single-operator auth is an
   allowlist enforced by the server on every request (`?diag=1`/a hidden page
   is navigation, not an authorization boundary); the full scoped-grant
-  contract is gated on "moderators > 1". First rollout is limited to the
-  author's accepted friends; audience expansion or moderation automation is a
-  new explicit operator decision with fraud/abuse and safety evidence.
+  contract is gated on "moderators > 1". Audience was expanded to ALL users
+  by explicit operator decision 25.07.2026 (global Island enablement,
+  swipe-backend PR #11; the live post-moderation contour is the protective
+  envelope; VISION patch recording this is tracked separately). Moderation
+  automation remains a new explicit operator decision with fraud/abuse and
+  safety evidence.
 - Island migrations `0050_a11` (cohort-watch base), `0051`–`0052` (island
   core), `0053` (async `/island/theme` jobs) and `0054` (moderation-action
-  seq) live on the `island-social-core-p1`/`island-moderation`/
-  `island-theme-async` branches; P1/P3/P4 are implemented and internally
-  adversarially reviewed (author ≠ reviewer) and are in independent Codex
-  review. Nothing is merged to master or enabled. The PG replay/idempotency/
-  fencing/E2E/dogfood closure this decision requires is a coverage contract
-  (run status with CI, not here); `capabilities.levelSeries=false` is unchanged.
+  seq) are merged to master (unified island, backend `c21d40f`, client
+  `d560076`); P1/P3/P4 passed internal adversarial review (author ≠
+  reviewer) AND independent Codex review (GO). Island is **globally enabled
+  in production** by explicit operator decision 25.07.2026 (backend
+  `a3dcdf7`/PR #11: `ENABLE_ISLAND_SOCIAL`/`ENABLE_ISLAND_BOTS` on,
+  moderator allowlist `42692410`; client `19aece3`; rationale: empty
+  platform, zero traffic, post-moderation contour live before real
+  traffic). Known accepted deviations: bot seed runs `--apply`
+  idempotently on service startup (ТЗ §3.1 said CLI dry-run-first; no
+  advisory lock — single-instance assumption, multi-instance scaling
+  requires a lock first); P4 async theme path is deployed but NOT
+  activated (`island_theme_async_enabled` default false — `/island/theme`
+  serves legacy sync; VISION Part B waits for async activation + sync
+  removal). The PG replay/idempotency/fencing/E2E/dogfood closure this
+  decision requires is a coverage contract (run status with CI, not here);
+  `capabilities.levelSeries=false` is unchanged.
