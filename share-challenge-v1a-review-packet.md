@@ -1,5 +1,14 @@
 # Share/Challenge V1-A (backend) — evidence-пакет для Codex implementation-review
 
+> **Codex implementation-review: GO** (финальный вердикт 26.07.2026,
+> exact head `3d9280c`, отчёт ветка codex/challenge-v1a-r5-review
+> @86d59168): открытых P1–P3 нет; полный реестр RunTicket writers
+> замкнут; boundary-тесты 20/20; challenge PG + adapter 51/51; exact CI
+> 18/18 jobs (вкл. 16 migration-roundtrip). V1-A в человеческой
+> merge-очереди; merge/deploy/flag-on не выполнялись. V1-B стартует,
+> зафиксировав backend wire на `3d9280c`. Траектория ревью:
+> R1 5 находок → R2 2 → R3 1 → R4 1 → R5 GO.
+
 Дата: 25.07.2026. Пакет V1-A по ТЗ `swipe-backend/docs/specs/share-challenge-v1.md`
 v1.4 + R5 GO (exact head `436a867`) + post-GO amendment v1.4.1
 (`@31c9439`, механика = marble-sort-swipe, решение оператора). Автор кода —
