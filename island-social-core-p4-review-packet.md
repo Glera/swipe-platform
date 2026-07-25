@@ -99,7 +99,7 @@ bounded spend на reclaim, byte-identical replay, идемпотентност�
    (удалить легаси-оговорку целиком; факт — в IMPLEMENTATION-STATUS/git
    history), отдельным решением оператора.
 
-## Вопросы Codex'у
+## Вопросы Codex'у (R1)
 
 1. Достаточен ли интерливинг-тест cancel↔finalize (hook+two-threads) как
    доказательство отсутствия окна, или требуется дополнительный
@@ -107,5 +107,28 @@ bounded spend на reclaim, byte-identical replay, идемпотентност�
 2. Fingerprint дедупа не включает модель/effort (они серверные) — согласны,
    что смена `island_theme_model` в конфиге легитимно НЕ инвалидирует
    нетерминальные jobs?
-3. Приемлема ли документированная attempt-гранулярность receipt
-   (п.1 выше), или требуете receipt per физический вызов?
+3. ~~Приемлема ли документированная attempt-гранулярность receipt~~ —
+   отвечено Codex R1 (отклонено), закрыто фикс-раундом ниже.
+
+---
+
+## Codex R1 fix round (эвиденс для diff-only R2)
+
+Codex R1 (`p4g-workspace-meta@3043ed5`): NO-GO, 2 находки. Обе закрыты;
+**новые heads: backend `434f4c0`, клиент `94f4eaf`** (ветки
+`island-theme-async`, запушены).
+
+| Находка | Фикс | Доказательство |
+|---|---|---|
+| F001 (P1): один receipt покрывал до двух физических Anthropic-вызовов | adherence-цикл поднят на уровень executor: извлечён single-call юнит `_single_theme_call`; перед КАЖДЫМ физическим вызовом атомарно receipt append + attempts increment (commit) → I/O; ≤2 вызова/job; reclaim после зафиксированного незавершённого вызова = terminal `interrupted` без нового расхода; **sync-путь бит-в-бит не изменён** (легаси `_anthropic_theme` сохранён поверх юнита) | `test_each_physical_call_is_fenced_by_its_own_receipt` — **red-then-green** (на pre-fix executor падает `1 == 2`: два POST делили один receipt); в момент второго POST в БД attempts=2 и два receipts; #POSTs == #receipts; + `test_validation_miss_twice_is_terminal_failed` |
+| F002 (P2): resume-identity клиента = только slot+prompt | handle хранит полную нормализованную request identity (`prompt + preferences{avoid, difficulty, motion}`, та же нормализация и состав, что серверный digest); mismatch → новый запрос | клиентский путь, tsc/build |
+
+Прогоны после фиксов (на дереве, ребейзнутом поверх Codex-мерджа
+миграционной цепочки `c10726a`; миграция переименована в
+`0053_island_theme_jobs`, единственный alembic head, roundtrip зелёный):
+theme PG **16 passed**; theme+island PG **58 passed**; полный pure
+**844 passed / 0 failed**; клиент tsc/build зелёные.
+
+Ограничение №1 из «Задокументированных решений» выше (attempt-гранулярность)
+УСТРАНЕНО этим фикс-раундом — receipt теперь per физический вызов, как
+требует §5.1. Пункты 2–4 остаются в силе.

@@ -368,3 +368,60 @@ single postmaster on the datadir; the user's own `homebrew.mxcl.postgresql@15`
 service — targeting `/usr/local/var/postgresql@15` — was **not** touched); (2) the
 second harness serves on ports 5214/5215, which needed adding to the backend
 `ALLOWED_ORIGINS` for the stand. Neither reflects a product defect.
+
+---
+
+## 13. Codex R2 fix round (R3 evidence)
+
+Heads this round: **backend `630b8e1`** ("Merge A1.1 migration head before Island
+P1"; alembic head **`0052_friendship_user_hi_idx`**), **client `f218391`**
+("P1-fix R3: Codex R2"). Backend product code unchanged from R2 — `630b8e1` only
+merges the Codex **A1.1** master head ahead of Island P1, which **renumbered the
+island migrations** (island `0050→0051`, `0051→0052`) and inserted
+`0050_a11_cohort_watch_read` before them. This is the **first island-chain run on
+the merged head**, and it is clean.
+
+### Contract v1.4 (§3.1) — the R2-F001 change
+
+Per **workspace-meta `@c65d837`** (Codex R2-F001, option 2), §3.1 was restated:
+the builtin binding is the **identity** authority — **`mechanicId` = the runtime
+authority** (with fail-closed on an unknown mechanic, unchanged) — while
+`rosterRevision`/`versionsDigest` are a **rotation/audit record, NOT a
+client-verifiable content digest**. The platform has **no versioned /
+content-addressed builtin delivery**, so runtime **delivery = the current deploy**.
+The client (`f218391`) dropped all "immutable runtime delivery" wording and the
+launch dbg digest line from `island.ts`/`api.ts`; there was never a byte/digest
+compare to remove behaviourally.
+
+### R2-F001 / R2-F002 → fix `f218391` → stand results
+
+| R2 finding | Fix | How verified (stand) | Result |
+|---|---|---|---|
+| **R2-F001** binding = identity, delivery = current deploy (v1.4 §3.1) | cl `f218391` (contract/comment restatement; behaviour already correct) | `check-island-social-r2-binding-flagoff.mjs` **POINT 4c** (new): a mechanic's **deploy bytes are rotated v1→v2 under an UNCHANGED binding**; the house keeps resolving `BUILTIN · sort` and loads the **current** deploy each time — the `data-deploy` marker in the mechanic iframe reads `v1` before rotation and `v2` after (no digest pin / byte-compare). **POINT 4b**: a mechanicId gone from the platform set → "Механика недоступна", **DB = 0 visits / 0 claims**. **POINT 4a**: building `tpl="merge"` but runtime `BUILTIN · sort` (bound by mechanicId, not tpl). Screenshots `R2-F002-rotation-before-v1.png`, `R2-F002-rotation-after-v2.png` (header "Vesper #1 · **Merge**", chip "**BUILTIN · sort**", "Round won!"), `R2-F002-fail-closed.png`, `R2-F002-binding-authority.png`. | PASS |
+| **R2-F002** friend-accept attempt cap must persist across reopens | cl `f218391` (`persistPendingFriendAccept` preserves accumulated attempts for the SAME code; only a NEW code resets to 0; definitive outcomes clear the key) | New `check-island-social-r3-accept-attempts.mjs`: `/friends/accept` stubbed to a **transient 503**; the same `f_<code>` across **5 reopens** → localStorage `attempts` accumulates **1→5, not reset per boot**; the **6th** boot (cap = 5) fires **no** accept and **clears** the pending key; a **new code resets attempts to 1**. DB fact: **0 friendships** created for the guest (every accept 503'd). | PASS |
+
+### Suite numbers on head `630b8e1` (first run after the A1.1 merge)
+
+| Suite | Result |
+|---|---|
+| Combined island suites (core+bots PG + `test_island_social`/`_bots`/`_social_core`/`_recipe`/`_state`) | **74 passed** |
+| `test_island_social_core_migration_postgres.py` (up/down roundtrip, alembic head `0052`) | **2 passed** |
+| Browser regression **A–E** (`check-island-social-browser.mjs`, `min_win=8000`) | **all pass** (CASE D friend-accept + guest flows B/E unaffected by `f218391`) |
+| Client `tsc` + `vite build` | green |
+
+### P1-D harness fix (test-only, this round)
+
+The client agent's new POINT 4c (in `f218391`) was committed **stand-unverified**
+and did not actually observe the rotation: playable iframes load `<id>.html?**auto=0**`,
+whose query made them fall through the `**/*.html` page-route glob to the static
+server, which served the non-marked `fakePlayable` (so `data-deploy` read `null`).
+P1-D fixed the harness so the **current deploy body is served for `.html` with a
+query too** (route regex `/\.html(\?|$)/` + the static server now serves
+`mechanicDeployBody`), and hardened `r2_binding_setup.py` to always force
+`tpl != mechanicId` for a genuine 4a. No product code touched.
+
+### Stand note
+
+Same disposable-PG pattern as §2/§12; the earlier launchd-orphan/CORS stand issues
+did not recur. The A1.1 merge required fresh DBs migrated to head `0052` (the old
+`0051_friendship_user_hi_idx` revision id was renumbered), re-seeded bots + owner.
