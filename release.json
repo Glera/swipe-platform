@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-07-25 11:53 UTC",
-  "feedCommit": "96d1e5db12d670e5f026f7c0404b37df44f88dd2",
+  "builtAt": "2026-07-25 13:17 UTC",
+  "feedCommit": "34642cc021225fdfd2a4311ca73859ac1f1eb2a3",
   "exportedPlayablesCommit": null,
   "deployToolingCommit": "f028104ae78f754d9f8847fbfd0c1ef3ac8cf833",
   "catalogDogfood": {
     "schema": "catalog-dogfood-release-profile.v1",
-    "profile": "exact-user",
-    "userId": "42692410",
+    "profile": "off",
+    "userId": null,
     "gates": {
-      "VITE_CONTROL_PLANE_ENABLED": true,
-      "VITE_CATALOG_PLAYER_V2_ENABLED": true,
-      "VITE_FEED_EFFECTFUL_AUTHORITY_ENABLED": true,
-      "VITE_CATALOG_CANARY_DOGFOOD_ENABLED": true
+      "VITE_CONTROL_PLANE_ENABLED": false,
+      "VITE_CATALOG_PLAYER_V2_ENABLED": false,
+      "VITE_FEED_EFFECTFUL_AUTHORITY_ENABLED": false,
+      "VITE_CATALOG_CANARY_DOGFOOD_ENABLED": false
     }
   }
 }
