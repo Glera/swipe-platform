@@ -148,3 +148,79 @@
   durable invariant is that committed results stay exact-replayable and late
   attempts receive exactly one invalidation with the same action id. Operator
   UI and production E2E remain enable gates.
+- Island Social Core is a separate `island_*` namespace, outside the
+  catalog/feed contours; Creator District is untouched. Rollout is packetized
+  (P1 claims/stages/owner-collect/bots/friends; P2 visit-card/notifications/
+  remove-block UI; P3 moderation; P4 async `/island/theme`; P5 closed CDN) and
+  default-off behind `ENABLE_ISLAND_SOCIAL`/`ENABLE_ISLAND_BOTS` (backend) and
+  `VITE_ISLAND_ENABLED` (client). The island stays hidden from the friend
+  cohort; showing UGC to any real person and enabling the social contour is a
+  separate explicit operator decision, never inherited from a feature flag,
+  and the step-2 ladder moratorium is not broken.
+- The island measurement unit is a **client-asserted completion claim**
+  (never "win": there is no ticket/oracle path for UGC), gated server-side by
+  visit/min-time/per-day cooldowns/caps. Claims never enter qualified-play,
+  affinity, retention, creator payout or ad evidence — they are a separate
+  `claimed` analytics class. House stage is `min(foreign_claims, 10)`; own
+  plays never count (`owner <> guest`). Gifts v1 are puzzles only
+  (collection cards deferred until collections are server-owned).
+- All balance-changing island events take `seq` from one DB sequence under a
+  `FOR UPDATE` social row (total order per building). The append-only journals
+  (`island_completion_claims`, `island_collect_claims`,
+  `island_completion_outcomes`, `island_visit_awards`,
+  `island_moderation_actions`, `island_meta_events`) are the source of truth;
+  materialized counters are derived and replayable by `seq`. Every claim writes
+  its immutable terminal outcome receipt in the same transaction as its first
+  insert — without the receipt the claim does not exist. Replay reads only the
+  receipt and never re-evaluates time, caps, flags or config: the same request
+  on any later day or under any config returns a byte-identical response.
+  Re-enabling `island_rewards_enabled` is never retroactively payable; back-pay
+  is only a separate append-only operator-authorized process. All randomness is
+  derived from a stable seed (visit_id / claim_id / chest-closure run_id) —
+  never `random()` in a request.
+- Visit-award (P2) chest evidence is an **exact server-resolved closure**, not
+  client context: the terminal `VerifiedRun` with `metric_key='series'`, its
+  consumed ticket, and the matching `RewardLedger` row
+  (`lw:{run_id}`, `reason='series_complete'`, exact `meta.ticket_id`, owner =
+  caller). A level-receipt, another user or a `legacy_no_ticket` record is a
+  typed 404 `chest_not_found` — no roll without a real chest. One chest is at
+  most one roll by construction (`run_id` PK, server-derived `roll_id`); the
+  30% chance and daily caps are versioned config; holdout hides the card.
+- Builtin bot binding is a typed **immutable identity**
+  `{mechanicId, rosterRevision, versionsDigest}`: `mechanicId` is the client's
+  sole runtime authority (fail-closed on unknown mechanics), and a changed
+  binding on re-seed is a new `buildingId`. Immutable runtime *delivery* for
+  builtin is **not** claimed in P1 — builtin mechanics ship over mutable deploy
+  (a builtin-house guest plays the same bytes as the feed at that moment);
+  exact by-digest delivery waits for a content-addressed contour and is tied to
+  the P5/closed-CDN horizon. Bots are server-side active accounts in a reserved
+  id range (`>= 900_000_000_000_000`, outside the Telegram range), operator-
+  approved as a bootstrap mechanic, distinguishable as actor/source everywhere
+  (`source`, `is_bot`, separate `bot_likes`, excluded from product metrics and
+  future creator economy). The bot scheduler is fenced from v1: a PostgreSQL
+  advisory lock held on one physical session for the whole tick and released in
+  `finally`, one immutable per-day plan seeded once from
+  `(bot, utc_date, config_digest)`, effects only in the transaction where the
+  claim INSERT is proven via `RETURNING`, bounded same-day catch-up; a config/
+  persona change takes effect only from the next UTC day.
+- Island UGC moderation is **staged post-moderation** (VISION v2.5, operator-
+  approved 24.07.2026): the machine playability gate proves technical
+  playability only, not content safety. P3 moderation semantics stay gated on
+  the merged VISION patch; before any guest sees UGC, report/block,
+  exact-artifact-revision takedown, an operator publication/report queue with
+  an observable review SLA, and revocable artifact delivery are mandatory.
+  Every moderation action writes an append-only receipt bound to the exact
+  `artifact_rel`; a mismatched revision is 409. The single-operator auth is an
+  allowlist enforced by the server on every request (`?diag=1`/a hidden page
+  is navigation, not an authorization boundary); the full scoped-grant
+  contract is gated on "moderators > 1". First rollout is limited to the
+  author's accepted friends; audience expansion or moderation automation is a
+  new explicit operator decision with fraud/abuse and safety evidence.
+- Island migrations `0050_a11` (cohort-watch base), `0051`–`0052` (island
+  core), `0053` (async `/island/theme` jobs) and `0054` (moderation-action
+  seq) live on the `island-social-core-p1`/`island-moderation`/
+  `island-theme-async` branches; P1/P3/P4 are implemented and internally
+  adversarially reviewed (author ≠ reviewer) and are in independent Codex
+  review. Nothing is merged to master or enabled. The PG replay/idempotency/
+  fencing/E2E/dogfood closure this decision requires is a coverage contract
+  (run status with CI, not here); `capabilities.levelSeries=false` is unchanged.
