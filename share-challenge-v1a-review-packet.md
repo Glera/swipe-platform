@@ -165,6 +165,21 @@ wire_version — PASS). Все пять закрыты; **новый exact head:
 **8**; island PG **31** (без изменений); **full PG 1179 passed / 0
 failed** (включая ранее флейковый agents_m2m-тест).
 
+## Codex diff-review R2 → fix R3 (эвиденс для финального diff-only от 6aaad66)
+
+Codex R2 (ветка `codex/challenge-v1a-r2-review` @2afc8e6): NO-GO, 2 P1
+(3 из 5 R1-фиксов полностью, 2 частично). Оба закрыты; **новый exact
+head: `266bd5f`** (один узкий коммит: фиксы + тесты; миграция/схема не
+тронуты — ровно R3-скоуп).
+
+| Находка | Фикс | Red-then-green |
+|---|---|---|
+| P1-1: plain-тикет обходил flag-off и мог ретроактивно стать v1 | трёхветочная классификация в `_start_challenge_source` ДО любых вставок, гейт по доказанному immutable binding (не по существованию тикета): ticket+binding → exact-replay (ON и OFF); ticket без binding → НАВСЕГДА legacy, typed 409 `challenge_ticket_not_bound` (ON и OFF); нет тикета → создание за флагом, ticket+spec+binding рождаются вместе | `test_r3_plain_ticket_never_retrofits_to_v1` (red на 6aaad66-коде, green после) + 4 требуемых кейса классификации |
+| P1-2: complete-digest без tz_offset_minutes — изменённый запрос проходил как exact replay | `complete_identity_digest` = sha256(JCS(полного normalized `CompleteIn.model_dump`)) — каждое принятое поле в identity; дрейф полей структурно невозможен + `test_complete_identity_digest_covers_every_field` | `test_r3_complete_digest_covers_effectful_timezone` (red на двухполевом digest, green после); изменённый tz после блока → 404, без блока → 409; exact replay byte-identical + один DM |
+
+Числа: pure **856/0**; challenge PG + adapter **47**; island PG **31**
+(без изменений); **full PG 1182 passed / 0 failed**.
+
 ## Reproduce
 
 Ветка `challenge-v1`; suites: `pytest -q` (pure);
