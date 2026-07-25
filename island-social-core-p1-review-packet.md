@@ -297,3 +297,74 @@ the env in §2, `python -m app.island_bots seed --apply`, then
 `node scripts/check-island-social-browser.mjs` (see
 `scripts/island-e2e-support/README.md` for env). Screenshots regenerate into
 `e2e-artifacts/island-social/`.
+
+---
+
+## 12. Codex R1 fix round (diff-only R2 evidence)
+
+Fix commits pulled and re-verified on a rebuilt stand (same pattern as §2):
+backend **`305505e`** ("P1-fix R2: Codex review (backend)"), client **`60372ac`**
+("P1-fix R2: Codex review (client)"). Alembic head unchanged (`0051`). All Codex
+diff-only R2 conditions were reproduced against the real client build ↔ real
+uvicorn ↔ real PostgreSQL, with the **production `island_play_min_win_ms=8000`**
+(so every guest win is genuinely a sub-threshold "fast win").
+
+| F | Fix commit | How verified (test / stand case) | Result |
+|---|---|---|---|
+| **F001** per-player bot cap | be `305505e` | Claim budget is now bounded **1..max per (bot, player)/day total across ALL that player's buildings**, then distributed round-robin (not per-building). `tests/test_island_bots_postgres.py` (11 passed, +3) + stand dogfood: a fresh 1-building user grew to `pending=6` from 4 bots (bounded), where the old per-building rule would over-grant. | PASS |
+| **F006** replay auth + fingerprint | be `305505e` | Guest `/result` replay identity = **outcome only** (duration_ms excluded): foreign caller → 404, different duration_ms → byte-identical replay, different outcome → 409. `tests/test_island_social_core_postgres.py` (31 passed, +4) + `fastwin_evidence.py` (third post byte-identical). | PASS |
+| **F007** full block incl. legacy complete | be `305505e` | A block excludes **both** sides on every path — `GET /island/public`→404, `visits/start`→404, `visits/{id}/complete` (legacy)→404, `like`→404 (not only `gift_available_today`). `tests/test_island_social_core_postgres.py`. | PASS |
+| **F008** binding rotation on re-seed | be `305505e` | `seed --apply` with a changed binding atomically rotates the snapshot: new `buildingId` published, old retired from `island_states`, historical social rows preserved (was `ON CONFLICT DO NOTHING` orphaning). `tests/test_island_bots_postgres.py` F007-rotation. | PASS |
+| **F002** binding authority + fail-closed | cl `60372ac` | `playSeries` resolves a bot builtin building **by `builtin.mechanicId`, never the mutable `tpl`**; unresolvable → fail closed (no visit). Stand: point 4a — building `tpl="merge"` but runtime chip = `BUILTIN · sort`; point 4b — `mechanicId="ghost-x-unknown"` → "Механика недоступна", **DB shows 0 visits / 0 claims**; point 4c — `GET /island/public` returns the `builtin` binding. Screenshots `R2-F002-binding-authority.png`, `R2-F002-fail-closed.png`. | PASS |
+| **F003** bounded retry 425/Retry-After | cl `60372ac` | `/result` bounded-retries (3, same `visit_id`) honouring `Retry-After`. `fastwin_evidence.py`: first post @<8s → **425 + `Retry-After: 8`** → retry → `granted`; DB has **exactly 1 claim / 1 outcome / 1 gift-ledger row, pending +1**, and a third post is byte-identical. Browser CASE B & E win at 1.6 s (<8 s) and still reach the granted gift purely via the client's auto-retry. | PASS |
+| **F004** accept after session bootstrap | cl `60372ac` | Friend-accept + HUD refresh moved into `applySessionBootstrap`; a cold user lands the accept on the **first** `/session`. Browser CASE D (fresh accepter `700000010`, `f_<code>` before any `/session`) → friendship created, inviter cell visible. Screenshot `D1-friend-accepted-hud.png`. | PASS |
+| **F005** deeplink gate (flag-off inert) | cl `60372ac` | `VITE_ISLAND_ENABLED` gates the whole social surface. Stand point 3: a client built **without** the flag, opened with `?island=`+`tgWebAppStartParam=f_<code>`, mounts **no** `.island-world`, **no** `.isln-friends`, **no** island (meta) tab, and issues **no** `friends/accept` call. Screenshot `R2-F005-flagoff-inert.png`. | PASS |
+| **F009** guest HUD puzzles | cl `60372ac` | A granted guest gift now flies puzzles into the shared counter (guest balance) — `openIslandWorld` passes `addPuzzles` on guest islands. Browser CASE B granted gift `🎁 +3` (`B1-guest-gift-granted.png`). | PASS |
+| **F010** stage / gift-marker sync | cl `60372ac` | `/result` adopts authoritative `stage`/`foreign_claims` and clears `gift_available_today`. `fastwin_evidence.py`: after a granted claim `GET /island/public` returns `gift_available_today=false` and `stage=3` for that guest/building (consumed gift not re-offered). Browser CASE B repeat-day shows "приходи завтра", not a fresh gift. | PASS |
+| **F011** friend-E2E hardening | cl `60372ac` | The E2E accept waiter is registered **before** navigation (a new `openPage` `beforeNav` hook) and the assertion requires a **visible, clickable** inviter cell after preloader fade. CASE D green; `D1` regenerated showing the inviter cell in the HUD (no blocking overlay). | PASS |
+
+### New suite numbers (this round)
+
+| Suite | Prev | Now |
+|---|---|---|
+| `test_island_social_core_postgres.py` | 27 | **31 passed** |
+| `test_island_bots_postgres.py` | 8 | **11 passed** |
+| Combined island suites (core+bots PG + `test_island_social`/`_bots`/`_social_core`/`_recipe`/`_state`) | — | **74 passed** (matches expectation) |
+| `test_island_social_core_migration_postgres.py` (roundtrip) | 2 | **2 passed** |
+| Client `tsc` + `vite build` | green | **green** |
+
+### Browser E2E (regression + new)
+
+- Regression CASES **A–E** all pass at the production `min_win=8000` (guest wins now
+  travel through the F003 retry path). One P1-D harness adjustment: CASE E asserts
+  the grown `pending_gifts` **dynamically** (now `6`, was `9`) because F001 tightened
+  the per-player bot budget — the dogfood narrative is unchanged.
+- New screenshots: `R2-F002-binding-authority.png`, `R2-F002-fail-closed.png`,
+  `R2-F005-flagoff-inert.png`; `D1-friend-accepted-hud.png` regenerated (F011).
+- New harness: `scripts/check-island-social-r2-binding-flagoff.mjs` (points 3, 4);
+  evidence helpers `scripts/island-e2e-support/{fastwin_evidence,r2_binding_setup,mkinit}.py`.
+
+### Two informational orchestrator decisions (recorded)
+
+- **Replay fingerprint = outcome only, excluding `duration_ms`** (F006): `duration_ms`
+  is a *measurement*, and a bounded retry (F003) legitimately re-sends a different
+  `duration_ms`; folding it into the replay identity would 409 the honest retry.
+  Identity is therefore the `outcome` (`completed`); a *different outcome* → 409, a
+  *different duration* → byte-identical replay of the committed receipt. This is the
+  exact retry-compatibility contract the fast-win path depends on.
+- **Deeplink gate (F005) supersedes the earlier COHORT-PREFLIGHT stance** for the
+  social surface: this **updates accepted-decision (c) in §8**. Previously `i_`/`f_`
+  were "client-routed, server inert without the backend flag"; now the client fully
+  gates `i_<owner>`/`?island=`/`f_<code>` behind `VITE_ISLAND_ENABLED`, so a
+  flag-off build is inert client-side as well (strictly stronger). Codex question 5
+  in §10 is thereby narrowed to the backend-flag-on case only.
+
+### Stand note (no product impact)
+
+Two stand-only issues were hit and resolved while gathering this evidence: (1) a
+stray launchd-orphaned `postgres` postmaster attached to the disposable datadir on
+an alternate port and collided with the 5210 cluster (resolved by reclaiming a
+single postmaster on the datadir; the user's own `homebrew.mxcl.postgresql@15`
+service — targeting `/usr/local/var/postgresql@15` — was **not** touched); (2) the
+second harness serves on ports 5214/5215, which needed adding to the backend
+`ALLOWED_ORIGINS` for the stand. Neither reflects a product defect.
