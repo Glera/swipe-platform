@@ -169,6 +169,20 @@ Provider-real прогон нашёл две особенности, закры�
 (106 pass / 22 standalone skips), base verification и реальный Chromium
 autoplay WIN.
 
+Для передачи ссылки на реальные устройства добавлен отдельный безопасный
+handoff в `swipe-ugc@ed3a2a7` (PR #4):
+
+- `scripts/prepare-island-p5-device-link.mjs` повторно проверяет immutable
+  `HeadObject` (key/digest/length/type/metadata) до подписи;
+- короткоживущий bearer передаётся только напрямую в системный clipboard и не
+  возвращается из library API;
+- stdout содержит только redacted evidence
+  `island.p5.device-link.v1`, без endpoint, bucket, URL/query и credentials;
+- несовпадение object identity останавливает операцию до signing/clipboard.
+
+Exact-head CI зелёный: 131 tests (109 pass / 22 standalone skips), включая
+реальный browser/runtime verify.
+
 Один run обязан сохранить evidence без URL/query/credentials:
 
 | Проверка | PASS |
@@ -197,6 +211,11 @@ autoplay WIN.
 Дополнительно фиксируются: версия Telegram/OS, время до first canvas, ошибки,
 скриншот каждого клиента. Ссылка показывает только PASS/FAIL кнопки и локальный
 диагностический текст; signed URL никогда не печатается.
+
+Оператор получает один 10-минутный URL только через clipboard, вставляет его в
+собственные Telegram Saved Messages и открывает на трёх устройствах. Временный
+bucket-scoped token остаётся активным только на окно device-теста и удаляется
+сразу после expiry/takedown-проверок.
 
 ## 6. GO / NO-GO
 

@@ -251,6 +251,9 @@
   R2 omits Content-Length on presigned HEAD, so exact length remains fenced by
   authenticated HeadObject + signed GET sha256 + Range total; any supplied
   mismatch still fails closed. The temporary bucket-scoped token was deleted.
+  A clipboard-only real-device handoff is merged in `swipe-ugc@ed3a2a7`: it
+  rechecks immutable object identity before signing and emits only redacted
+  evidence; the bearer URL is never returned or printed.
   No production resolver, state-schema change or UGC migration exists yet:
   those are permitted only after Telegram iOS/Android/Desktop GO.
   The PG replay/idempotency/fencing/E2E/dogfood closure this
