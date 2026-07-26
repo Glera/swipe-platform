@@ -1,11 +1,11 @@
 # Island P5 — closed UGC delivery device-spike
 
-Дата: 25.07.2026. Статус: **PRIVATE R2 ORIGIN GO; WAITING FOR REAL
-TELEGRAM DEVICES**.
+Дата: 25–26.07.2026. Статус: **COMPLETE — device-GO, implementation,
+production migration и public-origin cutoff выполнены**.
 
-Это не разрешение на P5 rollout. Цель спайка — доказать транспорт в Telegram
-WebView до архитектурного коммита, как требует
-`swipe-backend/docs/specs/island-social-core.md` §5.3.
+Спайк доказал транспорт в Telegram WebView до архитектурного коммита, как
+требует `swipe-backend/docs/specs/island-social-core.md` §5.3. После device-GO
+тот же документ стал evidence-пакетом реализации и production rollout.
 
 ## 1. Рекомендованный провайдер для спайка
 
@@ -257,6 +257,80 @@ building/takedown/block authority, state `rel + contentDigest`, миграция
    до окончания окна — возврат read-path на старый origin; private копии и
    state receipts не удаляются.
 
-Этот delta не разрешено реализовывать до device-GO: иначе архитектура окажется
-зафиксированной до проверки реальных Telegram WebView, против исходного гейта
-P5.
+Этот delta не разрешалось реализовывать до device-GO: иначе архитектура
+оказалась бы зафиксированной до проверки реальных Telegram WebView, против
+исходного гейта P5. Гейт пройден 26.07.2026 до implementation-merge.
+
+## 8. Device evidence — PASS
+
+26.07.2026 оператор провёл реальную матрицу на iOS, Android и macOS:
+
+| Проверка | iOS | Android | macOS |
+|---|---|---|---|
+| Fresh load / WIN | PASS | PASS | PASS |
+| Resume после background 2–3 мин | PASS | PASS | PASS |
+| Старый URL после expiry заблокирован | PASS | PASS | PASS |
+| Fresh re-resolve на ту же identity | PASS | PASS | PASS |
+| Открытая сессия после revoke продолжает работать | PASS | PASS | PASS |
+| Новый load после revoke заблокирован | PASS | PASS | PASS |
+
+macOS-проверка выполнена из нативного Telegram 12.9
+(`ru.keepcoder.Telegram`). Этот клиент не предлагает произвольному HTTPS URL
+команду «Open in Telegram Browser» и делегирует такую ссылку системному
+браузеру. Это принято для direct-link transport spike: Mini App и game tabs
+имеют встроенную поверхность, но произвольная presigned ссылка из Saved
+Messages идёт другим путём. iOS и Android прошли мобильный Telegram flow.
+
+Временный bucket-scoped R2 token после матрицы удалён; открытые документы
+остались работоспособны, а новые GET были заблокированы на всех трёх
+платформах. Это напрямую подтверждает замороженную v1-семантику:
+revocation/takedown закрывает новую выдачу и новые загрузки, но не пытается
+ретроактивно уничтожить уже загруженные в память байты.
+
+Итог: все условия GO выполнены. Раздел 7 разблокирован для реализации.
+
+## 9. Production rollout — PASS
+
+После device-GO закрытая доставка реализована и включена в следующем порядке:
+
+1. `swipe-ugc` PR #5, merge `563f9f4`: single-file content-addressed artifact,
+   idempotent private S3/R2 publish + immutable HEAD и migration worker.
+2. `swipe-backend` PR #17, merge `dd120a5`: migration `0057`, state schema v5,
+   authenticated resolver и default-off storage contour. PR #18, merge
+   `89138b8`, включил `ENABLE_ISLAND_CLOSED_DELIVERY=true` после миграции.
+3. `feed-prototype` PR #9, merge `c121121`: клиент перестал строить публичные
+   UGC URL, получает bearer только через authenticated resolver и начинает
+   visit после успешного resolve. Production deploy:
+   `swipe-platform@9d2c1ed`; P2-флаги awards/notifications сохранены включёнными.
+
+Production migration:
+
+- dry-run: 7 records / 2 artifacts / 0 writes;
+- apply: 7 records scanned, 6 state records changed, 2 artifacts
+  uploaded-or-verified;
+- exact replay: 0 records changed, 0 uploads — идемпотентность подтверждена;
+- после migration все 7 записей имеют schema v5; 2/2 hosted buildings имеют
+  валидный `contentDigest`; сохранённых `url` — 0;
+- реальный production presigned GET прошёл и совпал с identity digest.
+
+Первый apply остановился до DB-write из-за ошибочно скопированного UI-суффикса
+в credentials. После установки exact 32/64-byte значений повторный apply
+прошёл; это зафиксировано как fail-closed operational evidence, а не скрыто как
+«успешный первый запуск». Credentials живут только в Render secret env.
+
+Cutoff выполнен после backend/client smoke:
+
+- backend `89138b8` live, runtime flag `True`, resolver без auth → 401;
+- production bundle содержит resolver path и не содержит
+  `swipe-ugc.onrender.com`;
+- Render static service `swipe-ugc` suspended, старый object URL → 503;
+- GitHub `Glera/swipe-ugc` переведён в private;
+- backend после приватизации чисто redeployed и снова показывает
+  `bake_runtime.state=ready`, `ugc_commit=563f9f4`;
+- private checkout consumers переведены на read-only deploy key; повторные
+  CI-прогоны зафиксированы в release handoff.
+
+Остаточный риск v1 не изменился: уже загруженные в память байты нельзя
+ретроактивно отозвать. Takedown/block прекращает новый resolve, а выданный URL
+живёт не более 600 секунд. Device-матрица в §8 доказала эту семантику на iOS,
+Android и macOS.

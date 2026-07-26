@@ -244,18 +244,22 @@
   on 25.07.2026: backend `01d3bf2` exposes only `202 {job_id}` and performs no
   model I/O in POST; client `2b827cd` (platform `5d0aa12`) has no dual-mode
   branch or opt-in header. VISION Part B is applied in v2.7.
-  P5 remains behind its real-device gate. The private Cloudflare R2 Standard
-  origin run passed 25.07.2026: content-addressed single-file HTML, idempotent
-  upload, authenticated immutable HEAD, signed HEAD/GET/Range/expiry,
-  production-origin CORS, Chromium iframe/autoplay WIN and redacted evidence.
-  R2 omits Content-Length on presigned HEAD, so exact length remains fenced by
-  authenticated HeadObject + signed GET sha256 + Range total; any supplied
-  mismatch still fails closed. The temporary bucket-scoped token was deleted.
-  A clipboard-only real-device handoff is merged in `swipe-ugc@ed3a2a7`: it
-  rechecks immutable object identity before signing and emits only redacted
-  evidence; the bearer URL is never returned or printed.
-  No production resolver, state-schema change or UGC migration exists yet:
-  those are permitted only after Telegram iOS/Android/Desktop GO.
+  P5 closed delivery completed 26.07.2026 after the real-device gate passed on
+  Telegram iOS/Android/macOS (fresh, resume, expired-link block, re-resolve and
+  revoke semantics all PASS). Private Cloudflare R2 Standard stores
+  content-addressed single-file HTML; state schema v5 persists only
+  `rel + contentDigest`, never a bearer. Backend `89138b8` serves a
+  consent-independent authenticated resolver with block/takedown/current-
+  identity checks and 600-second signed GETs; client `c121121`
+  (`swipe-platform@9d2c1ed`) has no public-UGC URL path. Migration `0057`
+  scanned 7 records, migrated/verified 2 artifacts, changed 6 state rows and
+  replayed with 0 changes/uploads. The public Render `swipe-ugc` service is
+  suspended (legacy URL → 503), the repository is private, and a clean backend
+  redeploy after privatization restored `bake_runtime=ready` at
+  `swipe-ugc@563f9f4`. R2 omits Content-Length on presigned HEAD, so exact
+  length remains fenced by authenticated HeadObject + signed GET sha256 +
+  Range total. Already loaded bytes remain readable; new resolve is denied
+  immediately and an already issued bearer expires within 600 seconds.
   The PG replay/idempotency/fencing/E2E/dogfood closure this
   decision requires is a coverage contract (run status with CI, not here);
   `capabilities.levelSeries=false` is unchanged.
