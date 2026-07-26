@@ -166,6 +166,14 @@
   `claimed` analytics class. House stage is `min(foreign_claims, 10)`; own
   plays never count (`owner <> guest`). Gifts v1 are puzzles only
   (collection cards deferred until collections are server-owned).
+- Owner-facing «кто-то сыграл» is a projection of those same append-only
+  completion claims, never a timer, visit-start or local simulation. The
+  authenticated read is cursor-paged by the global claim `seq`; a missing
+  cursor returns only the current high-water mark so enabling the surface cannot
+  replay historical bot activity. Human and bot facts remain visibly distinct;
+  removed/taken-down buildings and currently blocked actors are not surfaced.
+  The cursor advances across hidden facts so lifting a block cannot resurrect
+  an old notification.
 - All balance-changing island events take `seq` from one DB sequence under a
   `FOR UPDATE` social row (total order per building). The append-only journals
   (`island_completion_claims`, `island_collect_claims`,
