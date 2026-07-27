@@ -163,7 +163,7 @@ research-паки.
 | Ресерчер | manual-only, вне v1 автономии | deep-research паки; формат sourceRefs | первый research-pack по явному запросу |
 | Оркестратор | human-operated dev workflow; unattended production blocked | волны Opus-срезов, ревью, handoff codex | обкатка дневного цикла; bounded ночной run по команде |
 | Инфра-контроль | базовый A1 (тихая неделя идёт) | вотчеры диск/health; CI-перегоны | A1.1/B1 amendment для cohort-классов |
-| Финансовый директор | attended/read-only baseline; unattended ещё не разрешён | первый Render/GitHub/CDN baseline 27.07; GitHub Actions hard budget уже существует | утвердить soft caps и TG destination; реализовать billing collectors + shadow acceptance |
+| Финансовый директор | attended/read-only baseline; unattended ещё не разрешён | Render caps утверждены; GitHub Actions hard budget $30 применён; finance-чат создан | реализовать finance binding + billing collectors; затем shadow acceptance |
 
 ## Две подписки / два хоста (политика Phase-раздела)
 

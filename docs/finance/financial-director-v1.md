@@ -145,9 +145,22 @@ Fixed/variable-классификация берётся из versioned source p
 - Rollback в один шаг отключает только finance delivery/schedule и не
   касается A1 runtime, production services или provider budgets.
 
-## 9. Открытые human gates
+## 9. Human gates
 
-1. Утвердить месячный soft cap Render и отдельный cap Render bandwidth/CDN.
-2. Подтвердить сохранение GitHub Actions hard budget $20.
-3. Выбрать существующий operator-only Telegram chat/topic для `finance`.
-4. Разрешить выпуск двух read-only principals после review adapters.
+Решения оператора 27.07.2026:
+
+1. **Закрыт:** Render total — attention при `$20 MTD` или `$25 forecast`,
+   incident при `$30 forecast`.
+2. **Закрыт и применён:** GitHub Actions hard budget `$30`; stop-usage и
+   threshold alerts сохранены включёнными.
+3. **Частично закрыт:** отдельный operator-only Telegram chat/topic `finance`
+   создан, боты добавлены. Chat id ещё не извлечён и не записан: текущий
+   immutable A1 bind-контракт знает только `digest|attention|incident|test`;
+   `finance` добавляется будущим reviewable release, не правкой live env
+   в обход контракта.
+4. **Открыт:** разрешить выпуск двух read-only principals после review
+   adapters.
+
+Digest утверждённой policy и точный chat id фиксируются только после
+реализации schemas/binder; этот документ не подменяет machine-readable
+policy или секретное окружение.
