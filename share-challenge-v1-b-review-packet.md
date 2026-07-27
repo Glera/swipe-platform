@@ -397,3 +397,94 @@ violating `uq_runtime_releases_one_active`).
 **Stand note for CI:** the backend must allow the harness origins
 (5223/5224 rail, 5233/5234 play+OFF, 5235 x-origin) in `ALLOWED_ORIGINS`, otherwise
 these browser checks fail in a way that looks like missing UI.
+
+---
+
+## §12. Codex R2 exact-head review → fix R3 (финальный)
+
+Codex R2 (heads backend `539480b` + client `9cff985`): **NO-GO**, но узко —
+**backend `539480b` PASS** (offer-bound runtime, OFF-replay, historical
+release подтверждены кодом, тремя PG-пробами и зелёными GitHub checks; с
+актуальным master совмещается чисто, один Alembic head) и **origin-защита
+клиента PASS** (foreign-origin win отвергнут, ложного revoke нет). Сам
+ревьюер при корректном stand-env получил `ci:challenge-browser` 4/4 +
+x-origin PASS. Три пункта — все клиентские; закрыты.
+
+**Новый exact head клиента: `df3e564`** (`3ab9d85` фикс + `df3e564`
+evidence), чисто ребейзнут на `feed-prototype/master@25d850c`. Backend head
+неизменен: **`539480b`**.
+
+### P1 — durable envelope был fail-open (главный фикс)
+
+`setItem`-ошибки проглатывались, поэтому защита от двойного проигрывания
+рассыпалась именно там, где нужна (переполненный/заблокированный
+localStorage в WebView). Фикс дословно по требованию: initial write и
+**каждый** checkpoint fail-closed с typed `challenge_envelope_not_persisted`;
+порядок **candidate → setItem → read-back verification → только потом**
+in-memory phase; повреждённый envelope **не** заменяется новыми ID;
+terminal-фаза при следующем чтении = завершённая (не резюмируется) + retry
+`clear()`; `openEnvelope` вынесен в `openChallengeEnvelopeOrToast` — при
+typed failure **ни network, ни mount**, честный тост.
+
+Red-then-green против пред-фикс копии модуля (`check-challenge-envelope.mjs`,
+24 assertions, в lint):
+
+| проба | RED (fail-open) | GREEN (fail-closed) |
+|---|---|---|
+| initial-write | network **5**, mounts **1** | typed, **0**, **0** |
+| silent drop | не поймано | typed (read-back) |
+| checkpoint+reload | `sourceStarts=2`, `totalMounts=2` (уровень переигран) | `sourceStarts=1`, `totalMounts=1`, те же ID |
+| terminal-clear | старый челлендж переиздан (`distinctCreates=1`) | `'init'`, свежие ID, `distinctCreates=2` |
+| corrupt envelope | ID перевыпущены | typed, ID сохранены |
+
+### P1 — ребейз на `25d850c`
+
+Конфликты: `package.json` lint ×6 (union → **28 checks**: island-pure/browser
+включая `island-activity-browser` + 5 challenge-pure + остальные) и
+`src/feed.ts` ×1 (master заменил комментарий activity-нотифаера там же, где
+добавлен `challengePlayOpen`) — сохранены **оба** набора.
+
+### P2 — CI воспроизводит зелёный стенд
+
+`ci:challenge-browser` = **5 checks** (`check:challenge-xorigin-dom`
+зарегистрирован и включён в обязательный aggregate).
+`.github/workflows/challenge-e2e.yml`: PG15 service, backend по `backend_ref`
+(`539480b`), **`requirements-test.txt`**, alembic upgrade, uvicorn +
+health-wait, upload скриншотов; триггеры **`pull_request` + `push: master`**
+(+`workflow_dispatch`). Job-level env (виден и uvicorn, и support-скриптам):
+`RUN_TICKET_MIN_RESULT_MS=0`, `ENABLE_ISLAND_SOCIAL=true`,
+`ALLOWED_ORIGINS=127.0.0.1:{5223,5224,5233,5234,5235}`,
+`BOT_USERNAME=devbot`, `ENABLE_CHALLENGE_V1=true`, `BOT_TOKEN`, `API_ORIGIN`.
+
+`requirements-test.txt` выбран вместо выноса helper'ов осознанно: вынос
+потребовал бы правки **frozen backend @539480b** (объявлен PASS) либо
+копирования release-descriptor/activation + sort-pool seeding в клиентский
+репо — форк backend-owned контракта с гарантированным дрейфом. Одна строка
+pip против дублирования контракта.
+
+### Статус проверок на `df3e564`
+
+- **`ci:challenge-browser` → 5/5, exit 0** одним прогоном: 426 · recipient
+  E2E · rail browser · play DOM (recipient + **SOURCE fail-hard** + close +
+  identity-mismatch + OFF-toast) · x-origin (A: foreign-origin win отвергнут;
+  B: ложного revoke нет).
+- **`npm run lint` (28 checks) → exit 0** — island-checks после ребейза целы.
+- Pure: tsc 0 · identity 7 · player 27 · play 25 · **envelope 24** ·
+  overlay-guard 7 · catalog-player-v2 85 (немодифицирован).
+- Скриншоты `e2e-artifacts/challenge/` перевыпущены этим прогоном.
+
+### Побочная находка (протокол стенда)
+
+Прежний «psycopg `server_version` баг», дважды блокировавший локальные
+прогоны, оказался **кодировкой кластера `SQL_ASCII`** — с
+`initdb --encoding=UTF8` диалект работает. В workflow используется
+`postgres:15` service (UTF8 по умолчанию), проблемы нет.
+
+### Единственный остаток — действие владельца CI
+
+Триггеры уже на `pull_request`/`push: master`; для настоящего GitHub
+check-run нужен read-only **`SWIPE_BACKEND_DEPLOY_KEY`** (в репо есть только
+`SWIPE_UGC_DEPLOY_KEY`) + промоут workflow в default branch. Решение
+оператора 26.07: отклонение CI-пункта **не принято** (browser-CI дважды
+поймал дефекты, пропущенные другими слоями) — ключ выдаётся после этих
+исправлений. Merge/deploy/флаги по-прежнему не разрешены.
