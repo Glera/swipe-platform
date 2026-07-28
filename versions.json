@@ -72,9 +72,9 @@
     "mountCost": "heavy"
   },
   "pins-swipe": {
-    "version": "e0b2b8d82f",
+    "version": "ea7fcb01de",
     "htmlBytes": 1081,
-    "payloadBytes": 1787275,
+    "payloadBytes": 1785828,
     "assetBytes": 1074917,
     "assets": [
       "pins-swipe.asset-0a85ac671837.webp",
@@ -100,8 +100,8 @@
     ],
     "mediaBytes": 9575693,
     "mountCost": "heavy",
-    "sourceCommit": "d42c470e92ff69e110c5376ff3d41afe1ba96034",
-    "runtimeArtifactDigest": "sha256:b930a8b31008c580ca7297ab2890cfe7207b348bb5f3d471060c873c57baf309"
+    "sourceCommit": "f38ea14735d12a7dfe15762962290e52b93b5cb7",
+    "runtimeArtifactDigest": "sha256:eaf4abcf4d146dfb5328b002a42b40bf54151721bcfb95a124a1622d6ba25201"
   },
   "pins-v1-swipe": {
     "version": "5106ba0b59",

@@ -1,9 +1,9 @@
 {
   "schema": "runtime-artifact.v1",
   "playableId": "pins-swipe",
-  "digest": "sha256:b930a8b31008c580ca7297ab2890cfe7207b348bb5f3d471060c873c57baf309",
+  "digest": "sha256:eaf4abcf4d146dfb5328b002a42b40bf54151721bcfb95a124a1622d6ba25201",
   "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
-  "sourceCommit": "d42c470e92ff69e110c5376ff3d41afe1ba96034",
+  "sourceCommit": "f38ea14735d12a7dfe15762962290e52b93b5cb7",
   "files": [
     {
       "path": "pins-swipe.asset-0a85ac671837.webp",
@@ -108,12 +108,12 @@
     {
       "path": "pins-swipe.html",
       "bytes": 1081,
-      "sha256": "sha256:1539cbd456c91ce3fb5ebc4a2027ea4b16c999deab1fe3a4896586235e5f85d2"
+      "sha256": "sha256:189afe316130c329cbbc35e882c857de249c4189fcd055a9df35638a6776eb72"
     },
     {
       "path": "pins-swipe.payload.js",
-      "bytes": 1787275,
-      "sha256": "sha256:e0b2b8d82fcd9f230714c88ad7eabf79c8e23de4e6e2c88dd8333c21bd8e7c38"
+      "bytes": 1785828,
+      "sha256": "sha256:ea7fcb01defa5fe7889cadd4043ecc3d263ade400af8e37a57afb45d730ceb56"
     },
     {
       "path": "pins-swipe.video-09702e76d7.mp4",

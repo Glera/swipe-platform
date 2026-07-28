@@ -1,26 +1,26 @@
 {
   "schemaVersion": 1,
   "builtAt": "2026-07-28 17:48 UTC",
-  "feedCommit": "61966102d7ce368dc85618e3bde99e49cbf2cb99",
-  "exportedPlayablesCommit": null,
-  "deployToolingCommit": "5c7435045d2e0f651e0a0d771ca1e95760bc3a2a",
+  "feedCommit": "3b17000968f6d4a5029dba155fad13a0ae6741cd",
+  "exportedPlayablesCommit": "f38ea14735d12a7dfe15762962290e52b93b5cb7",
+  "deployToolingCommit": "f38ea14735d12a7dfe15762962290e52b93b5cb7",
   "catalogDogfood": {
     "schema": "catalog-dogfood-release-profile.v1",
-    "profile": "exact-user",
-    "userId": "42692410",
+    "profile": "off",
+    "userId": null,
     "gates": {
-      "VITE_CONTROL_PLANE_ENABLED": true,
-      "VITE_CATALOG_PLAYER_V2_ENABLED": true,
-      "VITE_FEED_EFFECTFUL_AUTHORITY_ENABLED": true,
-      "VITE_CATALOG_CANARY_DOGFOOD_ENABLED": true
+      "VITE_CONTROL_PLANE_ENABLED": false,
+      "VITE_CATALOG_PLAYER_V2_ENABLED": false,
+      "VITE_FEED_EFFECTFUL_AUTHORITY_ENABLED": false,
+      "VITE_CATALOG_CANARY_DOGFOOD_ENABLED": false
     }
   },
   "island": {
     "schema": "island-release-profile.v1",
     "gates": {
       "VITE_ISLAND_ENABLED": true,
-      "VITE_ISLAND_VISIT_AWARDS_ENABLED": true,
-      "VITE_ISLAND_NOTIFICATIONS_ENABLED": true
+      "VITE_ISLAND_VISIT_AWARDS_ENABLED": false,
+      "VITE_ISLAND_NOTIFICATIONS_ENABLED": false
     }
   }
 }
