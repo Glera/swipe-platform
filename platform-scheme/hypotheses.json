@@ -1,15 +1,16 @@
 {
   "schema": "hypothesis-scoreboard.v1",
-  "asOf": "2026-07-22",
+  "asOf": "2026-07-28",
   "qualifiedPlay": "сыгранная до конца серия (до сундука)",
   "currentGoal": {
     "title": "Cohort-ready лента",
     "statement": "Первый непривилегированный игрок открывает TMA, проходит серию до сундука и возвращается — без операторских костылей; его факты читаются в ночном C1-отчёте без проекционных оговорок.",
     "exit": [
-      "hard-гейты закрыты: real-backend browser E2E (зелёный CI-гейт 23.07), reload/cross-origin, device/event-order, p95 ≤ 5с на девайс-профиле (бюджет утверждён 23.07), прод-bootstrap",
-      "external scheduling включён; levelSeries=true",
-      "preflight: остров скрыт от когорты (задеплоено 23.07, стамп 1790d0f), recall проверен живым сценарием",
-      "контрольный проход «нулевого друга» даёт не-inconclusive строку в отчёте"
+      "🟡 real-backend browser E2E: замыкание reveal→сундук доказано, зелёный CI-run 23.07 — но стенд/workflow в незамерженных ветках e2e-real-backend; merge стенда в master = открытый шаг",
+      "🟡 p95: бюджет ≤5s утверждён 23.07; baseline-метод и throttle-числа (4.5–5.0s) — в незамерженной ветке perf-cold-start; device-якорь и merge harness открыты",
+      "✅ защитный конверт UGC: post-moderation жив в проде (report/takedown, allowlist модераторов, block, revocable delivery); боевой recall выполнен 17.07. (Пункт «остров скрыт» снят: VISION v2.6 включил остров глобально)",
+      "⏳ external scheduling + levelSeries=true: без движения (все ENABLE_FEED_SEQUENCING_*=false, shadow-ops off)",
+      "⏳ контрольный проход «нулевого друга» → не-inconclusive строка (последний C1: inconclusive, input_projection_incomplete при 1 игроке)"
     ],
     "kill": "флаги off + recall — откат в один шаг; цель не открывает новых контуров (мораторий соблюдён)",
     "owner": "Claude (оркестрация + ревью), Opus-агенты (срезы), codex — supply-цель Series Order параллельно"
