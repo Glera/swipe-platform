@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-07-28",
+  "status": "production-current-before-ftue-l1-l10-port",
+  "repositoryCommitAtCapture": "5e9b09b9f6a6373f729defd809c83027b48d685a",
+  "artifactSourceCommit": "8c36752d1ad0a45a845f21aca9ab9fefd864218e",
+  "artifactSourceCommitTime": "2026-07-10T23:00:12+03:00",
+  "artifactSourceCommitSubject": "Deploy: 2026-07-10 20:00 UTC",
+  "entry": {
+    "html": {
+      "path": "pins-swipe.html",
+      "bytes": 956,
+      "sha256": "25d0cf70ec4138a25fd96553c4dac8a17f24e779534c30578a67332b37856fb7"
+    },
+    "payload": {
+      "path": "pins-swipe.payload.js",
+      "bytes": 733098,
+      "sha256": "5526e98b1e81ac6880f9ddf425a42acc7a3d48240bf434fdcca1f4bc5b376799"
+    },
+    "resources": {
+      "pathPattern": "pins-swipe.asset-* | pins-swipe.video-*",
+      "fileCount": 27,
+      "bytes": 11438783
+    },
+    "versionsManifest": {
+      "version": "5526e98b1e",
+      "assetBytes": 8412957,
+      "mediaBytes": 3025826,
+      "mountCost": "heavy"
+    }
+  },
+  "replacementDeployed": false,
+  "note": "The artifactSourceCommit is the byte-authoritative rollback source for the HTML, payload, assets, videos and versions.json entry. This record does not deploy or replace production."
+}
