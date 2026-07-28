@@ -6,8 +6,8 @@
     "title": "Cohort-ready лента",
     "statement": "Первый непривилегированный игрок открывает TMA, проходит серию до сундука и возвращается — без операторских костылей; его факты читаются в ночном C1-отчёте без проекционных оговорок.",
     "exit": [
-      "🟡 real-backend browser E2E: замыкание reveal→сундук доказано, зелёный CI-run 23.07 — но стенд/workflow в незамерженных ветках e2e-real-backend; merge стенда в master = открытый шаг",
-      "🟡 p95: бюджет ≤5s утверждён 23.07; baseline-метод и throttle-числа (4.5–5.0s) — в незамерженной ветке perf-cold-start; device-якорь и merge harness открыты",
+      "✅ real-backend browser E2E: стенд+workflow влиты в master 28.07; enforced CI-гейт зелёный на master (run 30386237682, ~2 мин)",
+      "🟡 p95: бюджет ≤5s утверждён 23.07; perf-harness и throttle-числа (4.5–5.0s) влиты в feed master 28.07; открыт device-якорь (замер на реальном устройстве)",
       "✅ защитный конверт UGC: post-moderation жив в проде (report/takedown, allowlist модераторов, block, revocable delivery); боевой recall выполнен 17.07. (Пункт «остров скрыт» снят: VISION v2.6 включил остров глобально)",
       "⏳ external scheduling + levelSeries=true: без движения (все ENABLE_FEED_SEQUENCING_*=false, shadow-ops off)",
       "⏳ контрольный проход «нулевого друга» → не-inconclusive строка (последний C1: inconclusive, input_projection_incomplete при 1 игроке)"
