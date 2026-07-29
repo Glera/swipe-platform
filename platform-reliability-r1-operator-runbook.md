@@ -80,6 +80,7 @@ preview обязан явно сохранить действующий `/32`; �
 | `platform-reliability-r1-0-snapshot-delta.md` | review view |
 | `platform-reliability-r1-operator-receipt.json` | несекретный журнал operator window |
 | `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
+| `platform-reliability-r1-secret-scan-receipt.json` | SHA-256 всех обязательных артефактов + zero-match secret/IP scan |
 
 Snapshot 2 снимается только через
 `scripts/platform-reliability-r1-db-capture.mjs`. В одном доверенном in-app
@@ -426,7 +427,7 @@ fresh internal proof и `/32` снова удаляется. Если external r
 | RPO/RTO observed | requested point, Start, Available и validation timestamps + вычисленные seconds |
 | External ingress closed | merged Blueprint `ipAllowList: []` identity + sync receipt + empty allowlist + post-change protocol rejection |
 | Internal remains green | post-closure fresh DB proof каждого consumer |
-| Secret hygiene | no credentials/IP in git/log artifacts; automated secret scan |
+| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master > platform-reliability-r1-secret-scan-receipt.json` PASS |
 
 Цель R1 считается выполненной только после независимого review всего пакета,
 а не после последнего клика в Render.
