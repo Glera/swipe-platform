@@ -187,3 +187,24 @@ stop-the-line; требуется привязка к DB logs перед люб�
 2. Isolated PITR restore-drill — только с оператором и после разрешения расхода.
 3. Ротация GitHub token и изменение ingress — только оператор.
 4. Никаких retention/delete/classification решений этот пакет не принимает.
+
+## Snapshot 1 provenance addendum (29.07)
+
+Полный collector TSV первого среза был проверен внутри shell-переменной, но
+не сохранён как файл. Это ограничение обнаружено до snapshot 2. Для
+воспроизводимого aggregate-сравнения exact output excerpts сохранены в
+`platform-reliability-r1-0-db-query-receipt.json`; receipt содержит call IDs,
+SHA256 неизменяемого prefix локального session log до последнего cited output
+и SHA256 полных tool outputs, не
+содержит URL/credentials и связан с Render service
+`dpg-d95r32favr4c73aqs4d0-a`.
+
+Нормализованный `platform-reliability-r1-0-snapshot-baseline.json` связан с
+этим receipt его SHA256. Для snapshot 1→2 доступны точные aggregate
+database/relation/row/deadlock delta, причём каждая поверхность нормализуется
+по собственным component timestamps (08:28:49–08:34:04 UTC); полный per-table
+exact-row delta невосстановим и обязан отображаться как `unavailable`.
+Snapshot 2 сохраняется целиком с `exact_row_summary` и `snapshot_complete`.
+Identity связывается по серверному `current_database()` =
+Render `logicalDatabaseName`; caller-supplied service ID доказательством не
+считается.

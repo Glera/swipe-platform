@@ -7,12 +7,17 @@
   "database": {
     "name": "swipe-db",
     "serviceId": "dpg-d95r32favr4c73aqs4d0-a",
+    "logicalDatabaseName": "swipe_55ht",
+    "logicalDatabaseNameObservedAt": "2026-07-29T10:43:14Z",
+    "logicalDatabaseNameBasis": "Read-only #database-name field on this Render service's Info page.",
     "region": "Oregon",
     "postgresMajor": 16,
     "plan": "Basic-256mb",
     "storage": {
       "allocatedGiB": 1,
       "usedPercent": 11.5,
+      "displayPrecisionPercentagePoints": 0.1,
+      "displayPrecisionBasis": "Dashboard rendered storage usage to one decimal percentage point.",
       "autoscalingEnabled": false
     },
     "externalIngress": {

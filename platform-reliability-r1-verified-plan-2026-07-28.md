@@ -163,10 +163,56 @@ operator/Codex/Claude-сессии с Mac).
    в `fromDatabase.connectionString` при следующем Blueprint sync, не
    мгновенно).
 4. Restore-drill (isolated, с оператором).
-5. Удаление `/32`; проверка backend + C1 cron через private network.
+5. Удаление `/32`; red-then-green доказательство: backend + C1 cron остаются
+   зелёными через private network, а новое внешнее подключение с Mac получает
+   ожидаемый network refusal.
 
 Дальнейшая диагностика — временный точный `/32` на сессию с закрытием после.
 До snapshot 2 конфигурация не меняется.
+
+Snapshot 2 сравнивается скриптом
+`scripts/platform-reliability-r1-db-delta.mjs`: отдельно provider storage,
+`pg_database_size`, user relations и deadlocks. Отсутствующая во втором
+`exact_row_count` таблица считается опустевшей (`0`), а не исчезает из delta.
+Процент Render трактуется как округлённое измерение с интервалом
+неопределённости, если receipt не содержит точный `usedBytes`.
+
+Сырой TSV snapshot 1 не был сохранён: первый evidence-проход удержал полный
+collector output только в shell-переменной. Для воспроизводимости подтверждённые
+timestamped DB outputs сохранены в
+`platform-reliability-r1-0-db-query-receipt.json` (call IDs, exact excerpts,
+SHA256 неизменяемого session-log prefix и каждого полного tool output), а их нормализованное
+представление — в `platform-reliability-r1-0-snapshot-baseline.json`.
+Анализатор проверяет digest receipt до сравнения. Поэтому для пары snapshot 1→2
+точны provider/database/relation/deadlock и aggregate exact-row delta, а
+per-table exact-row delta честно имеет статус `unavailable`.
+
+Snapshot 2 и все последующие collector TSV сохраняются целиком. Коллектор
+завершает exact summary + completion sentinel; анализатор fail-closed отклоняет
+усечённый output и требует совпадения серверного `current_database()` с
+`logicalDatabaseName`, прочитанным из Render Info receipt того же сервиса.
+Caller-supplied service ID не считается identity-доказательством. Для полных
+пар действует правило «отсутствующая таблица = 0»:
+
+```bash
+psql "$DATABASE_URL" -X -f scripts/platform-reliability-r1-db-snapshot.sql \
+  > <snapshot-2.tsv>
+```
+
+У reconstructed snapshot 1 component timestamps различаются на несколько
+минут; database/relation/rows/deadlocks нормализуются каждый по собственному
+окну. Provider-minus-relation rate имеет значение только если оба endpoint
+skew не превышают 15 минут; иначе поле `null` / `inconclusive`.
+
+Команда сравнения (JSON для evidence; `--format markdown` — review view):
+
+```bash
+node scripts/platform-reliability-r1-db-delta.mjs \
+  --before platform-reliability-r1-0-snapshot-baseline.json \
+  --after <snapshot-2.tsv> \
+  --provider-before platform-reliability-r1-0-render-receipt.json \
+  --provider-after <snapshot-2-render-receipt.json>
+```
 
 ## 4. Нарезка
 
