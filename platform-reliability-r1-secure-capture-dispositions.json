@@ -1,0 +1,60 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P1",
+      "file": "scripts/platform-reliability-r1-db-capture.mjs",
+      "line": 37,
+      "desc": "The documented /tmp path was rejected on macOS and the validation failure could leave the credential file behind."
+    },
+    {
+      "id": "F002",
+      "severity": "P2",
+      "file": "platform-reliability-r1-verified-plan-2026-07-28.md",
+      "line": 206,
+      "desc": "A predictable shared-/tmp filename without an exclusive creation procedure left a pre-write symlink disclosure window."
+    },
+    {
+      "id": "F003",
+      "severity": "P2",
+      "file": "scripts/platform-reliability-r1-db-capture.mjs",
+      "line": 136,
+      "desc": "Date parsing accepted timezone-less, coercive, and impossible values instead of enforcing an explicit RFC 3339 boundary."
+    },
+    {
+      "id": "F004",
+      "severity": "P2",
+      "file": "platform-reliability-r1-operator-runbook.md",
+      "line": 76,
+      "desc": "The evidence bundle did not persist or verify the capture receipt that byte-binds the snapshot TSV."
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "F001",
+      "action": "fixed"
+    },
+    {
+      "id": "F002",
+      "action": "fixed"
+    },
+    {
+      "id": "F003",
+      "action": "fixed"
+    },
+    {
+      "id": "F004",
+      "action": "fixed"
+    }
+  ],
+  "verify": [
+    {
+      "command": "node --test 'scripts/*.test.mjs'",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ]
+}

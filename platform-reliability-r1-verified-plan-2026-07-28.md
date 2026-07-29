@@ -203,19 +203,27 @@ Caller-supplied service ID не считается identity-доказатель
 
 ```bash
 node scripts/platform-reliability-r1-db-capture.mjs \
-  --url-file /tmp/p4g-r1-db-url-20260730T0840Z \
+  --url-file "$R1_DB_URL_FILE" \
   --output <snapshot-2.tsv> \
-  --not-before 2026-07-30T08:31:00Z
+  --not-before 2026-07-30T08:31:00Z \
+  > <snapshot-2-db-capture-receipt.json>
 ```
 
-URL переносится из Render UI напрямую в одноразовый regular-файл `0600`
-в системном temp-каталоге с префиксом `p4g-r1-db-url-`; в чат, shell history
-и аргументы `psql` он не попадает. Wrapper очищает ambient `DATABASE_URL` /
-`PG*`, передаёт разобранные credentials дочернему `psql` только через
-environment, включает второй read-only guard через `PGOPTIONS`, требует
-полный completion sentinel и удаляет credential-файл при любом исходе.
-Output создаётся эксклюзивно и удаляется при ошибке или слишком раннем
-server timestamp.
+`R1_DB_URL_FILE` — несекретный путь, возвращённый
+`stageCredentialUrl()` из того же доверенного in-app browser/Node-вызова,
+который читает Render input value. Stager сам генерирует криптографически
+случайное имя, открывает его через `O_CREAT|O_EXCL|O_NOFOLLOW`, ставит `0600`
+и никогда не возвращает URL. Раздельные `mktemp` → write, предсказуемое имя
+или предварительно созданный путь запрещены: они оставляют symlink/TOCTOU
+окно до wrapper-проверки.
+
+URL не попадает в чат, shell history и аргументы `psql`. Wrapper очищает
+ambient `DATABASE_URL` / `PG*`, передаёт разобранные credentials дочернему
+`psql` только через минимальное allowlisted environment, включает второй
+read-only guard через `PGOPTIONS`, требует полный completion sentinel и при
+каждом обработанном success/error удаляет credential-файл. Output создаётся
+эксклюзивно и удаляется при ошибке или слишком раннем server timestamp.
+Capture-receipt сохраняется и содержит SHA-256 точных TSV bytes.
 
 У reconstructed snapshot 1 component timestamps различаются на несколько
 минут; database/relation/rows/deadlocks нормализуются каждый по собственному
@@ -228,6 +236,7 @@ skew не превышают 15 минут; иначе поле `null` / `inconc
 node scripts/platform-reliability-r1-db-delta.mjs \
   --before platform-reliability-r1-0-snapshot-baseline.json \
   --after <snapshot-2.tsv> \
+  --capture-after <snapshot-2-db-capture-receipt.json> \
   --provider-before platform-reliability-r1-0-render-receipt.json \
   --provider-after <snapshot-2-render-receipt.json>
 ```

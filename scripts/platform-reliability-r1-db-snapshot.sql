@@ -7,7 +7,7 @@
 -- Reproducible read-only evidence collector for Platform Reliability R1-0.
 -- Usage:
 --   node scripts/platform-reliability-r1-db-capture.mjs \
---     --url-file /tmp/p4g-r1-db-url-20260730T0840Z \
+--     --url-file "$R1_DB_URL_FILE" \
 --     --output <snapshot.tsv> \
 --     --not-before <ISO timestamp>
 --

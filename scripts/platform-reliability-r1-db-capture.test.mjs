@@ -6,7 +6,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { captureSnapshot } from './platform-reliability-r1-db-capture.mjs';
+import {
+  captureSnapshot,
+  stageCredentialUrl,
+} from './platform-reliability-r1-db-capture.mjs';
 
 function managedCredentialPath(directory = os.tmpdir()) {
   return path.join(
@@ -78,6 +81,9 @@ function fixture() {
 }
 
 function writeCredential(contents, mode = 0o600, directory = os.tmpdir()) {
+  if (mode === 0o600) {
+    return stageCredentialUrl(contents, { directory });
+  }
   const credential = managedCredentialPath(directory);
   fs.writeFileSync(credential, contents, { flag: 'wx', mode });
   return credential;
@@ -235,7 +241,7 @@ test('consumes the credential even when local arguments fail before psql', () =>
         notBefore: 'not-a-date',
         psqlBinary: files.fakePsql,
       }),
-      /not-before must be an ISO timestamp/,
+      /not-before must be an RFC 3339 timestamp with an explicit offset/,
     );
     assert.equal(fs.existsSync(credential), false);
     assert.equal(fs.existsSync(files.output), false);
@@ -243,6 +249,87 @@ test('consumes the credential even when local arguments fail before psql', () =>
   } finally {
     fs.rmSync(credential, { force: true });
     files.cleanup();
+  }
+});
+
+test('exclusive staging refuses a pre-created symlink without writing its target', () => {
+  const files = fixture();
+  const nonce = `collision-${process.pid}-${crypto.randomUUID()}`;
+  const credential = path.join(os.tmpdir(), `p4g-r1-db-url-${nonce}`);
+  const target = path.join(files.directory, 'attacker-target');
+  fs.writeFileSync(target, 'unchanged');
+  fs.symlinkSync(target, credential);
+  try {
+    assert.throws(
+      () => stageCredentialUrl(
+        'postgresql://user:password@db.example.test/swipe?sslmode=require',
+        {
+          directory: os.tmpdir(),
+          randomUUID: () => nonce,
+        },
+      ),
+      /exclusive credential staging failed/,
+    );
+    assert.equal(fs.readFileSync(target, 'utf8'), 'unchanged');
+    assert.equal(fs.lstatSync(credential).isSymbolicLink(), true);
+  } finally {
+    fs.rmSync(credential, { force: true });
+    files.cleanup();
+  }
+});
+
+test('rejects timezone-less and coercive not-before values before psql', () => {
+  for (const notBefore of ['2026-07-30T08:31:00', '0']) {
+    const files = fixture();
+    const credential = writeCredential(
+      'postgresql://user:password@db.example.test/swipe?sslmode=require',
+    );
+    try {
+      assert.throws(
+        () => captureSnapshot({
+          credentialFile: credential,
+          outputFile: files.output,
+          notBefore,
+          psqlBinary: files.fakePsql,
+        }),
+        /RFC 3339 timestamp with an explicit offset/,
+      );
+      assert.equal(fs.existsSync(credential), false);
+      assert.equal(fs.existsSync(files.trace), false);
+    } finally {
+      fs.rmSync(credential, { force: true });
+      files.cleanup();
+    }
+  }
+});
+
+test('rejects impossible RFC 3339 calendar fields before psql', () => {
+  for (const notBefore of [
+    '2026-02-30T08:31:00Z',
+    '2026-07-30T24:00:00Z',
+    '2026-07-30T08:31:60Z',
+    '2026-07-30T08:31:00+24:00',
+  ]) {
+    const files = fixture();
+    const credential = writeCredential(
+      'postgresql://user:password@db.example.test/swipe?sslmode=require',
+    );
+    try {
+      assert.throws(
+        () => captureSnapshot({
+          credentialFile: credential,
+          outputFile: files.output,
+          notBefore,
+          psqlBinary: files.fakePsql,
+        }),
+        /not a real calendar timestamp/,
+      );
+      assert.equal(fs.existsSync(credential), false);
+      assert.equal(fs.existsSync(files.trace), false);
+    } finally {
+      fs.rmSync(credential, { force: true });
+      files.cleanup();
+    }
   }
 });
 
