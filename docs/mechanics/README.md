@@ -257,15 +257,39 @@ Review 3 утвердил polyline baseline, пять собственных у�
 
 ## 2. Block Out! / color gates
 
-### Референс
+### Review packet
 
-- [Block Out! — Color Sort Puzzle](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568)
+Подготовлены:
+
+- [`block-out/REFERENCE-PACKET.md`](block-out/REFERENCE-PACKET.md) — `BO-R`,
+  taxonomy split, сравнение четырёх references, recommendation, evidence gaps
+  и exact operator packet;
+- [`block-out/CLASS-BRIEF.md`](block-out/CLASS-BRIEF.md) — `BO-G`,
+  proposed gameplay/content/runtime boundaries и workstreams
+  `BO-R/G/E/S/F/P/I/A/Q`;
+- [`block-out/REVIEW-1-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-1-INDEPENDENT-2026-07-29.md)
+  — independent **accept as research**, findings F1–F5 и их disposition.
+- [`block-out/REVIEW-3-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-3-INDEPENDENT-2026-07-29.md)
+  — independent conditional GO и blockers A1′–A3′.
+
+Статус: **Review 3 conditional GO; A1′–A3′ applied**. Primary (`O`) —
+[Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
+fidelity band (`O`) — levels `6–10`. Operator утвердил continuous two-axis
+collision-constrained drag с grid snap, отсутствие timer/fail и strong-solvable
+accepted pack; quick flick не имеет inertia (`O`). Operator clips L11–13
+byte/frame verified как `R-native`;
+полные SHA-256 находятся в packet. Review 3 зафиксировал contact-allowed
+positive-area collision, unit-step anchor BFS, full-crossing reusable gates,
+deterministic nearest snap и monotonicity proof. `BO-A/BO-E/BO-S` технически
+готовы; `BO-P` ждёт 60 fps evidence. Prototype code по-прежнему не разрешён.
 
 ### Core loop
 
-Игрок двигает цветной блок по доступному направлению к воротам того же цвета.
-Порядок освобождения пространства определяет решение. Поздние референсные
-уровни добавляют лифты, генераторы и динамические препятствия.
+Игрок drag'ом reposition'ит разноформенные цветные блоки по ограниченному
+ортогональному полю и выводит каждый через matching boundary gate. Победа —
+очистить поле; reference использует timer, own v1 исключает timer/fail (`O`). Порядок
+освобождения пространства определяет решение. Поздние уровни добавляют лифты,
+генераторы, shutters и другие versioned modifiers.
 
 ### Платформенная ценность
 
@@ -280,8 +304,13 @@ Review 3 утвердил polyline baseline, пять собственных у�
 - блоки одного или нескольких размеров;
 - статические стены;
 - статические цветные выходы;
-- движение до препятствия либо на одну клетку — фиксируется по эталону;
-- без лифтов и генераторов;
+- continuous two-axis drag по collision-free corridor, с turns/diagonal и
+  grid snap на release (`O`);
+- contact legal, collision только при positive-area overlap;
+- full-crossing reusable gates; partial crossing snap'ится in-board;
+- deterministic nearest snap с tie-break `y,x`;
+- initial witness + v1 monotonicity lemma доказывают strong solvability;
+- без лифтов, generators, shutters и booster/meta rules;
 - solver обязателен до фабричной генерации.
 
 ### Риски
