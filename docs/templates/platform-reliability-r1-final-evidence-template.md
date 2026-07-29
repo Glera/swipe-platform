@@ -145,10 +145,17 @@ These are one-drill observations, not an SLA.
 
 - Backend PR/head: `{{PR_URL}}` / `{{FULL_SHA}}`
 - Independent patch review: `{{REVIEW_ID}}` — `{{VERDICT}}`
+- Linked Blueprint/source: `{{BLUEPRINT_ID}}` — `Glera/swipe-backend` / `master` / `render.yaml`
+- Auto Sync observed disabled before merge: `disabled` at `{{UTC}}`; `sha256:{{SHA256}}`
 - Merge identity: `{{FULL_SHA}}`
+- Merge observed at: `{{UTC}}`
+- Manual Sync preview: `{{UTC}}`; `sha256:{{SHA256}}`
+- Manual Sync preview expected-only: `{{PASS_OR_FAIL}}`
 - Blueprint sync identity: `{{SYNC_ID_OR_TYPED_ABSENCE}}`
+- Manual Sync terminal: `{{TYPED_OUTCOME}}` at `{{UTC}}`; `sha256:{{SHA256}}`
 - Render allowlist rule count after sync: `{{INTEGER}}`
 - Closure saved at: `{{UTC}}`
+- Auto Sync final state: `disabled` at `{{UTC}}`; `sha256:{{SHA256}}`
 
 Paired proof strictly after closure:
 

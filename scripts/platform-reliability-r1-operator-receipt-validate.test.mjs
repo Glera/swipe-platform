@@ -199,6 +199,55 @@ test('requires exact post-closure coverage and rotation identity per consumer', 
   }
 });
 
+test('requires Auto Sync disabled before merge and through final closure', () => {
+  const cases = [
+    (receipt) => {
+      receipt.ingressClosure.autoSyncControl.manualPreviewExpectedOnly = false;
+    },
+    (receipt) => {
+      receipt.ingressClosure.autoSyncControl.linkedBlueprintId =
+        'blueprint-unrelated';
+    },
+    (receipt) => {
+      receipt.ingressClosure.autoSyncControl.preMergeState = 'enabled';
+    },
+    (receipt) => {
+      receipt.ingressClosure.autoSyncControl.finalState = 'enabled';
+    },
+    (receipt) => {
+      receipt.ingressClosure.autoSyncControl.observedDisabledAt =
+        '2026-07-30T10:41:01Z';
+    },
+    (receipt) => {
+      receipt.ingressClosure.autoSyncControl.manualPreviewObservedAt =
+        '2026-07-30T10:42:01Z';
+    },
+    (receipt) => {
+      receipt.ingressClosure.autoSyncControl.sourceBranch = 'feature';
+    },
+    (receipt) => {
+      receipt.ingressClosure.blueprintSyncIdentity.typedAbsence =
+        'unknown_reason';
+    },
+    (receipt) => {
+      receipt.ingressClosure.manualSyncTerminal.terminalOutcome = 'failed';
+    },
+    (receipt) => {
+      receipt.ingressClosure.manualSyncTerminal.observedAt =
+        '2026-07-30T10:41:29Z';
+    },
+  ];
+
+  for (const mutate of cases) {
+    const receipt = makeValidOperatorReceipt();
+    mutate(receipt);
+    assert.throws(
+      () => validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)),
+      /autoSyncControl|manualPreviewExpectedOnly|sourceBranch|blueprintSyncIdentity|manualSyncTerminal/,
+    );
+  }
+});
+
 test('rejects stringly typed booleans/numbers and unresolved placeholders', () => {
   const cases = [
     (receipt) => {
@@ -384,6 +433,12 @@ test('cross-binds key receipt identities into the full final synthesis', () => {
     receipt.restoreDrill.startRecoveryObservationSha256,
     receipt.restoreDrill.sourceContinuity.before.bindingsSha256,
     receipt.ingressClosure.backendMergeSha,
+    receipt.ingressClosure.autoSyncControl.preMergeStateEvidenceSha256,
+    receipt.ingressClosure.autoSyncControl.manualPreviewSha256,
+    receipt.ingressClosure.autoSyncControl.finalStateEvidenceSha256,
+    receipt.ingressClosure.blueprintSyncIdentity.typedAbsence,
+    receipt.ingressClosure.manualSyncTerminal.evidenceSha256,
+    receipt.ingressClosure.savedAt,
     receipt.ingressClosure.internalFreshProofs[1].evidenceSha256,
     receipt.ingressClosure.externalProtocolProof.sanitizedStderrSha256,
   ]) {
@@ -392,7 +447,91 @@ test('cross-binds key receipt identities into the full final synthesis', () => {
         receipt,
         markdown.replaceAll(value, 'removed-evidence-value'),
       ),
-      /is not bound into final evidence/,
+      /is not bound into final evidence|exact receipt-bound line/,
+    );
+  }
+  assert.throws(
+    () => validateOperatorEvidence(
+      receipt,
+      markdown.replace(
+        '- Manual Sync preview expected-only: `PASS`',
+        '- Manual Sync preview expected-only: `FAIL`',
+      ),
+    ),
+    /manualPreviewExpectedOnly/,
+  );
+  assert.throws(
+    () => validateOperatorEvidence(
+      receipt,
+      markdown.replace(
+        '- Auto Sync observed disabled before merge: `disabled`',
+        '- Auto Sync observed disabled before merge: `enabled`',
+      ),
+    ),
+    /autoSyncPreMerge/,
+  );
+  assert.throws(
+    () => validateOperatorEvidence(
+      receipt,
+      markdown.replace(
+        '- Manual Sync terminal: `succeeded`',
+        '- Manual Sync terminal: `failed`',
+      ),
+    ),
+    /manualSyncTerminal/,
+  );
+  assert.throws(
+    () => validateOperatorEvidence(
+      receipt,
+      markdown.replace(
+        '## 9. Completion matrix',
+        '- Auto Sync observed disabled before merge: `enabled`\n\n'
+          + '## 9. Completion matrix',
+      ),
+    ),
+    /autoSyncPreMerge/,
+  );
+  assert.throws(
+    () => validateOperatorEvidence(
+      receipt,
+      markdown.replace(
+        '## 9. Completion matrix',
+        '- Manual Sync terminal: `failed`\n\n## 9. Completion matrix',
+      ),
+    ),
+    /manualSyncTerminal/,
+  );
+  {
+    const expectedLine = markdown
+      .split('\n')
+      .find((line) => line.startsWith('- Manual Sync terminal:'));
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        markdown.replace(expectedLine, `\`\`\`\n${expectedLine}\n\`\`\``),
+      ),
+      /fenced code blocks/,
+    );
+  }
+  assert.throws(
+    () => validateOperatorEvidence(
+      receipt,
+      `${markdown}\n- Manual Sync terminal: \`failed\`\n`,
+    ),
+    /manualSyncTerminal/,
+  );
+  {
+    const expectedLine = markdown
+      .split('\n')
+      .find((line) => (
+        line.startsWith('- Auto Sync observed disabled before merge:')
+      ));
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        markdown.replace(expectedLine, `<!--\n${expectedLine}\n-->`),
+      ),
+      /HTML comments or containers/,
     );
   }
 });

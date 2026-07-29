@@ -178,10 +178,31 @@
       "id": "{{REVIEW_ID}}",
       "verdict": "{{PASS_OR_FAIL}}"
     },
+    "autoSyncControl": {
+      "linkedBlueprintId": "{{RENDER_BLUEPRINT_ID}}",
+      "sourceRepository": "Glera/swipe-backend",
+      "sourceBranch": "master",
+      "blueprintPath": "render.yaml",
+      "preMergeState": "disabled",
+      "observedDisabledAt": "{{UTC}}",
+      "preMergeStateEvidenceSha256": "{{SHA256}}",
+      "mergeObservedAt": "{{UTC}}",
+      "manualPreviewObservedAt": "{{UTC}}",
+      "manualPreviewExpectedOnly": "{{TRUE_OR_FALSE}}",
+      "manualPreviewSha256": "{{SHA256}}",
+      "finalState": "disabled",
+      "finalStateObservedAt": "{{UTC}}",
+      "finalStateEvidenceSha256": "{{SHA256}}"
+    },
     "blueprintSyncIdentity": {
       "available": "{{TRUE_OR_FALSE}}",
       "id": "{{NULL_OR_ID}}",
       "typedAbsence": "{{NULL_OR_REASON}}"
+    },
+    "manualSyncTerminal": {
+      "terminalOutcome": "{{SUCCEEDED_OR_FAILED}}",
+      "observedAt": "{{UTC}}",
+      "evidenceSha256": "{{SHA256}}"
     },
     "savedAt": "{{UTC}}",
     "allowlistRuleCount": "{{INTEGER}}",
