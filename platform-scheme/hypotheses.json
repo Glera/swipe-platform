@@ -1,20 +1,41 @@
 {
   "schema": "hypothesis-scoreboard.v1",
   "asOf": "2026-07-28",
+  "goals": [
+    {
+      "title": "Cohort-ready лента",
+      "statement": "Первый непривилегированный игрок открывает TMA, проходит серию до сундука и возвращается — без операторских костылей; его факты читаются в ночном C1-отчёте без проекционных оговорок.",
+      "exit": [
+        "✅ real-backend browser E2E: стенд+workflow влиты в master 28.07; enforced CI-гейт зелёный на master (run 30386237682, ~2 мин)",
+        "🟡 p95: бюджет ≤5s утверждён 23.07; perf-harness и throttle-числа (4.5–5.0s) влиты в feed master 28.07; открыт device-якорь (замер на реальном устройстве)",
+        "✅ защитный конверт UGC: post-moderation жив в проде (report/takedown, allowlist модераторов, block, revocable delivery); боевой recall выполнен 17.07. (Пункт «остров скрыт» снят: VISION v2.6 включил остров глобально)",
+        "⏳ external scheduling + levelSeries=true: без движения (все ENABLE_FEED_SEQUENCING_*=false, shadow-ops off)",
+        "⏳ контрольный проход «нулевого друга» → не-inconclusive строка (последний C1: inconclusive, input_projection_incomplete при 1 игроке)"
+      ],
+      "kill": "флаги off + recall — откат в один шаг; цель не открывает новых контуров (мораторий соблюдён)",
+      "owner": "Claude (оркестрация + ревью), Opus-агенты (срезы), codex — supply-цель Series Order параллельно",
+      "label": "цель 1 · добивается"
+    },
+    {
+      "title": "Platform Reliability Foundation R1",
+      "label": "цель 2 · GO 28.07",
+      "statement": "Прод собирается из неизменяемых артефактов и не зависит от операторской машины; миграции отделены от старта web; переполнение диска или остановка runner-а видны алертом до пользовательской ошибки; восстановление прод-БД доказано прогоном с записанными RPO/RTO.",
+      "exit": [
+        "⏳ production startup без git / npm install / миграций (bake-runtime = build-слой; runtime push-path удалён, токен read-only)",
+        "⏳ CI выпускает immutable artifact по точным SHA; release-manifest расширяет release.json v2",
+        "⏳ deploy через CAS/очередь; локальный путь — только break-glass",
+        "⏳ restore доказан isolated drill-ом с записанными RPO/RTO (PITR: 3–7 дней на платных планах Render)",
+        "⏳ /ready проверяет БД + migration head + runtime-зависимости (/health-контракт не меняется)",
+        "⏳ web не владеет runner-ами: единый background worker (5 loop-ов, fencing 0021, flag-gated переход)",
+        "⏳ алерты диск 70/85% + per-runner живость; «алерт = действие»",
+        "⏳ классификация всех журналов утверждена оператором (eternal/operational/derived/disposable; удалений в R1 нет)",
+        "⏳ стоп-кран модуляризации: архтест новых межконтурных импортов + бюджет строк новых файлов зелёные в CI"
+      ],
+      "kill": "каждая ступень откатывается независимо; старые стартовый/деплой-скрипты в git до конца quiet-периода; продуктовые контуры не задеваются; мораторий соблюдён",
+      "owner": "codex (исполнение) · Claude (кросс-ревью каждого пакета) · оператор (классификация/деньги/включения/drill); план: platform-reliability-r1-verified-plan-2026-07-28.md"
+    }
+  ],
   "qualifiedPlay": "сыгранная до конца серия (до сундука)",
-  "currentGoal": {
-    "title": "Cohort-ready лента",
-    "statement": "Первый непривилегированный игрок открывает TMA, проходит серию до сундука и возвращается — без операторских костылей; его факты читаются в ночном C1-отчёте без проекционных оговорок.",
-    "exit": [
-      "✅ real-backend browser E2E: стенд+workflow влиты в master 28.07; enforced CI-гейт зелёный на master (run 30386237682, ~2 мин)",
-      "🟡 p95: бюджет ≤5s утверждён 23.07; perf-harness и throttle-числа (4.5–5.0s) влиты в feed master 28.07; открыт device-якорь (замер на реальном устройстве)",
-      "✅ защитный конверт UGC: post-moderation жив в проде (report/takedown, allowlist модераторов, block, revocable delivery); боевой recall выполнен 17.07. (Пункт «остров скрыт» снят: VISION v2.6 включил остров глобально)",
-      "⏳ external scheduling + levelSeries=true: без движения (все ENABLE_FEED_SEQUENCING_*=false, shadow-ops off)",
-      "⏳ контрольный проход «нулевого друга» → не-inconclusive строка (последний C1: inconclusive, input_projection_incomplete при 1 игроке)"
-    ],
-    "kill": "флаги off + recall — откат в один шаг; цель не открывает новых контуров (мораторий соблюдён)",
-    "owner": "Claude (оркестрация + ревью), Opus-агенты (срезы), codex — supply-цель Series Order параллельно"
-  },
   "funnelStages": [
     {
       "id": "reveal",
