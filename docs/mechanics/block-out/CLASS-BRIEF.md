@@ -2,7 +2,8 @@
 
 - Дата: **29.07.2026**
 - Статус: **Prototype authorized — BO-A/BO-E/BO-S implementation allowed;
-  BO-P fidelity blocked on 60 fps evidence**
+  BO-P implementation unblocked by native clip + operator ruling; fidelity
+  acceptance still requires device comparison**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude (Review 1 и Review 3)**
@@ -14,10 +15,13 @@
 
 > Brief фиксирует исследовательскую декомпозицию и typed boundaries. Primary
 > reference, target band и core movement/no-timer/no-stuck decisions утверждены
-> оператором (`O`). Review 3 закрыл collision/exit/snap contracts и дал
+> оператором (`O`). Review 3 закрыл исходные collision/exit/snap contracts и дал
 > workstream-ready disposition для `BO-A/BO-E/BO-S`. Measured presentation feel
-> остаётся открытым для `BO-P`. Operator отдельно разрешил prototype code
-> 29.07.2026; rollout/publication не разрешены.
+> дополнен третьим native clip и operator amendment, который заменяет
+> full-crossing exit на чувствительную one-cell gate suction zone и открывает
+> `BO-P` implementation. Exact timing/haptic acceptance остаётся открытым.
+> Operator отдельно разрешил prototype code 29.07.2026; rollout/publication не
+> разрешены.
 
 ## Evidence notation
 
@@ -42,10 +46,10 @@
   implementation.
 - Operator ruling: exact game/link, progression slice, movement core,
   no-inertia release, no-timer/no-stuck и must-preserve direction получены;
-  haptic deferred.
+  gate suction/fragmentation и supported-host haptic теперь must-preserve.
 - Что authorization не разрешает: rollout/publication, перенос Arrows gameplay
-  decisions, копирование levels/assets, dynamic modifiers или запуск `BO-P`
-  acceptance без 60 fps evidence.
+  decisions, копирование levels/assets, dynamic modifiers или закрытие `BO-P`
+  acceptance без device comparison.
 
 ## Цель
 
@@ -74,6 +78,27 @@ clarity, при осознанно исключённом timer и собств�
 - Scope: `BO-G/BO-E/BO-S/BO-A` и минимальный isolated playable/runtime harness.
 - Не открывает: `BO-P` fidelity acceptance, haptic, modifiers, rollout,
   publication или изменения Arrows.
+- Это исторический scope на момент receipt; последующий operator amendment ниже
+  открыл `BO-P` и supported-host haptic implementation, но не fidelity
+  acceptance.
+
+## Operator BO-P amendment receipt
+
+- Дата: **29.07.2026**.
+- Authority: **operator (`O`)**.
+- Native evidence: Level 15 clip `BO-R-N3`, full SHA-256 в reference packet.
+- Exact taste ruling: **«чувствительность ворот и перехват управления когда
+  фигура рядом с воротами, а также эффекты засасывания, дробления я бы повторял
+  максимально точно, они составляют фундамент приятного ощущения от
+  механики»**.
+- Opens: axis-decomposed collision sliding; carried highlight; one-cell
+  compatible-gate capture during hold; control transfer to gate; converging
+  suction/fragmentation; supported-host haptic implementation; exhausted-gate
+  visual cleanup.
+- Does not open: locked/countdown gates or other Level 15 modifiers, timer,
+  copied art/audio/trade dress, rollout, publication or Arrows changes.
+- Exact animation timing and haptic envelope remain `P/B` until side-by-side
+  device review; qualitative behavior and priority are `O`.
 
 ## Точный эталон
 
@@ -86,8 +111,9 @@ clarity, при осознанно исключённом timer и собств�
 - Ссылка: [App Store](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568).
 - Public recording:
   [levels 1–20](https://www.youtube.com/watch?v=VU9mQ_gleN8).
-- Native recordings (`R-native`): Levels 11–13 success получены и byte/frame
-  verified; 60 fps pickup/snap/gate/win measurements остаются `B`.
+- Native recordings (`R-native`): Levels 11–13 success и Level 15 gate-feel
+  probe получены и byte/frame verified. Последний клип остаётся 30 fps, поэтому
+  sub-frame timing и haptic waveform остаются `B`.
 - Диапазон (`O`): **levels 6–10** static pre-modifier band.
 
 ### Secondary references
@@ -110,16 +136,23 @@ clarity, при осознанно исключённом timer и собств�
   используется clamp/engine/solver.
 - Release commits to nearest legal lattice anchor by squared Euclidean distance;
   tie-break — меньший `y`, затем `x` (`O`).
-- Exit commits only after the full footprint crosses the board boundary through
-  a compatible gate span; partial crossing uses ordinary in-board snap (`O`).
+- Diagonal collision response сохраняет допустимую axis projection: block
+  скользит вдоль walls/figures, а не залипает в первой точке контакта (`O`).
+- Compatible unlocked gate захватывает carried block mid-drag, когда footprint
+  входит в one-cell in-board suction band внутри gate span; control сразу
+  передаётся gate, full boundary crossing/release не требуются (`O`).
 - Gates are reusable/non-consuming (`O`).
+- Gate скрывается presentation-слоем, когда live blocks его role закончились;
+  это не consuming gameplay state (`O`).
 - Quick flick has no inertia; release performs ordinary grid snap (`O`).
 - Own v1 has no timer and no fail state (`O`).
 - Every reachable stable state of an accepted level remains solvable (`O`);
   offline validation must prove this invariant.
 - Fidelity goal: максимально близко к reference по carry, collision, snap, gate
   consume, feedback, win cadence и board clarity within IP boundary (`O`).
-- Haptic is deferred to a separate non-trivial decision (`O` scope ruling).
+- Gate consume сохраняет carried highlight, чувствительное засасывание,
+  converging fragments/«перемалывание» и haptic throughout the consume phase
+  (`O`). Exact envelope остаётся `P/B` и требует device check.
 
 ### Числовой feel-разбор
 
@@ -136,8 +169,10 @@ clarity, при осознанно исключённом timer и собств�
 | Scene visible -> first completed gate exit | `≤1,500 ms` | `P` |
 | Autoplay demonstration | `min(2,max(1,floor(25% witness)))` | `P`; one-move exception if witness `<4` |
 | Carry/collision/grid-snap core | continuous 2D + collision clamp + release snap | `O` |
-| Pickup/snap/gate/win timing | blocking | `B`, 60 fps evidence required |
-| Timer/fail/haptic | absent/deferred | `O` scope ruling |
+| Gate capture depth | `1 cell` in-board, mid-drag control transfer | `O`; `BO-R-N3` qualitatively supports |
+| Pickup/snap/gate/win timing | provisional | `P/B`, 30 fps clip insufficient for exact acceptance |
+| Timer/fail | absent | `O` |
+| Gate haptic | required during consume; exact envelope open | `O` behavior, `P/B` timing/intensity |
 
 ### Reference parity checklist
 
@@ -216,13 +251,16 @@ Review 3 technical contract:
   endpoints, поэтому при contact-allowed semantics BFS exact-equivalent
   continuous reachability;
 - clamp, engine и solver используют одну collision predicate;
+- transient clamp после diagonal contact проецирует remaining pointer motion по
+  осям, dominant-axis first с `x` tie; это даёт deterministic sliding вдоль
+  obstacle без overlap;
 - snap target минимизирует squared Euclidean distance от clamped pose; tie-break
   меньший `y`, затем `x`;
 - для любой valid clamped pose существует хотя бы один legal anchor в её
   component; отсутствие anchor — contract violation, не fallback branch;
-- exit commit только после полного crossing footprint за board boundary через
-  compatible gate span;
-- partial gate crossing на release использует обычный nearest in-board snap;
+- unlocked compatible gate commit'ит exit mid-drag при первом входе footprint в
+  one-cell in-board suction band внутри compatible span;
+- capture band absorbing: после commit pointer больше не управляет block;
 - gates reusable/non-consuming.
 
 ## Input contract
@@ -232,9 +270,9 @@ Gameplay rows имеют `O`; feedback timing/easing остаётся `R-native/
 | Input | Условие | State transition | Feedback |
 | --- | --- | --- | --- |
 | pointerdown block | manual/takeover, block live, input open | create gesture session, no stable-state mutation | pickup/carry response |
-| pointermove | active gesture | continuous pose uses shared positive-area-overlap collision authority; contact legal; no stable mutation | collision clamp; no overlap |
-| release in board / partial gate crossing | valid clamped pose | commit nearest legal anchor by squared distance, then `y`, then `x` | deterministic grid snap |
-| full crossing through matching gate | whole footprint crossed boundary inside compatible span | commit `exit(blockId,gateId)`; gate remains reusable | consume/clear |
+| pointermove | active gesture | continuous pose uses shared positive-area-overlap collision authority; contact legal; residual axis projection slides along obstacle; no stable mutation | collision slide/clamp; no overlap |
+| release outside gate suction band | valid clamped pose | commit nearest legal anchor by squared distance, then `y`, then `x`; if snap target enters compatible suction band, commit exit | deterministic grid snap |
+| enter compatible gate suction band | whole footprint remains in-board, fits gate span and is within one cell of unlocked gate | immediate `exit(blockId,gateId)` mid-drag; control transfers to reusable gate | suction, converging fragments, haptic |
 | pointer crosses invalid pose | wall/block/out-of-bounds/wrong gate | carried pose clamps before invalid boundary; no solver action | collision cue |
 | pointerdown background | no active game gesture | no game state change | host swipe remains available |
 | first block pointerdown | autoplay, including auto-carry | cancel future auto actions; rollback uncommitted carry; start manual from last stable state | no restart/hidden move |
@@ -373,10 +411,12 @@ interface GateSpecV1 {
 interface BlockOutRulesV1 {
   movement: "continuous-2d-configuration-space";
   collision: "positive-area-overlap";
+  collisionResponse: "axis-decomposed-sliding";
   contact: "allowed";
   reachability: "unit-step-anchor-bfs";
   snap: "nearest-squared-euclidean-y-x";
-  exitCommit: "full-footprint-crossing";
+  exitCommit: "compatible-gate-suction-band";
+  gateCaptureDepthCells: 1;
   gates: "reusable";
   quickFlick: "no-inertia";
   rotation: false;
@@ -414,7 +454,8 @@ Quick-flick policy утверждена оператором и входит в 
 - initial translated footprints are in bounds and non-overlapping;
 - role has at least one compatible gate;
 - gates have valid boundary span and independent accessibility cue;
-- gates reusable; exit requires full-footprint crossing through compatible span;
+- gates reusable; exit requires first entry into the compatible one-cell
+  in-board suction band and never requires boundary crossing;
 - every valid clamped pose has at least one legal anchor in its component;
 - rotation disabled;
 - modifiers empty for v1;
@@ -449,9 +490,10 @@ version обязан предоставить отдельный exhaustive proo
   under approved movement rules; strong-solvability receipt cites verified
   `reversible-monotone-v1` premises.
 - Не доказывает: fun, beauty, accessibility or publication worthiness.
-- Legal action (`O`): move to any lattice anchor reachable by unit-step BFS
-  under positive-area-overlap collision, or full-crossing exit through a
-  compatible reusable gate.
+- Legal action (`O`): move to any non-capture lattice anchor reachable by
+  unit-step BFS under positive-area-overlap collision, or absorbing exit when
+  the reachable carried pose/anchor enters a compatible reusable gate's
+  one-cell suction band.
 - Stable terminal: `liveBlockCount === 0`.
 - Spatial search identity: canonical `rulesVersion + live block ids + anchors`;
   runtime resource/presentation phase не входят в memoization key.
@@ -507,12 +549,14 @@ Exact target ranges получают `R-native/O` после Review 2.
 - Art (`P`): own theme-neutral shapes, no studs; role token separated from
   display palette.
 - Layout (`P`): portrait-first board, gates on boundary, HUD secondary.
-- Essential animation: `R-native` success clips подтверждают continuous carried
-  pose; pickup/snap/invalid/exit timing остаются `B`.
+- Essential animation: `R-native` clips подтверждают continuous highlighted
+  carried pose, gate activation, converging particles/fragmentation and
+  role-counter updates; exact pickup/snap/exit timing остаётся `B`.
 - Sound: optional; sound-off experience complete.
-- Haptic: deferred outside v1 (`O` scope ruling).
-- Success: exact onset/cadence blocking on 60 fps measurement.
-- Collision feedback: no color-only cue; exact motion blocking.
+- Haptic: required during gate consume (`O`); provisional host-supported
+  envelope is `P`, exact tactile parity requires device review.
+- Success: exact onset/cadence provisional until device comparison.
+- Collision feedback: axis-decomposed sliding is `O`; no color-only cue.
 - Accessibility: marker/pattern/glyph per role in both block and gate.
 - Low-tier: no heavy shadow/blur; same logical timing/trajectory.
 - Cover/live: exact initial board/camera.
@@ -585,14 +629,15 @@ Telemetry не получает product authority; qualified outcome остаё�
 | `BO-E` | Engine | stable transitions, gesture commit, replay, pause | BO-G | `BlockOutActionV1`, `BlockOutStateV1`, headless tests | solver search/theme | independent |
 | `BO-S` | Solver | validator/search/trace/features | BO-G schema/rules | `BlockOutSolverResultV1`, `BlockOutTraceV1` | rendering/taste | independent |
 | `BO-F` | Factory | reverse/goal-pull candidates and series | BO-S API | typed pack + `BlockOutValidationReceiptV1` | taste declaration | operator |
-| `BO-P` | Presentation | layout/carry/snap/exit/audio/skin; haptic deferred | BO-R full presentation packet + BO-G projection | `BlockOutPresentationProjectionV1`, SkinSpec, visual harness | engine legality | operator |
+| `BO-P` | Presentation | layout/carry/snap/suction/fragmentation/audio/haptic/skin | BO-R native packet + operator amendment + BO-G projection | `BlockOutPresentationProjectionV1`, SkinSpec, visual harness | engine legality | operator |
 | `BO-I` | Integration | feed lifecycle, staged boot, takeover, completion | BO-E + runtime authority | `BlockOutRuntimeBridgeV1`, swipe evidence | solver internals | independent |
 | `BO-A` | Analytics | question/event mapping | BO-G milestones | `BlockOutMeasurementBriefV1` | success authority | operator |
 | `BO-Q` | QA | parity/runtime/device/perf/reference delta | integrated candidate | Review 4 evidence packet | product changes | independent |
 
 Review 3 disposition: `BO-A`, `BO-E` и `BO-S` workstream-ready после A1′–A3′
-правок в этом brief. Это readiness, не prototype code authorization. `BO-P`
-остаётся blocked на 60 fps feel evidence.
+правок в этом brief. Prototype authorization открыла их implementation.
+Последующий `BO-R-N3` + operator amendment открывают `BO-P` implementation, но
+не закрывают exact fidelity acceptance без device comparison.
 
 ## Typed integration boundaries
 
@@ -606,7 +651,8 @@ rules digest, seed/provenance. No skin, receipts or runtime animation.
 Stable solver/engine command after gesture translation:
 
 - `move { blockId, from, to }`;
-- `exit { blockId, from, gateId }` только после full-footprint crossing;
+- `exit { blockId, from, gateId }` при первом входе carried footprint в
+  compatible one-cell suction band;
 - lifecycle commands `restart`, `setMode`, `hostPause/resume`.
 
 Exact action set follows approved movement rule. Raw pointer positions never
@@ -660,7 +706,7 @@ expected stable action/state digest и rules digest:
 | ID | Проверяет | Expected |
 | --- | --- | --- |
 | `BO-FX-SNUG-CORRIDOR` | footprint скользит в corridor ровно своей ширины | contact legal; unit-step BFS и clamp считают путь reachable |
-| `BO-FX-GATE-THRESHOLD` | release непосредственно до и после full-crossing threshold | partial crossing -> nearest in-board snap; full crossing -> one exit; gate остаётся |
+| `BO-FX-GATE-THRESHOLD` | pose непосредственно до и на one-cell suction threshold | outside band -> no exit; first band entry mid-drag -> one exit; gate остаётся reusable |
 | `BO-FX-SNAP-TIE` | clamped pose равноудалён от нескольких legal anchors | squared distance tie разрешает меньший `y`, затем `x` |
 | `BO-FX-FLICK` | одинаковый release pose при slow drag и fast flick | identical `move`/digest; no inertia |
 | `BO-FX-TAKEOVER-CARRY` | pointerdown во время autoplay-carry | rollback to last stable digest, затем manual gesture; no hidden move |
@@ -705,14 +751,15 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 10. Own theme-neutral no-stud SkinSpec baseline (`P`).
 11. Every reachable stable state remains solvable; accepted pack
     `deadEndExposure === 0` (`O`).
-12. Haptic deferred outside v1 (`O` scope ruling).
+12. Gate consume haptic обязателен (`O`); exact envelope остаётся `P/B`.
 
 ## Открытые решения
 
 | Вопрос | Почему блокирует | Кто решает | Trigger | Disposition |
 | --- | --- | --- | --- | --- |
-| Parallel exit animation/next drag | stable exit уже committed; влияет только на input/presentation cadence | BO-P | 60 fps evidence | before BO-P acceptance |
-| Pickup/snap/gate/win timings | задаёт measured parity | BO-R/P | 60 fps capture | before BO-P acceptance |
+| Parallel exit animation/next drag | stable exit уже committed; влияет только на input/presentation cadence | BO-P | device comparison | before BO-P acceptance |
+| Pickup/snap/gate/win timings | задаёт measured parity | BO-R/P | 60 fps or device-side capture | before BO-P acceptance |
+| Haptic envelope | screen recording не содержит tactile signal | BO-P/operator | target-device playtest | before BO-P acceptance |
 | Dynamic modifiers | schema explosion | operator | after static baseline | deferred |
 
 ## Acceptance gate status
@@ -727,9 +774,11 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 
 - [x] Exact linked game утверждён.
 - [x] Target levels `6–10` утверждены.
-- [x] Native success recordings L11–13 byte/frame verified.
+- [x] Native success recordings L11–13 и Level 15 gate-feel clip byte/frame
+  verified.
 - [x] Must-preserve direction утверждён в IP boundary.
-- [x] Core movement, no-timer, no-stuck и haptic deferral получены.
+- [x] Core movement, no-timer/no-stuck, gate suction/fragmentation и haptic
+  priority получены.
 - [x] Quick-flick no-inertia policy утверждена.
 - [x] Feel table размечена `R-web/R-native/O/P/B`; remaining `B` explicit.
 
@@ -742,6 +791,9 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 - [x] Independent reviewer дал conditional GO.
 - [x] Отдельная prototype authorization получена 29.07.2026; exact ruling
   записан выше.
+- [x] External prototype review дал GO с P2 sliding finding.
+- [x] `BO-R-N3` + operator amendment supersede full-crossing A2′ detail:
+  one-cell suction capture и axis-decomposed sliding записаны в authority.
 
 ### Future Review 4 — evidence
 
@@ -773,6 +825,7 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 | Grand Games public gameplay | [YouTube 1–20](https://www.youtube.com/watch?v=VU9mQ_gleN8) | public montage | rule/progression evidence, not feel authority |
 | Color Block Jam listing | [App Store](https://apps.apple.com/in/app/color-block-jam/id6504332779) | live snapshot | secondary |
 | Native success clips L11–13 | operator delivery | full SHA-256 in reference packet | byte/frame verified `R-native` |
+| Native Level 15 gate-feel clip | operator delivery | SHA-256 `1f3ccd3751281532b497adf92543f6a06f7391b89ca49f54b86aefb5f39423de` | 30 fps `R-native` + operator narration |
 | Solver / visual / runtime evidence | future BO-Q index | — | not started |
 
 ## Final decision
@@ -780,10 +833,11 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 - Decision: **Review 3 conditional GO; A1′–A3′ closed**.
 - Primary/target (`O`): Grand Games Block Out, static levels `6–10`.
 - Gameplay: positive-area-overlap/contact-allowed collision, unit-step anchor
-  BFS, deterministic snap, full-crossing reusable gates, no timer and
-  monotone strong-solvability contract.
-- Workstreams: `BO-A/BO-E/BO-S` implementation authorized; `BO-P` blocked on
-  60 fps feel evidence.
+  BFS, deterministic axis-decomposed sliding/snap, one-cell suction-band
+  reusable gates, no timer and monotone strong-solvability contract.
+- Workstreams: `BO-A/BO-E/BO-S/BO-P` implementation authorized; exact `BO-P`
+  fidelity acceptance requires target-device comparison.
 - Implementation: **prototype authorized 29.07.2026**.
-- Explicitly deferred: `BO-P` fidelity acceptance, haptic, dynamic modifiers,
-  rollout и publication.
+- Explicitly deferred: `BO-P` fidelity acceptance, locked/countdown and other
+  dynamic modifiers, rollout и publication. Haptic implementation is open, but
+  its exact envelope remains provisional until device review.

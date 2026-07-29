@@ -278,18 +278,22 @@ Review 3 утвердил polyline baseline, пять собственных у�
 - [`block-out/REVIEW-3-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-3-INDEPENDENT-2026-07-29.md)
   — independent conditional GO и blockers A1′–A3′.
 
-Статус: **Prototype authorized 29.07.2026; Review 4 evidence pending**.
+Статус: **Prototype + BO-P implementation authorized 29.07.2026; exact
+fidelity/device Review 4 pending**.
 Primary (`O`) —
 [Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
 fidelity band (`O`) — levels `6–10`. Operator утвердил continuous two-axis
 collision-constrained drag с grid snap, отсутствие timer/fail и strong-solvable
-accepted pack; quick flick не имеет inertia (`O`). Operator clips L11–13
-byte/frame verified как `R-native`;
+accepted pack; quick flick не имеет inertia (`O`). Operator clips L11–13 и
+Level 15 gate-feel probe byte/frame verified как `R-native`;
 полные SHA-256 находятся в packet. Review 3 зафиксировал contact-allowed
-positive-area collision, unit-step anchor BFS, full-crossing reusable gates,
-deterministic nearest snap и monotonicity proof. `BO-A/BO-E/BO-S` технически
-получили operator authorization на prototype implementation; `BO-P` ждёт
-60 fps evidence. Rollout/publication не разрешены.
+positive-area collision, unit-step anchor BFS, deterministic nearest snap и
+monotonicity proof. Последующий operator amendment добавил axis-decomposed
+sliding, one-cell mid-drag gate suction, control transfer,
+highlight/fragmentation и haptic priority, superseding full-crossing exit.
+`BO-A/BO-E/BO-S/BO-P` получили operator authorization на prototype
+implementation; exact timing/haptic parity ждёт device comparison.
+Locked/countdown gates, rollout и publication не разрешены.
 
 ### Core loop
 
@@ -315,7 +319,9 @@ deterministic nearest snap и monotonicity proof. `BO-A/BO-E/BO-S` технич�
 - continuous two-axis drag по collision-free corridor, с turns/diagonal и
   grid snap на release (`O`);
 - contact legal, collision только при positive-area overlap;
-- full-crossing reusable gates; partial crossing snap'ится in-board;
+- axis-decomposed sliding вдоль препятствий;
+- compatible reusable gates перехватывают block mid-drag в one-cell in-board
+  suction band;
 - deterministic nearest snap с tie-break `y,x`;
 - initial witness + v1 monotonicity lemma доказывают strong solvability;
 - без лифтов, generators, shutters и booster/meta rules;

@@ -1,7 +1,8 @@
 # BO-R: reference packet — Block Out!
 
 - Дата среза: **29.07.2026**
-- Статус: **Review 3 conditional GO / BO-A/BO-E/BO-S ready / code not authorized**
+- Статус: **Prototype + BO-P implementation authorized / exact fidelity
+  acceptance pending device comparison**
 - Primary reference (`O`): **Block Out! - Color Sort Puzzle,
   Grand Games A.Ş.**
 - Fidelity band (`O`): **ранние статические уровни 6–10**
@@ -14,7 +15,9 @@
 > Документ разводит несколько разных core loop'ов, которые рынок называет
 > похожими именами. Operator ruling утвердил reference, target band, continuous
 > collision-constrained drag, no-inertia release, no-timer v1 и no-stuck
-> invariant. Code authority не открывается этим research packet.
+> invariant. Последующий `BO-R-N3` + operator amendment уточнили sliding и
+> заменили full-crossing exit на one-cell gate suction capture. Rollout и
+> publication этим packet не открываются.
 
 ## Обозначения evidence
 
@@ -33,8 +36,10 @@ sub-frame timing.
 
 - primary, target band, movement core, no-timer и no-stuck имеют статус `O`;
 - quick flick не имеет inertia и заканчивается обычным grid snap (`O`);
-- часть числового feel остаётся `B`: полученные clips не содержат invalid/fail
-  probes и не являются 60 fps feel capture.
+- qualitative gate feel теперь имеет `R-native/O`: highlight, sensitive capture,
+  control transfer, suction, fragmentation и haptic priority;
+- точные timings и tactile envelope остаются `B/P`: clips не являются 60 fps
+  capture, а screen recording физически не измеряет haptic.
 
 ## Taxonomy decision: что здесь называется Block Out!
 
@@ -75,6 +80,7 @@ versioned rules и отдельного operator approve после статич
 | `BO-R-S7` | [App Store: Unblock Me Premium](https://apps.apple.com/us/app/unblock-me-premium/id315021242) | target-exit negative control и зрелая sliding-block difficulty model | другой core loop; не fidelity candidate |
 | `BO-R-N1` | operator clip `telegram-cloud-document-2-5424755505455214087.mp4`, SHA-256 `0fb2e58e902a1a354443bf42e1b8ee57f19cce965165aaaba5476598d77cda9a` | Grand Games Level 11, 384×832, 30 fps, 67.20 s; success, `02:00` budget, numbered/generator-like content, win flow | no fail/invalid/release probe; haptic физически не измерим |
 | `BO-R-N2` | operator clip `telegram-cloud-document-2-5427007305268896417.mp4`, SHA-256 `3b463279a64c647153a370f97c432de1a91576b4aa6eb4a0e55955180213f9d1`, 384×832, 29.97 fps, 134.43 s | Grand Games Levels 12–13; continuous carried pose, timer budgets `02:00`/`02:15`, exits, numbered/ice-like content, success flow | montage из двух success runs; no fail/invalid/release probe |
+| `BO-R-N3` | operator clip `telegram-cloud-document-2-5427007305268897555.mp4`, SHA-256 `1f3ccd3751281532b497adf92543f6a06f7391b89ca49f54b86aefb5f39423de`, 384×832, 30 fps, 25.40 s | Grand Games Level 15; carried white highlight, close-range gate activation, converging particles/fragmentation and locked-gate counters decrement | no touch indicator: capture depth/control transfer and exhausted-gate cleanup rely on operator narration (`O`), not frame-only inference; 30 fps cannot establish sub-frame threshold/easing; haptic cannot be observed; locked gates are outside v1 band |
 
 N-2 verification boundary закрыта независимой byte/frame проверкой Claude:
 полные SHA-256, metadata, level identity/content и timer deltas совпали с
@@ -160,11 +166,16 @@ gesture заканчивается обычным grid snap.
 | Target progression: levels `6–10` | `O` |
 | Во время hold фигура свободно перемещается по двум осям и может менять направление без release | `O` |
 | Continuous pose ограничен walls/другими figures; overlap и invalid pose физически недостижимы | `O` |
+| При diagonal contact remaining movement проецируется вдоль доступной оси: фигура скользит в corridor, а не залипает | `O` |
 | Release привязывает фигуру к legal lattice cell | `O` |
+| Compatible unlocked gate перехватывает управление mid-drag примерно за одну клетку до boundary; full crossing/release не требуются | `O` |
+| Selected/carried figure подсвечивается; gate consume медленно протягивает и дробит фигуру с converging particles | `O` must-preserve; `R-native` qualitative support |
+| Gate скрывается, когда фигур его role больше нет | `O`; presentation cleanup, не consuming solver state |
+| Locked/countdown gate behavior Level 15 | `R-native/O` reference fact; deferred future modifier, не baseline v1 |
 | Timer отсутствует в own v1 | `O` |
 | Accepted level не имеет reachable unsolvable state | `O` |
 | Must-preserve: максимальная близость к reference по carry, collision, snap, block consume at gate, feedback, win cadence и board clarity в пределах IP boundary | `O` |
-| Haptic | deferred; отдельное нетривиальное решение, не v1 blocker |
+| Haptic | обязателен throughout gate consume; exact pattern/intensity требует device review |
 | Quick flick: no inertia, ordinary grid snap | `O` |
 
 «Максимально близко» не разрешает копировать layouts, assets или trade dress и
@@ -176,12 +187,14 @@ gesture заканчивается обычным grid snap.
 - Unit-step BFS по legal lattice anchors — exact discrete reachability
   authority для contact-allowed v1; clamp/engine/solver используют одну
   predicate.
+- Collision response axis-decomposed: после first contact remaining pointer
+  motion проецируется dominant-axis first (`x` tie), затем по второй оси.
 - Release snap выбирает legal anchor с минимальной squared Euclidean distance;
   tie-break — меньший `y`, затем `x`.
 - Valid clamped pose всегда имеет хотя бы один legal anchor в своей component;
   нарушение — contract error, не fallback.
-- Exit commit требует, чтобы весь footprint пересёк board boundary через
-  compatible gate span. Partial crossing release делает обычный in-board snap.
+- Exit commit происходит mid-drag при первом входе whole footprint в compatible
+  one-cell in-board suction band. Capture absorbing и забирает input authority.
 - Gates reusable/non-consuming.
 - Takeover во время autoplay-carry и host pause mid-drag rollback'ят
   uncommitted pose в last stable anchor без logical mutation.
@@ -242,13 +255,16 @@ gesture заканчивается обычным grid snap.
   исключены из spatial solver identity;
 - collision — positive-area overlap; contact legal;
 - legal move (`O`) — любой target lattice anchor, reachable unit-step BFS'ом
-  через anchors с valid endpoint footprints;
+  через anchors с valid endpoint footprints; capture-band anchors terminal и
+  не расширяются как intermediate stable moves;
 - transient carried pose clamp'ится на configuration-space boundary и не
   становится solver state;
+- после collision remaining diagonal motion проецируется по осям, чтобы carried
+  pose продолжал скользить вдоль доступного corridor (`O`);
 - release (`O`) выбирает nearest legal anchor по squared distance, tie-break
   меньший `y`, затем `x`; pointer velocity не создаёт inertia;
-- exit (`O`) commit'ится только после full-footprint crossing через compatible
-  gate span; partial crossing использует in-board snap;
+- exit (`O`) commit'ится mid-drag при первом входе в compatible one-cell
+  in-board suction band; pointer authority после этого теряется;
 - terminal success — no live blocks.
 
 Для unit translation swept region равен union endpoint footprints. Поэтому при
@@ -418,14 +434,17 @@ Own visual identity:
 | Scene visible -> first completed exit | `≤1,500 ms` | `P` | feed-hook proposal; native timing pending |
 | Autoplay moves | `min(2,max(1,floor(25% witness)))` | `P` | one-move exception for witness `<4` |
 | Bounded manual duration | `20–45 s`, hard review at `60 s` | `P` | swipe-card proposal, не reference measurement |
-| Board fit / portrait crop | `384×832`, levels fit without camera motion | `R-native` | `BO-R-N1/N2`; cell-size px measurement not yet requested |
-| Continuous carried pose while held | observed at 30/29.97 fps | `R-native` | `BO-R-N1/N2`; does not determine release policy |
+| Board fit / portrait crop | `384×832`, levels fit without camera motion | `R-native` | `BO-R-N1/N2/N3`; cell-size px measurement not yet requested |
+| Continuous carried pose while held | observed at 30/29.97 fps | `R-native` | `BO-R-N1/N2/N3` |
+| Carried highlight | high-contrast white outline | `R-native/O` | visible throughout the Level 15 probe; own rendering must keep role marker readable |
+| Gate capture depth/control | about one in-board cell; mid-drag control transfer | `O`, qualitative `R-native` | operator narration + `BO-R-N3`; exact sub-frame onset remains `B` |
+| Collision sliding | axis-decomposed progress along available corridor | `O` | resolves external prototype-review P2; no touch indicator for numeric R measurement |
 | Touch-down response | `B` | `B` | нужен native `60 fps` probe |
-| Carry easing / snap / release | `B` | `B` | exact release semantics не подтверждена |
-| Block exit/clear duration | `B` | `B` | нужен 60 fps successful-exit close-up |
+| Carry easing / snap / release | nearest-grid behavior `O`; exact easing `B` | `O/B` | operator narration; 30 fps insufficient for exact curve |
+| Block exit/clear | sensitive suction + converging fragmentation | `R-native/O`; duration `B` | `BO-R-N3`; own timing remains `P` until device comparison |
 | Invalid drag feedback | `B` | `B` | нужен scripted error episode |
 | Win onset and settle | success observed; exact timing `B` | `R-native/B` | clips содержат success; own v1 не имеет fail (`O`) |
-| Haptic semantics/intensity | deferred | `O` | отдельное нетривиальное решение; не входит в v1 |
+| Haptic semantics/intensity | runs through gate consume | `O`; exact envelope `B` | operator tactile report; screen recording cannot measure waveform |
 
 ## Preliminary parity checklist
 
@@ -439,10 +458,12 @@ Own visual identity:
 - [ ] Collision = positive-area overlap; contact legal; one predicate shared by
   clamp/engine/solver.
 - [ ] Unit-step anchor BFS и continuous reachability совпадают на typed fixtures.
+- [ ] Diagonal contact сохраняет axis-decomposed sliding вдоль obstacle без
+  overlap/tunnelling.
 - [ ] Rotation отсутствует, если отдельно не утверждена оператором.
 - [ ] Через gate выходит только block совпадающего gameplay role.
-- [ ] Exit принимается только после full-footprint crossing через compatible
-  gate span; partial crossing snap'ится in-board.
+- [ ] Exit принимается mid-drag при первом входе whole footprint в compatible
+  one-cell suction band; pointer больше не управляет captured block.
 - [ ] Gate reusable и не меняет state при exit.
 - [ ] Successful exit удаляет ровно один live block.
 - [ ] Win наступает только после выхода всех required blocks.
@@ -459,7 +480,11 @@ Own visual identity:
 - [ ] Collision clamp не допускает invalid carried pose; release commit'ит
   legal lattice anchor и не создаёт скрытого solver move.
 - [ ] Block exit/clear сохраняет shape identity до утверждённой exit phase;
-  gate остаётся reusable.
+  затем дробит shape в converging gate-bound fragments; gate остаётся reusable.
+- [ ] Последний gate некоторого role скрывается только после окончания consume,
+  если live blocks этого role больше нет.
+- [ ] Supported host получает provisional multi-stage consume haptic; отсутствие
+  haptic bridge не меняет gameplay state.
 - [ ] Color-independent marker остаётся читаем во время carry и в gate.
 - [ ] Success feedback работает без звука; fail state отсутствует (`O`).
 
@@ -479,16 +504,18 @@ Own visual identity:
 | --- | --- | --- |
 | Exact link/game | current linked Grand Games Block Out! | `O`, closed |
 | Progression slice | levels `6–10` | `O`, closed |
-| Native recording | success L11–13, byte/frame verified | `R-native`, partial feel evidence |
+| Native recording | success L11–13 + Level 15 gate-feel probe, byte/frame verified | `R-native`, qualitative presentation evidence |
 | Movement semantics | continuous two-axis collision-constrained drag; turn/diagonal allowed; release to grid without inertia; invalid pose unreachable | `O`, closed |
 | Must-preserve | максимально близко по перечисленным parity dimensions в IP boundary | `O`, closed as taste direction |
-| Defaults/exceptions | no timer; no reachable stuck state; haptic deferred | `O`, closed |
+| Defaults/exceptions | no timer; no reachable stuck state; haptic required during consume; locked gates deferred | `O`, closed |
 
 Minimum logic packet закрыт: quick flick не имеет inertia и заканчивается
 обычным grid snap (`O`).
 
-Для `BO-P` по-прежнему нужны 60 fps measurements pickup/snap/gate/win, но они
-калибруют утверждённый fidelity target и не переопределяют gameplay rules.
+`BO-R-N3` + operator amendment открывают `BO-P` implementation. Exact
+acceptance по timing/easing/haptic требует side-by-side device review; эти
+измерения калибруют утверждённый fidelity target и не переопределяют gameplay
+rules.
 
 ## Disposition BO-R
 
@@ -497,5 +524,5 @@ Minimum logic packet закрыт: quick flick не имеет inertia и зак
 - Primary: **Block Out! / Grand Games (`O`)**.
 - Target: **levels 6–10 static band (`O`)**.
 - Review 3: **conditional GO; A1′–A3′ dispositions applied**.
-- Workstreams: **BO-A/BO-E/BO-S technically ready; BO-P awaits 60 fps feel**.
-- Implementation authority: **none**.
+- Workstreams: **BO-A/BO-E/BO-S/BO-P implementation authorized**.
+- Implementation authority: **prototype only; no rollout/publication**.
