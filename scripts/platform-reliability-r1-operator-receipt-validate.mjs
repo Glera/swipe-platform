@@ -238,6 +238,12 @@ function validateFinalEvidenceStructure(markdown) {
       );
     }
   }
+  if (!markdown.includes('- Manual Sync preview expected-only: `PASS`')) {
+    fail(
+      'finalEvidence.ingressClosure.manualPreviewExpectedOnly',
+      'must explicitly be PASS',
+    );
+  }
 }
 
 function requireMarkdownValue(markdown, value, location) {
@@ -247,6 +253,50 @@ function requireMarkdownValue(markdown, value, location) {
     && markdown.includes(`sha256:${text}`);
   if (!codeBound && !digestBound) {
     fail(location, 'is not bound into final evidence');
+  }
+}
+
+function markdownSectionLines(markdown, sectionNumber, location) {
+  const lines = markdown.split(/\r?\n/);
+  const sectionPattern = new RegExp(`^## ${sectionNumber}\\. `);
+  const sectionStarts = lines
+    .map((line, index) => (sectionPattern.test(line) ? index : -1))
+    .filter((index) => index >= 0);
+  if (sectionStarts.length !== 1) {
+    fail(location, `requires exactly one section ${sectionNumber}`);
+  }
+  const [start] = sectionStarts;
+  const next = lines.findIndex((line, index) => (
+    index > start && /^## \d+\. /.test(line)
+  ));
+  const sectionLines = lines.slice(start, next < 0 ? undefined : next);
+  if (sectionLines.some((line) => /^(?:```|~~~)/.test(line.trim()))) {
+    fail(location, 'must not contain fenced code blocks');
+  }
+  if (
+    markdown.includes('<!--')
+    || markdown.includes('-->')
+    || sectionLines.some((line) => /<\/?[A-Za-z][^>]*>/.test(line))
+  ) {
+    fail(location, 'must not contain HTML comments or containers');
+  }
+  return sectionLines;
+}
+
+function requireControlledMarkdownLine(
+  allLines,
+  sectionLines,
+  label,
+  expected,
+  location,
+) {
+  const matches = allLines.filter((line) => line.includes(label));
+  if (
+    matches.length !== 1
+    || matches[0] !== expected
+    || !sectionLines.includes(expected)
+  ) {
+    fail(location, 'requires exactly one exact receipt-bound line');
   }
 }
 
@@ -362,9 +412,75 @@ function validateFinalEvidenceBindings(markdown, receipt) {
       requireMarkdownValue(
         markdown,
         value,
-        `finalEvidence.ingressClosure.${proof.consumerId}.${key}`,
+      `finalEvidence.ingressClosure.${proof.consumerId}.${key}`,
       );
     }
+  }
+  const autoSync = ingress.autoSyncControl;
+  const syncIdentity = ingress.blueprintSyncIdentity.available
+    ? ingress.blueprintSyncIdentity.id
+    : ingress.blueprintSyncIdentity.typedAbsence;
+  const ingressLines = markdownSectionLines(
+    markdown,
+    8,
+    'finalEvidence.ingressClosure',
+  );
+  const allMarkdownLines = markdown.split(/\r?\n/);
+  for (const [key, [label, line]] of Object.entries({
+    linkedBlueprint: [
+      'Linked Blueprint/source:',
+      `- Linked Blueprint/source: \`${autoSync.linkedBlueprintId}\` — `
+        + `\`${autoSync.sourceRepository}\` / \`${autoSync.sourceBranch}\` / `
+        + `\`${autoSync.blueprintPath}\``,
+    ],
+    autoSyncPreMerge: [
+      'Auto Sync observed disabled before merge:',
+      `- Auto Sync observed disabled before merge: `
+        + `\`${autoSync.preMergeState}\` at \`${autoSync.observedDisabledAt}\`; `
+        + `\`sha256:${autoSync.preMergeStateEvidenceSha256}\``,
+    ],
+    mergeObserved: [
+      'Merge observed at:',
+      `- Merge observed at: \`${autoSync.mergeObservedAt}\``,
+    ],
+    manualPreview: [
+      'Manual Sync preview:',
+      `- Manual Sync preview: \`${autoSync.manualPreviewObservedAt}\`; `
+        + `\`sha256:${autoSync.manualPreviewSha256}\``,
+    ],
+    manualPreviewExpectedOnly: [
+      'Manual Sync preview expected-only:',
+      '- Manual Sync preview expected-only: `PASS`',
+    ],
+    blueprintSyncIdentity: [
+      'Blueprint sync identity:',
+      `- Blueprint sync identity: \`${syncIdentity}\``,
+    ],
+    manualSyncTerminal: [
+      'Manual Sync terminal:',
+      `- Manual Sync terminal: `
+        + `\`${ingress.manualSyncTerminal.terminalOutcome}\` at `
+        + `\`${ingress.manualSyncTerminal.observedAt}\`; `
+        + `\`sha256:${ingress.manualSyncTerminal.evidenceSha256}\``,
+    ],
+    closureSaved: [
+      'Closure saved at:',
+      `- Closure saved at: \`${ingress.savedAt}\``,
+    ],
+    autoSyncFinal: [
+      'Auto Sync final state:',
+      `- Auto Sync final state: \`${autoSync.finalState}\` at `
+        + `\`${autoSync.finalStateObservedAt}\`; `
+        + `\`sha256:${autoSync.finalStateEvidenceSha256}\``,
+    ],
+  })) {
+    requireControlledMarkdownLine(
+      allMarkdownLines,
+      ingressLines,
+      label,
+      line,
+      `finalEvidence.ingressClosure.${key}`,
+    );
   }
 }
 
@@ -1149,7 +1265,9 @@ export function validateOperatorEvidence(
     'backendHeadSha',
     'backendMergeSha',
     'independentPatchReview',
+    'autoSyncControl',
     'blueprintSyncIdentity',
+    'manualSyncTerminal',
     'savedAt',
     'allowlistRuleCount',
     'internalFreshProofs',
@@ -1172,9 +1290,123 @@ export function validateOperatorEvidence(
     'receipt.ingressClosure.independentPatchReview.verdict',
     ['pass', 'fail'],
   );
+  const autoSync = ingress.autoSyncControl;
+  exactKeys(autoSync, 'receipt.ingressClosure.autoSyncControl', [
+    'linkedBlueprintId',
+    'sourceRepository',
+    'sourceBranch',
+    'blueprintPath',
+    'preMergeState',
+    'observedDisabledAt',
+    'preMergeStateEvidenceSha256',
+    'mergeObservedAt',
+    'manualPreviewObservedAt',
+    'manualPreviewExpectedOnly',
+    'manualPreviewSha256',
+    'finalState',
+    'finalStateObservedAt',
+    'finalStateEvidenceSha256',
+  ]);
+  nonemptyString(
+    autoSync.linkedBlueprintId,
+    'receipt.ingressClosure.autoSyncControl.linkedBlueprintId',
+  );
+  enumValue(
+    autoSync.sourceRepository,
+    'receipt.ingressClosure.autoSyncControl.sourceRepository',
+    ['Glera/swipe-backend'],
+  );
+  enumValue(
+    autoSync.sourceBranch,
+    'receipt.ingressClosure.autoSyncControl.sourceBranch',
+    ['master'],
+  );
+  enumValue(
+    autoSync.blueprintPath,
+    'receipt.ingressClosure.autoSyncControl.blueprintPath',
+    ['render.yaml'],
+  );
+  enumValue(
+    autoSync.preMergeState,
+    'receipt.ingressClosure.autoSyncControl.preMergeState',
+    ['disabled'],
+  );
+  const autoSyncDisabledAt = utcValue(
+    autoSync.observedDisabledAt,
+    'receipt.ingressClosure.autoSyncControl.observedDisabledAt',
+  );
+  sha256Value(
+    autoSync.preMergeStateEvidenceSha256,
+    'receipt.ingressClosure.autoSyncControl.preMergeStateEvidenceSha256',
+  );
+  const mergeObservedAt = utcValue(
+    autoSync.mergeObservedAt,
+    'receipt.ingressClosure.autoSyncControl.mergeObservedAt',
+  );
+  const manualPreviewObservedAt = utcValue(
+    autoSync.manualPreviewObservedAt,
+    'receipt.ingressClosure.autoSyncControl.manualPreviewObservedAt',
+  );
+  if (
+    booleanValue(
+      autoSync.manualPreviewExpectedOnly,
+      'receipt.ingressClosure.autoSyncControl.manualPreviewExpectedOnly',
+    ) !== true
+  ) {
+    fail(
+      'receipt.ingressClosure.autoSyncControl.manualPreviewExpectedOnly',
+      'must be true',
+    );
+  }
+  sha256Value(
+    autoSync.manualPreviewSha256,
+    'receipt.ingressClosure.autoSyncControl.manualPreviewSha256',
+  );
+  enumValue(
+    autoSync.finalState,
+    'receipt.ingressClosure.autoSyncControl.finalState',
+    ['disabled'],
+  );
+  const autoSyncFinalObservedAt = utcValue(
+    autoSync.finalStateObservedAt,
+    'receipt.ingressClosure.autoSyncControl.finalStateObservedAt',
+  );
+  sha256Value(
+    autoSync.finalStateEvidenceSha256,
+    'receipt.ingressClosure.autoSyncControl.finalStateEvidenceSha256',
+  );
   validateSyncIdentity(
     ingress.blueprintSyncIdentity,
     'receipt.ingressClosure.blueprintSyncIdentity',
+  );
+  if (
+    ingress.blueprintSyncIdentity.available === false
+    && ingress.blueprintSyncIdentity.typedAbsence
+      !== 'dashboard_did_not_expose_opaque_id'
+  ) {
+    fail(
+      'receipt.ingressClosure.blueprintSyncIdentity.typedAbsence',
+      'must describe only an unavailable opaque sync id',
+    );
+  }
+  const manualSyncTerminal = ingress.manualSyncTerminal;
+  exactKeys(
+    manualSyncTerminal,
+    'receipt.ingressClosure.manualSyncTerminal',
+    ['terminalOutcome', 'observedAt', 'evidenceSha256'],
+  );
+  enumValue(
+    manualSyncTerminal.terminalOutcome,
+    'receipt.ingressClosure.manualSyncTerminal.terminalOutcome',
+    ['succeeded'],
+  );
+  const manualSyncTerminalObservedAt = utcValue(
+    manualSyncTerminal.observedAt,
+    'receipt.ingressClosure.manualSyncTerminal.observedAt',
+  );
+  sha256Value(
+    manualSyncTerminal.evidenceSha256,
+    'receipt.ingressClosure.manualSyncTerminal.evidenceSha256',
   );
   const ingressSavedAt = utcValue(
     ingress.savedAt,
@@ -1192,6 +1424,49 @@ export function validateOperatorEvidence(
     || ingressSavedAt > gateBounds.get('G').gateEnd
   ) {
     fail('receipt.ingressClosure.savedAt', 'is outside Gate G');
+  }
+  for (const [location, timestamp] of [
+    ['observedDisabledAt', autoSyncDisabledAt],
+    ['mergeObservedAt', mergeObservedAt],
+    ['manualPreviewObservedAt', manualPreviewObservedAt],
+    ['manualSyncTerminal.observedAt', manualSyncTerminalObservedAt],
+    ['finalStateObservedAt', autoSyncFinalObservedAt],
+  ]) {
+    if (
+      timestamp < gateBounds.get('G').gateStart
+      || timestamp > gateBounds.get('G').gateEnd
+    ) {
+      fail(
+        `receipt.ingressClosure.autoSyncControl.${location}`,
+        'is outside Gate G',
+      );
+    }
+  }
+  if (
+    !(
+      autoSyncDisabledAt < mergeObservedAt
+      && mergeObservedAt < manualPreviewObservedAt
+      && manualPreviewObservedAt < manualSyncTerminalObservedAt
+      && manualSyncTerminalObservedAt < ingressSavedAt
+      && ingressSavedAt < autoSyncFinalObservedAt
+    )
+  ) {
+    fail(
+      'receipt.ingressClosure.autoSyncControl',
+      'must prove disabled-before-merge, preview-before-sync, and disabled-final ordering',
+    );
+  }
+  const blueprintReferenceIds = new Set(
+    [...consumers.values()].map((consumer) => consumer.blueprintReferenceId),
+  );
+  if (
+    blueprintReferenceIds.size !== 1
+    || !blueprintReferenceIds.has(autoSync.linkedBlueprintId)
+  ) {
+    fail(
+      'receipt.ingressClosure.autoSyncControl.linkedBlueprintId',
+      'must match the exact closed consumer Blueprint authority',
+    );
   }
   if (
     !Array.isArray(ingress.internalFreshProofs)
