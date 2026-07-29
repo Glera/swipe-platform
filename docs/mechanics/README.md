@@ -460,12 +460,16 @@ Tetris. Референс используется для исследовани�
   — accept as research; F1 tray multiset, F2 partial visibility, F3
   time-to-rule и F4 duration.
 
-Статус: `Review 3 logic GO / TT-P fidelity blocked`. Оператор утвердил
-**Triple Tile** как primary, **Zen Match** как secondary, captures
-`20 / 25 / 30`, fail-on-7th и baseline без boosters/crowns/meta. Supplied
-Zen Match Level 17 recording подтвердил concurrent taps during flight и
-visual grouped insertion. TT-G/TT-S/TT-E разрешены после merge в отдельной
-implementation-ветке; полный feel packet нужен только перед TT-P.
+Статус: `development active / Zen Match primary / TT-P prototype GO`.
+Позднейшим operator override выбран **Zen Match** как primary, **Triple
+Tile** как secondary и early structural anchors `6–10`. Это не разрешает
+копировать exact layouts: пять levels имеют собственную geometry/seeds/types
+и solver receipts. Supplied Zen Match Level 17 recording — primary feel
+evidence для board→tray flights, concurrent taps, grouped insertion и
+последовательного triple removal. Утверждены fail-on-7th, отсутствие
+boosters/crowns/meta, audio off и light/soft/rigid haptics.
+TT-G/TT-S/TT-E/TT-F/TT-P разрешены в отдельной implementation-ветке; cold
+load/covered/fail evidence остаётся final parity gate.
 
 ### Core loop
 
@@ -1228,11 +1232,12 @@ contract)?
 2. Нужна ли цена за ошибочный тап или только feedback?
 3. Какой референс имеется в виду под carry-stack/production?
 4. Block Blast нужен как endless score или как конечный puzzle?
-5. Для Triple-tile logic decisions закрыты: fail наступает при post-resolve
-   occupancy `7`; primary Triple Tile, captures `20 / 25 / 30` и no-booster
-   baseline утверждены. Перед TT-P остаются primary feel recordings и
-   haptic/audio. Classic exposed-pair Mahjong запускается только отдельной
-   инициативой.
+5. Для Triple-tile решения закрыты: fail при post-resolve occupancy `7`;
+   primary Zen Match, structural anchors `6–10`, full swipe autoplay,
+   no-booster baseline, audio off и light/soft/rigid haptics утверждены.
+   Exact layouts/assets не копируются; cold load/covered/fail evidence нужен
+   до final parity, не до prototype TT-P. Classic exposed-pair Mahjong
+   запускается только отдельной инициативой.
 6. Для Word первого класса приоритетнее русский, английский или
    мультиязычность с первого дня?
 7. Traffic Jam — target-exit или clear-all?

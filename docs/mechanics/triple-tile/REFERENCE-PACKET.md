@@ -1,19 +1,18 @@
 # TT-R: reference packet — Triple-tile
 
 - Дата исследовательского среза: **29.07.2026**
-- Статус: **Review 3 logic GO / TT-P blocked on primary fidelity**
-- Primary reference: **Triple Tile: Match Puzzle Game (`O`)**
-- Secondary reference: **Zen Match (`O`)**
-- Target captures: **Triple Tile Levels 20 / 25 / 30 (`O`)**
+- Статус: **development GO / Zen Match primary / TT-P prototype acceptance**
+- Primary reference: **Zen Match (`O`, supersedes Review 2 choice)**
+- Secondary reference: **Triple Tile: Match Puzzle Game (`O`)**
+- Structural target band: **Zen Match early Levels 6–10 (`O`)**
 - Связанный brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Независимое ревью:
   [`REVIEW-INDEPENDENT-2026-07-29.md`](REVIEW-INDEPENDENT-2026-07-29.md)
 
-> Пакет фиксирует taxonomy boundary и утверждённый эталон. Он не
-> разрешает gameplay-код, presentation work, rollout или копирование
-> референсных layouts/assets. Оператор утвердил fail-on-7th и разрешил
-> solver-first разработку TT-G/TT-S/TT-E после merge. Fidelity defaults
-> остаются blocking до TT-P.
+> Пакет фиксирует taxonomy boundary и обновлённый эталон. Оператор разрешил
+> разработку и открыл TT-P после смены primary на Zen Match: native Level 17
+> — feel authority, early Levels 6–10 — только structural anchors. Rollout и
+> копирование exact layouts/assets по-прежнему не разрешены.
 
 ## Обозначения authority
 
@@ -23,10 +22,10 @@
 - `B` — blocking: значения или evidence недостаточно для presentation work.
 
 `R-web` означает наблюдение по публичной записи или store/help-материалу.
-`R-native-secondary` означает измерение по operator-provided current-build
-записи secondary reference: оно закрывает observed behavior, но не заменяет
-primary fidelity capture. Публичные walkthrough могут относиться к старой
-версии приложения, поэтому не заменяют `R-native-primary`.
+`R-native-primary` означает измерение по operator-provided Zen Match
+current-build recording. Публичный early-level walkthrough может относиться
+к старой версии приложения и используется только для topology/progression
+archetypes, не для pixel/layout fidelity.
 
 ## Taxonomy boundary
 
@@ -74,7 +73,8 @@ tap exposed tile
 | `TT-R-S12` | [Tile Club Level 30](https://www.youtube.com/watch?v=xuDeVJ316hc) | compact successful round and public duration | third-party recording; old/unknown build |
 | `TT-R-S13` | [Tile Family — App Store](https://apps.apple.com/us/app/tile-family-match-puzzle-game/id6444056676) | three identical, seven-tile fail, no timer, hint, strong market proxy | narrative/meta wrapper; нет feel timings |
 | `TT-R-S14` | [Tile Family Levels 27–30](https://www.youtube.com/watch?v=zwwVZA7m8wM) | early-band cadence and public aggregate duration | third-party recording; old/unknown build |
-| `TT-R-S15` | Operator-provided Zen Match Level 17 recording, SHA-256 `18101e019f8a2b2f6241bff67f16d9b16eae1ddf2fac9e126651d3e96e4e68fb` | current-build grouped insertion, concurrent flights, seven visible slots, successful win and Level 18 entry | secondary reference; no fail, touch indicator, audible audio or haptic evidence |
+| `TT-R-S15` | Operator-provided Zen Match Level 17 recording, SHA-256 `18101e019f8a2b2f6241bff67f16d9b16eae1ddf2fac9e126651d3e96e4e68fb` | current-build grouped insertion, concurrent flights, sequential triple removal, seven visible slots, successful win and Level 18 entry | primary feel evidence; no cold load, fail, touch indicator, audible audio or haptic evidence |
+| `TT-R-S16` | [Zen Match Levels 6–10 walkthrough](https://appsmenow.com/walkthrough/183750-zen-match-relaxing-puzzle/level-6-10) | provisional early progression/topology navigation | 2022 public build; structural archetypes only, never exact layouts or feel timing |
 
 Store snapshot на дату среза:
 
@@ -95,7 +95,7 @@ Ratings показывают наличие устойчивой аудитор�
 
 | Reference | Availability / overlap | Tray и порядок | Win / fail | Undo / shuffle / hint |
 | --- | --- | --- | --- | --- |
-| **Triple Tile** | layered board; tap только видимой верхней плитки (`R-web`) | `7` видимых slots в Level 20/30; совпадение работает по type; visual grouping требует primary capture только для TT-P (`R-web/B`) | clear all (`R-web`); reference boundary не снят clip, но v1 утверждён как fail-on-7th (`O`) | три in-level tools видны, но весь booster/tool contour исключён из v1 (`R-web/O`) |
+| **Triple Tile** | layered board; tap только видимой верхней плитки (`R-web`) | `7` видимых slots в Level 20/30; совпадение работает по type (`R-web`) | clear all (`R-web`); reference boundary не снят clip, но v1 утверждён как fail-on-7th (`O`) | три in-level tools видны, но весь booster/tool contour исключён из v1 (`R-web/O`) |
 | **Zen Match** | следить за layers; поздние blockers дополнительно меняют availability (`R-web`) | usual capacity `7`, extra-slot booster даёт `8`; три одинаковые match даже через другие tiles (`R-web`) | clear board или отдельная goal-based цель; overload holder завершает round (`R-web`) | Undo, Super Undo, Shuffle, Magnet; pre-level Plane/Extra Slot/Spring (`R-web`) |
 | **Tile Busters** | layered overlap + Ice/Chain/Glue/Tile Maker (`R-web`) | семь slots видны в Level 30; auto-remove triple; insertion order не подтверждён (`R-web/B`) | clear board; также есть blocker/timed fails (`R-web`) | listing заявляет пять boosters; точные функции требуют native capture (`B`) |
 | **Tile Club** | layered triple-tile layouts (`R-web`) | bounded tray наблюдается; точный capacity/order не зафиксирован current build (`B`) | clear board; tray fail наблюдаем в genre, но нужен exact clip (`B`) | listing явно называет undo и powerful boosters (`R-web`) |
@@ -106,7 +106,7 @@ Ratings показывают наличие устойчивой аудитор�
 | Reference | Публичный round/action evidence | Autoplay / визуальная плотность | Progression |
 | --- | --- | --- | --- |
 | **Triple Tile** | Level 20 `1:17`; Level 30 `2:34` (`R-web`); comparative action band `36–60` taps (`P/B`, нужен recount) | правило читается за одну показанную triple; density Level 30 высокая, но symbols и layers различимы (`R-web`) | world map, новые layouts/layers, weekly content; чистый core остаётся центром (`R-web`) |
-| **Zen Match** | walkthrough Levels 11–20 занимает `15:23`, около `92 s/level` (`R-web`); supplied Level 17 round занимает около `98 s` от раскрытого board до win onset (`R-native-secondary`) | спокойная сцена и крупные tiles; current recording показывает тяжёлый HUD, crowns/goals и meta (`R-native-secondary`) | goal-based levels, blockers, rooms/journey/gems/dailies (`R-web/R-native-secondary`) |
+| **Zen Match** | walkthrough Levels 11–20 занимает `15:23`, около `92 s/level` (`R-web`); supplied Level 17 round занимает около `98 s` от раскрытого board до win onset (`R-native-primary`) | спокойная сцена и крупные tiles; current recording показывает тяжёлый HUD, crowns/goals и meta (`R-native-primary`) | goal-based levels, blockers, rooms/journey/gems/dailies (`R-web/R-native-primary`) |
 | **Tile Busters** | Level 30 video `1:11` (`R-web`); comparative `30–45` taps с producer/blockers (`P/B`) | компактная центральная pile хорошо читается; blocker counters повышают semantic density (`R-web`) | Ice, Chain, Glue, Tile Maker, tournaments, time challenges, towns (`R-web`) |
 | **Tile Club** | Level 30 video `1:22` (`R-web`); comparative `30–45` taps (`P/B`) | самый компактный ранний cadence среди просмотренных; social/meta UI вне раунда (`R-web`) | `10K+` levels, travel, clubs, tournaments, backgrounds (`R-web`) |
 | **Tile Family** | Levels 27–30 video `5:18`, около `80 s/level` (`R-web`); comparative `30–48` taps/level (`P/B`) | обычная средне-плотная pile; narrative wrapper сильнее отделён от core (`R-web`) | story/help framing, frequent level drops, hints (`R-web`) |
@@ -115,41 +115,41 @@ Ratings показывают наличие устойчивой аудитор�
 swipe-card требует более короткого собственного уровня. Они полезны только для
 сравнения плотности и выбора band.
 
-## Review 2 operator decision
+## Operator reference override
 
-### Primary: Triple Tile (`O`)
+Review 2 выбор Triple Tile primary и band `20 / 25 / 30` исторически
+зафиксирован в independent review, но superseded последующим operator
+решением (`O`).
 
-Причины:
+### Primary: Zen Match (`O`)
 
-1. чистое ядро остаётся главным содержанием уровня без обязательных blockers;
-2. сильный market proxy и длинная level-линейка;
-3. Level 20 и Level 30 дают два доступных no-special anchors;
-4. высокая визуальная ясность overlap и tray pressure;
-5. presentation достаточно выразительна для fidelity-разбора, но не требует
-   тяжёлой real-time симуляции.
+Причины обновления:
 
-### Secondary: Zen Match (`O`)
+1. native `TT-R-S15` уже показывает фундаментальный feel: board→tray flights,
+   concurrent input, grouped insertion и последовательное удаление triple;
+2. более спокойная, объёмная tile presentation лучше соответствует
+   выбранному ICP и желаемому tactile baseline;
+3. чистое exposed→tray→triples ядро остаётся главным содержанием, а crowns,
+   goals, boosters и blocker zoo явно исключены;
+4. primary можно разложить на независимые logic и presentation contracts без
+   заимствования фирменных assets.
 
-Используем для проверки:
+### Secondary: Triple Tile (`O`)
 
-- capacity `7` и временного расширения;
-- match-by-type независимо от расстояния между tiles в holder;
-- grouped insertion и приёма быстрых taps во время flight;
-- карты поздних blockers, чтобы сознательно исключить их из v1.
+Сохраняется для taxonomy/core-loop comparison, no-booster public paths и
+контраста density. Его levels `20 / 25 / 30` больше не являются target band
+или fidelity gate.
 
-Не переносим room/meta, goal-based уровни, golden-crown collection, blocker
-zoo, boosters и монетизационную каденцию (`O`).
+### Structural band: Zen Match Levels 6–10 (`O`)
 
-### Target band: Triple Tile Levels 20 / 25 / 30 (`O`)
-
-- **Level 20** — lower anchor: no-booster success, уже не tutorial.
-- **Level 25** — exact midpoint capture для tile count/type count/layer depth.
-- **Level 30** — upper holdout: не копируется как layout; используется для
-  perceived difficulty, tray pressure и fidelity.
-
-Если current Level 20 теперь tutorial-like либо Level 30 содержит special
-rule, отклонение фиксируется evidence и band возвращается оператору, а не
-подгоняется документ.
+- пять prototype slots соответствуют progression anchors `6 / 7 / 8 / 9 /
+  10`;
+- `TT-R-S16` используется только для формы progression: tile/type count,
+  exposure depth, initial branching и общая silhouette/topology;
+- каждый playable level имеет собственную geometry, seed, type allocation и
+  solver receipts;
+- exact layout, sequence, symbols, palette, UI и background не копируются;
+- никаких boosters, crowns, goals, hidden-face rules или special mechanics.
 
 ### Bounded swipe rules (`O`)
 
@@ -161,7 +161,7 @@ rule, отклонение фиксируется evidence и band возвра�
   `TT-R-S15` игнорируются.
 - Единственная win condition v1: board empty и tray empty после auto-resolve.
 
-### Что закрыла supplied запись (`R-native-secondary`)
+### Что закрыла supplied запись (`R-native-primary`)
 
 `TT-R-S15` — portrait `384×832`, `108.27 s`, около `29.87 fps`; game board
 полностью виден примерно с `00:01`, win onset — около `01:39`.
@@ -175,7 +175,11 @@ rule, отклонение фиксируется evidence и band возвра�
 - Tray показывает семь visual slots.
 - Level 18 entry показывает сильно перекрытые и полностью скрытые faces.
   Это evidence риска F2, но не разрешение переносить hidden-face rule.
-- Audio track фактически silent; haptics screen recording не фиксирует.
+- Triple removal начинается после landing третьей и идёт последовательно с
+  небольшим particle/sparkle feedback.
+- Audio track фактически silent; operator выбрал audio off (`O`).
+- Haptics screen recording не фиксирует; operator выбрал light accepted,
+  soft triple и rigid unavailable/fail (`O`).
 - Намеренного fail нет, поэтому запись не доказывает reference boundary;
   operator authority утвердил для v1 fail-on-7th (`O`).
 
@@ -204,74 +208,66 @@ rule, отклонение фиксируется evidence и band возвра�
    fail;
 3. attempted eighth не является отдельным состоянием baseline.
 
-Быстрые taps во время flight уже подтверждены `TT-R-S15`. Grouped insertion
-не является logical input: она перенесена в full feel packet. Intentional
-primary fail clip теперь optional parity evidence для TT-P, не blocker logic.
+Быстрые taps во время flight и grouped insertion подтверждены `TT-R-S15`.
+Оба остаются presentation-only и не входят в logical state/digest.
+Intentional fail clip optional: fail-on-7th уже закрыт operator authority.
 
-### Full feel capture before TT-P (`P/B`)
+### Remaining fidelity evidence (`P`)
 
-Запись утверждённого current Triple Tile build, portrait, native resolution,
-`60 fps` если устройство поддерживает:
+Не блокирует prototype implementation, но остаётся до final device parity:
 
-1. полный успешный Level 20 без boosters;
-2. полный успешный Level 25 без boosters;
-3. полный успешный Level 30 без boosters;
-4. load/settle и первый accepted tap;
-5. минимум шесть short/long flight paths;
-6. намеренный tap по covered/unavailable tile;
-7. non-adjacent same-type insertion и compression после triple;
-8. эпизод с сильно частично перекрытым symbol: измерить visible diagnostic
-   fraction и проверить, требует ли выбор знания закрытого type;
-9. последний triple, win и restart/replay;
-10. touch indicator или отдельный input log;
-11. короткая операторская заметка по haptic/audio, которые screen recording
-    физически не фиксирует.
+1. Zen Match cold board load/assembly;
+2. deliberate covered/unavailable tap;
+3. intentional fail и fail UI cadence;
+4. touch indicator для точного tap-response budget;
+5. сильно частично перекрытый symbol для device readability threshold;
+6. side-by-side prototype/native review.
 
-Booster, crown/meta и revive clips не требуются (`O`).
+Booster, crown/meta, revive и exact early-layout capture не требуются (`O`).
 
-## Feel: preliminary targets
+## Feel: prototype acceptance targets
 
-Таблица отделяет предложения от reference evidence. Presentation work
-**заблокирован**, пока каждое `P/B` не будет заменено/подтверждено числом
-`R-native` либо явным решением `O`.
+Таблица отделяет observed primary evidence, operator decisions и prototype
+defaults. `P` допускает implementation и TT-Q measurement; final device
+parity по-прежнему требует evidence/disposition.
 
 | Параметр | Preliminary target | Статус | Что требуется |
 | --- | ---: | :---: | --- |
-| Tap -> первый visual response | `≤50 ms` | `P/B` | touch indicator + 60-fps current-build clip |
-| Tile lift/selection phase | `40–80 ms`, scale `1.00 -> 1.04` | `P/B` | frame measurement |
-| Tile flight to tray | primary target `220–320 ms`; supplied Zen paths visually около `300–400 ms` | `R-native-secondary/P/B` | минимум 6 primary paths разной длины |
-| Flight trajectory | quadratic arc, peak normal offset `0.04–0.08` card width | `P/B` | измерить reference path в screen coordinates |
-| Flight easing | fast launch + `ease-out`, без overshoot | `P/B` | curve fit по frames |
-| Input during another flight | accepted; logical actions serial, flights may overlap | `R-native-secondary/P` | primary parity before TT-P |
-| New tile insertion | presentation: после same-type run, иначе append | `R-native-secondary/P/B` | primary non-adjacent same-type capture |
-| Tray rearrange/compression | `140–220 ms`, stable relative order остальных | `P/B` | before/after slot positions |
-| Triple recognition delay after landing | `50–100 ms` | `P/B` | frame measurement |
-| Triple removal | `180–260 ms`, scale/fade together | `P/B` | current successful triple clip |
-| Newly exposed tile enable | не позже `50 ms` после logical removal cover | `P/B` | chained tap clip |
-| Covered/unavailable tap onset | `≤50 ms` | `P/B` | deliberate invalid tap |
-| Covered feedback | `120–180 ms` pulse; geometry не перемещается | `P/B` | reference may use another cue |
-| Board load/settle | `300–450 ms` from scene visible to input-ready | `P/B` | current L20/L25/L30 start |
-| Camera after settle | static; no per-move zoom/reframe | `P/B` | verify full successful round |
-| Accepted-tap haptic | `selection/light`, `0–20 ms` | `P/B` | operator device review |
-| Triple haptic | `success/soft`, at removal onset | `P/B` | operator device review |
-| Unavailable/fail haptic | `warning/rigid`, at visual onset | `P/B` | operator device review |
-| Last triple -> win onset | `200–350 ms` | `P/B` | current win clip |
-| Win feedback duration before completed | `650–950 ms` | `P/B` | platform cadence review |
-| Fail recognition -> fail UI | `300–500 ms` | `P/B` | exact seven/eight-slot fail clip |
-| Scene visible -> first autoplay tap | `≤650 ms` | `P/B` | includes settle; removes F3 contradiction |
-| Scene visible -> first autoplay triple | `≤2.20 s` | `P/B` | overlapping flights allowed; device acceptance |
+| Tap -> первый visual response | `≤50 ms` | `P` | browser/device measurement |
+| Tile lift/selection phase | отдельная задержка отсутствует; flight начинается сразу | `O/P` | user prioritizes visible flight |
+| Tile flight to tray | `280–380 ms` | `R-native-primary/P` | measured range refined in TT-Q |
+| Flight trajectory | quadratic arc, control point `≈54 px` above direct midpoint | `R-native-primary/P` | side-by-side tune |
+| Flight easing | fast launch + `ease-out`, без overshoot | `R-native-primary/P` | side-by-side tune |
+| Input during another flight | accepted; logical actions serial, flights may overlap | `R-native-primary/O` | acceptance test |
+| New tile insertion | grouped after same-type run, otherwise append | `R-native-primary/O` | presentation-only |
+| Tray rearrange/compression | `180 ms`, stable relative order остальных | `R-native-primary/P` | browser/device measurement |
+| Triple recognition delay after landing | `70 ms` | `R-native-primary/P` | acceptance test |
+| Triple removal | `190 ms` each, stagger `68 ms`, light particles | `R-native-primary/P` | sequential-removal test |
+| Newly exposed tile enable | immediate logical transition; visual flight may continue | `O/P` | engine/presentation parity |
+| Covered/unavailable tap onset | `≤50 ms` | `P` | deliberate invalid tap still requested |
+| Covered feedback | `180 ms` pulse; geometry не перемещается | `P` | device review |
+| Board load/settle | `300 ms` per tile, `12 ms` cascade, input gate `760 ms` | `P` | native cold load unavailable |
+| Camera after settle | static; no per-move zoom/reframe | `O/P` | prototype default |
+| Accepted-tap haptic | `light`, at manual accepted transition | `O/P` | operator approved; autoplay silent |
+| Triple haptic | `soft`, at manual-play removal onset after third landing | `O/P` | operator approved; autoplay silent |
+| Unavailable/fail haptic | `rigid`, at feedback/fail onset | `O` | operator approved |
+| Audio | off | `O` | supplied primary recording effectively silent |
+| Last triple -> win onset | after presentation queue drains | `O/P` | single-completion test |
+| Fail recognition -> fail UI | after accepted flights/rearrange drain | `O/P` | intentional fail test |
+| Scene visible -> first autoplay tap | after assembly input gate, target `≤900 ms` | `P` | TT-Q measurement |
+| Scene visible -> first autoplay triple | target `≤3.0 s`; construction witness opens with a triple | `P` | TT-Q measurement |
 
-### TT-P blocked facts
+### Remaining final-parity facts
 
-- minimum readable diagnostic fraction для partially covered symbols;
-- primary grouped-insertion timings, covered-tap visual/audio/haptic,
-  camera/load и win/fail cadence — blockers только TT-P;
-- haptic/audio expectations; supplied audio silent.
+- device minimum readable diagnostic fraction for partially covered symbols;
+- exact cold-load choreography, deliberate covered cue and fail cadence;
+- side-by-side operator disposition. Они не блокируют prototype code, но
+  блокируют claim о final native parity.
 
 ## Preliminary reference parity checklist
 
-Каждый пункт становится acceptance только после `O` и заполнения
-`R-native` чисел.
+Чеклист является implementation/device acceptance; observed и operator
+requirements не требуют повторного подтверждения перед кодом.
 
 ### Rule and state
 
@@ -369,29 +365,35 @@ Gameplay должен оставаться читаемым на theme-neutral d
 
 Закрыто:
 
-- [x] primary **Triple Tile**, secondary **Zen Match** (`O`);
-- [x] target captures **20 / 25 / 30** (`O`);
+- [x] primary изменён на **Zen Match**, secondary — **Triple Tile** (`O`);
+- [x] structural anchors **Zen Match 6–10**; exact layouts не копируются (`O`);
 - [x] без boosters, revive, extra slot, crown goals и monetization (`O`);
-- [x] concurrent taps during flight наблюдены (`R-native-secondary`);
+- [x] concurrent taps during flight наблюдены (`R-native-primary`);
 - [x] grouped insertion классифицирована как presentation-only
-  (`R-native-secondary` + independent review F1).
+  (`R-native-primary` + independent review F1);
+- [x] autoplay default-on только в swipe, проходит весь уровень и ждёт
+  accepted takeover tap (`O`);
+- [x] audio off; haptics light accepted / soft triple / rigid
+  unavailable+fail (`O`).
 
 Минимум для Review 3 logic:
 
 - [x] fail-on-7th утверждён оператором; седьмая placement, завершившая
   triple и оставившая occupancy `<7`, безопасна (`O`).
 
-Только перед TT-P:
+До final fidelity claim:
 
-- [ ] full primary feel packet Levels `20 / 25 / 30`;
-- [ ] covered/partial-overlap, load, flight, compression, win/replay clips;
-- [ ] haptic/audio expectations и допустимый presentation profile.
+- [ ] cold-load, covered/partial-overlap и intentional-fail evidence;
+- [ ] side-by-side device disposition по assembly/flight/removal;
+- [ ] minimum readable diagnostic fraction.
 
 ## Disposition TT-R
 
 - Taxonomy: **accept split** — Triple-tile и Mahjong Solitaire разные классы.
-- Priority: **research accepted; Review 3 logic gate closed**.
-- Primary/secondary/band и no-booster rule: **approved (`O`)**.
-- Logic: **Review 3 GO; TT-G/TT-S/TT-E authorized after merge (`O`)**.
-- Fidelity: **blocked on primary current-build feel evidence and defaults**.
-- Presentation code/final fidelity: **не разрешены до TT-P inputs**.
+- Priority: **research accepted; development active**.
+- Primary/secondary/band, no-booster rule, full swipe autoplay и haptic/audio
+  semantics: **approved (`O`)**.
+- Logic: **TT-G/TT-S/TT-E/TT-F implementation authorized (`O`)**.
+- Presentation: **TT-P prototype implementation authorized** по
+  `TT-R-S15 + O`; final parity остаётся device-review gate.
+- Rollout/publication: **не разрешены этим packet**.
