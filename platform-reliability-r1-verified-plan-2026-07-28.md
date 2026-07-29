@@ -1,164 +1,166 @@
-# Platform Reliability Foundation R1 — выверенный план v2 (для codex)
+# Platform Reliability Foundation R1 — план v3 (окончательный, для codex)
 
-Дата: 2026-07-28 (v2, после codex-контрревью GO-с-условиями). Автор: Claude
-(оркестратор). Статус: утверждённый план исполнения. Роли: **codex исполняет,
-Claude ревьюит каждый пакет (author≠reviewer), оператор — все включения,
-классификации и деньги.**
+Дата: 2026-07-28 (v3 — консолидированный патч по exact-bytes review
+`p4g-workspace-meta@8f7ae3f`; вердикт ревью: GO направление). Роли: **codex
+исполняет, Claude ревьюит каждый пакет (author≠reviewer), оператор — все
+включения, классификации, деньги, drill-ы.**
 
-Верификация фактов велась против `swipe-backend@eb17916` (origin/master).
-Методологическая поправка v2: проверка v1 по факту №5 прошла по устаревшему
-локальному checkout (`git pull` был заглушен и молча не сработал) — все
-последующие верификации в R1 обязаны идти против `origin/<branch>` явно
-(`git show origin/master:<file>`), с фиксацией SHA в evidence.
+Все верификации — против явного `origin/<branch>` (`git show
+origin/master:<file>`) с фиксацией SHA. Backend-факты проверены против
+`swipe-backend@eb17916`.
 
-## 0. Верификация фактов среза
+## 0. Верификация фактов среза (v3)
 
-| # | Утверждение среза | Вердикт | Доказательство |
+| # | Утверждение | Вердикт | Доказательство |
 |---|---|---|---|
-| 1 | PG 1 GB без autoscaling | ✅ | `render.yaml`: `plan: basic-256mb`, `diskSizeGB: 1`, `storageAutoscalingEnabled: false` |
-| 2 | Миграции на старте web-контейнера | ✅, долг уже известен | `scripts/start-bake-runtime.sh` (`alembic upgrade head`); комментарий в `render.yaml` называет перенос в `preDeployCommand` отдельным rollout-ом |
-| 3 | Клонирование swipe-ugc + `npm install` на старте | ✅ | `start-bake-runtime.sh` `clone_or_update()` + `npm install --omit=dev` |
-| 4 | GitHub-токен попадает в URL remote | ✅ | `start-bake-runtime.sh:18–19`: `https://x-access-token:${GITHUB_TOKEN}@github.com/…` — остаётся в конфиге клона на диске |
-| 5 | Production runtime способен пушить в Git | ✅ **(поправка v2; в v1 ошибочно отвергнуто)** | `start-bake-runtime.sh:31–38` (`origin/master@eb17916`): если checkout впереди remote, стартап выполняет `git push origin HEAD:$branch`. На ephemeral fs ветка редко достижима, но write-authority существует. **R1 удаляет весь push-path**; read-only токен — лишь временная защита |
-| 6 | Пять фоновых runner-ов в одном процессе | ✅ ровно пять | `app/main.py:76–80`: bake, theme, control-plane-maintenance, bot, notification |
-| 7 | Healthcheck намеренно без БД | ✅ осознанное решение | `app/main.py:110–113`, docstring: keep-alive обязан оставаться зелёным при недоступном PG. Лечится добавлением `/ready`, а не «починкой» `/health` |
-| 8 | ~145 таблиц / 66 миграций | ✅ порядок верен | 68 файлов миграций |
-| 9 | Retention только у пары служебных таблиц | ✅ | retention-логика найдена только в контурах feed-sequencing / cohort-observability |
-| 10 | models.py ~8600; feed.ts 10 441; island.ts 4279 строк | ✅ | 8760 / 10 441 / 4279 |
-| 11 | ~339 deploy-коммитов за 30 дней | ✅ и больше | 513 коммитов swipe-platform за 30 дней (deploy+stamp парами) |
-| 12 | Гонки параллельных релизов | ✅ инцидентом | 28.07: деплои 15:00/15:18 из разных сессий; сброс P2-гейтов чужим env (закрыт пришпиленным профилем, playables `4fe9a32`) |
-| 13 | Restore-drill прод-PG не зафиксирован | ✅ | Есть только drill A1 на резервном хосте и recall каталога 17.07; прод-PG restore-доказательства нет |
-| 14 | Сид ботов на старте | ✅, принятое отклонение | CLAUDE.md: ТЗ §3.1 хотело CLI dry-run; single-instance допущение записано |
+| 1 | PG 1 GB без autoscaling | ✅ | `render.yaml`: `basic-256mb`, `diskSizeGB: 1`, `storageAutoscalingEnabled: false` |
+| 2 | Миграции на старте web | ✅, долг известен | `start-bake-runtime.sh` (`alembic upgrade head`); render.yaml называет preDeploy отдельным rollout-ом |
+| 3 | clone + `npm install` на старте | ✅ | `start-bake-runtime.sh` `clone_or_update()` + `npm install --omit=dev` |
+| 4 | Токен в URL remote | ✅ | `start-bake-runtime.sh:18–19` (`x-access-token:${GITHUB_TOKEN}@`) |
+| 5 | Runtime способен пушить в Git | ✅ | `start-bake-runtime.sh:31–38` @eb17916: checkout впереди remote → `git push origin HEAD:$branch`. **R1 удаляет весь push-path**; read-only токен — временная защита |
+| 6 | Пять runner-ов в одном процессе | ✅ | `app/main.py:76–80`: bake, theme, cp-maintenance, bot, notification |
+| 7 | Healthcheck намеренно без БД | ✅ осознанно | `app/main.py:110–113` docstring (keep-alive). Лечится `/ready`, не «починкой» `/health` |
+| 8 | Миграций 66 | ✅ ровно 66 `.py` | `git ls-tree origin/master migrations/versions/` (в v1 посчитаны 2 не-миграционных файла) |
+| 9 | Системный age-retention почти отсутствует | ✅, уточнено | age-retention есть в `app/agents_m2m.py` (`agents_read_denial_window`, `agents_read_rate`); прочее — контрактные окна контуров, не системная политика |
+| 10 | models.py ~8600; feed.ts 10 441; island.ts 4279 | ✅ | 8760 / 10 441 / 4279 |
+| 11 | Deploy-коммиты | ✅ | 513 коммитов swipe-platform за 30 дней всего; из них deploy/stamp ~339–387 (методики счёта расходятся, порядок одинаков) |
+| 12 | Гонки релизов | ✅ инцидентом 28.07 | деплои 15:00/15:18 разных сессий; сброс P2-гейтов чужим env (закрыт пришпиленным профилем `4fe9a32`) |
+| 13 | Restore-drill прод-PG не зафиксирован | ✅ | есть только drill A1 (резервный хост) и recall каталога 17.07 |
+| 14 | Бот-сид на старте | ✅, принятое отклонение | CLAUDE.md (single-instance допущение записано) |
 
-## 0-bis. Закрытые вопросы (были «открытыми» в v1)
+## 0-bis. Закрытые платформенные вопросы
 
-1. **PITR**: доступен всем платным Render Postgres; окно 3 дня (Hobby) /
-   7 дней (Pro+) — [Render Postgres Recovery](https://render.com/docs/postgresql-backups).
-   В R1-0 остаётся: подтвердить Recovery page фактического инстанса и провести
-   isolated restore-drill в отдельную БД (без переключения production).
-2. **preDeployCommand**: поддержан платными Docker web services, выполняется на
-   отдельном instance; при ошибке старый deploy продолжает работать —
-   [Render deploy pipeline](https://render.com/docs/deploys). Zero-downtime
-   требует expand/contract-совместимости схемы со старым кодом → первая
-   перенесённая миграция проходит explicit backward-compat аудит, и политика
-   expand/contract становится обязательной с этого момента.
+1. **PITR** — у всех платных Render Postgres; окно 3 дня (Hobby) / 7 (Pro+)
+   ([docs](https://render.com/docs/postgresql-backups)). В R1-0: подтвердить
+   Recovery page фактического инстанса + isolated restore-drill в отдельную БД.
+2. **preDeployCommand** — платные Docker web services, отдельный instance, при
+   ошибке старый deploy живёт ([docs](https://render.com/docs/deploys)).
+   Zero-downtime ⇒ expand/contract: первая перенесённая миграция проходит
+   explicit backward-compat аудит; политика обязательна с этого момента.
 
-## 1. Вердикт по инициативам
+## 1. Вердикты по инициативам
 
-### И1 Data Safety & Recovery — ПРИНЯТА с контрактной правкой (P0, первая)
-Append-only журналы — по durable-решениям **source of truth с byte-identical
-replay по `seq`**. «DELETE старше N» для evidence-классов запрещён — ломает
-replay-гарантии. Классификация в четыре класса:
-- **eternal evidence** — вечно; допустимы только партиционирование и выгрузка в
-  холодный архив с digest и доказанным обратным чтением;
-- **operational** — retention допустим, по-таблично;
-- **derived** — восстановимо replay-ем;
-- **disposable** — чистится свободно.
-Каждое отнесение журнала к не-eternal классу — **операторское решение**.
-Никакая классификация и тем более удаление НЕ входят в R1-0.
+### И1 Data Safety & Recovery — P0, первая
+Журналы — source of truth с byte-identical replay по `seq`; «DELETE старше N»
+для evidence-классов запрещён. Классы: **eternal evidence** (только партиции +
+холодный архив с digest и доказанным обратным чтением) / **operational**
+(retention по-таблично) / **derived** / **disposable**. Каждое не-eternal
+отнесение — операторское решение. В R1-0 классификации и удалений нет.
 
-### И2 Immutable Build & Release — ПРИНЯТА, достройка существующего
-Не переизобретать: пришпиленный release-профиль с sha256 в receipt
-(playables `4fe9a32`, боевой прогон 28.07 18:22), source-lock деплоя,
-content-addressed `runtime-releases/…/<digestHex>/`, провенанс-стампы.
-Новое: CI-сборка клиента из точных SHA → immutable artifact с digest;
-сериализация деплоев + CAS по текущей версии; единый release-manifest
-(backend SHA + feed SHA + playables SHA + UGC SHA + профиль+sha256 + alembic
-head), совместимый с release.json v2; откат на предыдущий артефакт;
-**полное удаление runtime push-path** (факт 5) и read-only fine-grained токен
-вне remote URL. Локальный деплой-путь после перехода остаётся только как
-break-glass (задокументированный, с receipt-ом использования).
+### И2 Immutable Build & Release — P0
+Достройка существующего (пришпиленный профиль `4fe9a32` + sha256 в receipt,
+source-lock, content-addressed runtime-releases, провенанс-стампы). Новое:
+- **bake-runtime = prebuilt Docker image**: CI чекаутит точные backend/UGC SHA,
+  `npm ci`, проверяет digest, публикует image; Render разворачивает **по
+  digest**. Artifact-хранилище — для пользовательских артефактов, не для
+  исполняемого runtime-кода.
+- **Release manifest = sidecar `platform-release-manifest.v1.json`** (release.json
+  v2 НЕ расширяется неизвестными полями): SHA256 самого release.json v2;
+  backend/feed/playables/UGC commits; container digest; migration requirement;
+  profile digest; CI run/build identity. Старые читатели v2 не затронуты.
+- Сериализация деплоев: **R1-0 даёт только fail-closed CAS** (проигравший
+  падает с ошибкой — это не очередь); настоящая сериализация в R1-2 через
+  удалённый координатор (GitHub Actions concurrency group или эквивалент).
+- **Rollback-доказательство**: «скрипт остаётся в git» доказательством не
+  является. Требуются pinned last-known-good artifact, документированная
+  команда отката и **проверенный rollback smoke**.
+- Удаление runtime push-path; read-only fine-grained токен вне remote URL.
+- Локальный деплой после перехода — только break-glass с receipt-ом.
 
-### И3 Runtime Isolation & Readiness — ПРИНЯТА в едино-worker варианте (P1)
-`/health` не трогаем (осознанный keep-alive контракт); добавляем `/live` и
-`/ready` (БД + alembic head + обязательные runtime-зависимости, включая
-bake_runtime). Вынос: **один** отдельный background worker со всеми пятью
-loop-ами и существующим fencing (образцы 0021: fenced leases, failure
-receipts) — не пять сервисов. Переход flag-gated: web держит runner-ы до
-доказанного worker-а, затем выключение у web (никакого окна двойного
-исполнения: взаимоисключающий флаг, не параллель). Дальнейшее дробление —
-только по измеренному blast radius/load и после заключения финдиректора.
+### И3 Runtime Isolation & Readiness — P1, единый worker
+- `/health` — liveness/keep-alive, контракт не меняется. `/ready` — БД +
+  **минимально необходимая schema capability** (НЕ точный alembic head: во
+  время preDeploy старый код работает со свежей схемой; точный head проверяют
+  preDeploy/CI) + обязательные runtime-зависимости. После доказательства
+  `/ready` **ставится в Render healthCheckPath** — иначе он не управляет
+  трафиком и остаётся декорацией.
+- Вынос runner-ов: **один** background worker с пятью loop-ами и fencing по
+  образцам 0021. Гарантия формулируется достижимо: (а) **нет двойных
+  эффектов** — lease/fencing, все эффекты проверяют актуальный fence;
+  (б) **failover-gap ограничен TTL** lease; (в) **durable work не теряется** —
+  очередь сохраняется и догоняется новым исполнителем (bounded recovery,
+  не невозможный zero-gap).
+- Механизм handover: DB-owned activation row `target ∈ {web, worker}` с
+  монотонным epoch и CAS. Worker поднимается standby → пишет readiness
+  receipt → **оператор** переводит epoch → fenced acquisition worker-ом →
+  проверка heartbeat/effects → удаление web-runner-ов. Падение worker-а =
+  очередь цела, догоняется.
+- Дальнейшее дробление — по измеренному blast radius/load, после финдиректора.
 
-### И4 Observability & Operational SLO — ПРИНЯТА (P1, параллельно И3)
-Фильтр VISION «экономия внимания»: алерт = требуемое действие оператора.
-Выбор внешнего сервиса (Sentry и т.п.) = новый поставщик/расход →
+### И4 Observability — P1, параллельно И3
+Фильтр «алерт = требуемое действие». Внешний сервис = поставщик/расход →
 финдиректор + оператор.
 
 ### И5 Modularization — в R1 только стоп-кран
-Архитектурный тест-запрет **новых** межконтурных импортов + бюджет строк для
-**новых** файлов (существующие монолиты — grandfathered список). Разнос
-models.py/feed.ts/island.ts — отдельной целью после R1.
+Архтест: запрет новых межконтурных импортов; бюджет строк новых файлов;
+**grandfathered-монолиты заморожены на зафиксированном baseline** — рост
+`feed.ts`/`island.ts`/`models.py` сверх baseline валит CI (иначе новый код
+продолжит стекать в монолиты). Разнос — отдельной целью после R1.
 
 ### И6 Contract Supply Chain — вне R1 (P2)
 
 ### И7 Drift Guard — частично в R1
-Operational manifest выпадает из release-manifest И2; CI-сравнение
-серверных/клиентских флагов — тонкий срез в R1. Остальное после.
+Operational manifest выпадает из sidecar-манифеста И2. CI-сравнение
+серверных/клиентских флагов — тонкий срез. Урок этого же ревью: **scoreboard
+не должен утверждать изменчивые runtime-значения** (флаги, включения) — только
+ссылаться на rollout-authority (render.yaml / release-профиль); исправлено в
+hypotheses.json одновременно с v3.
 
-## 2. Карточка цели (утверждена оператором 28.07, GO с условиями)
+## 2. Карточка цели (GO оператора 28.07; v3-редакция exit)
 
-- **Название:** Platform Reliability Foundation R1.
 - **Statement:** прод собирается из неизменяемых артефактов и не зависит от
-  состояния операторской машины; миграции отделены от старта web; переполнение
-  диска или остановка runner-а обнаруживаются алертом до пользовательской
-  ошибки; восстановление прод-БД доказано прогоном с записанными RPO/RTO.
-- **Exit (расширен по контрревью):**
-  1. production startup не выполняет git, npm install и миграции;
-  2. CI выпускает immutable artifact по точным SHA;
-  3. deploy использует CAS/очередь; локальный путь — только break-glass;
-  4. restore доказан с зафиксированными RPO/RTO (isolated drill);
-  5. `/ready` проверяет БД, migration head и обязательные runtime-зависимости;
-  6. web не владеет фоновыми runner-ами (единый background worker);
-  7. алерты: диск 70/85%, per-runner живость — активны и «алерт = действие»;
-  8. классификация всех журналов утверждена оператором (без удалений в R1);
-  9. новый код не увеличивает межконтурное сцепление и не создаёт новые
-     oversized-файлы (архтест + бюджет строк зелёные в CI).
-- **Kill/откат:** каждая ступень независимо откатывается; старые стартовый и
-  деплой-скрипты остаются в git до конца quiet-периода R1; продуктовые контуры
+  операторской машины; миграции отделены от старта web; переполнение диска или
+  остановка runner-а видны алертом до пользовательской ошибки; восстановление
+  прод-БД доказано прогоном с записанными RPO/RTO.
+- **Exit:**
+  1. production startup не выполняет git, npm install и миграций;
+  2. CI выпускает immutable artifact (container image по digest) из точных SHA;
+  3. deploy сериализован удалённым координатором; локальный путь — break-glass;
+  4. rollback доказан: pinned last-known-good + команда + smoke;
+  5. restore доказан isolated drill-ом, RPO/RTO записаны;
+  6. `/ready` (БД + schema capability + зависимости) стоит в Render
+     healthCheckPath; `/health` — liveness;
+  7. web не владеет runner-ами: единый worker, lease/fencing, gap ≤ TTL,
+     durable work догоняется;
+  8. алерты диск 70/85% + per-runner живость, «алерт = действие»;
+  9. классификация журналов утверждена оператором (удалений в R1 нет);
+  10. стоп-кран: архтест импортов + бюджет строк + baseline-freeze монолитов
+      зелёные в CI.
+- **Kill/откат:** каждая ступень откатывается независимо (для релизного контура
+  — через pinned last-known-good, не через «скрипт в git»); продуктовые контуры
   не задеваются; мораторий соблюдён.
-- **Ведёт:** codex (исполнение), Claude (кросс-ревью каждого пакета),
-  оператор (утверждения: классификация, деньги, включения, drill).
+- **Ведёт:** codex · ревью Claude · гейты оператора.
 
-## 3. R1-0 — первые 48 часов (по контрревью, зафиксировано)
+## 3. R1-0 — первые 48 часов
 
-1. Снимок `pg_total_relation_size`, rows и скорости роста по таблицам
-   (read-only; повторный снимок через 24–48ч для скорости).
-2. Подтверждение PITR и recovery window на Recovery page фактического
-   инстанса.
-3. **Isolated restore-drill** в отдельную БД, без переключения production
-   (кратковременный расход на temp-инстанс — уведомить финдиректор-контур;
-   присутствие оператора обязательно).
-4. Немедленная сериализация локального деплоя: CAS-замок в deploy-swipe.sh
-   (fetch→verify→push атомарно; отказ при сдвиге origin/master между fetch и
-   push; git non-ff уже даёт нижний уровень защиты — добавить явный замок).
-5. Удаление runtime push-path (`clone_or_update` строки 31–38) + ротация
-   GITHUB_TOKEN в read-only fine-grained (ротация — операторское действие в
-   Render dashboard; код-часть — обычный review-flow).
-6. Никакой классификации eternal evidence и никаких удалений — отдельные
-   операторские решения вне R1-0.
+1. Снимок `pg_total_relation_size` + rows по таблицам; **bytes/row; записи за
+   7/30 дней; прогноз для 10/100/1000 DAU** (рост при нулевом трафике сам по
+   себе непоказателен).
+2. Подтверждение PITR/recovery window на Recovery page фактического инстанса.
+3. Isolated restore-drill в отдельную БД без переключения production
+   (temp-инстанс = расход → уведомить финдиректор; присутствие оператора).
+4. **Fail-closed CAS** в deploy-swipe.sh (проигравший деплой падает с ошибкой;
+   очередь НЕ обещается — сериализация в R1-2).
+5. Удаление runtime push-path (строки 31–38) + ротация токена в read-only
+   fine-grained (ротация — оператор в Render dashboard).
+6. Никакой классификации eternal evidence и никаких удалений.
 
-## 4. Нарезка для codex (порядок и authority-границы)
+Read-only часть R1-0 (пп. 1–2) запускается немедленно; drill, ротация,
+расходы и любые production-переключения — операторские гейты.
+
+## 4. Нарезка
 
 | Пакет | Содержимое | Authority-граница |
 |---|---|---|
-| R1-0 (48ч) | п.3 выше | drill и ротация токена — с оператором; остальное read-only/код через ревью |
-| R1-1 data safety | классификация журналов (draft → оператор утверждает); алерты диска; партиции/архив только для утверждённого | без самостоятельных решений по классам |
-| R1-2 immutable release | CI-сборка, digest-артефакт, release-manifest, CAS-деплой | выключение локального деплоя (перевод в break-glass) — по слову оператора |
-| R1-3 startup split | preDeploy-миграции (+expand/contract аудит первой миграции); web без git/npm (bake-runtime как build-слой образа) | смена стартового контракта — финальное подтверждение оператора |
-| R1-4 readiness+worker | /live+/ready; единый background worker (5 loop-ов, fencing 0021, flag-gated переход) | новый сервис = деньги → финдиректор + оператор до старта |
-| R1-5 observability | коллекторы, дашборд, алерты по фильтру «алерт=действие» | внешний сервис — оператор |
-| R1-6 стоп-кран | архтест импортов + бюджет строк новых файлов | чистый CI |
+| R1-0 (48ч) | §3 | drill/ротация — оператор; прочее read-only или код через ревью |
+| R1-1 data safety | классификация (draft → оператор), алерты диска, партиции/архив утверждённого | классы — только оператор |
+| R1-2 immutable release | CI-image по digest, sidecar-manifest, сериализация (concurrency), rollback smoke | перевод локального деплоя в break-glass — оператор |
+| R1-3 startup split | preDeploy-миграции (+expand/contract аудит), web без git/npm (prebuilt image) | смена стартового контракта — оператор |
+| R1-4 readiness+worker | /live+/ready → healthCheckPath; standby worker + activation epoch + fenced handover | epoch-перевод и новый сервис (деньги) — оператор+финдиректор |
+| R1-5 observability | коллекторы, дашборд, алерты | внешний сервис — оператор |
+| R1-6 стоп-кран | архтест + бюджет строк + baseline-freeze | чистый CI |
 
-Правила: каждый пакет — отдельная ветка + evidence-пакет с точными SHA;
-Claude ревьюит каждый пакет до merge; включения в прод — только по явному
-слову оператора; новые флаги default-off; боевые значения — только через
-закоммиченные источники (render.yaml / release-профиль).
-
-## 5. Остаточные вопросы codex-у
-
-1. Оценить: bake-runtime как слой Docker-образа (COPY из build-stage) против
-   отдельного artifact-хранилища — стоимость холодного старта и размер образа.
-2. Предложить формат release-manifest, расширяющий release.json v2
-   (profileName+profileFileSha256) без слома читателей.
-3. Для R1-4: предложить механизм взаимоисключения web-runners/worker
-   (флаг+lease), исключающий и двойное исполнение, и «никто не исполняет».
+Правила: пакет = ветка + evidence с точными SHA; Claude ревьюит до merge;
+включения — по слову оператора; новые флаги default-off; боевые значения —
+только закоммиченные источники; scoreboard ссылается на rollout-authority,
+не дублирует изменчивые значения.
