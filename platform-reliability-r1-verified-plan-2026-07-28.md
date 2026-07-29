@@ -170,6 +170,13 @@ operator/Codex/Claude-сессии с Mac).
 Дальнейшая диагностика — временный точный `/32` на сессию с закрытием после.
 До snapshot 2 конфигурация не меняется.
 
+Точный порядок действий, stop/rollback, полный Blueprint consumer closure,
+protocol-level negative proof и isolated PITR acceptance зафиксированы в
+`platform-reliability-r1-operator-runbook.md`. Dashboard health или
+TCP-only `nc` не заменяют DB-запрос: `/api/health` по принятому контракту не
+проверяет PostgreSQL, а Render применяет inbound rules на protocol-level после
+TCP connect.
+
 Snapshot 2 сравнивается скриптом
 `scripts/platform-reliability-r1-db-delta.mjs`: отдельно provider storage,
 `pg_database_size`, user relations и deadlocks. Отсутствующая во втором
