@@ -1,0 +1,19 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "merge_second_board_type_a-swipe",
+  "digest": "sha256:0a53978170172831cc208b886a8771a3cdfe1b9a5d16bee901da237b7324f404",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
+  "files": [
+    {
+      "path": "merge_second_board_type_a-swipe.html",
+      "bytes": 1226475,
+      "sha256": "sha256:ab4cb274214e6ccd66a9252c59756c800048e12117b93127eba4dec2628b38f6"
+    },
+    {
+      "path": "merge_second_board_type_a-swipe.payload.js",
+      "bytes": 430709,
+      "sha256": "sha256:773b54a3a5e6fc1f5d7499c2c3e5c1474a5428c5174f024413a384695d7c2222"
+    }
+  ]
+}

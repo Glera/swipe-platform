@@ -1,0 +1,49 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "short-drama-swipe",
+  "digest": "sha256:01146f30bfd19b98acd29721338efce83efb5e67707d01d7ccde9afe31bbeb0f",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
+  "files": [
+    {
+      "path": "short-drama-swipe.html",
+      "bytes": 3930904,
+      "sha256": "sha256:e126e8c8b13be47ac9ddb5640837e98a0600749bc07031e7c694b4dacf01bbfc"
+    },
+    {
+      "path": "short-drama-swipe.payload.js",
+      "bytes": 339256,
+      "sha256": "sha256:6d4b01c16c0216636e868fa88e143a692a6e3befe763e8368e728599f121db5f"
+    },
+    {
+      "path": "short-drama-swipe.video-38352ee8e3.webm",
+      "bytes": 2008073,
+      "sha256": "sha256:38352ee8e3ecb50113f36d297b873960c5c321fab000c02a23a2a455f549b7d0"
+    },
+    {
+      "path": "short-drama-swipe.video-3a8b0c008c.webm",
+      "bytes": 2257932,
+      "sha256": "sha256:3a8b0c008c0957512acc0d89c86455bfa95894d375891bd3cee18aa38b855510"
+    },
+    {
+      "path": "short-drama-swipe.video-4acbf8d5f6.webm",
+      "bytes": 4253476,
+      "sha256": "sha256:4acbf8d5f671e18d0a41e02f2aa78cb7a3ea1e31eedbb0e4cf32037853679ddf"
+    },
+    {
+      "path": "short-drama-swipe.video-4e521b9006.webm",
+      "bytes": 3296004,
+      "sha256": "sha256:4e521b90068923bdc6e8d097075402874c0ab94aaaf4f5c43411c31c9f811cd8"
+    },
+    {
+      "path": "short-drama-swipe.video-8ac5527ee8.webm",
+      "bytes": 3550800,
+      "sha256": "sha256:8ac5527ee87e594f2f6d137b9d4840bfe05f0a01932c72ece90db828888cedb0"
+    },
+    {
+      "path": "short-drama-swipe.video-9d40f1e66f.webm",
+      "bytes": 3440229,
+      "sha256": "sha256:9d40f1e66f9e1aa8992f06f4f9d0f390c3d951c1fc14f30909d29e4a152fbc47"
+    }
+  ]
+}

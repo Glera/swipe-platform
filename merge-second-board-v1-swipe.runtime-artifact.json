@@ -1,0 +1,24 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "merge-second-board-v1-swipe",
+  "digest": "sha256:49e1d2ebc6c1a28e300ad93f00025bc51cb475e025999320c43b8f37f245fad0",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
+  "files": [
+    {
+      "path": "merge-second-board-v1-swipe.html",
+      "bytes": 1883972,
+      "sha256": "sha256:89aca677a5ec76670edbbb077009ed8f6dd7fb8072524cbc1aa8716bb8acf60f"
+    },
+    {
+      "path": "merge-second-board-v1-swipe.payload.js",
+      "bytes": 503037,
+      "sha256": "sha256:9e29e6f4990943303d241909402eaccc0b1e08e809c7ea09bc14812de897c777"
+    },
+    {
+      "path": "merge-second-board-v1-swipe.video-f7e642dd01.mp4",
+      "bytes": 1417999,
+      "sha256": "sha256:f7e642dd018009a0de89696e8d1dd15bc454bcc318196ade87524c67c4557de5"
+    }
+  ]
+}

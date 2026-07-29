@@ -1,0 +1,89 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "pins-v1-swipe",
+  "digest": "sha256:64c25ad280ec254f4c3ed6324751e7f78c27b2a864a9bfa0f979974c81ef6c2e",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
+  "files": [
+    {
+      "path": "pins-v1-swipe.asset-22dfbce8da83.mp3",
+      "bytes": 144910,
+      "sha256": "sha256:22dfbce8da83adcc67cf8a9f2604f01294dddf3a276c5165d6ddfc7584d6d8b7"
+    },
+    {
+      "path": "pins-v1-swipe.asset-357a89ce9d05.mp3",
+      "bytes": 28091,
+      "sha256": "sha256:357a89ce9d05d41e5f0b90487a0f1ee5aeef5f90e2877d837051e57b616f29d6"
+    },
+    {
+      "path": "pins-v1-swipe.asset-3d574c7f9d70.mp3",
+      "bytes": 35899,
+      "sha256": "sha256:3d574c7f9d701168a18422b98c65802a857b0e79f0a8a98f2e19e234b95507f9"
+    },
+    {
+      "path": "pins-v1-swipe.asset-52020881e470.webp",
+      "bytes": 108658,
+      "sha256": "sha256:52020881e470e2a3693be3614e2fd855b2cfd7ec372e2cea11f43e4d8303dc20"
+    },
+    {
+      "path": "pins-v1-swipe.asset-6561c1711d61.png",
+      "bytes": 107897,
+      "sha256": "sha256:6561c1711d61233959d2811a3552c9aa5eff73b1285c7099f6cacd798608d052"
+    },
+    {
+      "path": "pins-v1-swipe.asset-927c572d7927.webp",
+      "bytes": 295840,
+      "sha256": "sha256:927c572d79270f9ec65b583c4c210828587b4cc950da75c485004180e7968449"
+    },
+    {
+      "path": "pins-v1-swipe.asset-9f955538cd12.webp",
+      "bytes": 298082,
+      "sha256": "sha256:9f955538cd1250ebc4137d57fb7e0c71b06b8562d0a990a9ef0b73808ddb596a"
+    },
+    {
+      "path": "pins-v1-swipe.asset-ade03601c9df.mp3",
+      "bytes": 25165,
+      "sha256": "sha256:ade03601c9df077d00655125477ed5a2c30678f4c27d64ab17724ac37fc0d8b1"
+    },
+    {
+      "path": "pins-v1-swipe.asset-c2624576d2e6.webp",
+      "bytes": 62872,
+      "sha256": "sha256:c2624576d2e6c524c6078fa01d75044b6e3382e5c426ff95c391a14c93261cb2"
+    },
+    {
+      "path": "pins-v1-swipe.asset-e8e58fd63726.mp3",
+      "bytes": 315020,
+      "sha256": "sha256:e8e58fd63726b8ca7985c71f881f07251f0046137d21dc43b3710496727650b0"
+    },
+    {
+      "path": "pins-v1-swipe.asset-fb3beb32af9a.png",
+      "bytes": 416086,
+      "sha256": "sha256:fb3beb32af9adae9798e7ecb8650408f9dc71ee631db27ed34b0331abfd59053"
+    },
+    {
+      "path": "pins-v1-swipe.html",
+      "bytes": 1084,
+      "sha256": "sha256:40c2b9573bca377834ccc202056c84b5b0566905340b937164725edd1cbe118b"
+    },
+    {
+      "path": "pins-v1-swipe.payload.js",
+      "bytes": 652212,
+      "sha256": "sha256:86f2df083e63551c7dc20a6b38d7851ceea0c33b47a0a0d16726469d14b25cea"
+    },
+    {
+      "path": "pins-v1-swipe.video-11a801b361.mp4",
+      "bytes": 238623,
+      "sha256": "sha256:11a801b361579d775fa95c0967a2657c0dac9d62c0a33d3407f05db9ca97aacf"
+    },
+    {
+      "path": "pins-v1-swipe.video-c221f06b56.mp4",
+      "bytes": 962033,
+      "sha256": "sha256:c221f06b563fb9565dffe6fcc544e7118e1d1ed6b4000dc021c189b5b332f89b"
+    },
+    {
+      "path": "pins-v1-swipe.video-e06ca82515.mp4",
+      "bytes": 478216,
+      "sha256": "sha256:e06ca82515c6a16d6562f63dde53f84930d363890dd9eafaa91e7ba67eddc138"
+    }
+  ]
+}

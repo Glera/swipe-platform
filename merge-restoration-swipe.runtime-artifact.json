@@ -1,0 +1,24 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "merge-restoration-swipe",
+  "digest": "sha256:b0f2eda2e7e9d9b8c923d7ee75b46816e94cb605c1e97ed201fc080c01700305",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
+  "files": [
+    {
+      "path": "merge-restoration-swipe.html",
+      "bytes": 2342650,
+      "sha256": "sha256:d2206c34be811a2b912ae5a5fcb9d126638e3ed6413d5651adda25ac4dcbb20a"
+    },
+    {
+      "path": "merge-restoration-swipe.payload.js",
+      "bytes": 337475,
+      "sha256": "sha256:5fb295be0a1ce8e22a7b610b6b0d3eb0a3895a02869cef35299e49629f4b3ce4"
+    },
+    {
+      "path": "merge-restoration-swipe.video-ef6da351b6.webm",
+      "bytes": 962501,
+      "sha256": "sha256:ef6da351b675e7d0f54d51823e8b20c08ae5d8fe34edc152389733ef2a424193"
+    }
+  ]
+}

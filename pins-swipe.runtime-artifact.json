@@ -1,10 +1,15 @@
 {
   "schema": "runtime-artifact.v1",
   "playableId": "pins-swipe",
-  "digest": "sha256:eaf4abcf4d146dfb5328b002a42b40bf54151721bcfb95a124a1622d6ba25201",
+  "digest": "sha256:ebbdbc693e24e8e7a9eb6e5828ffa636a78aed7c3f605dbc81430400665b1779",
   "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
-  "sourceCommit": "f38ea14735d12a7dfe15762962290e52b93b5cb7",
+  "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
   "files": [
+    {
+      "path": "pins-swipe.asset-08f0cf39e1f8.mp3",
+      "bytes": 78720,
+      "sha256": "sha256:08f0cf39e1f8f5fa1bc97483791eeb97193a6fad43397beafd8f9041cf91296c"
+    },
     {
       "path": "pins-swipe.asset-0a85ac671837.webp",
       "bytes": 26936,
@@ -16,9 +21,29 @@
       "sha256": "sha256:0dee4ee7a6aa99b7c94df1948f4630e0a4f44fd123979407fa6ea5fce8219808"
     },
     {
+      "path": "pins-swipe.asset-111a4886ab41.mp3",
+      "bytes": 120717,
+      "sha256": "sha256:111a4886ab41224a40b58f27ce50d03b3fdc281af9c94762168399f7c1cda141"
+    },
+    {
+      "path": "pins-swipe.asset-161fbdfe6b3a.mp3",
+      "bytes": 49599,
+      "sha256": "sha256:161fbdfe6b3a72ac7de0d5028bdf07f45484a582bf7798bd5b75a3c25303178d"
+    },
+    {
+      "path": "pins-swipe.asset-1f403e8bb036.mp3",
+      "bytes": 116682,
+      "sha256": "sha256:1f403e8bb0361f9c3bd7bd2022b0186259cf76bdc2931af76bc0293c296a8536"
+    },
+    {
       "path": "pins-swipe.asset-2089a3b55dbd.webp",
       "bytes": 37572,
       "sha256": "sha256:2089a3b55dbd9dc29463071d2352e9f1c55136f11a19039c7604b61213d716b2"
+    },
+    {
+      "path": "pins-swipe.asset-22dfbce8da83.mp3",
+      "bytes": 144910,
+      "sha256": "sha256:22dfbce8da83adcc67cf8a9f2604f01294dddf3a276c5165d6ddfc7584d6d8b7"
     },
     {
       "path": "pins-swipe.asset-32a5fb716ce5.webp",
@@ -26,14 +51,44 @@
       "sha256": "sha256:32a5fb716ce5ba1a09525c14a5f4e964497e6e2c8e23df6f484371b33d1d27b2"
     },
     {
+      "path": "pins-swipe.asset-357a89ce9d05.mp3",
+      "bytes": 28091,
+      "sha256": "sha256:357a89ce9d05d41e5f0b90487a0f1ee5aeef5f90e2877d837051e57b616f29d6"
+    },
+    {
       "path": "pins-swipe.asset-36938dddfe2b.webp",
       "bytes": 33440,
       "sha256": "sha256:36938dddfe2b1e333695eaf50722cb7e64c4e6edc27e158d8d220b43351734e7"
     },
     {
+      "path": "pins-swipe.asset-3d574c7f9d70.mp3",
+      "bytes": 35899,
+      "sha256": "sha256:3d574c7f9d701168a18422b98c65802a857b0e79f0a8a98f2e19e234b95507f9"
+    },
+    {
+      "path": "pins-swipe.asset-49aa82845b0d.mp3",
+      "bytes": 31958,
+      "sha256": "sha256:49aa82845b0d2e65a4df4b0a7a6b74cb66382408453d1ff4713f6d8696ad7eef"
+    },
+    {
+      "path": "pins-swipe.asset-4c2eed743ef2.mp3",
+      "bytes": 53290,
+      "sha256": "sha256:4c2eed743ef2c27b56aa564cf3a9f566be160d48def32080d7ddd2d11f3cb028"
+    },
+    {
       "path": "pins-swipe.asset-52020881e470.webp",
       "bytes": 108658,
       "sha256": "sha256:52020881e470e2a3693be3614e2fd855b2cfd7ec372e2cea11f43e4d8303dc20"
+    },
+    {
+      "path": "pins-swipe.asset-5554007920fe.mp3",
+      "bytes": 25319,
+      "sha256": "sha256:5554007920fe6dd71434ab60d60089ee8c16a744df9e97bd35f1cb8a413985b7"
+    },
+    {
+      "path": "pins-swipe.asset-6df896d4b37c.mp3",
+      "bytes": 120717,
+      "sha256": "sha256:6df896d4b37cd074a7c09739d11d6dc58ed425c7cb7481a9374f5e0aecd1f4da"
     },
     {
       "path": "pins-swipe.asset-84c91e2245cb.webp",
@@ -44,6 +99,11 @@
       "path": "pins-swipe.asset-900d423a3fbb.webp",
       "bytes": 81720,
       "sha256": "sha256:900d423a3fbb2917fa89be4752610605f9a5662d8a76c310df92a7c97cf83845"
+    },
+    {
+      "path": "pins-swipe.asset-939a689e00a6.mp3",
+      "bytes": 59543,
+      "sha256": "sha256:939a689e00a68c3994d7f4a22e2cd64f2c33f324acbd916a1b903bd6a8253e0a"
     },
     {
       "path": "pins-swipe.asset-93c42f867d4f.webp",
@@ -81,6 +141,11 @@
       "sha256": "sha256:c2624576d2e6c524c6078fa01d75044b6e3382e5c426ff95c391a14c93261cb2"
     },
     {
+      "path": "pins-swipe.asset-c420292c11e8.mp3",
+      "bytes": 47757,
+      "sha256": "sha256:c420292c11e80e1a362305b1f34b071ad0139bc528d8519470b40e199eb0e04d"
+    },
+    {
       "path": "pins-swipe.asset-d30d72b88c14.webp",
       "bytes": 41876,
       "sha256": "sha256:d30d72b88c143edf708fb0de31e5e218849e1a88ecd106a7db57dc979eefbd49"
@@ -96,9 +161,39 @@
       "sha256": "sha256:d69611f5e37167b15acffb10e2566f42f6799f32451ee427fb01903a22f9ed69"
     },
     {
+      "path": "pins-swipe.asset-dcf875cc4101.mp3",
+      "bytes": 46064,
+      "sha256": "sha256:dcf875cc4101f26faa9cec0a0f2fc84733adb6c3e0a94a01a46de5d84e037bb9"
+    },
+    {
       "path": "pins-swipe.asset-e23fc089555d.webp",
       "bytes": 34928,
       "sha256": "sha256:e23fc089555d8dd510659256d60530ea79214fbf4fb51a2a4cee86be6b01b588"
+    },
+    {
+      "path": "pins-swipe.asset-e6c8dd4b89c6.mp3",
+      "bytes": 118413,
+      "sha256": "sha256:e6c8dd4b89c696dbfab3c148078e0cd6ff6ec8bd734b5f547b29de485efbf76a"
+    },
+    {
+      "path": "pins-swipe.asset-e87f88bebb11.mp3",
+      "bytes": 129024,
+      "sha256": "sha256:e87f88bebb114a4388ed4318bae4ba445eb352416b83bc10f01f77bd800189b6"
+    },
+    {
+      "path": "pins-swipe.asset-e8e58fd63726.mp3",
+      "bytes": 315020,
+      "sha256": "sha256:e8e58fd63726b8ca7985c71f881f07251f0046137d21dc43b3710496727650b0"
+    },
+    {
+      "path": "pins-swipe.asset-edfa7dc62468.mp3",
+      "bytes": 96950,
+      "sha256": "sha256:edfa7dc62468c5e26865cdbf19062b683fd1a8dffcee6f3d5677f3f5bf038bac"
+    },
+    {
+      "path": "pins-swipe.asset-ee709d48eb1f.mp3",
+      "bytes": 106944,
+      "sha256": "sha256:ee709d48eb1f0ea81efee2e5539974e19cbe81d264ae056d233bcefa63756ac3"
     },
     {
       "path": "pins-swipe.asset-fc0bca42e103.png",
@@ -108,12 +203,12 @@
     {
       "path": "pins-swipe.html",
       "bytes": 1081,
-      "sha256": "sha256:189afe316130c329cbbc35e882c857de249c4189fcd055a9df35638a6776eb72"
+      "sha256": "sha256:8754b5b2b4bb478630f575415e97908d62c4c8328e00ebc8f19e6bf93b1e01c6"
     },
     {
       "path": "pins-swipe.payload.js",
-      "bytes": 1785828,
-      "sha256": "sha256:ea7fcb01defa5fe7889cadd4043ecc3d263ade400af8e37a57afb45d730ceb56"
+      "bytes": 3088496,
+      "sha256": "sha256:d6497e7b72daef5b315deae136af5a3fcd5e6da43fcafbadabacc0549b9b3070"
     },
     {
       "path": "pins-swipe.video-09702e76d7.mp4",
