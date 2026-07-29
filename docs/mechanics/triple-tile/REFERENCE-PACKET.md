@@ -277,6 +277,8 @@ Booster, crown/meta и revive clips не требуются (`O`).
 - [ ] Accepted tile удаляется из board state ровно один раз.
 - [ ] Logical tray multiset после каждого tap воспроизводим и не зависит от
   visual insertion order.
+- [ ] Canonical tray encoding не содержит zero counts и сортируется по
+  stable `TileTypeId`.
 - [ ] Три одинаковых удаляются независимо от промежуточных типов.
 - [ ] Triple resolve происходит до проверки tray fail.
 - [ ] Seventh/eighth-slot boundary совпадает с утверждённой fail policy.
@@ -341,7 +343,9 @@ Baseline-набор **Garden Curios**:
 12. crescent moon.
 
 Каждый symbol получает собственный silhouette, внутренний line-detail и
-semantic id. Один swipe-уровень использует подмножество `4–7` типов (`P`).
+semantic id. Один swipe-уровень использует подмножество `4–6` типов (`P`):
+при minimum `6` tiles/type и prototype bound `39` седьмой type
+неконструируем.
 Gameplay должен оставаться читаемым на theme-neutral debug glyphs до
 подключения first-party skin.
 

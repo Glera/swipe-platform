@@ -260,7 +260,7 @@ solver не фиксируются до этого решения.
 - пять собственных уровней, калиброванных по Triple Tile 20–30;
 - один static layered-board rule;
 - один tray policy и capacity/fail threshold;
-- `4–7` symbol types из собственного набора;
+- `4–6` symbol types из собственного набора;
 - deterministic autoplay/takeover/pause/restart/completion;
 - versioned typed pack, validator, exact solver и reverse generator;
 - theme-neutral baseline + один first-party SkinSpec.
@@ -332,8 +332,7 @@ interface TripleTileLevelSpecV1 {
 interface TripleTileEngineStateV1 {
   remaining: ReadonlySet<TileId>;
   liveBlockerCount: ReadonlyMap<TileId, number>;
-  trayCounts: ReadonlyMap<TileTypeId, 0 | 1 | 2>; // canonical multiset
-  trayOccupancy: number;
+  trayCounts: ReadonlyMap<TileTypeId, 1 | 2>; // non-zero entries only
   phase: "autoplay" | "manual" | "win" | "fail";
 }
 
@@ -351,6 +350,10 @@ interface TripleTilePresentationProjectionV1 {
   exactly from `blockedBy` (`P`).
 - `insertionPolicy` отсутствует в LevelSpec: visual grouping принадлежит
   SkinSpec/presentation profile и не меняет content digest (`O/P`).
+- Canonical tray encoding содержит только ненулевые entries, сортированные
+  lexicographically по stable `TileTypeId`; zero entry запрещён, а
+  `trayOccupancy` выводится как сумма counts и не входит в state digest
+  отдельно (`P`).
 - Backward compatibility: engine принимает только declared versions;
   миграция offline (`P`).
 
@@ -426,7 +429,8 @@ action; в winning search он не является safe edge (`P`).
 ### Search contract (`P`)
 
 - Exact DFS/IDA* с transposition table по
-  `remainingBitset + canonicalTrayTypeCounts`.
+  `remainingBitset + canonicalTrayTypeCounts`, где counts encoded как
+  sorted non-zero `[TileTypeId, 1 | 2]` entries.
 - Live blocker counts выводятся из remaining; могут кэшироваться, но не
   добавляют state identity.
 - Stable tie-break: presentation rank, затем lexicographic `tile.id`;
@@ -443,7 +447,8 @@ action; в winning search он не является safe edge (`P`).
 - разные visual permutations одного tray multiset дают одинаковые
   legality, terminal result и transposition key;
 - seventh placement completes triple и не fails;
-- seven distinct unresolved types -> exact fail;
+- post-resolve occupancy `7` с mixed counts, например `2 + 2 + 2 + 1`,
+  даёт exact fail при proposed fail-on-7th policy;
 - covered tile no-op;
 - multi-layer reveal;
 - два winning orders с deterministic chosen witness;
@@ -612,8 +617,8 @@ logical state contract (`O/B`).
 
 - Level: `TripleTileLevelSpecV1`.
 - Engine action: `tapTile`, `restart`, `setMode`, `hostPause/resume`.
-- Engine state: remaining ids, blocker counts, canonical tray type counts,
-  occupancy, phase, completion flag.
+- Engine state: remaining ids, blocker counts, canonical non-zero tray type
+  counts, derived occupancy, phase, completion flag.
 - Solver result: solvable/unknown, witness, features, explored states,
   rule digest.
 - Solver trace: ordered stable tile ids + state digests.
