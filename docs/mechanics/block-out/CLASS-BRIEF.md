@@ -1,7 +1,7 @@
 # Class Brief: `block-out-v1`
 
 - Дата: **29.07.2026**
-- Статус: **Review 1 accepted — Review 2 ruling captured; quick flick `B`**
+- Статус: **Review 2 complete — ready for independent Review 3**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude (Review 1); Review 3 ещё нужен**
@@ -11,8 +11,8 @@
 
 > Brief фиксирует исследовательскую декомпозицию и typed boundaries. Primary
 > reference, target band и core movement/no-timer/no-stuck decisions утверждены
-> оператором (`O`). Quick-flick policy и measured presentation feel остаются
-> открыты; документ сам по себе не разрешает implementation или rollout.
+> оператором (`O`). Measured presentation feel остаётся открытым для `BO-P`;
+> документ сам по себе не разрешает implementation или rollout.
 
 ## Evidence notation
 
@@ -36,8 +36,8 @@
   не меняет `playables`, не открывает rollout и не нарушает параллельную Arrows
   implementation.
 - Operator ruling: exact game/link, progression slice, movement core,
-  no-timer/no-stuck и must-preserve direction получены; quick flick остаётся
-  `B`, haptic deferred.
+  no-inertia release, no-timer/no-stuck и must-preserve direction получены;
+  haptic deferred.
 - Что документ не разрешает: code, prototype, публикацию, перенос Arrows
   gameplay decisions, копирование levels/assets или старт downstream packages.
 
@@ -92,7 +92,7 @@ clarity, при пяти собственных уровнях и собстве
   invalid pose is not enterable (`O`).
 - Release commits to a legal lattice cell (`O`); exact tie-break between equally
   eligible snap cells remains presentation detail.
-- Quick flick velocity/inertia is unanswered (`B`).
+- Quick flick has no inertia; release performs ordinary grid snap (`O`).
 - Own v1 has no timer and no fail state (`O`).
 - Every reachable stable state of an accepted level remains solvable (`O`);
   offline validation must prove this invariant.
@@ -166,7 +166,7 @@ Review 3 нельзя закрывать до числового `R-web/R-native
 - Feed swipe: background vertical gesture остаётся у host; block hit начинает
   claim/takeover по platform gesture authority.
 
-## Gameplay rulings and remaining question
+## Gameplay rulings
 
 Утверждено оператором (`O`):
 
@@ -180,9 +180,11 @@ Review 3 нельзя закрывать до числового `R-web/R-native
 5. accepted levels strong-solvable: reachable stuck state отсутствует;
 6. timer/fail отсутствуют.
 
-Остаётся `B`: быстрый flick имеет inertia/velocity effect либо заканчивается
-обычным grid snap. Exact snap tie-break при равноудалённых legal anchors может
-быть определён `BO-P`, не меняя reachability.
+7. быстрый flick не имеет inertia: release всегда заканчивается обычным grid
+   snap (`O`).
+
+Exact snap tie-break при равноудалённых legal anchors может быть определён
+`BO-P`, не меняя reachability.
 
 ## Input contract
 
@@ -326,7 +328,7 @@ interface GateSpecV1 {
 interface BlockOutRulesV1 {
   movement: "continuous-2d-configuration-space";
   commit: "release-grid-snap";
-  quickFlick: "blocking-operator-ruling";
+  quickFlick: "no-inertia";
   rotation: false;
   timerMs: null;
   requireStrongSolvability: true;
@@ -352,7 +354,7 @@ interface BlockOutLevelSpecV1 {
 }
 ```
 
-Quick-flick policy намеренно остаётся blocking и не получает invented default.
+Quick-flick policy утверждена оператором и входит в rules digest.
 
 ### Proposed schema invariants
 
@@ -593,7 +595,7 @@ redefine VISION success.
 6. Win clear-all; no timer/fail/move limit/lives/boosters (`O` for no timer,
    otherwise `P` baseline).
 7. Continuous two-axis collision-constrained movement; direction turns allowed;
-   release grid-snap; invalid pose unreachable (`O`). Quick flick remains `B`.
+   release grid-snap without inertia; invalid pose unreachable (`O`).
 8. Autoplay `2` moves/`≤25%`, exact-state takeover, scene settle `≤450 ms`,
    scene-visible time-to-rule `≤1.50 s` (`P`).
 9. Color-independent role markers mandatory (`P`).
@@ -606,7 +608,6 @@ redefine VISION success.
 
 | Вопрос | Почему блокирует | Кто решает | Trigger | Disposition |
 | --- | --- | --- | --- | --- |
-| Quick flick velocity/inertia | может менять commit/replay | operator | one verbal ruling or probe | blocking |
 | Exact snap tie-break | влияет на presentation determinism, не reachability | BO-P + operator | gesture harness | Review 3 |
 | Parallel exit animation/next drag | влияет на input gating | BO-G/P | prototype fixture | Review 3 |
 | Pickup/snap/gate/win timings | задаёт measured parity | BO-R/P | 60 fps capture | before BO-P acceptance |
@@ -627,7 +628,7 @@ redefine VISION success.
 - [x] Native success recordings L11–13 byte/frame verified.
 - [x] Must-preserve direction утверждён в IP boundary.
 - [x] Core movement, no-timer, no-stuck и haptic deferral получены.
-- [ ] Quick-flick policy утверждена.
+- [x] Quick-flick no-inertia policy утверждена.
 - [x] Feel table размечена `R-web/R-native/O/P/B`; remaining `B` explicit.
 
 ### Review 3 — class brief
@@ -670,7 +671,7 @@ redefine VISION success.
 
 ## Final decision
 
-- Decision: **Review 2 conditional; quick-flick policy remains `B`**.
+- Decision: **Review 2 complete / ready for independent Review 3**.
 - Primary/target (`O`): Grand Games Block Out, static levels `6–10`.
 - Gameplay (`O`): continuous 2D collision-constrained grid-snap, no timer,
   strong-solvable accepted pack.

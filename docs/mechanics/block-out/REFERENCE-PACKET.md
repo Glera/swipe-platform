@@ -1,7 +1,7 @@
 # BO-R: reference packet — Block Out!
 
 - Дата среза: **29.07.2026**
-- Статус: **Review 1 accepted / Review 2 operator ruling captured; flick policy `B`**
+- Статус: **Review 1 accepted / Review 2 complete / ready for Review 3**
 - Primary reference (`O`): **Block Out! - Color Sort Puzzle,
   Grand Games A.Ş.**
 - Fidelity band (`O`): **ранние статические уровни 6–10**
@@ -11,8 +11,8 @@
 
 > Документ разводит несколько разных core loop'ов, которые рынок называет
 > похожими именами. Operator ruling утвердил reference, target band, continuous
-> collision-constrained drag, no-timer v1 и no-stuck invariant. Быстрый flick
-> остаётся `B`; code authority не открывается этим research packet.
+> collision-constrained drag, no-inertia release, no-timer v1 и no-stuck
+> invariant. Code authority не открывается этим research packet.
 
 ## Обозначения evidence
 
@@ -30,7 +30,7 @@ sub-frame timing.
 На этом review:
 
 - primary, target band, movement core, no-timer и no-stuck имеют статус `O`;
-- exact flick/inertia policy остаётся `B`;
+- quick flick не имеет inertia и заканчивается обычным grid snap (`O`);
 - часть числового feel остаётся `B`: полученные clips не содержат invalid/fail
   probes и не являются 60 fps feel capture.
 
@@ -85,7 +85,7 @@ Review 1 становится fidelity authority, если он расходит
 
 | Candidate | Точное ядро | Управление | Win / fail | Наблюдаемая длительность | Модель сложности | Disposition |
 | --- | --- | --- | --- | --- | --- | --- |
-| **Block Out! — Grand Games** | вывести все polyomino blocks через matching boundary gates, переставляя их внутри тесного поля | `R-native/O`: continuous two-axis drag through free configuration space; collision clamps carry; release snaps to lattice; flick policy `B` | `R-web/R-native`: reference clear-all/timer; `O`: own v1 clear-all/no timer | `R-web`: `6:50 / 15 ≈ 27 s` и `9:49 / 20 ≈ 29 s` gross на ранний уровень; `R-native`: L11–13 расходуют ≈55/57/51 s видимого active timer | формы, occupancy, число ворот, gate contention, detours, order dependencies; позднее generators/elevators/shutters и более жёсткий timer | **primary (`O`)** |
+| **Block Out! — Grand Games** | вывести все polyomino blocks через matching boundary gates, переставляя их внутри тесного поля | `R-native/O`: continuous two-axis drag through free configuration space; collision clamps carry; release snaps to lattice without inertia | `R-web/R-native`: reference clear-all/timer; `O`: own v1 clear-all/no timer | `R-web`: `6:50 / 15 ≈ 27 s` и `9:49 / 20 ≈ 29 s` gross на ранний уровень; `R-native`: L11–13 расходуют ≈55/57/51 s видимого active timer | формы, occupancy, число ворот, gate contention, detours, order dependencies; позднее generators/elevators/shutters и более жёсткий timer | **primary (`O`)** |
 | **Color Block Jam — Rollic/Gybe** | тот же color-gate clear-all family, но с быстро растущим modifier language | `R-web`: store прямо говорит «slide freely»; video показывает grid drag и direction-constrained blocks | `R-web`: clear all / timer expiry | `R-web`: `11:34 / 20 ≈ 35 s`; independent recording `15:08 / 20 ≈ 45 s` gross | shapes, свободное место, directional blocks, blockers, moving paths, later obstacle language | secondary/fallback |
 | **Wood Out: Color Jam — Loop Games** | деревянные color blocks к matching doors плюс obstacle anthology | `R-web`: slide/move blocks; exact snap semantics не измерены | `R-web`: clear all; timer подтверждён listing reviews, exact fail UX не измерен | `B`: не измерено | Arrow, Locked, Ice, Double Layer; difficulty сильно зависит от special rules | secondary only |
 | **Unblock Me — Kiragames** | вывести один красный target block, переставляя axis-locked blockers | `R-web`: drag blocks вдоль собственной оси | `R-web`: target exits; Relax без time fail, Challenge добавляет pressure | `B`: не измерено для этого packet | minimal moves, blockers, corridor depth, dependency chain | negative control; solver inspiration only |
@@ -147,8 +147,8 @@ Baseline:
 - no reachable unsolvable state in accepted v1 levels (`O`);
 - без generators, elevators, shutters, ivy, locks, ice, boosters и meta (`P`).
 
-Остаётся `B`: влияет ли velocity быстрого flick на движение после release.
-Никакая inertia policy не выводится из текущих clips.
+Quick flick (`O`) не продолжает движение после release: velocity игнорируется,
+gesture заканчивается обычным grid snap.
 
 ## Operator ruling — 29.07.2026
 
@@ -163,7 +163,7 @@ Baseline:
 | Accepted level не имеет reachable unsolvable state | `O` |
 | Must-preserve: максимальная близость к reference по carry, collision, snap, gate consume, feedback, win cadence и board clarity в пределах IP boundary | `O` |
 | Haptic | deferred; отдельное нетривиальное решение, не v1 blocker |
-| Quick flick / inertia | `B` |
+| Quick flick: no inertia, ordinary grid snap | `O` |
 
 «Максимально близко» не разрешает копировать layouts, assets или trade dress и
 не превращает ещё не измеренный feel в `R-native`.
@@ -223,8 +223,8 @@ Baseline:
   без release;
 - transient carried pose clamp'ится на configuration-space boundary и не
   становится solver state;
-- release (`O`) commit'ит legal lattice anchor; quick-flick inertia остаётся
-  `B`;
+- release (`O`) commit'ит legal lattice anchor; pointer velocity не создаёт
+  inertia или дополнительный solver action;
 - terminal success — no live blocks.
 
 Solver legal transition строится через configuration-space reachability для
@@ -444,13 +444,12 @@ Own visual identity:
 | Exact link/game | current linked Grand Games Block Out! | `O`, closed |
 | Progression slice | levels `6–10` | `O`, closed |
 | Native recording | success L11–13, byte/frame verified | `R-native`, partial feel evidence |
-| Movement semantics | continuous two-axis collision-constrained drag; turn/diagonal allowed; release to grid; invalid pose unreachable | `O`, closed except quick flick |
+| Movement semantics | continuous two-axis collision-constrained drag; turn/diagonal allowed; release to grid without inertia; invalid pose unreachable | `O`, closed |
 | Must-preserve | максимально близко по перечисленным parity dimensions в IP boundary | `O`, closed as taste direction |
 | Defaults/exceptions | no timer; no reachable stuck state; haptic deferred | `O`, closed |
 
-Minimum logic packet имеет один оставшийся вопрос: **quick flick** — после
-release есть velocity/inertia или gesture всегда заканчивается обычным grid
-snap. До ответа он остаётся `B`.
+Minimum logic packet закрыт: quick flick не имеет inertia и заканчивается
+обычным grid snap (`O`).
 
 Для `BO-P` по-прежнему нужны 60 fps measurements pickup/snap/gate/win, но они
 калибруют утверждённый fidelity target и не переопределяют gameplay rules.
@@ -461,5 +460,5 @@ snap. До ответа он остаётся `B`.
   или Tap Away.
 - Primary: **Block Out! / Grand Games (`O`)**.
 - Target: **levels 6–10 static band (`O`)**.
-- Review 2: **operator ruling captured; conditional on quick-flick policy**.
+- Review 2: **complete; ready for independent Review 3**.
 - Implementation authority: **none**.

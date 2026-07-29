@@ -270,12 +270,12 @@ Review 3 утвердил polyline baseline, пять собственных у�
 - [`block-out/REVIEW-1-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-1-INDEPENDENT-2026-07-29.md)
   — independent **accept as research**, findings F1–F5 и их disposition.
 
-Статус: **Review 1 accepted / Review 2 operator ruling captured; quick flick
-остаётся `B`**. Primary (`O`) —
+Статус: **Review 2 complete / ready for independent Review 3**. Primary (`O`) —
 [Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
 fidelity band (`O`) — levels `6–10`. Operator утвердил continuous two-axis
 collision-constrained drag с grid snap, отсутствие timer/fail и strong-solvable
-accepted pack. Operator clips L11–13 byte/frame verified как `R-native`;
+accepted pack; quick flick не имеет inertia (`O`). Operator clips L11–13
+byte/frame verified как `R-native`;
 полные SHA-256 находятся в packet. Haptic deferred. Implementation отдельным
 research ruling не разрешена.
 
