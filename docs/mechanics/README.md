@@ -426,12 +426,18 @@ Tetris. Референс используется для исследовани�
 - [`triple-tile/REFERENCE-PACKET.md`](triple-tile/REFERENCE-PACKET.md) —
   taxonomy, сравнение пяти продуктов, fidelity plan и recommendation;
 - [`triple-tile/CLASS-BRIEF.md`](triple-tile/CLASS-BRIEF.md) — proposed
-  gameplay/schema/solver/reverse-generator boundary.
+  gameplay/schema/solver/reverse-generator boundary;
+- [`triple-tile/REVIEW-INDEPENDENT-2026-07-29.md`](triple-tile/REVIEW-INDEPENDENT-2026-07-29.md)
+  — accept as research; F1 tray multiset, F2 partial visibility, F3
+  time-to-rule и F4 duration.
 
-Статус: `Review 1/2 — blocked on operator choice`. Предложены **Triple Tile**
-как primary, **Zen Match** как secondary и Levels `20–30` с Level 30 как
-holdout. До утверждения current-build recording, tray/fail policy и feel
-defaults gameplay/presentation code не начинается.
+Статус: `Review 2 — blocked on exact fail threshold`. Оператор утвердил
+**Triple Tile** как primary, **Zen Match** как secondary, captures
+`20 / 25 / 30` и baseline без boosters/crowns/meta. Supplied Zen Match
+Level 17 recording подтвердил concurrent taps during flight и visual grouped
+insertion. Для Review 3 logic нужен один intentional primary fail clip;
+полный feel packet нужен только перед TT-P. Gameplay/presentation code пока
+не начинается.
 
 ### Core loop
 
@@ -443,19 +449,23 @@ defaults gameplay/presentation code не начинается.
 - только triple matching;
 - плоские слои с ясным overlap;
 - одна явно утверждённая capacity/fail policy;
-- undo/shuffle/hint/boosters вне v1;
+- undo/shuffle/hint/boosters/revive/extra slot отсутствуют;
 - пять собственных solver-verified раскладок;
-- exact tray order входит в engine/solver state;
+- logical tray state — multiset типов; visual order принадлежит presentation
+  и не меняет solver/content digest;
 - solver учитывает все допустимые выборы, а не только авторский witness;
 - reverse generator симулирует tray pressure и не объявляет
-  solver-valid уровень интересным.
+  solver-valid уровень интересным;
+- observable-information filter отклоняет раскладки, где safe choice требует
+  знания недостаточно видимого symbol.
 
 ### Риски
 
 - формально проходимый уровень может быть нечестным для человека;
 - `7th` против `8th` fail меняет solver и должен быть зафиксирован по
   current reference;
-- visual grouping tray может разойтись с exact logical order;
+- presentation order может ошибочно протечь в logical/content identity;
+- частичное перекрытие может превратить solver-valid выбор в угадайку;
 - hit areas перекрывающихся плиток;
 - недостаточная различимость символов;
 - слишком большое число типов плиток делает ранний уровень случайным;
@@ -1191,9 +1201,10 @@ contract)?
 2. Нужна ли цена за ошибочный тап или только feedback?
 3. Какой референс имеется в виду под carry-stack/production?
 4. Block Blast нужен как endless score или как конечный puzzle?
-5. Какой exact primary, target levels и tray defaults утверждаются для
-   Triple-tile? Classic exposed-pair Mahjong запускается только отдельной
-   инициативой.
+5. Для Triple-tile остался exact fail threshold: fail на седьмой
+   post-resolve tile или только на attempted eighth. Primary Triple Tile,
+   captures `20 / 25 / 30` и no-booster baseline уже утверждены. Classic
+   exposed-pair Mahjong запускается только отдельной инициативой.
 6. Для Word первого класса приоритетнее русский, английский или
    мультиязычность с первого дня?
 7. Traffic Jam — target-exit или clear-all?
