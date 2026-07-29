@@ -178,15 +178,41 @@ KILL/rollback: если новый protocol request с Mac не проходит
 До sync новый user должен пройти не только `SELECT 1`, но и read-only
 capability audit:
 
-- `has_schema_privilege(..., 'USAGE,CREATE')` для application schema;
-- `has_table_privilege` для требуемых app-операциями privileges по всем
-  public tables;
-- `has_sequence_privilege(..., 'USAGE,SELECT,UPDATE')` по всем app sequences;
+- direct-login профиль старой credential;
+- строго более поздний direct-login профиль новой credential;
+- fail-closed exact comparison этих профилей;
 - read-only Alembic current/check против pinned source.
 
-Проверка возвращает только aggregate pass/fail и список отсутствующих
-privileges без credentials. Любой miss — sync не начинается, старый user
-остаётся рабочим.
+Публичный результат содержит только hash-bound pass/fail и typed differences
+без credentials и raw database/object/role names. Любой miss — sync не
+начинается, старый user остаётся рабочим.
+
+Профили снимаются одним SQL и сравниваются fail-closed:
+
+```bash
+# Для каждого вызова credential передаётся через operator-local PG*
+# environment, не connection URL в argv.
+psql -X -q \
+  -f scripts/platform-reliability-r1-db-capability.sql > <old-profile.jsonl>
+psql -X -q \
+  -f scripts/platform-reliability-r1-db-capability.sql > <new-profile.jsonl>
+node scripts/platform-reliability-r1-db-capability-compare.mjs \
+  --old <old-profile.jsonl> --new <new-profile.jsonl> \
+  > <capability-comparison.json>
+```
+
+Comparator требует прямой login каждой credential (`session_user =
+current_user`, SET ROLE запрещён), тот же PostgreSQL cluster/system identifier,
+database OID и server version, разные users, strictly later new-profile,
+полный completion sentinel и byte-canonical equality всех role attributes,
+memberships/options/settings, ownership, RLS/policies, default ACL,
+database/schema/relation/column/sequence/routine/type privileges и grant
+options. PostgreSQL 16/17-зависимые `SET ROLE`/`MAINTAIN` capabilities
+фиксируются явно как unsupported, а не пропускаются. В evidence идут profile,
+cluster, database, username и object identity SHA-256 плюс typed diff; raw
+профили (включая ACL/config values) остаются operator-local и не коммитятся.
+Только exit `0` и `profilesEqual=true` разрешают Blueprint sync; любой parse,
+coverage, cluster или capability miss — fail closed.
 
 1. Открыть linked Blueprint и сначала просмотреть sync diff.
 2. Fail closed, если preview содержит create/delete/plan/storage/schedule,
