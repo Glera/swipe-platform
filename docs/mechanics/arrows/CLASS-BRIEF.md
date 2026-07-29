@@ -1,10 +1,12 @@
 # Class Brief: `arrows-v1`
 
 - Дата: **29.07.2026**
-- Статус: **approved-for-prototype**
+- Статус: **review — conditional GO** (независимый вердикт 29.07.2026:
+  AR-A стартует сейчас; AR-E/AR-S/AR-P — после закрытия A1–A3)
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
-- Независимый reviewer: **не назначен**
+- Независимый reviewer: **Claude** —
+  [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md)
 - Reference packet: [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md)
 
 > Brief описывает baseline класса. Он не разрешает rollout и не подменяет
@@ -482,7 +484,10 @@ difficulty, но не как layout fixture.
 
 ## Final decision
 
-- Decision: **approved-for-prototype / ready for parallel implementation**
+- Decision: **conditional GO** — независимый Review 3 закрыт с тремя
+  блокирующими уточнениями (A1 модель коллизий, A2 tap во время анимации,
+  A3 бюджет камеры/time-to-rule); после их закрытия статус переходит в
+  `approved-for-prototype` без нового цикла ревью
 - Operator note: polyline approve; own levels; Level 15 holdout.
 - Follow-up: open AR-E/S/P/A in parallel; AR-F follows solver API.
 - Explicitly deferred: rollout, meta, hints, special arrows, server factory.

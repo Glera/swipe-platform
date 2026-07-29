@@ -1,7 +1,7 @@
 # AR-R: reference packet — Arrows
 
 - Дата среза: **29.07.2026**
-- Статус: **approved-for-prototype**
+- Статус: **review — conditional GO** (см. [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md))
 - Вкусовой эталон: **Arrows – Puzzle Escape**
 - Целевой диапазон: **уровни 10–15**
 - Связанный brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
