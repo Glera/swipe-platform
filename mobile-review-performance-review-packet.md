@@ -290,3 +290,110 @@ PR CI at the latest committed SHAs:
 Return `GO` only if all P1/P2 findings are closed with executable regressions.
 Do not merge, deploy, modify the original 4317 data root, or overwrite any
 author worktree during review.
+
+## R2 fix round after independent NO-GO
+
+Independent findings authority:
+
+- `mobile-review-independent-review-2026-07-29.md`
+- meta-repo commit `7ed2e16`
+
+Merge and deploy remain blocked. The following author-branch commits are the
+R2 review surface:
+
+- backend: `18f05bb` (`fix: harden mobile review authority and storage`);
+- generator: `c871a80` + `1066bc0`;
+- feed/TMA: `d6dbac0` + `b54094c`;
+- agents/notifier: `0a27530`.
+
+### Disposition of the seven blocking findings
+
+1. **Publication authority:** background mobile synchronization can neither
+   initiate nor complete publication. A new explicit phone action
+   `publication_prepare` records
+   `operator.mobile-publication-preparation-decision.v1`; only applying that
+   exact operator decision may call the existing initiation service. The next
+   mobile item remains the separate `telegram_approve` device flow, and final
+   publication still requires its content-bound Telegram confirmation.
+   Migration `0070_mobile_publication_prepare` adds only this explicit action
+   kind; it does not admit `telegram_approve` through review authority.
+2. **Sandbox escape and byte drift:** the TMA parent now enforces
+   `frame-src 'self' blob:` on the mobile-review route. Exact HTML is decoded
+   strictly, CSP is inserted inside the real document head (doctype and
+   standards mode are preserved), and a second iframe load/navigation removes
+   the frame and blocks verdict submission. The browser regression proves a
+   hostile meta refresh makes zero requests and leaves no reviewable frame.
+3. **Lost-response idempotency:** backend flush/commit and all lifecycle event
+   writes are inside the `IntegrityError` replay/conflict boundary. TMA freezes
+   one exact decision and mutation id in session storage; volatile `playedMs`
+   is excluded from semantic retry identity. Browser acceptance injects a lost
+   503 response and proves the retry sends byte-identical decision content and
+   the same mutation id.
+4. **Clean-checkout tests:** generator mobile fixtures are synthetic committed
+   test inputs and no longer read gitignored local experiments. UI tests wait
+   for the semantic completion signal rather than navigation/container
+   existence. The feed dogfood harness now injects before the document's final
+   closing head tag, so a legitimate `"</head>"` string inside a single-file
+   bundle cannot corrupt JavaScript.
+5. **Storage/HTTP coverage:** backend now has PostgreSQL lifecycle, exact
+   replay, append-only, genesis-race, publication-authority, route-absence and
+   streaming oversize regressions. The 5 MiB streaming probe is rejected
+   before persistence; every one of the six append-only tables is exercised.
+6. **Outbox liveness:** missing/invalid notification configuration becomes a
+   terminal failed outbox attempt instead of throwing before `send_started`.
+   Later production and incident rows continue. A later human gate for the
+   same order is keyed by packet digest rather than suppressed forever.
+7. **Default-off rollout:** `ENABLE_MOBILE_REVIEW` remains `false` in
+   `render.yaml`; physical route-absence is covered by a subprocess
+   application-construction test.
+
+### P2 closure
+
+- Production review URLs are exact credential-free HTTPS `t.me` links, bound
+  to `AGENTS_TG_BOT_USERNAME`; Lab origins are exact HTTPS origins (or explicit
+  loopback HTTP) without credentials, query or fragment.
+- Provider/model fields are rejected by the backend technical-details
+  allowlist and are asserted absent from the complete TMA DOM, not merely
+  visible text.
+- Generator handles broken orders, standalone candidates and decisions
+  independently. Exact saved rework evidence is recovered if request creation
+  failed or the order head advanced.
+- Static `/lab` responses now carry `Server-Timing`; the performance gate keeps
+  the original 1500 ms overview p95 and refuses evidence unless the mobile
+  bridge is enabled, authorized and has a successful measured tick.
+- The mobile bundle wire is capped at 512 KiB before database persistence.
+
+### R2 verification
+
+- backend focused: `19 passed, 3 skipped`; Alembic head is
+  `0070_mobile_publication_prepare`; offline upgrade and guarded downgrade SQL
+  generated. PostgreSQL CI run
+  `https://github.com/Glera/swipe-backend/actions/runs/30447000989` completed
+  with literal `conclusion=success`, including full PG16 acceptance, migration
+  roundtrips and reverse drift.
+- generator focused mobile/authority/performance profile: `30/30`; historical
+  worker/derive pin profile: `20/20`; the publication preflight race regression
+  passed five consecutive isolated runs. The ordinary local full run used the
+  current sibling UGC for frozen identities and therefore correctly failed
+  four pin guards; reproducing CI's separate historical checkout closed those
+  four guards.
+- feed/TMA: `check:mobile-review-browser` passed; the full local
+  `npm run lint` passed after the final-head harness fix, including the
+  previously failing operator-flag feed browser and the full dogfood audit.
+- agents focused env/outbox/notification profile: `39/39`; PR CI run
+  `https://github.com/Glera/swipe-agents/actions/runs/30447002687` completed
+  with literal `conclusion=success`.
+
+Final clean-checkout CI:
+
+- generator `1066bc0`:
+  `https://github.com/Glera/swipe-generator/actions/runs/30447922935`
+  completed with literal `conclusion=success`, including the full verify and
+  pinned experiment-worker cross-repo closure;
+- feed/TMA `b54094c`:
+  `https://github.com/Glera/feed-prototype/actions/runs/30447924078`
+  completed with literal `conclusion=success`, including the full sequential
+  browser lint matrix and production build.
+
+All four final PR heads therefore have literal successful CI. This statement
+does not authorize merge or deploy; independent R2 review remains the gate.
