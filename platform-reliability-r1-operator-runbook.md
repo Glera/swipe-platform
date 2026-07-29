@@ -427,7 +427,7 @@ fresh internal proof и `/32` снова удаляется. Если external r
 | RPO/RTO observed | requested point, Start, Available и validation timestamps + вычисленные seconds |
 | External ingress closed | merged Blueprint `ipAllowList: []` identity + sync receipt + empty allowlist + post-change protocol rejection |
 | Internal remains green | post-closure fresh DB proof каждого consumer |
-| Secret hygiene | no credentials/IP in git/log artifacts; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . > platform-reliability-r1-secret-scan-receipt.json` PASS |
+| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master > platform-reliability-r1-secret-scan-receipt.json` PASS |
 
 Цель R1 считается выполненной только после независимого review всего пакета,
 а не после последнего клика в Render.
