@@ -74,11 +74,28 @@ preview обязан явно сохранить действующий `/32`; �
 | Артефакт | Содержание |
 |---|---|
 | `platform-reliability-r1-0-snapshot-2.tsv` | полный raw collector output с `snapshot_complete	ok` |
+| `platform-reliability-r1-0-snapshot-2-db-capture-receipt.json` | server-time + SHA-256 точных TSV bytes + secret-handling assertions |
 | `platform-reliability-r1-0-snapshot-2-render-receipt.json` | same-service Render storage/identity observation |
 | `platform-reliability-r1-0-snapshot-delta.json` | машинный analyzer output |
 | `platform-reliability-r1-0-snapshot-delta.md` | review view |
 | `platform-reliability-r1-operator-receipt.json` | несекретный журнал operator window |
 | `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
+
+Snapshot 2 снимается только через
+`scripts/platform-reliability-r1-db-capture.mjs`. В одном доверенном in-app
+browser/Node-вызове Render input value передаётся экспортированной
+`stageCredentialUrl()`: она генерирует криптографически случайное имя,
+эксклюзивно открывает regular-файл через `O_CREAT|O_EXCL|O_NOFOLLOW`, ставит
+`0600` и возвращает только несекретный путь. Предсказуемое имя или раздельные
+`mktemp` → write запрещены.
+
+Wrapper не передаёт URL или password в argv, использует минимальное
+allowlisted child environment, включает внешний transaction read-only guard,
+проверяет completion sentinel и server timestamp
+`>= 2026-07-30 08:31:00Z`, а credential-файл удаляет при каждом обработанном
+success/error. Нельзя подменять этот путь прямым `psql "$DATABASE_URL"`.
+Stdout wrapper сохраняется как обязательный capture-receipt; delta analyzer
+должен подтвердить его `outputBytes`, timestamp и SHA-256 против точного TSV.
 
 В `operator-receipt` для каждого внешнего действия записать:
 
@@ -398,7 +415,7 @@ fresh internal proof и `/32` снова удаляется. Если external r
 
 | Requirement | Минимальное authority-evidence |
 |---|---|
-| Snapshot 2/delta | full TSV + completion sentinel + same-service Render receipt + analyzer outputs |
+| Snapshot 2/delta | full TSV + byte-bound capture receipt + completion sentinel + same-service Render receipt + analyzer outputs |
 | `/32` | Render rule receipt + successful PostgreSQL request после сужения |
 | New credential | username hash + Render createdAt + new-user external query |
 | All consumers rotated | workspace-wide env/Blueprint closure + fresh DB proof каждого consumer |

@@ -6,7 +6,10 @@
 
 -- Reproducible read-only evidence collector for Platform Reliability R1-0.
 -- Usage:
---   psql "$DATABASE_URL" -X -f scripts/platform-reliability-r1-db-snapshot.sql
+--   node scripts/platform-reliability-r1-db-capture.mjs \
+--     --url-file "$R1_DB_URL_FILE" \
+--     --output <snapshot.tsv> \
+--     --not-before <ISO timestamp>
 --
 -- The transaction-level guard is deliberate: a future edit that accidentally
 -- adds a mutating statement must fail at PostgreSQL, not rely on reviewer intent.

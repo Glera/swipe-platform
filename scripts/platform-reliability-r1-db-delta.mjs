@@ -391,6 +391,48 @@ export function verifyBaselineProvenance(snapshot, baselinePath) {
   }
 }
 
+export function verifyCaptureReceipt(snapshot, snapshotBytes, receipt) {
+  if (
+    receipt?.schema !== 'platform-reliability-r1-db-capture-receipt.v1'
+    || receipt.status !== 'ok'
+    || receipt.readOnly !== true
+    || receipt.completionSentinel !== 'ok'
+    || receipt.credentialFileConsumed !== true
+    || receipt.credentialInArgv !== false
+    || receipt.secretsCaptured !== false
+  ) {
+    fail('capture receipt does not prove the required secure completed capture');
+  }
+  if (
+    !Number.isSafeInteger(receipt.outputBytes)
+    || receipt.outputBytes < 1
+    || receipt.outputBytes !== snapshotBytes.length
+  ) {
+    fail('capture receipt outputBytes does not match snapshot bytes');
+  }
+  if (
+    typeof receipt.outputSha256 !== 'string'
+    || !/^[a-f0-9]{64}$/.test(receipt.outputSha256)
+  ) {
+    fail('capture receipt outputSha256 is invalid');
+  }
+  const actualDigest = crypto
+    .createHash('sha256')
+    .update(snapshotBytes)
+    .digest('hex');
+  if (actualDigest !== receipt.outputSha256) {
+    fail('capture receipt digest does not match snapshot bytes');
+  }
+  const capturedAt = new Date(receipt.capturedAt);
+  if (
+    typeof receipt.capturedAt !== 'string'
+    || Number.isNaN(capturedAt.getTime())
+    || capturedAt.toISOString() !== snapshot.timestamp
+  ) {
+    fail('capture receipt timestamp does not match server snapshot timestamp');
+  }
+}
+
 function providerObservation(receipt) {
   if (receipt?.schema !== 'platform-reliability-r1-render-observation.v1') {
     fail('unsupported Render receipt schema');
@@ -746,6 +788,7 @@ function parseArgs(argv) {
   const allowed = new Set([
     'before',
     'after',
+    'capture-after',
     'provider-before',
     'provider-after',
     'format',
@@ -759,7 +802,13 @@ function parseArgs(argv) {
     if (Object.hasOwn(args, name)) fail(`duplicate option --${name}`);
     args[name] = value;
   }
-  for (const required of ['before', 'after', 'provider-before', 'provider-after']) {
+  for (const required of [
+    'before',
+    'after',
+    'capture-after',
+    'provider-before',
+    'provider-after',
+  ]) {
     if (!args[required]) fail(`missing --${required}`);
   }
   if (args.format && !['json', 'markdown'].includes(args.format)) {
@@ -773,9 +822,13 @@ export function main(argv = process.argv.slice(2)) {
   const beforePath = path.resolve(args.before);
   const afterPath = path.resolve(args.after);
   const snapshotBefore = parseBaseline(fs.readFileSync(beforePath, 'utf8'));
-  const snapshotAfter = parseBaseline(fs.readFileSync(afterPath, 'utf8'));
+  const snapshotAfterBytes = fs.readFileSync(afterPath);
+  const snapshotAfter = parseBaseline(snapshotAfterBytes.toString('utf8'));
   verifyBaselineProvenance(snapshotBefore, beforePath);
   verifyBaselineProvenance(snapshotAfter, afterPath);
+  const captureAfterBytes = fs.readFileSync(path.resolve(args['capture-after']));
+  const captureAfter = JSON.parse(captureAfterBytes.toString('utf8'));
+  verifyCaptureReceipt(snapshotAfter, snapshotAfterBytes, captureAfter);
   const providerBefore = JSON.parse(
     fs.readFileSync(path.resolve(args['provider-before']), 'utf8'),
   );
@@ -788,6 +841,13 @@ export function main(argv = process.argv.slice(2)) {
     providerBefore,
     providerAfter,
   );
+  result.provenance = {
+    afterSnapshotSha256: captureAfter.outputSha256,
+    captureAfterReceiptSha256: crypto
+      .createHash('sha256')
+      .update(captureAfterBytes)
+      .digest('hex'),
+  };
   process.stdout.write(
     args.format === 'markdown' ? toMarkdown(result) : `${JSON.stringify(result, null, 2)}\n`,
   );

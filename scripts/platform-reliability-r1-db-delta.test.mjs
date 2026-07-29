@@ -13,6 +13,7 @@ import {
   parseSnapshot,
   toMarkdown,
   verifyBaselineProvenance,
+  verifyCaptureReceipt,
 } from './platform-reliability-r1-db-delta.mjs';
 
 const SCRIPT = path.join(
@@ -82,6 +83,24 @@ function receipt({
     },
     secretsCaptured: false,
     mutationsPerformed: false,
+  };
+}
+
+function captureReceipt(snapshotBytes, capturedAt) {
+  return {
+    schema: 'platform-reliability-r1-db-capture-receipt.v1',
+    status: 'ok',
+    capturedAt,
+    outputSha256: crypto
+      .createHash('sha256')
+      .update(snapshotBytes)
+      .digest('hex'),
+    outputBytes: Buffer.byteLength(snapshotBytes),
+    readOnly: true,
+    completionSentinel: 'ok',
+    credentialFileConsumed: true,
+    credentialInArgv: false,
+    secretsCaptured: false,
   };
 }
 
@@ -602,11 +621,54 @@ test('rejects a truncated exact-row section', () => {
   );
 });
 
+test('capture receipt byte-binds the exact snapshot and safety assertions', () => {
+  const raw = snapshot({
+    at: '2026-07-30 08:31:46 UTC',
+    databaseBytes: '1000',
+    relationBytes: '600',
+    deadlocks: '17',
+    exact: [['public.a', '10']],
+  });
+  const parsed = parseSnapshot(raw);
+  const valid = captureReceipt(raw, '2026-07-30T08:31:46.000Z');
+  assert.doesNotThrow(() => verifyCaptureReceipt(parsed, Buffer.from(raw), valid));
+
+  assert.throws(
+    () => verifyCaptureReceipt(parsed, Buffer.from(`${raw}\n`), valid),
+    /outputBytes does not match snapshot bytes/,
+  );
+  assert.throws(
+    () => verifyCaptureReceipt(
+      parsed,
+      Buffer.from(raw),
+      { ...valid, outputSha256: '0'.repeat(64) },
+    ),
+    /digest does not match snapshot bytes/,
+  );
+  assert.throws(
+    () => verifyCaptureReceipt(
+      parsed,
+      Buffer.from(raw),
+      { ...valid, credentialInArgv: true },
+    ),
+    /does not prove the required secure completed capture/,
+  );
+  assert.throws(
+    () => verifyCaptureReceipt(
+      parsed,
+      Buffer.from(raw),
+      { ...valid, capturedAt: '2026-07-30T08:31:47.000Z' },
+    ),
+    /timestamp does not match server snapshot timestamp/,
+  );
+});
+
 test('CLI emits machine JSON and reviewable Markdown', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-delta-'));
   try {
     const beforePath = path.join(temp, 'before.tsv');
     const afterPath = path.join(temp, 'after.tsv');
+    const captureAfterPath = path.join(temp, 'capture-after.json');
     const providerBeforePath = path.join(temp, 'provider-before.json');
     const providerAfterPath = path.join(temp, 'provider-after.json');
     fs.writeFileSync(beforePath, snapshot({
@@ -616,13 +678,18 @@ test('CLI emits machine JSON and reviewable Markdown', () => {
       deadlocks: '17',
       exact: [['public.a', '10']],
     }));
-    fs.writeFileSync(afterPath, snapshot({
+    const afterBytes = snapshot({
       at: '2026-07-30 08:31:46 UTC',
       databaseBytes: '1200',
       relationBytes: '700',
       deadlocks: '17',
       exact: [['public.a', '11']],
-    }));
+    });
+    fs.writeFileSync(afterPath, afterBytes);
+    fs.writeFileSync(
+      captureAfterPath,
+      JSON.stringify(captureReceipt(afterBytes, '2026-07-30T08:31:46.000Z')),
+    );
     fs.writeFileSync(
       providerBeforePath,
       JSON.stringify(receipt({ at: '2026-07-29T08:31:46Z', usedBytes: 100 })),
@@ -634,6 +701,7 @@ test('CLI emits machine JSON and reviewable Markdown', () => {
     const common = [
       '--before', beforePath,
       '--after', afterPath,
+      '--capture-after', captureAfterPath,
       '--provider-before', providerBeforePath,
       '--provider-after', providerAfterPath,
     ];
@@ -641,6 +709,11 @@ test('CLI emits machine JSON and reviewable Markdown', () => {
     const json = JSON.parse(execFileSync('node', [SCRIPT, ...common], { encoding: 'utf8' }));
     assert.equal(json.schema, 'platform-reliability-r1-snapshot-delta.v1');
     assert.equal(json.rows.delta, 1);
+    assert.equal(
+      json.provenance.afterSnapshotSha256,
+      captureReceipt(afterBytes, '2026-07-30T08:31:46.000Z').outputSha256,
+    );
+    assert.match(json.provenance.captureAfterReceiptSha256, /^[a-f0-9]{64}$/);
 
     const markdown = execFileSync(
       'node',
@@ -661,6 +734,7 @@ test('CLI accepts the committed aggregate snapshot-1 baseline format', () => {
   try {
     const beforePath = path.join(temp, 'before.json');
     const afterPath = path.join(temp, 'after.tsv');
+    const captureAfterPath = path.join(temp, 'capture-after.json');
     const providerBeforePath = path.join(temp, 'provider-before.json');
     const providerAfterPath = path.join(temp, 'provider-after.json');
     const queryReceiptPath = path.join(
@@ -682,13 +756,18 @@ test('CLI accepts the committed aggregate snapshot-1 baseline format', () => {
         databaseQueryReceiptSha256: queryReceiptSha256,
       },
     }));
-    fs.writeFileSync(afterPath, snapshot({
+    const afterBytes = snapshot({
       at: '2026-07-30 08:31:46 UTC',
       databaseBytes: '1200',
       relationBytes: '700',
       deadlocks: '17',
       exact: [['public.a', '11']],
-    }));
+    });
+    fs.writeFileSync(afterPath, afterBytes);
+    fs.writeFileSync(
+      captureAfterPath,
+      JSON.stringify(captureReceipt(afterBytes, '2026-07-30T08:31:46.000Z')),
+    );
     fs.writeFileSync(
       providerBeforePath,
       JSON.stringify(receipt({ at: '2026-07-29T08:31:46Z', usedBytes: 100 })),
@@ -704,6 +783,7 @@ test('CLI accepts the committed aggregate snapshot-1 baseline format', () => {
         SCRIPT,
         '--before', beforePath,
         '--after', afterPath,
+        '--capture-after', captureAfterPath,
         '--provider-before', providerBeforePath,
         '--provider-after', providerAfterPath,
       ],
@@ -723,9 +803,10 @@ test('committed snapshot-1 baseline is byte-bound to its DB-query receipt', () =
   try {
     const repoRoot = path.resolve(path.dirname(SCRIPT), '..');
     const afterPath = path.join(temp, 'after.tsv');
+    const captureAfterPath = path.join(temp, 'capture-after.json');
     const providerAfterPath = path.join(temp, 'provider-after.json');
     const serviceId = 'dpg-d95r32favr4c73aqs4d0-a';
-    fs.writeFileSync(afterPath, snapshot({
+    const afterBytes = snapshot({
       at: '2026-07-30 08:31:46 UTC',
       databaseBytes: '39541784',
       relationBytes: '26656769',
@@ -733,7 +814,12 @@ test('committed snapshot-1 baseline is byte-bound to its DB-query receipt', () =
       exact: [['public.a', '27881']],
       commits: '1623588',
       database: 'swipe_55ht',
-    }));
+    });
+    fs.writeFileSync(afterPath, afterBytes);
+    fs.writeFileSync(
+      captureAfterPath,
+      JSON.stringify(captureReceipt(afterBytes, '2026-07-30T08:31:46.000Z')),
+    );
     fs.writeFileSync(
       providerAfterPath,
       JSON.stringify(receipt({
@@ -751,6 +837,7 @@ test('committed snapshot-1 baseline is byte-bound to its DB-query receipt', () =
         '--before',
         path.join(repoRoot, 'platform-reliability-r1-0-snapshot-baseline.json'),
         '--after', afterPath,
+        '--capture-after', captureAfterPath,
         '--provider-before',
         path.join(repoRoot, 'platform-reliability-r1-0-render-receipt.json'),
         '--provider-after', providerAfterPath,
