@@ -80,6 +80,15 @@ preview обязан явно сохранить действующий `/32`; �
 | `platform-reliability-r1-operator-receipt.json` | несекретный журнал operator window |
 | `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
 
+Snapshot 2 снимается только через
+`scripts/platform-reliability-r1-db-capture.mjs`: Render URL напрямую
+записывается в одноразовый regular-файл `0600` в системном temp-каталоге
+с префиксом `p4g-r1-db-url-`. Wrapper не передаёт URL или password в argv,
+очищает ambient connection variables, включает внешний transaction
+read-only guard, проверяет completion sentinel и server timestamp
+`>= 2026-07-30 08:31:00Z`, а credential-файл удаляет при любом исходе.
+Нельзя подменять этот путь прямым `psql "$DATABASE_URL"`.
+
 В `operator-receipt` для каждого внешнего действия записать:
 
 - UTC before/after;

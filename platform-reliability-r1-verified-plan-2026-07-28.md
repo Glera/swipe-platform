@@ -202,9 +202,20 @@ Caller-supplied service ID не считается identity-доказатель
 пар действует правило «отсутствующая таблица = 0»:
 
 ```bash
-psql "$DATABASE_URL" -X -f scripts/platform-reliability-r1-db-snapshot.sql \
-  > <snapshot-2.tsv>
+node scripts/platform-reliability-r1-db-capture.mjs \
+  --url-file /tmp/p4g-r1-db-url-20260730T0840Z \
+  --output <snapshot-2.tsv> \
+  --not-before 2026-07-30T08:31:00Z
 ```
+
+URL переносится из Render UI напрямую в одноразовый regular-файл `0600`
+в системном temp-каталоге с префиксом `p4g-r1-db-url-`; в чат, shell history
+и аргументы `psql` он не попадает. Wrapper очищает ambient `DATABASE_URL` /
+`PG*`, передаёт разобранные credentials дочернему `psql` только через
+environment, включает второй read-only guard через `PGOPTIONS`, требует
+полный completion sentinel и удаляет credential-файл при любом исходе.
+Output создаётся эксклюзивно и удаляется при ошибке или слишком раннем
+server timestamp.
 
 У reconstructed snapshot 1 component timestamps различаются на несколько
 минут; database/relation/rows/deadlocks нормализуются каждый по собственному

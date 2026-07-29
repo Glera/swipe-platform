@@ -1,0 +1,239 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { captureSnapshot } from './platform-reliability-r1-db-capture.mjs';
+
+function managedCredentialPath() {
+  return path.join(
+    os.tmpdir(),
+    `p4g-r1-db-url-${process.pid}-${crypto.randomUUID()}`,
+  );
+}
+
+function validSnapshot(timestamp = '2026-07-30 08:40:00 UTC') {
+  return [
+    ['snapshot_meta', timestamp, 'swipe', 'on', 'UTC', '160014', '1000', '1000 bytes'],
+    ['schema', '2', '0067'],
+    ['relation_totals', '2', '1', '600', '600 bytes', '100', '100 bytes', '200', '200 bytes'],
+    ['exact_row_count', 'public.a', '10'],
+    ['exact_row_summary', '1', '10'],
+    ['runtime', 'database_stats', '10', '2', '3', '4', '0', '0', '17', '0', ''],
+    ['snapshot_complete', 'ok'],
+  ].map((row) => row.join('\t')).join('\n');
+}
+
+function fixture() {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'p4g-r1-capture-test-'));
+  const fakePsql = path.join(directory, 'fake-psql.mjs');
+  const trace = path.join(directory, 'trace.json');
+  const output = path.join(directory, 'snapshot.tsv');
+  fs.writeFileSync(
+    fakePsql,
+    [
+      '#!/usr/bin/env node',
+      "import fs from 'node:fs';",
+      'fs.writeFileSync(process.env.P4G_FAKE_TRACE, JSON.stringify({',
+      '  argv: process.argv.slice(2),',
+      '  host: process.env.PGHOST,',
+      '  port: process.env.PGPORT,',
+      '  database: process.env.PGDATABASE,',
+      '  user: process.env.PGUSER,',
+      '  password: process.env.PGPASSWORD,',
+      '  sslmode: process.env.PGSSLMODE,',
+      '  options: process.env.PGOPTIONS,',
+      '  inheritedDatabaseUrl: process.env.DATABASE_URL ?? null,',
+      '  inheritedService: process.env.PGSERVICE ?? null,',
+      '}));',
+      'process.stdout.write(process.env.P4G_FAKE_SNAPSHOT);',
+      'process.exit(Number(process.env.P4G_FAKE_EXIT ?? 0));',
+      '',
+    ].join('\n'),
+    { mode: 0o700 },
+  );
+  return {
+    directory,
+    fakePsql,
+    trace,
+    output,
+    cleanup() {
+      fs.rmSync(directory, { recursive: true, force: true });
+    },
+  };
+}
+
+function writeCredential(contents, mode = 0o600) {
+  const credential = managedCredentialPath();
+  fs.writeFileSync(credential, contents, { flag: 'wx', mode });
+  return credential;
+}
+
+test('captures a validated snapshot without putting credentials in argv', () => {
+  const files = fixture();
+  const credential = writeCredential(
+    'postgresql://new%20user:p%40ss@db.example.test:5433/swipe?sslmode=require',
+  );
+  try {
+    const receipt = captureSnapshot({
+      credentialFile: credential,
+      outputFile: files.output,
+      notBefore: '2026-07-30T08:31:00Z',
+      psqlBinary: files.fakePsql,
+      sourceEnvironment: {
+        PATH: process.env.PATH,
+        DATABASE_URL: 'postgresql://ambient:secret@wrong.invalid/db',
+        PGSERVICE: 'ambient-service',
+        P4G_FAKE_TRACE: files.trace,
+        P4G_FAKE_SNAPSHOT: validSnapshot(),
+      },
+    });
+    const trace = JSON.parse(fs.readFileSync(files.trace, 'utf8'));
+
+    assert.deepEqual(trace.argv, [
+      '-X',
+      '-q',
+      '-v',
+      'ON_ERROR_STOP=1',
+      '-f',
+      path.join(
+        path.dirname(fileURLToPath(import.meta.url)),
+        'platform-reliability-r1-db-snapshot.sql',
+      ),
+    ]);
+    assert.equal(JSON.stringify(trace.argv).includes('p@ss'), false);
+    assert.equal(JSON.stringify(trace.argv).includes('postgresql://'), false);
+    assert.equal(trace.host, 'db.example.test');
+    assert.equal(trace.port, '5433');
+    assert.equal(trace.database, 'swipe');
+    assert.equal(trace.user, 'new user');
+    assert.equal(trace.password, 'p@ss');
+    assert.equal(trace.sslmode, 'require');
+    assert.match(trace.options, /default_transaction_read_only=on/);
+    assert.equal(trace.inheritedDatabaseUrl, null);
+    assert.equal(trace.inheritedService, null);
+    assert.equal(receipt.status, 'ok');
+    assert.equal(receipt.credentialInArgv, false);
+    assert.equal(receipt.secretsCaptured, false);
+    assert.equal(fs.existsSync(credential), false);
+    assert.equal(fs.statSync(files.output).mode & 0o777, 0o600);
+    assert.equal(fs.readFileSync(files.output, 'utf8'), validSnapshot());
+  } finally {
+    fs.rmSync(credential, { force: true });
+    files.cleanup();
+  }
+});
+
+test('removes the credential and partial output when psql fails', () => {
+  const files = fixture();
+  const credential = writeCredential(
+    'postgresql://user:password@db.example.test/swipe?sslmode=require',
+  );
+  try {
+    assert.throws(
+      () => captureSnapshot({
+        credentialFile: credential,
+        outputFile: files.output,
+        notBefore: '2026-07-30T08:31:00Z',
+        psqlBinary: files.fakePsql,
+        sourceEnvironment: {
+          PATH: process.env.PATH,
+          P4G_FAKE_TRACE: files.trace,
+          P4G_FAKE_SNAPSHOT: 'partial',
+          P4G_FAKE_EXIT: '2',
+        },
+      }),
+      /psql snapshot failed with exit 2/,
+    );
+    assert.equal(fs.existsSync(credential), false);
+    assert.equal(fs.existsSync(files.output), false);
+  } finally {
+    fs.rmSync(credential, { force: true });
+    files.cleanup();
+  }
+});
+
+test('fails closed on insecure credential permissions and consumes the temp file', () => {
+  const files = fixture();
+  const credential = writeCredential(
+    'postgresql://user:password@db.example.test/swipe?sslmode=require',
+    0o640,
+  );
+  try {
+    assert.throws(
+      () => captureSnapshot({
+        credentialFile: credential,
+        outputFile: files.output,
+        notBefore: '2026-07-30T08:31:00Z',
+        psqlBinary: files.fakePsql,
+        sourceEnvironment: {
+          PATH: process.env.PATH,
+          P4G_FAKE_TRACE: files.trace,
+          P4G_FAKE_SNAPSHOT: validSnapshot(),
+        },
+      }),
+      /must not be readable or writable by group\/other/,
+    );
+    assert.equal(fs.existsSync(credential), false);
+    assert.equal(fs.existsSync(files.output), false);
+    assert.equal(fs.existsSync(files.trace), false);
+  } finally {
+    fs.rmSync(credential, { force: true });
+    files.cleanup();
+  }
+});
+
+test('rejects a snapshot captured before the evidence boundary', () => {
+  const files = fixture();
+  const credential = writeCredential(
+    'postgresql://user:password@db.example.test/swipe?sslmode=require',
+  );
+  try {
+    assert.throws(
+      () => captureSnapshot({
+        credentialFile: credential,
+        outputFile: files.output,
+        notBefore: '2026-07-30T08:31:00Z',
+        psqlBinary: files.fakePsql,
+        sourceEnvironment: {
+          PATH: process.env.PATH,
+          P4G_FAKE_TRACE: files.trace,
+          P4G_FAKE_SNAPSHOT: validSnapshot('2026-07-30 08:30:59 UTC'),
+        },
+      }),
+      /precedes required/,
+    );
+    assert.equal(fs.existsSync(credential), false);
+    assert.equal(fs.existsSync(files.output), false);
+  } finally {
+    fs.rmSync(credential, { force: true });
+    files.cleanup();
+  }
+});
+
+test('consumes the credential even when local arguments fail before psql', () => {
+  const files = fixture();
+  const credential = writeCredential(
+    'postgresql://user:password@db.example.test/swipe?sslmode=require',
+  );
+  try {
+    assert.throws(
+      () => captureSnapshot({
+        credentialFile: credential,
+        outputFile: path.join(files.directory, 'snapshot.txt'),
+        notBefore: 'not-a-date',
+        psqlBinary: files.fakePsql,
+      }),
+      /not-before must be an ISO timestamp/,
+    );
+    assert.equal(fs.existsSync(credential), false);
+    assert.equal(fs.existsSync(files.output), false);
+    assert.equal(fs.existsSync(files.trace), false);
+  } finally {
+    fs.rmSync(credential, { force: true });
+    files.cleanup();
+  }
+});
