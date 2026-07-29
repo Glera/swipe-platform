@@ -192,12 +192,17 @@ Review 2 закрыт выбором **Arrows – Puzzle Escape**, target band �
 - [`arrows/REFERENCE-PACKET.md`](arrows/REFERENCE-PACKET.md) — AR-R,
   покадровый feel-разбор и parity checklist;
 - [`arrows/CLASS-BRIEF.md`](arrows/CLASS-BRIEF.md) — AR-G, gameplay/schema/
-  solver/generator contract и вопросы Review 3.
+  solver/generator contract и закрытие Review 3;
+- [`arrows/REVIEW-3-INDEPENDENT-2026-07-29.md`](arrows/REVIEW-3-INDEPENDENT-2026-07-29.md)
+  — независимый conditional GO и исходные замечания A1–A3.
 
 Статус: `approved-for-prototype / ready for parallel implementation`.
 Review 3 утвердил polyline baseline, пять собственных уровней в target band
-`10–15` и Level 15 как holdout. Native recording закрыл timing успешного
-exit, blocked feedback, lives/fail и adaptive intro camera.
+`10–15` и Level 15 как holdout. После independent conditional GO зафиксированы
+единая lattice collision authority, concurrent manual exits и однофазный
+`450 ms` fit с `time-to-rule ≤1.35 s`. Native recording закрыл timing
+успешного exit, blocked feedback, lives/fail и camera evidence; значения,
+которых в записи нет, честно помечены `P`.
 
 ### Core loop
 

@@ -1,8 +1,8 @@
 # Class Brief: `arrows-v1`
 
 - Дата: **29.07.2026**
-- Статус: **review — conditional GO** (независимый вердикт 29.07.2026:
-  AR-A стартует сейчас; AR-E/AR-S/AR-P — после закрытия A1–A3)
+- Статус: **approved-for-prototype** — A1–A3 независимого Review 3 закрыты;
+  `AR-E/AR-S/AR-P/AR-A` готовы к параллельному старту
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude** —
@@ -21,8 +21,8 @@
 - Почему допустимо сейчас: Arrows выбран оператором после Review 2.
 - Решение оператора: polyline baseline; пять собственных уровней; Level 15
   как holdout.
-- Что документ не разрешает: начало расходящихся реализаций, публикацию,
-  копирование layout/assets референса.
+- Что документ не разрешает: отклонение параллельных реализаций от typed
+  boundaries, публикацию, копирование layout/assets референса.
 
 ## Цель
 
@@ -36,6 +36,8 @@ side-by-side прототипа и уровней 10–15 Arrows – Puzzle Esca
 - Мета, экономика, реклама, progression map, магазин и liveops.
 - Копирование точных уровней 10–15 или фирменных assets.
 - Телепорты, движущиеся blockers, timers и model-generated levels.
+- Двухфазная large-board camera choreography, manual pan/pinch и live reframe
+  в первых пяти уровнях.
 - Доказательство «интересности» только solver-метриками.
 - Универсальный Tap Away engine для всех будущих вариантов до baseline.
 
@@ -64,7 +66,7 @@ side-by-side прототипа и уровней 10–15 Arrows – Puzzle Esca
 
 | Параметр | Число | Статус |
 | --- | ---: | --- |
-| Exit speed | `36` grid units/s nominal, `32–40` target | native measured |
+| Exit screen speed | `1.20` gameplay-card heights/s nominal, `1.05–1.35` target | native measured / presentation target |
 | Exit duration | path-dependent, measured `375–700 ms` | native/public measured |
 | Small-board load fit | `450 ± 80 ms` | Level 15 measured |
 | Large-board overview/play zoom | `1,967 ms + 2,233 ms` | Level 43 native measured |
@@ -74,6 +76,9 @@ side-by-side прототипа и уровней 10–15 Arrows – Puzzle Esca
 | Blocked haptic | `0–33 ms` from visual onset, `error/rigid` | operator intent / device review |
 | Blocked card wash | `533 ± 33 ms` | native measured |
 | Blocked arrow state | persistent coral/red until removal/restart | native measured |
+| Manual tap during exit | next engine step; concurrent visual exits | Review 3 target (`P`), overlap-case absent in recording |
+| Tap during blocked wash | discarded for `533 ms`, no queue/no life loss | Review 3 target (`P`) |
+| Repeat same red arrow | after wash costs another life | approved error default (`O/P`) |
 | Third error -> fail modal | `1,033 ms`; settle `200 ms` | native measured |
 
 ### Reference parity checklist
@@ -101,28 +106,34 @@ Review 4 использует checklist из
 
 ## Первый экран и autoplay
 
-- Первый frame: чистое поле в `camera_intro.start`, без title-card; cover
+- Первый frame: чистое поле в `camera_fit.start`, без title-card; cover
   совпадает с этой геометрией.
-- Camera intro: small board выполняет `450 ms` fit; большое поле показывает
-  overview/play choreography. HUD проявляется в конце camera intro.
+- Camera: каждый из пяти уровней выполняет один `450 ms` fit; HUD проявляется
+  в конце fit.
 - Правило считывается без текста: AutoCursor нажимает очевидно свободную
   стрелку; та уходит по направлению наконечника и открывает следующую.
 - Autoplay: deterministic solver trace, `3` успешных хода без ошибок.
-- Длина autoplay после camera intro: `4–7 s`, не более `25%` ожидаемого
+- Длина autoplay после camera fit: `4–7 s`, не более `25%` ожидаемого
   решения.
+- Time-to-rule: первый autoplay tap принят за `≤650 ms`, первый exit полностью
+  завершён за `≤1,350 ms` от первого live frame.
 - Оптимальность: legal и воспроизводимый trace; среди равных ходов выбирает
   наиболее визуально объясняющий зависимость.
 - Takeover: первый принятый user tap атомарно отключает AutoCursor.
-- Состояние: exact current state сохраняется; уже начатая autoplay-анимация
-  завершается перед следующим user action.
+- Состояние: exact current state сохраняется; in-flight autoplay exit
+  продолжается визуально, а user tap обрабатывается сразу по уже обновлённому
+  logical state.
 
 ## Input contract
 
 | Input | Условие | State transition | Feedback |
 | --- | --- | --- | --- |
-| `tapArrow(id)` legal | `ready/manual`, нет активного exit | `arrow -> exiting -> removed` | light haptic, exit motion |
-| `tapArrow(id)` blocked | `ready/manual`, lives `>1` | lives `-1`, geometry unchanged | tap + error haptic, blocked cue |
-| `tapArrow(id)` blocked | lives `===1` | `fail` after feedback | blocked cue, fail feedback |
+| `tapArrow(id)` legal | `autoplay/manual`, wash inactive, включая active exits | atomically remove from `live`, append visual exit | light haptic, exit motion |
+| `tapArrow(id)` blocked | `manual`, lives `>1`, wash inactive | lives `-1`, geometry unchanged, enter wash | tap + error haptic, blocked cue |
+| `tapArrow(id)` blocked | `manual`, lives `===1`, wash inactive | `fail` after feedback | blocked cue, fail feedback |
+| tap live/red arrow during blocked wash | wash active | discarded; no queue/state change | none |
+| tap same red blocked arrow after wash | wash inactive | another blocked attempt, lives `-1` | wash/haptics restart |
+| tap exiting/removed arrow | manual | no-op | none |
 | tap background | manual | no-op | none |
 | first user tap | autoplay | cancel queued autoplay; process tap against exact state | no reset |
 | host pause | any animated state | snapshot + pause animation clocks | none |
@@ -139,28 +150,36 @@ runtime authority, не дублируется в классе.
 boot
   -> static_ready
   -> preparing
-  -> camera_intro
+  -> camera_fit
   -> ready
        -> autoplay
-            -> exiting -> autoplay
+            --legal tap--> autoplay + exit_visual[]
             -> manual
        -> manual
-            -> exiting -> manual
+            --legal tap--> manual + exit_visual[]
             -> blocked_feedback -> manual
             -> blocked_feedback -> fail
-       -> win_feedback
+       --live empty--> draining_exits
+            --active exits empty--> win_feedback
   -> completed(success=true | success=false)
 
 host_pause(any interactive state) -> paused(snapshot) -> previous state
-restart(fail | manual) -> preparing -> ready
+restart(fail | manual) -> preparing -> camera_fit -> ready
 ```
 
 Инварианты:
 
-- одновременно exit-анимируется не более одной стрелки;
-- gameplay input заблокирован до конца camera intro;
-- input lock действует от принятия хода до завершения exit/error feedback;
-- camera intro не меняет logical state;
+- legal tap удаляет arrow из logical occupancy в том же engine step, в котором
+  создаётся visual exit;
+- visual exits могут перекрываться; глобального exit-lock и input queue нет;
+- следующий manual tap обрабатывается в следующем engine step по обновлённому
+  live-set;
+- blocked feedback единственный gameplay-lock: входные tap отбрасываются на
+  `533 ms`, а не queue-ятся;
+- gameplay input заблокирован до конца camera fit;
+- camera fit не меняет logical state;
+- logical win ждёт завершения всех `exit_visual[]`, затем переходит в
+  `win_feedback`;
 - completion emitted ровно один раз;
 - pause/resume не меняет solver trace или remaining duration.
 
@@ -169,8 +188,10 @@ restart(fail | manual) -> preparing -> ready
 - Win: все стрелки `removed`.
 - Fail: третья blocked attempt расходует последнюю жизнь.
 - Незавершающая ошибка: blocked tap при `lives > 1`.
-- Restart: exact initial level, `3` lives, error marks cleared; выполняется
-  camera intro, autoplay не перезапускается после manual takeover.
+- Повторный blocked tap по уже красной стрелке после завершения wash считается
+  новой ошибкой и снова расходует жизнь.
+- Restart: exact initial level, `3` lives, error marks и visual exits очищены;
+  выполняется camera fit, autoplay не перезапускается после manual takeover.
 - Undo: отсутствует в bounded prototype.
 - Hint: отсутствует в первом prototype; solver API оставляет hook.
 - Таймер: отсутствует.
@@ -181,6 +202,7 @@ restart(fail | manual) -> preparing -> ready
 - Целевая длительность manual: `20–45 s`.
 - Целевое число успешных действий: `8–22`.
 - Максимальная длительность: `60 s` без принудительного fail.
+- First-live-frame -> first completed autoplay exit: `≤1.35 s`.
 - Idle policy: gameplay ждёт; host может вернуть autoplay/demo только новым
   раундом, но не скрытым ходом в manual state.
 
@@ -189,9 +211,10 @@ restart(fail | manual) -> preparing -> ready
 ### Входит
 
 - Пять собственных seed-уровней в difficulty band референсов 10–15.
-- Один polyline arrow type, если утверждён Review 3.
+- Один утверждённый polyline arrow type.
 - Three-life error policy.
-- Exit, persistent blocked feedback и adaptive intro camera.
+- Concurrent path-following exits, persistent blocked feedback и однофазный
+  `450 ms` camera fit.
 - Deterministic autoplay/takeover/pause/restart/completion.
 - Typed pack, validator, solver и bounded reverse generator.
 
@@ -199,6 +222,8 @@ restart(fail | manual) -> preparing -> ready
 
 - Точные layouts референса, meta/progression, ads, currency и hint UX.
 - Special tiles, teleport, moving blockers, timed mode.
+- Two-phase large-board intro, camera crop, manual pan/pinch и post-move
+  reframe.
 - Несколько skins в первой evidence-итерации.
 - Server generation и публикационный pipeline.
 
@@ -263,7 +288,10 @@ interface ArrowsLevelSpecV1 {
 - соседние точки Manhattan-adjacent, точки path уникальны;
 - final segment согласован с `exitDir`;
 - initial occupancies не пересекаются и находятся в bounds;
-- head exit-ray intersection вычисляется дискретно и детерминированно;
+- occupancy состоит только из lattice vertices и unit edges;
+- initial arrows не делят vertex или unit edge;
+- head exit-ray intersection вычисляется дискретно; visual stroke clearance
+  не влияет на legality;
 - минимум один initial legal move;
 - solver подтверждает solvability.
 
@@ -272,8 +300,11 @@ interface ArrowsLevelSpecV1 {
 - Validator доказывает schema/geometry invariants и отсутствие initial overlap.
 - Solver доказывает существование порядка удаления всех стрелок без ошибок.
 - Solver не доказывает fun, визуальную читаемость и соответствие target band.
-- Legal move: открытый ray от head по `exitDir` до bounds не пересекает
-  occupancy других live arrows с fixed stroke clearance.
+- Legal move: lattice exit-ray сразу после head по `exitDir` до первого vertex
+  за bounds не пересекает vertices/unit edges других live arrows.
+- Собственный path выбранной стрелки исключён из blockers целиком: exit-ray
+  разрешено пересекать собственный tail.
+- Touch чужого vertex, crossing или движение вдоль чужого unit edge — blocked.
 - Dependency edge `A -> B`: exit-ray `A` пересекает path `B`, поэтому `A`
   становится legal только после удаления `B`.
 - Terminal: `remaining === 0`; fail policy не участвует в solvability.
@@ -286,7 +317,8 @@ interface ArrowsLevelSpecV1 {
 - Budget: exact search с memoized live-set для prototype max `22` arrows;
   soft candidate budget задаёт factory, не solver correctness.
 - Reject: invalid geometry, overlap, no initial move, unsolvable, trivial
-  dependency graph, difficulty band miss, duplicate canonical graph/layout.
+  dependency graph, difficulty band miss, duplicate canonical graph/layout,
+  camera fit ниже readable minimum.
 
 ## Generation strategy
 
@@ -320,9 +352,9 @@ difficulty, но не как layout fixture.
 - Art: тёмные монолинии, нейтральный светлый фон, едва заметная точечная
   сетка; own palette/fonts/iconography.
 - Layout: portrait-first, игровое поле центрировано, HUD вторичен.
-- Essential animation: path-following exit со скоростью `36` grid units/s,
-  blue accent decay и tap ripple; small-board fit `450 ms`; adaptive
-  overview/play intro для больших полей.
+- Essential animation: path-following exit со screen-space скоростью `1.20`
+  gameplay-card heights/s (`1.05–1.35`), blue accent decay и tap ripple;
+  однофазный `450 ms` fit.
 - Essential sound: optional light tick/air whoosh; sound-off полон.
 - Haptic: light/selection на tap; error/rigid на blocked.
 - Success: отдельный короткий state после последнего exit.
@@ -378,14 +410,15 @@ difficulty, но не как layout fixture.
 | `AR-F` | Factory | reverse candidates/series | AR-S API | pack + receipts | taste declaration | operator |
 | `AR-P` | Presentation | motion/camera/haptic | state projection/AR-R | visual harness + skin | engine rules | operator |
 | `AR-I` | Integration | feed lifecycle | AR-E + runtime authority | swipe build/evidence | solver internals | independent |
-| `AR-A` | Analytics | measurement mapping | AR-G | event brief | success authority | product |
+| `AR-A` | Analytics | measurement mapping | AR-G | event brief | success authority | operator |
 | `AR-Q` | QA | parity/runtime/device | integrated candidate | Review 4 packet | product changes | independent |
 
 ## Typed integration boundaries
 
 - Level: `ArrowsLevelSpecV1`.
 - Engine action: `tapArrow`, `restart`, `setMode`, `hostPause/resume`.
-- Engine state: live ids, lives, mode, phase, active animation, completion flag.
+- Engine state: live ids, lives, mode, phase, `activeExits[]`,
+  `blockedUntil`, completion flag.
 - Solver result: solvable, witness trace, feature vector, explored states.
 - Solver trace: ordered stable arrow ids + solver version.
 - Presentation projection: immutable geometry, per-arrow visual phase, camera
@@ -411,11 +444,16 @@ difficulty, но не как layout fixture.
 | --- | --- | --- |
 | Polyline или single-cell | **Polyline с первого baseline** | operator approve + native path-following exit |
 | Blocked feedback | `≤33 ms` onset, `533 ms` wash, persistent red arrow, `-1` heart | native recording |
-| Camera | adaptive intro; small `450 ms`, large overview/play `1.97 s + 2.23 s`; no manual pan/pinch в bounded prototype | public Level 15 + native Level 43 |
+| Camera | все пять prototype levels: one-phase `450 ms`; large overview/play `1.97 s + 2.23 s` — только future evidence | public Level 15 + native Level 43 |
 | Five-level policy | пять собственных уровней, band 10–15; Level 15 holdout | operator approve |
 | Haptic | `selection/light` на tap, затем `error/rigid` на blocked | device intensity принимается Review 4 |
+| A1 collision authority | lattice vertices/unit edges; no gameplay stroke clearance; own path ignored | Review 3 recommendation accepted |
+| A2 exit chaining | manual legal tap processes next step; logical removal immediate; visual exits overlap | запись не содержит unambiguous overlap-case, поэтому explicit `P` |
+| A2 blocked wash/repeat | wash locks/throws away tap `533 ms`; same red arrow after wash costs another life | explicit `P` + approved per-blocked-tap policy |
+| A3 camera/time-to-rule | все пять levels: one-phase `450 ms`; first completed autoplay exit `≤1.35 s` | large-board choreography deferred |
 
-Открытых blocking-вопросов gameplay/schema для начала AR-E/S/P/A нет.
+Все A1–A3 закрыты authority-решениями. По независимому вердикту новый цикл
+Review 3 не требуется; `AR-E/AR-S/AR-P/AR-A` могут стартовать параллельно.
 
 ## Acceptance
 
@@ -425,6 +463,10 @@ difficulty, но не как layout fixture.
       fixtures.
 - [ ] Win/fail/restart воспроизводимы.
 - [ ] Autoplay/takeover следуют brief без reset.
+- [ ] Concurrent tap fixtures доказывают immediate logical removal, overlapping
+      visual exits и отсутствие потерянных/queued tap.
+- [ ] Blocked-wash fixtures доказывают discard во время wash и повторную
+      потерю жизни после wash.
 - [ ] Нет скрытых правил.
 
 ### Content
@@ -445,7 +487,8 @@ difficulty, но не как layout fixture.
 
 - [ ] Tall и compact проверены.
 - [ ] Gameplay читаем без звука и без цвета как единственного cue.
-- [ ] Exit, blocked feedback и adaptive camera пройдены на устройстве.
+- [ ] Exit, blocked feedback и однофазный camera fit пройдены на устройстве.
+- [ ] Первый autoplay exit завершён за `≤1.35 s` на каждом из пяти levels.
 - [ ] Low-tier path сохраняет timing и trajectory.
 
 ### Fidelity
@@ -466,10 +509,11 @@ difficulty, но не как layout fixture.
 
 - После трёх generator-итераций менее `20%` solver-valid кандидатов получают
   human-accept без ручного ремонта.
-- Single-cell ограничение сохраняется, но side-by-side показывает
-  систематически другой core feel.
-- Autoplay не объясняет правило за `7 s` или takeover нельзя сделать без
-  state discontinuity.
+- Любой из пяти уровней требует двухфазной camera choreography, crop или
+  manual pan для readable gameplay.
+- Первый autoplay exit не завершается за `1.35 s` или takeover нельзя сделать
+  без state discontinuity.
+- Concurrent manual taps теряются, queue-ятся либо читают stale live-set.
 - Exit/camera motion не достигают читаемости на target WebView без нарушения
   runtime budgets.
 
@@ -477,17 +521,17 @@ difficulty, но не как layout fixture.
 
 | Evidence | Path/URL | Digest/version | Reviewer disposition |
 | --- | --- | --- | --- |
-| Reference packet | [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md) | snapshot 29.07.2026 | Review 3 accepted |
+| Independent Review 3 | [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md) | commit `998a445` | conditional GO; A1–A3 resolved below |
+| Reference packet | [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md) | snapshot 29.07.2026 | A1–A3 authority updated |
 | Public walkthrough | [YouTube](https://www.youtube.com/watch?v=yePg-DPqfeA) | external | source accepted |
-| Native feel/error clip | operator recording `2026-07-29 13.13.06.mp4` | SHA-256 `b9dd0215…4953f` | Review 3 accepted |
+| Native feel/error clip | operator recording `2026-07-29 13.13.06.mp4` | SHA-256 `b9dd0215…4953f` | timing evidence accepted |
 | Solver/visual/runtime evidence | produced by AR-S/P/I/Q | — | pending |
 
 ## Final decision
 
-- Decision: **conditional GO** — независимый Review 3 закрыт с тремя
-  блокирующими уточнениями (A1 модель коллизий, A2 tap во время анимации,
-  A3 бюджет камеры/time-to-rule); после их закрытия статус переходит в
-  `approved-for-prototype` без нового цикла ревью
+- Decision: **approved-for-prototype** — A1 collision authority, A2 tap
+  chaining/error lock и A3 camera/time-to-rule закрыты после conditional GO;
+  по вердикту новый цикл review не требуется.
 - Operator note: polyline approve; own levels; Level 15 holdout.
-- Follow-up: open AR-E/S/P/A in parallel; AR-F follows solver API.
+- Follow-up: open `AR-E/AR-S/AR-P/AR-A` in parallel; AR-F follows solver API.
 - Explicitly deferred: rollout, meta, hints, special arrows, server factory.

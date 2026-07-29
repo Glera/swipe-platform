@@ -1,7 +1,9 @@
 # AR-R: reference packet — Arrows
 
 - Дата среза: **29.07.2026**
-- Статус: **review — conditional GO** (см. [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md))
+- Статус: **approved-for-prototype** — A1–A3 из
+  [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md)
+  закрыты
 - Вкусовой эталон: **Arrows – Puzzle Escape**
 - Целевой диапазон: **уровни 10–15**
 - Связанный brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
@@ -30,6 +32,12 @@
 - bounded prototype — пять уровней;
 - baseline использует polyline-стрелки;
 - уровни синтезируются самостоятельно; Level 15 — holdout;
+- legality задаётся только дискретной lattice occupancy;
+- manual tap не ждёт завершения успешного exit; exit animations могут
+  перекрываться;
+- blocked wash блокирует input на `533 ms`; повторный blocked tap после wash
+  снова отнимает жизнь;
+- все пять prototype levels используют однофазный `450 ms` camera fit;
 - таймера нет.
 
 Ранее утверждённый default «простые единичные стрелки» заменён явным решением
@@ -100,14 +108,23 @@ Typed-контракт:
   лучом по `exitDir` за bounds;
 - видимый stroke — окно постоянной arc-length, продвигающееся по render-route:
   tail освобождает исходный path, head движется наружу;
-- ход legal, если открытый луч от head по `exitDir` до bounds не пересекает
-  occupancy другой live arrow с учётом fixed stroke clearance;
+- `occupancy(arrow)` — множество lattice vertices и unit edges её path;
+- `exitRay(arrow)` начинается сразу после head и содержит lattice vertices и
+  unit edges по `exitDir` до первого vertex за bounds;
+- ход legal, если `exitRay(selected)` не пересекает occupancy ни одной другой
+  live arrow;
+- собственная occupancy выбранной стрелки исключается целиком: exit-ray может
+  пересекать её же хвост;
+- касание чужого vertex, пересечение чужого unit edge и движение вдоль него
+  считаются blocked;
 - на blocked tap stroke не продвигается ни на один пиксель и получает
   persistent error-state.
 
 Следствие для solver: не нужно симулировать rigid swept-body. Нужен
-детерминированный ray/segment intersection перед head; собственный path уже
-занят самой стрелкой и освобождается с хвоста.
+детерминированный lattice ray/occupancy intersection перед head. Stroke width,
+наконечник и visual clearance — свойства presentation; они не меняют
+legality. Validator отдельно запрещает общие vertices/unit edges у initial
+paths.
 
 ## Числовой feel-разбор
 
@@ -117,8 +134,8 @@ target, проверяемый на Review 4.
 | Параметр | Target | Статус | Основание |
 | --- | ---: | :---: | --- |
 | Начало видимого ответа после tap | `≤33 ms` | `R/P` | native: состояние меняется в первом 30-fps frame после принятого tap |
-| Скорость ухода | nominal `36` grid units/s после короткого acceleration; target `32–40` | `R/P` | native: короткая стрелка `~433 ms`, U-polyline `~667 ms`; grid-normalized estimate |
-| Длительность ухода | вычисляется из `pathArcLength + headExitDistance`; reference samples `375–700 ms` | `R` | public Level 15 `~375 ms`; native `15.8667–16.3000` и `17.1667–17.8333` |
+| Screen-space скорость ухода | nominal `1.20` gameplay-card heights/s после acceleration; target `1.05–1.35` | `R/P` | native: screen-projected distance / `~433 ms` и `~667 ms`; скорость не зависит от camera grid scale |
+| Длительность ухода | `screenProjected(pathArcLength + headExitDistance) / screenSpeed`; reference samples `375–700 ms` | `R` | public Level 15 `~375 ms`; native `15.8667–16.3000` и `17.1667–17.8333` |
 | Траектория ухода | tail следует исходному path, head продолжает прямой `exitDir`; `0` остаточных px после clip | `R` | native U-polyline `17.1667–17.8333` |
 | Прозрачность во время ухода | `100%` до выхода, без dissolve | `R` | видимая линия сохраняет контраст; исчезает за границей |
 | Selected exit color | вся polyline переходит в cold blue accent в первый frame; accent decays к base stroke за `160–233 ms` | `R` | native `15.8667–16.0667`, `17.1667–17.4000` |
@@ -139,27 +156,31 @@ target, проверяемый на Review 4.
 | Blocked arrow state | coral/red stroke сохраняется до удаления arrow или restart | `R` | native: одна и та же blocked arrow остаётся красной при camera movement |
 | Life decrement | одно сердце сереет в первый error frame (`≤33 ms`) | `R/O` | native `23.5667`; policy утверждена оператором |
 | Потеря жизни | `1` за один завершённый blocked tap | `O` | утверждённый default |
+| Manual chaining во время exit | logical removal происходит при старте exit; следующий tap принимается в следующем engine step, visual exits могут перекрываться | `P` | native не содержит однозначного overlap-case; Review 3 resolution устраняет global exit lock |
+| Tap во время blocked wash | input отбрасывается, не queue-ится и не снимает дополнительную жизнь до конца `533 ms` wash | `P` | overlap-case отсутствует в записи; fairness boundary |
+| Повторный tap по уже красной blocked arrow | после wash снова отнимает `1` жизнь и перезапускает wash | `O/P` | следует из утверждённого «каждый blocked tap = -1»; в записи exact repeat отсутствует |
 | Third-error -> fail modal onset | `1,033 ± 67 ms` | `R` | native: third pulse `64.6000`, modal starts `65.6333` |
 | Fail modal settle | `200 ± 33 ms` | `R` | native: `65.6333–65.8333` |
 | Win feedback | начинается не позднее `150 ms` после ухода последней стрелки | `P` | public recording; exact Review 4 target |
 
-### Adaptive camera contract
+### Camera evidence и bounded-prototype contract
 
 Native Level 43 показывает две фазы: сначала поле уменьшается до полного
 overview, затем увеличивается до читаемого play scale. Public Level 15
 показывает короткий `~450 ms` fit без заметной длинной overview-фазы.
 
-Baseline camera выводит оба случая из одной политики:
+Для bounded prototype решение жёстче общего reference evidence:
 
-1. вычислить `overviewScale = fit(all initial arrows)`;
-2. вычислить `playScale = max(overviewScale, minReadableScale)`;
-3. если отношение `playScale / overviewScale < 1.15`, выполнить один
-   `450 ms` fit;
-4. иначе показать двухфазный overview/play choreography с measured upper
-   timings `1.97 s + 2.23 s`;
-5. camera choreography не меняет logical state и не принимает gameplay input;
-6. ручные pan/pinch и автоматический reframe после каждого хода не входят в
-   bounded prototype уровней 10–15.
+1. все пять уровней обязаны целиком помещаться при readable scale;
+2. все пять используют только однофазный `450 ms` fit (`370–530 ms`);
+3. первый autoplay tap принимается не позднее `650 ms` от первого live frame;
+4. первый autoplay exit полностью завершается не позднее `1,350 ms` от
+   первого live frame — это числовой `time-to-rule`;
+5. двухфазная choreography `1.97 s + 2.23 s`, manual pan/pinch и reframe после
+   хода не входят в bounded prototype;
+6. future large-board policy может использовать производный порог
+   `playScale / overviewScale < 1.15` со статусом `P`, но не является
+   authority для первых пяти уровней.
 
 Точный haptic физически не извлекается из screen recording. Semantic events
 зафиксированы для реализации; интенсивность принимается оператором на
@@ -170,11 +191,15 @@ Baseline camera выводит оба случая из одной полити�
 ### Правило и состояние
 
 - [ ] Tap принимается только по live arrow; промах по фону не меняет state.
-- [ ] Legal move определяется свободным exit-ray от head; rigid-body sweep не
-      используется.
+- [ ] Legal move использует только lattice vertices/unit edges; visual stroke
+      clearance не влияет на результат.
+- [ ] Exit-ray может пересечь собственный tail, но блокируется любым vertex
+      или unit edge другой live arrow.
 - [ ] Успешный tap удаляет ровно одну стрелку.
 - [ ] Заблокированный tap не меняет геометрию поля.
 - [ ] Один blocked tap отнимает ровно одну жизнь.
+- [ ] Повторный tap по той же красной blocked arrow после wash снова отнимает
+      ровно одну жизнь.
 - [ ] После третьей ошибки раунд переходит в fail.
 - [ ] Победа наступает только при `remainingArrowCount === 0`.
 - [ ] Несколько корректных порядков удаления принимаются одинаково.
@@ -183,7 +208,8 @@ Baseline camera выводит оба случая из одной полити�
 ### Motion и feedback
 
 - [ ] Первый видимый ответ на tap начинается за `≤33 ms`.
-- [ ] Exit движется со скоростью `32–40` grid units/s после acceleration.
+- [ ] Exit движется со скоростью `1.05–1.35` gameplay-card heights/s после
+      acceleration независимо от camera scale.
 - [ ] Total exit duration вычисляется из arc-length и попадает в measured
       samples `375–700 ms`.
 - [ ] Tail проходит по исходной polyline, head продолжает прямой `exitDir`.
@@ -198,6 +224,7 @@ Baseline camera выводит оба случая из одной полити�
       error haptic.
 - [ ] Blocked geometry сдвигается на `0 px`.
 - [ ] Card wash длится `500–566 ms`, достигая peak за `100–133 ms`.
+- [ ] Tap во время card wash отбрасывается без queue и без потери жизни.
 - [ ] Blocked polyline остаётся coral/red до удаления или restart.
 - [ ] Одно сердце сереет за `≤33 ms`; cue различим не только цветом.
 - [ ] После третьей ошибки modal начинается через `966–1,100 ms` и settles за
@@ -210,11 +237,12 @@ Baseline camera выводит оба случая из одной полити�
 - [ ] Grid dots остаются вторичными: их контраст не превышает `10%` контраста
       основной линии.
 - [ ] Основные линии используют единый stroke `0.11–0.14` cell.
-- [ ] Small board fit-ится за `370–530 ms`.
-- [ ] Большое поле проходит overview phase за `1.90–2.04 s` и play-scale phase
-      за `2.16–2.30 s`.
-- [ ] В overview ни одна initial arrow не обрезана.
-- [ ] В play scale stroke/cell не мельче утверждённого readable minimum.
+- [ ] Каждый из пяти prototype levels fit-ится за `370–530 ms` одним phase.
+- [ ] Первый autoplay tap принят за `≤650 ms`, первый exit завершён за
+      `≤1,350 ms` от первого live frame.
+- [ ] Ни одна initial arrow не обрезана, stroke/cell не мельче readable
+      minimum.
+- [ ] Двухфазная large-board choreography отсутствует в пяти prototype levels.
 - [ ] Bounded prototype не требует manual pan/pinch или reframe после хода.
 - [ ] Gameplay layout не содержит размытую боковую заливку и сторонние
       рекламные баннеры из ролика.
@@ -225,6 +253,9 @@ Baseline camera выводит оба случая из одной полити�
 
 - [ ] Autoplay использует deterministic legal trace.
 - [ ] Takeover продолжает exact autoplay state без restart или скрытого хода.
+- [ ] Manual legal tap принимается в следующем engine step при активном exit;
+      logical state уже не содержит exiting arrow.
+- [ ] Два и более visual exits могут перекрываться без потери tap events.
 - [ ] Host pause замораживает exit/camera animations без изменения результата.
 - [ ] Первый live frame визуально совпадает с cover.
 - [ ] Completion отправляется ровно один раз.
@@ -299,7 +330,7 @@ Baseline camera выводит оба случая из одной полити�
 - правило порядка освобождения;
 - темп и направление exit-motion;
 - минималистичную информационную иерархию;
-- auto-fit/reframe как функцию читаемости;
+- auto-fit как функцию читаемости; live reframe отложен за bounded prototype;
 - сложностной диапазон, но не конкретные карты.
 
 Собственная visual identity создаётся через SkinSpec; baseline skin остаётся
@@ -311,6 +342,8 @@ theme-neutral и не встраивается в engine.
 - Polyline path-following/ray rule: **утверждён**.
 - Успешный exit, blocked feedback, lives и adaptive intro camera:
   **измерены по native evidence**.
+- Collision authority, tap chaining и prototype camera budget:
+  **зафиксированы после independent Review 3**.
 - Reverse-construction: **готова для AR-S/F design**.
 - Haptic semantics: **утверждены**; физическая интенсивность остаётся
   acceptance-параметром Review 4.
