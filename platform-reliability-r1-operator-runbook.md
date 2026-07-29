@@ -62,7 +62,11 @@ Blueprint authority требует отдельной осторожности:
 [`ipAllowList` omitted означает allow-all](https://render.com/docs/blueprint-spec#inbound-ip-rules).
 Поэтому dashboard-only empty allowlist не является durable финалом.
 Backend-патч `ipAllowList: []` готовится и ревьюится заранее, но применяется
-только в operator window после drill. На промежуточном manual Blueprint sync
+только в operator window после drill. Render Blueprint
+[Auto Sync включён по умолчанию](https://render.com/docs/infrastructure-as-code#disabling-automatic-sync):
+push/merge в связанную production-ветку может сам немедленно применить
+`render.yaml`. Поэтому merge backend-патча является частью `OPERATOR GATE G`,
+а не безопасной подготовкой до окна. На промежуточном manual Blueprint sync
 preview обязан явно сохранить действующий `/32`; любое предложение вернуть
 `0.0.0.0/0` останавливает rotation до нового операторского решения.
 
@@ -393,11 +397,22 @@ Suspend — только аварийная отсрочка, не PASS и не 
 `ipAllowList: []`:
 
 1. убедиться, что patch основан на актуальном `swipe-backend/origin/master` и
-   меняет только network boundary + её fail-closed test;
-2. показать оператору exact PR/head и получить подтверждение merge;
-3. выполнить/дождаться Blueprint sync, preview которого не содержит других
-   изменений;
-4. убедиться, что Render показывает пустой database allowlist.
+   меняет только network boundary + её fail-closed validation closure;
+2. подтвердить в Render exact linked Blueprint, source repo/branch/path и
+   текущее состояние Auto Sync; несоответствие receipt baseline останавливает
+   окно;
+3. показать оператору exact PR/head и получить отдельное подтверждение
+   production-мутации. Если Auto Sync включён, с подтверждением оператора
+   сначала выключить его и зафиксировать результат. Невозможность выключить
+   Auto Sync останавливает Gate G: merge при включённом Auto Sync запрещён;
+4. выполнить merge, затем открыть Manual Sync preview/plan. Он обязан
+   содержать только ожидаемое закрытие `swipe-db`;
+   неожиданный resource/deploy diff останавливает sync и требует диспозиции;
+5. выполнить/дождаться terminal Blueprint sync и зафиксировать его identity;
+6. убедиться, что Render показывает пустой database allowlist;
+7. записать итоговое состояние Auto Sync. Не включать его обратно молча:
+   любое восстановление состояния — отдельное подтверждённое решение
+   оператора.
 
 Dashboard-only удаление `/32` без committed Blueprint authority не получает
 PASS: следующий sync мог бы вернуть allow-all.

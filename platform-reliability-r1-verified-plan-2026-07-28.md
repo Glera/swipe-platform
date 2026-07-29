@@ -175,7 +175,9 @@ protocol-level negative proof и isolated PITR acceptance зафиксирова
 `platform-reliability-r1-operator-runbook.md`. Dashboard health или
 TCP-only `nc` не заменяют DB-запрос: `/api/health` по принятому контракту не
 проверяет PostgreSQL, а Render применяет inbound rules на protocol-level после
-TCP connect.
+TCP connect. Merge заранее-reviewed backend-патча входит в operator Gate G:
+при включённом по умолчанию Blueprint Auto Sync сам merge в связанную
+production-ветку может немедленно применить `ipAllowList: []`.
 
 Snapshot 2 сравнивается скриптом
 `scripts/platform-reliability-r1-db-delta.mjs`: отдельно provider storage,
