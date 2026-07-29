@@ -1,0 +1,146 @@
+{
+  "schema": "platform-reliability-r1-operator-receipt.v1",
+  "status": "{{PASS_OR_FAIL}}",
+  "sourceDatabaseServiceId": "{{RENDER_SERVICE_ID}}",
+  "window": {
+    "startedAt": "{{UTC}}",
+    "completedAt": "{{UTC}}"
+  },
+  "consumerClosure": {
+    "observedAt": "{{UTC}}",
+    "status": "{{CLOSED_OR_OPEN}}",
+    "consumerSetSha256": "{{SHA256}}",
+    "manualExternalConsumers": "{{NONE_OR_DISPOSITION}}",
+    "consumers": [
+      {
+        "serviceId": "{{RENDER_SERVICE_ID}}",
+        "kind": "{{WEB_OR_CRON_OR_WORKER}}",
+        "blueprintReferenceId": "{{REFERENCE_ID}}",
+        "pinnedSourceSha": "{{FULL_SHA}}",
+        "lastKnownGoodDeployOrRunId": "{{ID}}",
+        "postSyncDeployOrRunId": "{{ID}}",
+        "freshDatabaseProofSha256": "{{SHA256}}"
+      }
+    ]
+  },
+  "operatorConfirmations": [
+    {
+      "gate": "A",
+      "confirmedAt": "{{UTC}}",
+      "decision": "{{APPROVED_OR_DENIED}}",
+      "targetSha256": "{{SHA256}}"
+    },
+    {
+      "gate": "B",
+      "confirmedAt": "{{UTC}}",
+      "decision": "{{APPROVED_OR_DENIED}}",
+      "targetSha256": "{{SHA256}}"
+    },
+    {
+      "gate": "C",
+      "confirmedAt": "{{UTC}}",
+      "decision": "{{APPROVED_OR_DENIED}}",
+      "targetSha256": "{{SHA256}}"
+    },
+    {
+      "gate": "D",
+      "confirmedAt": "{{UTC}}",
+      "decision": "{{APPROVED_OR_DENIED}}",
+      "targetSha256": "{{SHA256}}"
+    },
+    {
+      "gate": "E",
+      "confirmedAt": "{{UTC}}",
+      "decision": "{{APPROVED_OR_DENIED}}",
+      "targetSha256": "{{SHA256}}"
+    },
+    {
+      "gate": "F",
+      "confirmedAt": "{{UTC}}",
+      "decision": "{{APPROVED_OR_DENIED}}",
+      "targetSha256": "{{SHA256}}"
+    },
+    {
+      "gate": "G",
+      "confirmedAt": "{{UTC}}",
+      "decision": "{{APPROVED_OR_DENIED}}",
+      "targetSha256": "{{SHA256}}"
+    }
+  ],
+  "actions": [
+    {
+      "gate": "{{A_TO_G}}",
+      "kind": "{{ACTION_KIND}}",
+      "startedAt": "{{UTC}}",
+      "completedAt": "{{UTC}}",
+      "targetId": "{{NONSECRET_RENDER_ID}}",
+      "terminalOutcome": "{{TYPED_OUTCOME}}",
+      "evidenceSha256": "{{SHA256}}",
+      "rollbackOutcome": "{{NOT_NEEDED_OR_TYPED_OUTCOME}}",
+      "secretsCaptured": false
+    }
+  ],
+  "ingressNarrowing": {
+    "cidrKind": "single-ipv4",
+    "operatorEgressCidrSha256": "{{SHA256}}",
+    "renderRuleCidrSha256": "{{SHA256}}",
+    "digestsEqual": "{{TRUE_OR_FALSE}}",
+    "protocolQuerySucceeded": "{{TRUE_OR_FALSE}}"
+  },
+  "credentialRotation": {
+    "oldUsernameSha256": "{{SHA256}}",
+    "newUsernameSha256": "{{SHA256}}",
+    "newCredentialCreatedAt": "{{UTC}}",
+    "capabilityComparisonSha256": "{{SHA256}}",
+    "profilesEqual": "{{TRUE_OR_FALSE}}",
+    "blueprintSyncIdentity": "{{ID_OR_TYPED_ABSENCE}}",
+    "oldSessionsAfterDrain": "{{INTEGER}}",
+    "oldCredentialPostDeletionOutcome": "{{TYPED_OUTCOME}}",
+    "newCredentialPostDeletionOutcome": "{{TYPED_OUTCOME}}"
+  },
+  "restoreDrill": {
+    "financeDispositionId": "{{ID}}",
+    "recoveryServiceId": "{{RENDER_SERVICE_ID}}",
+    "restorePoint": "{{UTC}}",
+    "startedAt": "{{UTC}}",
+    "availableAt": "{{UTC}}",
+    "validatedAt": "{{UTC}}",
+    "beforeReceiptSha256": "{{SHA256}}",
+    "afterReceiptSha256": "{{SHA256}}",
+    "beforePresent": "{{TRUE_OR_FALSE}}",
+    "afterAbsent": "{{TRUE_OR_FALSE}}",
+    "sourceIdentityUnchanged": "{{TRUE_OR_FALSE}}",
+    "observedRpoSeconds": "{{NUMBER}}",
+    "observedProvisionRtoSeconds": "{{NUMBER}}",
+    "observedValidationRtoSeconds": "{{NUMBER}}",
+    "cleanup": {
+      "operatorConfirmedAt": "{{UTC}}",
+      "completedAt": "{{UTC}}",
+      "terminalOutcome": "{{TYPED_OUTCOME}}"
+    }
+  },
+  "ingressClosure": {
+    "backendPr": "{{PR_NUMBER}}",
+    "backendHeadSha": "{{FULL_SHA}}",
+    "backendMergeSha": "{{FULL_SHA}}",
+    "blueprintSyncIdentity": "{{ID_OR_TYPED_ABSENCE}}",
+    "savedAt": "{{UTC}}",
+    "allowlistRuleCount": "{{INTEGER}}",
+    "internalFreshProofs": [
+      {
+        "consumerId": "{{RENDER_SERVICE_ID}}",
+        "observedAt": "{{UTC}}",
+        "terminalOutcome": "{{TYPED_OUTCOME}}",
+        "evidenceSha256": "{{SHA256}}"
+      }
+    ],
+    "externalProtocolProof": {
+      "observedAt": "{{UTC}}",
+      "terminalOutcome": "{{TYPED_OUTCOME}}",
+      "sqlExecuted": "{{TRUE_OR_FALSE}}",
+      "sanitizedStderrSha256": "{{SHA256}}",
+      "controlReachabilityPassed": "{{TRUE_OR_FALSE}}"
+    }
+  },
+  "secretsCaptured": false
+}
