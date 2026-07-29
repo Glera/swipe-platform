@@ -92,6 +92,11 @@ preview обязан явно сохранить действующий `/32`; �
 строгую structural/chronology-проверку без неразрешённых `{{...}}`;
 проверка встроена в финальный evidence scanner и не заменяется визуальным
 просмотром шаблона.
+DB clock для Start Recovery сохраняется с отдельным evidence digest; разница
+с operator action timestamp не может превышать 60 секунд. Каждый action имеет
+уникальный `actionId` и стабильный `operationId`: failed attempt закрывается
+либо typed rollback/containment, либо более поздним successful action того же
+operation/target с явным `resolvesActionId`.
 
 Snapshot 2 снимается только через
 `scripts/platform-reliability-r1-db-capture.mjs`. В одном доверенном in-app

@@ -65,6 +65,8 @@ export function makeValidOperatorReceipt() {
     ),
     actions: Object.entries(gateTimes).map(
       ([gate, [, startedAt, completedAt]], index) => ({
+        actionId: `action-${gate.toLowerCase()}-1`,
+        operationId: `operation-${gate.toLowerCase()}`,
         gate,
         kind: `gate-${gate.toLowerCase()}-action`,
         startedAt,
@@ -73,6 +75,7 @@ export function makeValidOperatorReceipt() {
         terminalOutcome: 'succeeded',
         evidenceSha256: hash(String(index + 1)),
         rollbackOutcome: 'not_needed',
+        resolvesActionId: null,
         secretsCaptured: false,
       }),
     ),
@@ -113,6 +116,7 @@ export function makeValidOperatorReceipt() {
         receiptSha256: hash('b'),
       },
       startRecoveryDbClock: '2026-07-30T09:40:00Z',
+      startRecoveryObservationSha256: hash('8'),
       startedAt: '2026-07-30T09:40:00Z',
       availableAt: '2026-07-30T10:00:00Z',
       validatedAt: '2026-07-30T10:20:00Z',
@@ -196,19 +200,132 @@ export function makeValidOperatorReceipt() {
   };
 }
 
-export function makeValidFinalEvidence() {
+export function makeValidFinalEvidence(
+  receipt = makeValidOperatorReceipt(),
+) {
+  const rotation = receipt.credentialRotation;
+  const drill = receipt.restoreDrill;
+  const ingress = receipt.ingressClosure;
   return [
     '# Platform Reliability R1 final evidence',
     '',
-    '- Overall status: `PASS`',
+    '## 1. Verdict',
     '',
-    '## Completion matrix',
+    '- Overall status: `PASS`',
+    `- Source database service: \`${receipt.sourceDatabaseServiceId}\``,
+    `- Consumer set: \`sha256:${receipt.consumerClosure.consumerSetSha256}\``,
+    '',
+    '## 2. Snapshot 2 and bounded delta',
+    '',
+    '- platform-reliability-r1-0-snapshot-2.tsv',
+    '- platform-reliability-r1-0-snapshot-2-db-capture-receipt.json',
+    '- platform-reliability-r1-0-snapshot-2-render-receipt.json',
+    '- platform-reliability-r1-0-snapshot-delta.json',
+    '- platform-reliability-r1-0-snapshot-delta.md',
+    '- Snapshot completion sentinel: `PASS`',
+    '',
+    '## 3. Stop-before-start',
+    '',
+    '- Snapshot review: `PASS`',
+    '- Consumer closure: `PASS`',
+    '- Operator and finance approvals: `PASS`',
+    '',
+    '## 4. Consumer closure',
+    '',
+    '| Consumer | Pinned source | Rotated runtime | Fresh proof |',
+    '|---|---|---|---|',
+    ...receipt.consumerClosure.consumers.map((consumer) => (
+      `| \`${consumer.serviceId}\` | \`${consumer.pinnedSourceSha}\` | `
+      + `\`${consumer.postSyncDeployOrRunId}\` / `
+      + `\`sha256:${consumer.rotationRuntimeIdentitySha256}\` | `
+      + `\`sha256:${consumer.freshDatabaseProofSha256}\` |`
+    )),
+    '',
+    '## 5. Operator-window timeline',
+    '',
+    '| Gate | Confirmation | Action | Result |',
+    '|---|---|---|---|',
+    ...receipt.actions.map((action) => {
+      const confirmation = receipt.operatorConfirmations.find(
+        (candidate) => candidate.gate === action.gate,
+      );
+      return (
+        `| ${action.gate} — gate | \`${confirmation.confirmedAt}\` | `
+        + `\`${action.actionId}\` / \`${action.operationId}\` | `
+        + `\`${action.terminalOutcome}\` |`
+      );
+    }),
+    '',
+    '## 6. Ingress narrowing and credential rotation',
+    '',
+    `- Operator CIDR digest: \`sha256:${receipt.ingressNarrowing.operatorEgressCidrSha256}\``,
+    `- Render CIDR digest: \`sha256:${receipt.ingressNarrowing.renderRuleCidrSha256}\``,
+    `- Old username digest: \`sha256:${rotation.oldUsernameSha256}\``,
+    `- New username digest: \`sha256:${rotation.newUsernameSha256}\``,
+    `- Capability comparison: \`sha256:${rotation.capabilityComparisonSha256}\``,
+    `- Old credential outcome: \`${rotation.oldCredentialPostDeletionOutcome}\``,
+    `- New credential outcome: \`${rotation.newCredentialPostDeletionOutcome}\``,
+    '',
+    '## 7. Isolated restore drill',
+    '',
+    `- Finance disposition: \`${drill.financeDispositionId}\``,
+    `- Recovery service: \`${drill.recoveryServiceId}\``,
+    `- Before receipt: \`sha256:${drill.beforeObservation.receiptSha256}\``,
+    `- Restore point: \`${drill.restorePoint}\``,
+    `- After run: \`${drill.afterTerminalRun.runId}\` / \`sha256:${drill.afterTerminalRun.receiptSha256}\``,
+    `- Start DB clock: \`${drill.startRecoveryDbClock}\` / \`sha256:${drill.startRecoveryObservationSha256}\``,
+    `- RPO/RTO: \`${drill.observedRpoSeconds}\` / \`${drill.observedProvisionRtoSeconds}\` / \`${drill.observedValidationRtoSeconds}\` seconds`,
+    `- Source binding: \`sha256:${drill.sourceContinuity.before.bindingsSha256}\``,
+    `- Source deploy/run identities: ${drill.sourceContinuity.before.deployIdentities.map((identity) => `\`${identity}\``).join(', ')}`,
+    `- Cleanup: \`${drill.cleanup.terminalOutcome}\``,
+    '',
+    '## 8. Durable external-ingress closure',
+    '',
+    `- Backend PR: \`${ingress.backendPr}\``,
+    `- Backend head: \`${ingress.backendHeadSha}\``,
+    `- Backend merge: \`${ingress.backendMergeSha}\``,
+    `- Patch review: \`${ingress.independentPatchReview.id}\` / \`${ingress.independentPatchReview.verdict}\``,
+    `- Allowlist rules: \`${ingress.allowlistRuleCount}\``,
+    ...ingress.internalFreshProofs.map((proof) => (
+      `- Internal proof \`${proof.consumerId}\`: `
+      + `\`${proof.postClosureDeployOrRunId}\` / `
+      + `\`sha256:${proof.evidenceSha256}\``
+    )),
+    `- External refusal: \`${ingress.externalProtocolProof.terminalOutcome}\` / \`sha256:${ingress.externalProtocolProof.sanitizedStderrSha256}\``,
+    '',
+    '## 9. Completion matrix',
     '',
     '| Requirement | Result | Evidence |',
     '|---|---|---|',
     ...R1_COMPLETION_REQUIREMENTS.map(
       (requirement) => `| ${requirement} | \`PASS\` | receipt |`,
     ),
+    '',
+    '## 10. Deviations, failures, and rollback',
+    '',
+    ...(receipt.actions.some((action) => action.terminalOutcome === 'failed')
+      ? receipt.actions
+        .filter((action) => action.terminalOutcome === 'failed')
+        .map((action) => {
+          const resolver = receipt.actions.find(
+            (candidate) => candidate.resolvesActionId === action.actionId,
+          );
+          return (
+            `- Failed action \`${action.actionId}\`: `
+            + `\`${action.rollbackOutcome}\`; resolution `
+            + `\`${resolver?.actionId ?? 'none'}\``
+          );
+        })
+      : ['- Failed actions: `none`']),
+    '',
+    '## 11. Secret hygiene and patch closure',
+    '',
+    '- platform-reliability-r1-secret-scan-receipt.json',
+    '- Scanner status: `PASS`',
+    '',
+    '## 12. Independent final review',
+    '',
+    'Requested after the exact evidence head is committed.',
     '',
   ].join('\n');
 }

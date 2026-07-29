@@ -63,6 +63,11 @@ test('requires server-owned PITR ordering and recomputable RPO/RTO', () => {
     (receipt) => {
       receipt.restoreDrill.observedProvisionRtoSeconds = 1;
     },
+    (receipt) => {
+      receipt.restoreDrill.startRecoveryDbClock =
+        '2026-07-30T09:50:00Z';
+      receipt.restoreDrill.observedRpoSeconds = 1440;
+    },
   ];
 
   for (const mutate of cases) {
@@ -92,6 +97,12 @@ test('requires exact source service, deploy, and binding continuity', () => {
       receipt.restoreDrill.sourceContinuity.after.observedAt =
         '2026-07-30T10:19:00Z';
     },
+    (receipt) => {
+      receipt.restoreDrill.sourceContinuity.before.deployIdentities =
+        ['invented-web', 'invented-cron'];
+      receipt.restoreDrill.sourceContinuity.after.deployIdentities =
+        ['invented-cron', 'invented-web'];
+    },
   ];
 
   for (const mutate of cases) {
@@ -117,13 +128,13 @@ test('validates suspended cleanup containment and forbids it for final PASS', ()
   assert.equal(
     validateOperatorEvidence(
       receipt,
-      makeValidFinalEvidence(),
+      makeValidFinalEvidence(receipt),
       { requirePass: false },
     ).recoveryDeleted,
     false,
   );
   assert.throws(
-    () => validateOperatorEvidence(receipt, makeValidFinalEvidence()),
+    () => validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)),
     /must be pass for final evidence/,
   );
 
@@ -144,7 +155,7 @@ test('validates suspended cleanup containment and forbids it for final PASS', ()
     assert.throws(
       () => validateOperatorEvidence(
         candidate,
-        makeValidFinalEvidence(),
+        makeValidFinalEvidence(candidate),
         { requirePass: false },
       ),
       /suspension requires/,
@@ -171,6 +182,10 @@ test('requires exact post-closure coverage and rotation identity per consumer', 
     (receipt) => {
       receipt.ingressClosure.internalFreshProofs[0].newUsernameSha256 =
         '0'.repeat(64);
+    },
+    (receipt) => {
+      receipt.ingressClosure.internalFreshProofs[1]
+        .postClosureDeployOrRunId = 'run-cron-2';
     },
   ];
 
@@ -255,6 +270,7 @@ test('requires strict A-G/action structure and all 12 PASS matrix rows', () => {
   {
     const receipt = makeValidOperatorReceipt();
     receipt.actions[6].terminalOutcome = 'failed';
+    receipt.actions[6].rollbackOutcome = 'contained';
     assert.throws(
       () => validateOperatorEvidence(receipt, makeValidFinalEvidence()),
       /last action must succeed/,
@@ -275,6 +291,108 @@ test('requires strict A-G/action structure and all 12 PASS matrix rows', () => {
     assert.throws(
       () => validateOperatorEvidence(makeValidOperatorReceipt(), markdown),
       /unresolved placeholder/,
+    );
+  }
+  {
+    const markdown = [
+      '# Synthetic',
+      '',
+      '- Overall status: `PASS`',
+      '',
+      '| Requirement | Result | Evidence |',
+      '|---|---|---|',
+      ...[
+        'Snapshot 2/delta',
+        'Exact single-host ingress',
+        'New credential',
+        'All consumers rotated',
+        'Old credential retired',
+        'PITR works',
+        'Source untouched',
+        'Temporary cost closed',
+        'RPO/RTO observed',
+        'External ingress closed',
+        'Internal remains green',
+        'Secret hygiene',
+      ].map((requirement) => `| ${requirement} | \`PASS\` | receipt |`),
+      '',
+    ].join('\n');
+    assert.throws(
+      () => validateOperatorEvidence(makeValidOperatorReceipt(), markdown),
+      /missing authority section/,
+    );
+  }
+});
+
+test('requires every failed action to be contained or explicitly resolved', () => {
+  {
+    const receipt = makeValidOperatorReceipt();
+    receipt.actions.splice(1, 0, {
+      ...receipt.actions[0],
+      actionId: 'action-a-failed',
+      startedAt: '2026-07-30T09:01:00Z',
+      completedAt: '2026-07-30T09:02:00Z',
+      terminalOutcome: 'failed',
+      rollbackOutcome: 'not_needed',
+    });
+    receipt.actions[0].startedAt = '2026-07-30T09:03:00Z';
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        makeValidFinalEvidence(receipt),
+      ),
+      /no rollback, containment, or linked resolution/,
+    );
+
+    receipt.actions[0].resolvesActionId = 'action-a-failed';
+    assert.equal(
+      validateOperatorEvidence(
+        receipt,
+        makeValidFinalEvidence(receipt),
+      ).status,
+      'pass',
+    );
+  }
+  {
+    const receipt = makeValidOperatorReceipt();
+    receipt.actions.splice(1, 0, {
+      ...receipt.actions[0],
+      actionId: 'action-a-contained',
+      startedAt: '2026-07-30T09:01:00Z',
+      completedAt: '2026-07-30T09:02:00Z',
+      terminalOutcome: 'failed',
+      rollbackOutcome: 'contained',
+    });
+    receipt.actions[0].startedAt = '2026-07-30T09:03:00Z';
+    assert.equal(
+      validateOperatorEvidence(
+        receipt,
+        makeValidFinalEvidence(receipt),
+      ).status,
+      'pass',
+    );
+  }
+});
+
+test('cross-binds key receipt identities into the full final synthesis', () => {
+  const receipt = makeValidOperatorReceipt();
+  const markdown = makeValidFinalEvidence(receipt);
+  for (const value of [
+    receipt.consumerClosure.consumerSetSha256,
+    receipt.consumerClosure.consumers[0].postSyncDeployOrRunId,
+    receipt.credentialRotation.newUsernameSha256,
+    receipt.restoreDrill.startRecoveryObservationSha256,
+    receipt.restoreDrill.sourceContinuity.before.bindingsSha256,
+    receipt.ingressClosure.backendMergeSha,
+    receipt.ingressClosure.internalFreshProofs[1].evidenceSha256,
+    receipt.ingressClosure.externalProtocolProof.sanitizedStderrSha256,
+  ]) {
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        markdown.replaceAll(value, 'removed-evidence-value'),
+      ),
+      /is not bound into final evidence/,
     );
   }
 });

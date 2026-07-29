@@ -120,6 +120,8 @@ Every external action is also represented in
 - Recovery database identity: `{{RECOVERY_SERVICE_ID}}`
 - Requested restore point: `{{UTC}}`
 - Start Recovery: `{{UTC}}`
+- Start Recovery DB-clock receipt: `sha256:{{SHA256}}`; observed skew
+  `{{SECONDS}}` seconds
 - Recovery Available: `{{UTC}}`
 - Validation complete: `{{UTC}}`
 - Before-receipt digest: `sha256:{{SHA256}}`, present
@@ -128,6 +130,8 @@ Every external action is also represented in
   `{{TRUE_OR_FALSE}}`
 - PostgreSQL major/schema/table/sample validation: `{{PASS_OR_FAIL}}`
 - Source remained available and bindings unchanged: `{{PASS_OR_FAIL}}`
+- Source before/after binding digest: `sha256:{{SHA256}}`
+- Source before/after deploy/run identities: `{{IDENTITY_LIST}}`
 - Observed RPO: `{{SECONDS}}` seconds
 - Observed provision RTO: `{{SECONDS}}` seconds
 - Observed validation RTO: `{{SECONDS}}` seconds
@@ -179,7 +183,9 @@ No health-only or TCP-only check is used as database evidence.
 `{{NONE_OR_COMPLETE_TYPED_TIMELINE}}`
 
 No failed attempt may be omitted. A rollback is recorded as an outcome, not
-silently replaced by the later successful attempt.
+silently replaced by the later successful attempt. Every failed action is
+named by `actionId` and either records containment/rollback or a later
+successful action that resolves the same `operationId` and target.
 
 ## 11. Secret hygiene and patch closure
 

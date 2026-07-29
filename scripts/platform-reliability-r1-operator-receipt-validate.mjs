@@ -193,7 +193,7 @@ function closeEnough(actual, expected) {
   return Math.abs(actual - expected) <= 0.001;
 }
 
-function validateFinalEvidence(markdown) {
+function validateFinalEvidenceStructure(markdown) {
   if (typeof markdown !== 'string' || !markdown.trim()) {
     fail('finalEvidence', 'must be nonempty Markdown');
   }
@@ -202,6 +202,28 @@ function validateFinalEvidence(markdown) {
   }
   if (!markdown.includes('- Overall status: `PASS`')) {
     fail('finalEvidence', 'overall status must be PASS');
+  }
+  for (let section = 1; section <= 12; section += 1) {
+    if (!new RegExp(`^## ${section}\\. `, 'm').test(markdown)) {
+      fail('finalEvidence', `missing authority section ${section}`);
+    }
+  }
+  for (const artifact of [
+    'platform-reliability-r1-0-snapshot-2.tsv',
+    'platform-reliability-r1-0-snapshot-2-db-capture-receipt.json',
+    'platform-reliability-r1-0-snapshot-2-render-receipt.json',
+    'platform-reliability-r1-0-snapshot-delta.json',
+    'platform-reliability-r1-0-snapshot-delta.md',
+    'platform-reliability-r1-secret-scan-receipt.json',
+  ]) {
+    if (!markdown.includes(artifact)) {
+      fail('finalEvidence', `missing evidence artifact ${artifact}`);
+    }
+  }
+  for (const gate of GATES) {
+    if (!new RegExp(`^\\| ${gate} —`, 'm').test(markdown)) {
+      fail('finalEvidence.operatorTimeline', `missing gate ${gate}`);
+    }
   }
   for (const requirement of R1_COMPLETION_REQUIREMENTS) {
     const escaped = requirement.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -218,6 +240,134 @@ function validateFinalEvidence(markdown) {
   }
 }
 
+function requireMarkdownValue(markdown, value, location) {
+  const text = String(value);
+  const codeBound = markdown.includes(`\`${text}\``);
+  const digestBound = SHA256_RE.test(text)
+    && markdown.includes(`sha256:${text}`);
+  if (!codeBound && !digestBound) {
+    fail(location, 'is not bound into final evidence');
+  }
+}
+
+function validateFinalEvidenceBindings(markdown, receipt) {
+  requireMarkdownValue(
+    markdown,
+    receipt.sourceDatabaseServiceId,
+    'finalEvidence.sourceDatabaseServiceId',
+  );
+  requireMarkdownValue(
+    markdown,
+    receipt.consumerClosure.consumerSetSha256,
+    'finalEvidence.consumerSetSha256',
+  );
+  for (const consumer of receipt.consumerClosure.consumers) {
+    for (const [key, value] of Object.entries({
+      serviceId: consumer.serviceId,
+      pinnedSourceSha: consumer.pinnedSourceSha,
+      postSyncDeployOrRunId: consumer.postSyncDeployOrRunId,
+      rotationRuntimeIdentitySha256:
+        consumer.rotationRuntimeIdentitySha256,
+      freshDatabaseProofSha256: consumer.freshDatabaseProofSha256,
+    })) {
+      requireMarkdownValue(
+        markdown,
+        value,
+        `finalEvidence.consumer.${consumer.serviceId}.${key}`,
+      );
+    }
+  }
+  for (const action of receipt.actions) {
+    requireMarkdownValue(
+      markdown,
+      action.actionId,
+      `finalEvidence.action.${action.actionId}`,
+    );
+    requireMarkdownValue(
+      markdown,
+      action.operationId,
+      `finalEvidence.action.${action.actionId}.operationId`,
+    );
+    if (action.terminalOutcome === 'failed') {
+      requireMarkdownValue(
+        markdown,
+        action.rollbackOutcome,
+        `finalEvidence.action.${action.actionId}.rollbackOutcome`,
+      );
+    }
+    if (action.resolvesActionId !== null) {
+      requireMarkdownValue(
+        markdown,
+        action.resolvesActionId,
+        `finalEvidence.action.${action.actionId}.resolvesActionId`,
+      );
+    }
+  }
+  for (const [key, value] of Object.entries({
+    operatorEgressCidrSha256:
+      receipt.ingressNarrowing.operatorEgressCidrSha256,
+    renderRuleCidrSha256: receipt.ingressNarrowing.renderRuleCidrSha256,
+    oldUsernameSha256: receipt.credentialRotation.oldUsernameSha256,
+    newUsernameSha256: receipt.credentialRotation.newUsernameSha256,
+    capabilityComparisonSha256:
+      receipt.credentialRotation.capabilityComparisonSha256,
+  })) {
+    requireMarkdownValue(markdown, value, `finalEvidence.${key}`);
+  }
+  const drill = receipt.restoreDrill;
+  for (const [key, value] of Object.entries({
+    financeDispositionId: drill.financeDispositionId,
+    recoveryServiceId: drill.recoveryServiceId,
+    beforeReceiptSha256: drill.beforeObservation.receiptSha256,
+    restorePoint: drill.restorePoint,
+    afterRunId: drill.afterTerminalRun.runId,
+    afterReceiptSha256: drill.afterTerminalRun.receiptSha256,
+    startRecoveryDbClock: drill.startRecoveryDbClock,
+    startRecoveryObservationSha256: drill.startRecoveryObservationSha256,
+    sourceBindingsSha256: drill.sourceContinuity.before.bindingsSha256,
+    observedRpoSeconds: drill.observedRpoSeconds,
+    observedProvisionRtoSeconds: drill.observedProvisionRtoSeconds,
+    observedValidationRtoSeconds: drill.observedValidationRtoSeconds,
+    cleanupOutcome: drill.cleanup.terminalOutcome,
+  })) {
+    requireMarkdownValue(markdown, value, `finalEvidence.restoreDrill.${key}`);
+  }
+  for (const identity of drill.sourceContinuity.before.deployIdentities) {
+    requireMarkdownValue(
+      markdown,
+      identity,
+      'finalEvidence.restoreDrill.sourceDeployIdentities',
+    );
+  }
+  const ingress = receipt.ingressClosure;
+  for (const [key, value] of Object.entries({
+    backendPr: ingress.backendPr,
+    backendHeadSha: ingress.backendHeadSha,
+    backendMergeSha: ingress.backendMergeSha,
+    reviewId: ingress.independentPatchReview.id,
+    reviewVerdict: ingress.independentPatchReview.verdict,
+    allowlistRuleCount: ingress.allowlistRuleCount,
+    externalOutcome: ingress.externalProtocolProof.terminalOutcome,
+    externalStderrSha256:
+      ingress.externalProtocolProof.sanitizedStderrSha256,
+  })) {
+    requireMarkdownValue(markdown, value, `finalEvidence.ingressClosure.${key}`);
+  }
+  for (const proof of ingress.internalFreshProofs) {
+    for (const [key, value] of Object.entries({
+      consumerId: proof.consumerId,
+      postClosureDeployOrRunId: proof.postClosureDeployOrRunId,
+      evidenceSha256: proof.evidenceSha256,
+    })) {
+      requireMarkdownValue(
+        markdown,
+        value,
+        `finalEvidence.ingressClosure.${proof.consumerId}.${key}`,
+      );
+    }
+  }
+}
+
 export function validateOperatorEvidence(
   receiptInput,
   finalEvidenceMarkdown,
@@ -225,7 +375,7 @@ export function validateOperatorEvidence(
 ) {
   const receipt = plainObject(receiptInput, 'receipt');
   assertNoPlaceholders(receipt);
-  validateFinalEvidence(finalEvidenceMarkdown);
+  validateFinalEvidenceStructure(finalEvidenceMarkdown);
 
   exactKeys(receipt, 'receipt', [
     'schema',
@@ -405,9 +555,12 @@ export function validateOperatorEvidence(
     fail('receipt.actions', 'must cover every gate and every external action');
   }
   const actionsByGate = new Map(GATES.map((gate) => [gate, []]));
+  const actionsById = new Map();
   for (const [index, action] of receipt.actions.entries()) {
     const location = `receipt.actions[${index}]`;
     exactKeys(action, location, [
+      'actionId',
+      'operationId',
       'gate',
       'kind',
       'startedAt',
@@ -416,8 +569,17 @@ export function validateOperatorEvidence(
       'terminalOutcome',
       'evidenceSha256',
       'rollbackOutcome',
+      'resolvesActionId',
       'secretsCaptured',
     ]);
+    const actionId = nonemptyString(action.actionId, `${location}.actionId`);
+    if (actionsById.has(actionId)) {
+      fail(`${location}.actionId`, 'duplicates an action');
+    }
+    const operationId = nonemptyString(
+      action.operationId,
+      `${location}.operationId`,
+    );
     const gate = enumValue(action.gate, `${location}.gate`, GATES);
     nonemptyString(action.kind, `${location}.kind`);
     const startedAt = utcValue(action.startedAt, `${location}.startedAt`);
@@ -439,15 +601,73 @@ export function validateOperatorEvidence(
       ['succeeded', 'failed'],
     );
     sha256Value(action.evidenceSha256, `${location}.evidenceSha256`);
-    nonemptyString(action.rollbackOutcome, `${location}.rollbackOutcome`);
+    enumValue(
+      action.rollbackOutcome,
+      `${location}.rollbackOutcome`,
+      ['not_needed', 'rolled_back', 'contained', 'rollback_failed', 'pending'],
+    );
+    const resolvesActionId = nullableString(
+      action.resolvesActionId,
+      `${location}.resolvesActionId`,
+    );
+    if (
+      action.terminalOutcome === 'succeeded'
+      && action.rollbackOutcome !== 'not_needed'
+    ) {
+      fail(location, 'successful action must use rollbackOutcome not_needed');
+    }
     if (action.secretsCaptured !== false) {
       fail(`${location}.secretsCaptured`, 'must be false');
     }
-    actionsByGate.get(gate).push({
+    const normalizedAction = {
+      actionId,
+      operationId,
+      gate,
+      targetId: action.targetId,
       startedAt,
       completedAt,
       terminalOutcome: action.terminalOutcome,
-    });
+      rollbackOutcome: action.rollbackOutcome,
+      resolvesActionId,
+    };
+    actionsById.set(actionId, normalizedAction);
+    actionsByGate.get(gate).push(normalizedAction);
+  }
+
+  for (const action of actionsById.values()) {
+    if (action.resolvesActionId !== null) {
+      const failed = actionsById.get(action.resolvesActionId);
+      if (
+        action.terminalOutcome !== 'succeeded'
+        || !failed
+        || failed.terminalOutcome !== 'failed'
+        || failed.completedAt > action.startedAt
+        || failed.gate !== action.gate
+        || failed.operationId !== action.operationId
+        || failed.targetId !== action.targetId
+      ) {
+        fail(
+          `receipt.actions.${action.actionId}.resolvesActionId`,
+          'does not resolve an earlier failed action for the same operation and target',
+        );
+      }
+    }
+  }
+  for (const failed of [...actionsById.values()].filter(
+    (action) => action.terminalOutcome === 'failed',
+  )) {
+    const contained = ['rolled_back', 'contained'].includes(
+      failed.rollbackOutcome,
+    );
+    const resolved = [...actionsById.values()].some(
+      (action) => action.resolvesActionId === failed.actionId,
+    );
+    if (!contained && !resolved) {
+      fail(
+        `receipt.actions.${failed.actionId}`,
+        'failed action has no rollback, containment, or linked resolution',
+      );
+    }
   }
 
   let previousGateEnd = windowStart;
@@ -617,6 +837,7 @@ export function validateOperatorEvidence(
     'restorePoint',
     'afterTerminalRun',
     'startRecoveryDbClock',
+    'startRecoveryObservationSha256',
     'startedAt',
     'availableAt',
     'validatedAt',
@@ -675,6 +896,10 @@ export function validateOperatorEvidence(
     drill.startRecoveryDbClock,
     'receipt.restoreDrill.startRecoveryDbClock',
   );
+  sha256Value(
+    drill.startRecoveryObservationSha256,
+    'receipt.restoreDrill.startRecoveryObservationSha256',
+  );
   const recoveryStartedAt = utcValue(
     drill.startedAt,
     'receipt.restoreDrill.startedAt',
@@ -695,6 +920,12 @@ export function validateOperatorEvidence(
     fail(
       'receipt.restoreDrill',
       'does not prove before < restore point < after <= Start Recovery DB clock',
+    );
+  }
+  if (Math.abs(startRecoveryDbClock - recoveryStartedAt) > 60 * 1000) {
+    fail(
+      'receipt.restoreDrill.startRecoveryDbClock',
+      'is more than 60 seconds from the Start Recovery action',
     );
   }
   if ((startRecoveryDbClock - restorePoint) / 1000 < 600) {
@@ -786,9 +1017,20 @@ export function validateOperatorEvidence(
   ) {
     fail('receipt.restoreDrill.sourceContinuity', 'does not bracket the drill');
   }
+  const expectedRuntimeIdentities = [...consumers.values()].map(
+    (consumer) => consumer.postSyncDeployOrRunId,
+  );
   const continuityEqual = (
     continuity.before.status === 'available'
     && continuity.after.status === 'available'
+    && equalStringSets(
+      continuity.before.deployIdentities,
+      expectedRuntimeIdentities,
+    )
+    && equalStringSets(
+      continuity.after.deployIdentities,
+      expectedRuntimeIdentities,
+    )
     && equalStringSets(
       continuity.before.deployIdentities,
       continuity.after.deployIdentities,
@@ -1012,10 +1254,19 @@ export function validateOperatorEvidence(
     ) {
       fail(`${location}.rotationDeployOrRunId`, 'does not match rotation receipt');
     }
-    nonemptyString(
+    const postClosureDeployOrRunId = nonemptyString(
       proof.postClosureDeployOrRunId,
       `${location}.postClosureDeployOrRunId`,
     );
+    if (
+      consumer.kind !== 'web'
+      && postClosureDeployOrRunId === proof.rotationDeployOrRunId
+    ) {
+      fail(
+        `${location}.postClosureDeployOrRunId`,
+        'run-based consumer must have a fresh post-closure run identity',
+      );
+    }
     if (
       sha256Value(
         proof.rotationRuntimeIdentitySha256,
@@ -1083,6 +1334,8 @@ export function validateOperatorEvidence(
   ) {
     fail('receipt.ingressClosure', 'does not prove durable paired closure');
   }
+
+  validateFinalEvidenceBindings(finalEvidenceMarkdown, receipt);
 
   return {
     schema: 'platform-reliability-r1-operator-evidence-validation.v1',

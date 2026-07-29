@@ -55,6 +55,7 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
   assert.ok(receipt.restoreDrill.beforeObservation.observedDbAt);
   assert.ok(receipt.restoreDrill.afterTerminalRun.runId);
   assert.ok(receipt.restoreDrill.startRecoveryDbClock);
+  assert.ok(receipt.restoreDrill.startRecoveryObservationSha256);
   assert.ok(receipt.restoreDrill.sourceContinuity.before.deployIdentities);
   assert.ok(receipt.restoreDrill.sourceContinuity.after.bindingsSha256);
   assert.ok(Object.hasOwn(receipt.restoreDrill.cleanup, 'namedOwner'));
@@ -67,6 +68,13 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
     'newUsernameSha256',
   ]) {
     assert.ok(Object.hasOwn(receipt.ingressClosure.internalFreshProofs[0], field));
+  }
+  for (const field of [
+    'actionId',
+    'operationId',
+    'resolvesActionId',
+  ]) {
+    assert.ok(Object.hasOwn(receipt.actions[0], field));
   }
   assert.equal(
     Object.hasOwn(receipt, 'password')
