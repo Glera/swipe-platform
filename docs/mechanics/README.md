@@ -257,15 +257,30 @@ Review 3 утвердил polyline baseline, пять собственных у�
 
 ## 2. Block Out! / color gates
 
-### Референс
+### Review 1/2 packet
 
-- [Block Out! — Color Sort Puzzle](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568)
+Подготовлены:
+
+- [`block-out/REFERENCE-PACKET.md`](block-out/REFERENCE-PACKET.md) — `BO-R`,
+  taxonomy split, сравнение четырёх references, recommendation, evidence gaps
+  и exact operator packet;
+- [`block-out/CLASS-BRIEF.md`](block-out/CLASS-BRIEF.md) — `BO-G`,
+  proposed gameplay/content/runtime boundaries и workstreams
+  `BO-R/G/E/S/F/P/I/A/Q`.
+
+Статус: **research only / Review 2 blocked on operator packet**. Primary
+reference (`P`) — [Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
+fidelity band (`P`) — exact-build levels `6–10` либо эквивалентный ранний
+static pre-modifier участок. До exact link, levels, native recording,
+must-preserve и `Defaults approve`/exceptions implementation не разрешена.
 
 ### Core loop
 
-Игрок двигает цветной блок по доступному направлению к воротам того же цвета.
-Порядок освобождения пространства определяет решение. Поздние референсные
-уровни добавляют лифты, генераторы и динамические препятствия.
+Игрок drag'ом reposition'ит разноформенные цветные блоки по ограниченному
+ортогональному полю и выводит каждый через matching boundary gate. Победа —
+очистить поле; выбранные рыночные references используют timer fail. Порядок
+освобождения пространства определяет решение. Поздние уровни добавляют лифты,
+генераторы, shutters и другие versioned modifiers.
 
 ### Платформенная ценность
 
@@ -280,8 +295,9 @@ Review 3 утвердил polyline baseline, пять собственных у�
 - блоки одного или нескольких размеров;
 - статические стены;
 - статические цветные выходы;
-- движение до препятствия либо на одну клетку — фиксируется по эталону;
-- без лифтов и генераторов;
+- exact free-stop / slide-stop / unit-step semantics фиксируется только по
+  operator recording;
+- без лифтов, generators, shutters и booster/meta rules;
 - solver обязателен до фабричной генерации.
 
 ### Риски
