@@ -5,6 +5,10 @@
 Продуктовое направление — `VISION.md` (появится в WS5). Спецификация
 dev-loop: [docs/specs/dev-loop.md](docs/specs/dev-loop.md).
 
+Cross-repo research каталога игровых классов и шаблон декомпозиции:
+[docs/mechanics/README.md](docs/mechanics/README.md). Это proposal для выбора
+и подготовки прототипов, не implementation status и не product authority.
+
 ## Репозитории
 
 | репозиторий | назначение | authoritative docs | verify | границы / запреты |
