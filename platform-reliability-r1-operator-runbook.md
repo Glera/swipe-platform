@@ -104,6 +104,11 @@ preview обязан явно сохранить действующий `/32`; �
 | `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
 | `platform-reliability-r1-secret-scan-receipt.json` | SHA-256 всех обязательных артефактов + zero-match secret/IP scan |
 
+Оба delta-output содержат одинаковый provenance-набор SHA-256: snapshot 1
+baseline, snapshot 2 TSV, snapshot 2 capture receipt и оба same-service Render
+receipt. Несовпадение любого hash или Markdown без этого блока — `NO-GO` для
+snapshot review.
+
 Перед окном использовать
 `docs/templates/platform-reliability-r1-operator-receipt-template.json` и
 `docs/templates/platform-reliability-r1-final-evidence-template.md` как
@@ -174,6 +179,39 @@ Stdout wrapper сохраняется как обязательный capture-re
   post-deletion negative test.
 
 Любой unmet-пункт — `NO-GO`, production не меняется.
+
+### 2.1 Known Blueprint Sync Hook incident
+
+Read-only факт-проверка `2026-07-29` не нашла публичного provider-контракта
+для rotation/revocation Blueprint Sync Hook:
+
+- [официальный Blueprint guide](https://render.com/docs/infrastructure-as-code)
+  документирует только Auto Sync и Manual Sync;
+- [публичный Render OpenAPI](https://api-docs.render.com/v1.0/openapi/render-public-api-1.json)
+  содержит `/blueprints`, `/blueprints/validate`,
+  `/blueprints/{blueprintId}` и `/blueprints/{blueprintId}/syncs`, но не
+  Blueprint hook lifecycle endpoint;
+- документированный `Regenerate Hook` относится к
+  [service deploy hooks](https://render.com/docs/deploy-hooks), а не к
+  Blueprint.
+
+До нового provider evidence состояние инцидента —
+`provider_path_not_documented`, поэтому operator window не начинает Gate A.
+Snapshot 2 и его независимое read-only review от этого не блокируются.
+
+Снять `NO-GO` в текущем evidence-contract можно только одним доказательством:
+в присутствии оператора targeted button-only проверка Dashboard, не читающая
+и не возвращающая hook value, показывает отдельный provider control
+Regenerate/Revoke для того же Blueprint; затем action проходит по
+`secretExposureIncidents` contract.
+
+Ответ Render Support сам по себе не открывает Gate A: текущая схема не умеет
+честно представить Support receipt. Такой путь сначала требует отдельного
+reviewed contract patch. Сам hook value нельзя читать или передавать Support;
+допустима только несекретная Blueprint identity.
+
+Выключение Auto Sync не доказывает инвалидирование hook. Disconnect/reconnect
+или создание нового Blueprint не являются допустимой диспозицией.
 
 Если новый secret-exposure incident возникает уже в окне, текущий action
 останавливается/получает typed containment, и никакой следующий gate-action не
