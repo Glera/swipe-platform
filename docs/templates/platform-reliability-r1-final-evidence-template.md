@@ -194,6 +194,7 @@ node scripts/platform-reliability-r1-evidence-scan.mjs \
 
 - Scanner status: `{{PASS_OR_FAIL}}`
 - Scanner source digest: `sha256:{{SHA256}}`
+- Operator validator source digest: `sha256:{{SHA256}}`
 - Rule-set digest: `sha256:{{SHA256}}`
 - Exact patch closure: `{{OBSERVED_PATH_LIST_OR_DIGEST}}`
 - Secret matches: `{{INTEGER}}`
@@ -202,11 +203,9 @@ node scripts/platform-reliability-r1-evidence-scan.mjs \
 
 ## 12. Independent final review
 
-- Review target: `{{REPOSITORY}}@{{FULL_SHA}}`
-- Reviewer identity/class: `{{INDEPENDENT_REVIEWER}}`
-- Review time: `{{UTC}}`
-- Verdict: `{{PASS_OR_PASS_WITH_CONDITIONS_OR_FAIL}}`
-- Findings and dispositions: `{{NONE_OR_LINKS}}`
+Independent final review starts only after the evidence and scan receipt are
+committed. Its exact-head verdict lives in the PR/review authority rather than
+self-referencing this pre-review artifact.
 
 R1 is complete only when every completion-matrix row is `PASS`, final review
 has no open condition, the recovery database is deleted, and production

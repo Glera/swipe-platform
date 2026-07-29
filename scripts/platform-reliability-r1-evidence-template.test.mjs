@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+  R1_COMPLETION_REQUIREMENTS,
+} from './platform-reliability-r1-operator-receipt-validate.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FINAL_TEMPLATE = path.join(
   ROOT,
@@ -14,25 +18,10 @@ const RECEIPT_TEMPLATE = path.join(
   'docs/templates/platform-reliability-r1-operator-receipt-template.json',
 );
 
-const COMPLETION_REQUIREMENTS = Object.freeze([
-  'Snapshot 2/delta',
-  'Exact single-host ingress',
-  'New credential',
-  'All consumers rotated',
-  'Old credential retired',
-  'PITR works',
-  'Source untouched',
-  'Temporary cost closed',
-  'RPO/RTO observed',
-  'External ingress closed',
-  'Internal remains green',
-  'Secret hygiene',
-]);
-
 test('final evidence template preserves every completion requirement and gate', () => {
   const markdown = fs.readFileSync(FINAL_TEMPLATE, 'utf8');
 
-  for (const requirement of COMPLETION_REQUIREMENTS) {
+  for (const requirement of R1_COMPLETION_REQUIREMENTS) {
     assert.equal(
       markdown.includes(`| ${requirement} |`),
       true,
@@ -63,6 +52,22 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
   assert.ok(Array.isArray(receipt.consumerClosure.consumers));
   assert.ok(Array.isArray(receipt.actions));
   assert.ok(Array.isArray(receipt.ingressClosure.internalFreshProofs));
+  assert.ok(receipt.restoreDrill.beforeObservation.observedDbAt);
+  assert.ok(receipt.restoreDrill.afterTerminalRun.runId);
+  assert.ok(receipt.restoreDrill.startRecoveryDbClock);
+  assert.ok(receipt.restoreDrill.sourceContinuity.before.deployIdentities);
+  assert.ok(receipt.restoreDrill.sourceContinuity.after.bindingsSha256);
+  assert.ok(Object.hasOwn(receipt.restoreDrill.cleanup, 'namedOwner'));
+  assert.ok(Object.hasOwn(receipt.restoreDrill.cleanup, 'financeNotificationId'));
+  assert.ok(Object.hasOwn(receipt.restoreDrill.cleanup, 'deletionDeadline'));
+  for (const field of [
+    'rotationDeployOrRunId',
+    'postClosureDeployOrRunId',
+    'rotationRuntimeIdentitySha256',
+    'newUsernameSha256',
+  ]) {
+    assert.ok(Object.hasOwn(receipt.ingressClosure.internalFreshProofs[0], field));
+  }
   assert.equal(
     Object.hasOwn(receipt, 'password')
       || Object.hasOwn(receipt, 'databaseUrl')

@@ -10,7 +10,10 @@
     "observedAt": "{{UTC}}",
     "status": "{{CLOSED_OR_OPEN}}",
     "consumerSetSha256": "{{SHA256}}",
-    "manualExternalConsumers": "{{NONE_OR_DISPOSITION}}",
+    "manualExternalConsumers": {
+      "status": "{{NONE_OR_DISPOSITIONED}}",
+      "dispositionId": "{{NULL_OR_ID}}"
+    },
     "consumers": [
       {
         "serviceId": "{{RENDER_SERVICE_ID}}",
@@ -19,6 +22,8 @@
         "pinnedSourceSha": "{{FULL_SHA}}",
         "lastKnownGoodDeployOrRunId": "{{ID}}",
         "postSyncDeployOrRunId": "{{ID}}",
+        "rotationRuntimeIdentitySha256": "{{SHA256}}",
+        "newUsernameSha256": "{{SHA256}}",
         "freshDatabaseProofSha256": "{{SHA256}}"
       }
     ]
@@ -74,7 +79,7 @@
       "startedAt": "{{UTC}}",
       "completedAt": "{{UTC}}",
       "targetId": "{{NONSECRET_RENDER_ID}}",
-      "terminalOutcome": "{{TYPED_OUTCOME}}",
+      "terminalOutcome": "{{SUCCEEDED_OR_FAILED}}",
       "evidenceSha256": "{{SHA256}}",
       "rollbackOutcome": "{{NOT_NEEDED_OR_TYPED_OUTCOME}}",
       "secretsCaptured": false
@@ -93,7 +98,12 @@
     "newCredentialCreatedAt": "{{UTC}}",
     "capabilityComparisonSha256": "{{SHA256}}",
     "profilesEqual": "{{TRUE_OR_FALSE}}",
-    "blueprintSyncIdentity": "{{ID_OR_TYPED_ABSENCE}}",
+    "alembicCheckPassed": "{{TRUE_OR_FALSE}}",
+    "blueprintSyncIdentity": {
+      "available": "{{TRUE_OR_FALSE}}",
+      "id": "{{NULL_OR_ID}}",
+      "typedAbsence": "{{NULL_OR_REASON}}"
+    },
     "oldSessionsAfterDrain": "{{INTEGER}}",
     "oldCredentialPostDeletionOutcome": "{{TYPED_OUTCOME}}",
     "newCredentialPostDeletionOutcome": "{{TYPED_OUTCOME}}"
@@ -101,36 +111,86 @@
   "restoreDrill": {
     "financeDispositionId": "{{ID}}",
     "recoveryServiceId": "{{RENDER_SERVICE_ID}}",
+    "beforeObservation": {
+      "observedDbAt": "{{UTC}}",
+      "receiptSha256": "{{SHA256}}"
+    },
     "restorePoint": "{{UTC}}",
+    "afterTerminalRun": {
+      "runId": "{{RENDER_RUN_ID}}",
+      "terminalAt": "{{UTC}}",
+      "receiptSha256": "{{SHA256}}"
+    },
+    "startRecoveryDbClock": "{{UTC}}",
     "startedAt": "{{UTC}}",
     "availableAt": "{{UTC}}",
     "validatedAt": "{{UTC}}",
-    "beforeReceiptSha256": "{{SHA256}}",
-    "afterReceiptSha256": "{{SHA256}}",
-    "beforePresent": "{{TRUE_OR_FALSE}}",
-    "afterAbsent": "{{TRUE_OR_FALSE}}",
-    "sourceIdentityUnchanged": "{{TRUE_OR_FALSE}}",
+    "validation": {
+      "postgresMajorMatches": "{{TRUE_OR_FALSE}}",
+      "alembicHeadMatches": "{{TRUE_OR_FALSE}}",
+      "schemaAndTableCountsMatch": "{{TRUE_OR_FALSE}}",
+      "immutableSamplesMatch": "{{TRUE_OR_FALSE}}",
+      "beforePresent": "{{TRUE_OR_FALSE}}",
+      "afterAbsent": "{{TRUE_OR_FALSE}}"
+    },
+    "sourceContinuity": {
+      "before": {
+        "observedAt": "{{UTC}}",
+        "serviceId": "{{RENDER_SERVICE_ID}}",
+        "status": "{{RENDER_STATUS}}",
+        "deployIdentities": [
+          "{{DEPLOY_ID}}"
+        ],
+        "bindingsSha256": "{{SHA256}}"
+      },
+      "after": {
+        "observedAt": "{{UTC}}",
+        "serviceId": "{{RENDER_SERVICE_ID}}",
+        "status": "{{RENDER_STATUS}}",
+        "deployIdentities": [
+          "{{DEPLOY_ID}}"
+        ],
+        "bindingsSha256": "{{SHA256}}"
+      },
+      "comparisonResult": "{{EQUAL_OR_DIFFERENT}}"
+    },
     "observedRpoSeconds": "{{NUMBER}}",
     "observedProvisionRtoSeconds": "{{NUMBER}}",
     "observedValidationRtoSeconds": "{{NUMBER}}",
     "cleanup": {
       "operatorConfirmedAt": "{{UTC}}",
       "completedAt": "{{UTC}}",
-      "terminalOutcome": "{{TYPED_OUTCOME}}"
+      "terminalOutcome": "{{DELETED_OR_SUSPENDED}}",
+      "namedOwner": "{{NULL_OR_OWNER}}",
+      "financeNotificationId": "{{NULL_OR_ID}}",
+      "deletionDeadline": "{{NULL_OR_UTC}}"
     }
   },
   "ingressClosure": {
-    "backendPr": "{{PR_NUMBER}}",
+    "backendPr": "{{POSITIVE_INTEGER}}",
     "backendHeadSha": "{{FULL_SHA}}",
     "backendMergeSha": "{{FULL_SHA}}",
-    "blueprintSyncIdentity": "{{ID_OR_TYPED_ABSENCE}}",
+    "independentPatchReview": {
+      "id": "{{REVIEW_ID}}",
+      "verdict": "{{PASS_OR_FAIL}}"
+    },
+    "blueprintSyncIdentity": {
+      "available": "{{TRUE_OR_FALSE}}",
+      "id": "{{NULL_OR_ID}}",
+      "typedAbsence": "{{NULL_OR_REASON}}"
+    },
     "savedAt": "{{UTC}}",
     "allowlistRuleCount": "{{INTEGER}}",
     "internalFreshProofs": [
       {
         "consumerId": "{{RENDER_SERVICE_ID}}",
+        "kind": "{{WEB_OR_CRON_OR_WORKER}}",
         "observedAt": "{{UTC}}",
         "terminalOutcome": "{{TYPED_OUTCOME}}",
+        "rotationDeployOrRunId": "{{ID}}",
+        "postClosureDeployOrRunId": "{{ID}}",
+        "rotationRuntimeIdentitySha256": "{{SHA256}}",
+        "newUsernameSha256": "{{SHA256}}",
         "evidenceSha256": "{{SHA256}}"
       }
     ],

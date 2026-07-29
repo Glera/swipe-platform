@@ -7,9 +7,14 @@ import path from 'node:path';
 import { TextDecoder } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
+import { validateOperatorEvidence } from './platform-reliability-r1-operator-receipt-validate.mjs';
+
 const MAX_ARTIFACT_BYTES = 5 * 1024 * 1024;
 const OUTPUT_RECEIPT = 'platform-reliability-r1-secret-scan-receipt.json';
 const SCANNER_SOURCE_PATH = fileURLToPath(import.meta.url);
+const OPERATOR_VALIDATOR_SOURCE_PATH = fileURLToPath(
+  new URL('./platform-reliability-r1-operator-receipt-validate.mjs', import.meta.url),
+);
 const UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 
 export const REQUIRED_EVIDENCE_FILES = Object.freeze([
@@ -313,8 +318,8 @@ function readArtifact(root, relativePath) {
       fail(`required artifact is not valid UTF-8: ${relativePath}`);
     }
     testText(text, relativePath);
+    let decoded = null;
     if (relativePath.endsWith('.json')) {
-      let decoded;
       try {
         decoded = JSON.parse(text);
       } catch {
@@ -324,9 +329,13 @@ function readArtifact(root, relativePath) {
     }
 
     return {
-      path: relativePath,
-      bytes: bytes.length,
-      sha256: sha256(bytes),
+      metadata: {
+        path: relativePath,
+        bytes: bytes.length,
+        sha256: sha256(bytes),
+      },
+      text,
+      decoded,
     };
   } finally {
     fs.closeSync(descriptor);
@@ -339,9 +348,17 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   }
   const root = fs.realpathSync(path.resolve(rootInput));
   const patchClosure = establishPatchClosure(root, baseRef);
-  const files = REQUIRED_EVIDENCE_FILES.map(
+  const artifacts = REQUIRED_EVIDENCE_FILES.map(
     (relativePath) => readArtifact(root, relativePath),
   );
+  const byPath = new Map(
+    artifacts.map((artifact) => [artifact.metadata.path, artifact]),
+  );
+  const operatorValidation = validateOperatorEvidence(
+    byPath.get('platform-reliability-r1-operator-receipt.json').decoded,
+    byPath.get('platform-reliability-r1-final-evidence.md').text,
+  );
+  const files = artifacts.map((artifact) => artifact.metadata);
   const ruleDefinitions = {
     regexAndFunctionRules: SECRET_RULES.map((rule) => ({
       id: rule.id,
@@ -349,13 +366,19 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
     })),
     sensitiveJsonKeys: [...SENSITIVE_JSON_KEYS],
     allowedNetworkConstants: ['all-ipv4-sentinel'],
+    operatorValidatorSourceSha256: sha256(
+      fs.readFileSync(OPERATOR_VALIDATOR_SOURCE_PATH),
+    ),
   };
   return {
     schema: 'platform-reliability-r1-secret-scan-receipt.v2',
     status: 'pass',
     scannerSourceSha256: sha256(fs.readFileSync(SCANNER_SOURCE_PATH)),
+    operatorValidatorSourceSha256:
+      ruleDefinitions.operatorValidatorSourceSha256,
     ruleSetSha256: sha256(Buffer.from(JSON.stringify(ruleDefinitions))),
     patchClosure,
+    operatorValidation,
     requiredFiles: files,
     secretMatches: 0,
     exactIpv4Captured: false,

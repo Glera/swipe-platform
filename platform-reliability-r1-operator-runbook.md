@@ -88,6 +88,10 @@ preview обязан явно сохранить действующий `/32`; �
 чеклисты полноты. Копии с runtime-фактами создаются только под точными
 именами из таблицы; каждый placeholder обязан быть заменён или удалён.
 Шаблон не является evidence и не получает статус PASS.
+Перед secret scan instantiated receipt и final evidence обязаны пройти
+строгую structural/chronology-проверку без неразрешённых `{{...}}`;
+проверка встроена в финальный evidence scanner и не заменяется визуальным
+просмотром шаблона.
 
 Snapshot 2 снимается только через
 `scripts/platform-reliability-r1-db-capture.mjs`. В одном доверенном in-app

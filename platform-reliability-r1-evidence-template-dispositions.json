@@ -1,0 +1,82 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 104,
+      "desc": "The restore receipt omitted server-owned before observation, after-boundary terminal run, and Start Recovery database-clock evidence needed to prove ordering and recompute RPO."
+    },
+    {
+      "id": "F002",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 112,
+      "desc": "Source continuity was represented only by a caller-authored boolean rather than exact before and after source service, deploy, and binding identities."
+    },
+    {
+      "id": "F003",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 116,
+      "desc": "A suspended recovery cleanup could not retain the mandatory named owner, finance notification, and deletion deadline within 24 hours."
+    },
+    {
+      "id": "F004",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 130,
+      "desc": "Post-closure internal proofs omitted deploy or run identity and rotated username binding for exact consumer-set coverage."
+    },
+    {
+      "id": "F005",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 87,
+      "desc": "Quoted boolean and numeric placeholders could produce stringly typed final receipts without a strict schema validator."
+    },
+    {
+      "id": "F006",
+      "severity": "P2",
+      "file": "scripts/platform-reliability-r1-evidence-template.test.mjs",
+      "line": 35,
+      "desc": "Static label checks did not protect authority fields, negative structural cases, or reject unresolved placeholders in final evidence."
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "F001",
+      "action": "fixed"
+    },
+    {
+      "id": "F002",
+      "action": "fixed"
+    },
+    {
+      "id": "F003",
+      "action": "fixed"
+    },
+    {
+      "id": "F004",
+      "action": "fixed"
+    },
+    {
+      "id": "F005",
+      "action": "fixed"
+    },
+    {
+      "id": "F006",
+      "action": "fixed"
+    }
+  ],
+  "verify": [
+    {
+      "command": "node --test 'scripts/*.test.mjs'",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ]
+}

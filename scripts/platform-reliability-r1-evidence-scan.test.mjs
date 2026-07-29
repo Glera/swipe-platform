@@ -10,6 +10,10 @@ import {
   REQUIRED_EVIDENCE_FILES,
   scanEvidence,
 } from './platform-reliability-r1-evidence-scan.mjs';
+import {
+  makeValidFinalEvidence,
+  makeValidOperatorReceipt,
+} from './platform-reliability-r1-operator-receipt-test-fixture.mjs';
 
 const SCRIPT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -50,6 +54,14 @@ function fixture() {
       : `${filename}\nstatus pass\nsha256 ${'a'.repeat(64)}\n`;
     fs.writeFileSync(path.join(root, filename), content);
   }
+  fs.writeFileSync(
+    path.join(root, 'platform-reliability-r1-operator-receipt.json'),
+    `${JSON.stringify(makeValidOperatorReceipt())}\n`,
+  );
+  fs.writeFileSync(
+    path.join(root, 'platform-reliability-r1-final-evidence.md'),
+    makeValidFinalEvidence(),
+  );
   return {
     root,
     cleanup() {
@@ -74,8 +86,13 @@ test('scans the exact git patch manifest and emits only hashes', () => {
     assert.equal(result.secretMatches, 0);
     assert.equal(result.exactIpv4Captured, false);
     assert.equal(result.secretsCaptured, false);
+    assert.equal(result.operatorValidation.status, 'pass');
+    assert.equal(result.operatorValidation.gateCount, 7);
+    assert.equal(result.operatorValidation.completionRequirementCount, 12);
+    assert.equal(result.operatorValidation.placeholdersResolved, true);
     assert.match(result.ruleSetSha256, /^[a-f0-9]{64}$/);
     assert.match(result.scannerSourceSha256, /^[a-f0-9]{64}$/);
+    assert.match(result.operatorValidatorSourceSha256, /^[a-f0-9]{64}$/);
     for (const artifact of result.requiredFiles) {
       assert.match(artifact.sha256, /^[a-f0-9]{64}$/);
       assert.equal(Object.hasOwn(artifact, 'content'), false);
@@ -92,28 +109,24 @@ test('scans the exact git patch manifest and emits only hashes', () => {
   }
 });
 
-test('accepts hashed identities, closure narrative, and the all-IPv4 sentinel', () => {
+test('accepts complete operator evidence and the all-IPv4 sentinel', () => {
   const files = fixture();
   try {
     fs.writeFileSync(
-      path.join(files.root, 'platform-reliability-r1-operator-receipt.json'),
+      path.join(
+        files.root,
+        'platform-reliability-r1-0-snapshot-2-render-receipt.json',
+      ),
       `${JSON.stringify({
-        schema: 'platform-reliability-r1-operator-receipt.v1',
-        cidrKind: 'single-ipv4',
-        operatorEgressCidrSha256: 'b'.repeat(64),
-        renderRuleCidrSha256: 'b'.repeat(64),
-        oldUsernameSha256: 'c'.repeat(64),
-        newUsernameSha256: 'd'.repeat(64),
+        schema: 'safe-render-receipt.v1',
         preWindowRule: '0.0.0.0/0',
-        externalProtocolOutcome: 'network_policy_refused',
         secretsCaptured: false,
       })}\n`,
     );
     fs.writeFileSync(
       path.join(files.root, 'platform-reliability-r1-final-evidence.md'),
       [
-        '# R1 final evidence',
-        '',
+        makeValidFinalEvidence(),
         'The previous all-IPv4 rule was replaced by a single-host rule and then',
         'an empty allowlist. Fresh internal database queries passed; a fresh',
         'external PostgreSQL protocol request was refused before SQL execution.',
