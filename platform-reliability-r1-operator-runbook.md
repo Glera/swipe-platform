@@ -1,0 +1,386 @@
+# Platform Reliability R1 — PostgreSQL operator runbook
+
+Статус: исполнять только после snapshot 2 и его review. Этот документ не
+является разрешением на production-изменения. Каждый помеченный `OPERATOR`
+гейт требует присутствия и явного подтверждения оператора в текущей сессии.
+
+Цель окна:
+
+1. сузить внешний PostgreSQL ingress до одного operator-Mac `/32`;
+2. без простоя перевести все Render-сервисы на новый default credential;
+3. доказать isolated point-in-time recovery;
+4. полностью закрыть внешний ingress;
+5. доказать одновременно fresh internal connectivity и отказ нового
+   PostgreSQL-запроса снаружи.
+
+## 0. Authority и неизменяемые ограничения
+
+- Source database: Render service
+  `dpg-d95r32favr4c73aqs4d0-a` (`swipe-db`).
+- Render database **Apps** не является картой consumers: это поверхность
+  подключаемых admin-apps. Runtime-карта строится в момент окна по всему
+  workspace:
+  - все Render services/cron/workers и environment groups, чьи env metadata
+    ссылаются на `swipe-db` / `fromDatabase.connectionString`;
+  - все linked Blueprints и их pinned source manifests;
+  - отдельно manual env consumers и внешние automations;
+  - `pg_stat_activity`/логи за охватывающий самый редкий schedule период —
+    только corroboration, потому что idle cron может отсутствовать в одном
+    срезе.
+  Значения connection strings не читаются/сохраняются. Список в чате, один
+  Blueprint или database Apps не считается полным authority.
+- Все найденные consumers должны быть перечислены в receipt и переведены.
+  Замкнутый baseline set сверяется заново; любое расхождение останавливает окно
+  до диспозиции.
+- Source DB никогда не переключается на recovery DB в этом drill.
+- Никаких DDL/DML-маркеров в source DB ради теста. Все SQL-проверки source и
+  recovery выполняются в `REPEATABLE READ READ ONLY`.
+- Connection strings, пароли, PSQL commands и точный внешний IP не пишутся в
+  логи, shell history, git или evidence. В receipt допускаются только
+  SHA-256 username/CIDR и несекретные Render identity.
+- Открытие расходов, создание/deletion credential, Blueprint sync/redeploy,
+  запуск cron, recovery и изменение allowlist — только в operator window.
+
+Официальные контракты Render:
+
+- [credential rotation](https://render.com/docs/postgresql-credentials):
+  новый Render-managed user становится default; Blueprint `connectionString`
+  обновляется только на следующем manual sync; старый user остаётся валиден
+  до удаления;
+- [external connections](https://render.com/docs/postgresql-creating-connecting):
+  same-region Render services используют private URL, external allowlist их не
+  затрагивает;
+- [inbound IP rules](https://render.com/docs/inbound-ip-rules): `/32`
+  ограничивает одним IPv4; пустой список блокирует весь внешний ingress;
+  TCP-only `nc`/`telnet` не доказывает блокировку — нужен protocol-level
+  PostgreSQL request;
+- [PITR](https://render.com/docs/postgresql-backups): recovery создаёт отдельную
+  DB, не меняет source; restore point должен быть старше текущего времени
+  минимум на 10 минут и recovery копирует allowlist source.
+
+Blueprint authority требует отдельной осторожности:
+[`ipAllowList` omitted означает allow-all](https://render.com/docs/blueprint-spec#inbound-ip-rules).
+Поэтому dashboard-only empty allowlist не является durable финалом.
+Backend-патч `ipAllowList: []` готовится и ревьюится заранее, но применяется
+только в operator window после drill. На промежуточном manual Blueprint sync
+preview обязан явно сохранить действующий `/32`; любое предложение вернуть
+`0.0.0.0/0` останавливает rotation до нового операторского решения.
+
+## 1. Evidence bundle
+
+Создать отдельную ветку от свежего `p4g-workspace-meta/origin/master`.
+Никаких runtime-фактов не коммитить до их наблюдения. Финальный пакет содержит:
+
+| Артефакт | Содержание |
+|---|---|
+| `platform-reliability-r1-0-snapshot-2.tsv` | полный raw collector output с `snapshot_complete	ok` |
+| `platform-reliability-r1-0-snapshot-2-render-receipt.json` | same-service Render storage/identity observation |
+| `platform-reliability-r1-0-snapshot-delta.json` | машинный analyzer output |
+| `platform-reliability-r1-0-snapshot-delta.md` | review view |
+| `platform-reliability-r1-operator-receipt.json` | несекретный журнал operator window |
+| `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
+
+В `operator-receipt` для каждого внешнего действия записать:
+
+- UTC before/after;
+- Render service / deploy / cron-run / Blueprint-sync identity;
+- operator confirmation timestamp;
+- terminal outcome;
+- hash или typed result проверки;
+- rollback outcome, если он применялся;
+- `secretsCaptured: false`.
+
+Не писать точный `/32`. Записать `cidrKind: "single-ipv4"` и SHA-256
+канонической строки `<ipv4>/32`. Username не является credential, но для
+минимизации следа также сохранять только SHA-256.
+
+## 2. Stop-before-start
+
+Перед первым изменением должны одновременно выполняться:
+
+- snapshot 2 снят после `2026-07-30 08:31:00Z`, raw TSV сохранён;
+- delta analyzer принял пару snapshot 1→2 и same-service Render receipts;
+- independent review snapshot-пакета не имеет P1/P2 blockers;
+- database status `available`;
+- workspace-wide env-reference inventory, linked Blueprints и repo manifests
+  дали один замкнутый consumer set; manual/external consumers отсутствуют либо
+  явно диспозированы;
+- нет активного deploy/Blueprint sync/recovery/export;
+- у оператора есть окно на весь цикл и подтверждён возможный расход recovery;
+- сохранён pinned source SHA и last-known-good deploy identity каждого
+  потребителя;
+- старый external URL удерживается только в ephemeral memory до
+  post-deletion negative test.
+
+Любой unmet-пункт — `NO-GO`, production не меняется.
+
+## 3. Сужение ingress: `0.0.0.0/0` → operator `/32`
+
+### 3.1 Preflight
+
+1. Определить публичный IPv4 operator Mac и канонизировать как `<ipv4>/32`.
+2. Убедиться, что адрес — IPv4, не private/reserved, и совпадает с текущим
+   egress Mac. Не коммитить его.
+3. Пока действует `0.0.0.0/0`, выполнить по full external URL:
+
+   ```sql
+   BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY;
+   SELECT current_database(), current_user, inet_client_addr();
+   ROLLBACK;
+   ```
+
+4. Записать только DB identity, user hash и два CIDR digest:
+   `operatorEgressCidrSha256` из наблюдённого egress и
+   `renderRuleCidrSha256` из сохранённого правила. PASS требует их равенства,
+   `cidrKind: "single-ipv4"` и `protocolQuerySucceeded: true`.
+
+### 3.2 Change — `OPERATOR GATE A`
+
+После подтверждения оператора заменить единственное правило
+`0.0.0.0/0` на `<ipv4>/32` и сохранить.
+
+PASS:
+
+- Render показывает ровно один database-level source `/32`;
+- новый PostgreSQL protocol request по тому же external URL с Mac успешен;
+- `current_database()` совпадает с source DB;
+- Render Apps остаются available.
+
+KILL/rollback: если новый protocol request с Mac не проходит или любой
+внутренний consumer деградировал, оператор возвращает прежнее правило
+`0.0.0.0/0`, подтверждает восстановление и завершает окно без rotation.
+
+## 4. Zero-downtime credential rotation
+
+### 4.1 Создать новый default — `OPERATOR GATE B`
+
+1. Зафиксировать hash старого default username.
+2. После подтверждения оператора выбрать **New default credential**.
+3. Скопировать новый external URL только в ephemeral memory; не сохранять его
+   в файл/clipboard дольше окна.
+4. Доказать по `/32` новым credential:
+
+   ```sql
+   BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY;
+   SELECT current_database(), current_user;
+   ROLLBACK;
+   ```
+
+5. Зафиксировать hash нового username и показанный Render `createdAt`;
+   отдельный opaque credential ID не выдумывать, если Dashboard его не
+   предоставляет.
+
+Новый user не означает, что приложения уже переключены. Старый user нельзя
+удалять до §4.4.
+
+### 4.2 Capability preflight и Blueprint sync — `OPERATOR GATE C`
+
+До sync новый user должен пройти не только `SELECT 1`, но и read-only
+capability audit:
+
+- `has_schema_privilege(..., 'USAGE,CREATE')` для application schema;
+- `has_table_privilege` для требуемых app-операциями privileges по всем
+  public tables;
+- `has_sequence_privilege(..., 'USAGE,SELECT,UPDATE')` по всем app sequences;
+- read-only Alembic current/check против pinned source.
+
+Проверка возвращает только aggregate pass/fail и список отсутствующих
+privileges без credentials. Любой miss — sync не начинается, старый user
+остаётся рабочим.
+
+1. Открыть linked Blueprint и сначала просмотреть sync diff.
+2. Fail closed, если preview содержит create/delete/plan/storage/schedule,
+   неожиданные env или source-commit изменения. Разрешён только ожидаемый
+   refresh DB reference и неизменный declarative source.
+3. После подтверждения оператора выполнить manual Blueprint sync.
+4. Зафиксировать sync ID, pinned source SHA, затронутые сервисы и terminal
+   status.
+
+### 4.3 Fresh internal proof
+
+Перезапустить/redeploy весь замкнутый consumer set из §0, получивший новое
+Blueprint value. Для каждого нужен свежий, а не унаследованный socket:
+
+- web: terminal `Live`, затем из Render Shell выполнить отдельный read-only
+  `SELECT current_database(), current_user` через приложение;
+- каждый DB-backed cron: новый successful manual run после sync. Допустим
+  только его штатный idempotent `run-once`; записать run ID и terminal result;
+- из external `/32` session проверить `pg_stat_activity`: присутствует новый
+  user, старый user имеет `0` sessions после bounded drain/redeploy.
+
+Точный список берётся из §0 authority. Проверка только `/api/health`
+недостаточна: этот endpoint по принятому контракту не проверяет DB.
+
+KILL/containment:
+
+- при sync/deploy/run ошибке старый credential остаётся валиден и deletion
+  запрещён;
+- не утверждать, что rollback deploy вернул старый dynamic env: Render
+  Blueprint reference уже указывает на новый default;
+- web переводится последовательно: failed candidate не заменяет последний
+  Live instance; зафиксировать, какой user обслуживает оставшийся Live;
+- pinned last-known-good image можно redeploy только с уже доказанными
+  capability нового credential. Если он тоже не получает fresh DB proof,
+  окно останавливается в состоянии «оба users сохранены» и требует отдельного
+  reviewed recovery-плана;
+- не удалять ни одного user;
+- новый default можно оставить активным до отдельной диспозиции — его deletion
+  тоже требует оператора. Не обещать автоматический repoint на старый URL:
+  такого reviewed механизма в этом runbook нет.
+
+### 4.4 Удалить старый credential — `OPERATOR GATE D`
+
+Только когда:
+
+- все consumers имеют fresh proof с новым user;
+- `pg_stat_activity` показывает `0` старых sessions;
+- каждый consumer из замкнутого set имеет свежий terminal proof;
+- оператор отдельно подтвердил deletion.
+
+После удаления старого credential:
+
+1. старый external URL обязан получить authentication rejection при
+   PostgreSQL protocol request через ещё открытый `/32`;
+2. новый external URL обязан остаться успешным;
+3. повторить fresh internal web query и по одному штатному run каждого cron.
+
+Если старый URL всё ещё успешен — `NO-GO`: не переходить к recovery/closure.
+
+## 5. Isolated PITR restore-drill — `OPERATOR GATE E`
+
+Recovery создаёт новый оплачиваемый database service. До окна уведомить
+финансового директора о temporary instance и сохранить его диспозицию. Перед
+final **Start Recovery** показать оператору имя, restore point, copied
+settings, ожидаемый plan/cost и получить явное подтверждение. Нет
+finance-диспозиции или operator approval — restore не запускается.
+
+### 5.1 Server-owned anchor
+
+До запуска зафиксировать server-clock restore point внутри доступного окна,
+старше текущего времени минимум на 10 минут. Boundary строится не по
+приблизительному `created_at`:
+
+1. В read-only transaction прочитать последний уже committed
+   `content_analytics_scheduler_run_receipts` row (`before`) и DB clock.
+2. Выбрать `restore_point` строго после этой read-only observation.
+3. После `restore_point` штатный credential-smoke из §4.3 запускает обычный
+   idempotent C1 `run-once`. Он по контракту пишет append-only receipt даже для
+   `noop`; его terminal run receipt становится `after`.
+4. К началу recovery `restore_point` должен быть старше текущего DB clock
+   минимум на 10 минут.
+
+Записать SHA-256 canonical identity обоих receipts и Render run ID `after`.
+Так `before` доказанно был committed до точки, а `after` создан штатным
+terminal run после неё. Это не искусственный DML-marker: тот же C1-run уже
+обязателен для проверки rotated credential. Если C1-run не создал terminal
+receipt, drill не может получить PASS.
+
+Дополнительно зафиксировать source:
+
+- `current_database`, PostgreSQL major, Alembic head;
+- public table count;
+- exact total rows;
+- immutable sample digests.
+
+Все запросы — одна `REPEATABLE READ READ ONLY` транзакция.
+
+### 5.2 Restore и validation
+
+1. Создать recovery DB с уникальным `r1-drill-<UTC>` именем, source DB не
+   переключать.
+2. Ждать terminal `Available`; записать recovery service ID и timestamps.
+3. Подключиться к recovery по full URL.
+4. Доказать:
+   - другой database/service identity;
+   - ожидаемые PostgreSQL major и Alembic head;
+   - `before` digest присутствует;
+   - `after` digest отсутствует;
+   - schema/table counts и immutable samples согласованы с restore point;
+   - source DB всё время остаётся `Available`, ее consumer bindings не
+     менялись.
+
+Записать наблюдаемые recovery objectives, не превращая один drill в SLA:
+
+- `observedRpoSeconds` = DB clock в момент Start Recovery минус requested
+  restore point;
+- `observedProvisionRtoSeconds` = Start Recovery → terminal `Available`;
+- `observedValidationRtoSeconds` = Start Recovery → последний успешный
+  acceptance query.
+
+Restore с неверной boundary, schema или sample = `FAIL`, не повторять
+автоматически и ничего не переключать.
+
+### 5.3 Cleanup — `OPERATOR GATE F`
+
+После сохранения evidence показать оператору exact recovery service target.
+По отдельному подтверждению удалить recovery DB. Source DB
+удалять/переключать запрещено. Зафиксировать terminal deletion outcome.
+
+Suspend — только аварийная отсрочка, не PASS и не закрытие расхода: receipt
+обязан содержать named owner, финансовое уведомление и deletion deadline не
+позже 24 часов. Пока recovery DB не удалена, completion matrix остаётся
+незакрытой.
+
+## 6. Полное закрытие external ingress
+
+### 6.1 Durable change — `OPERATOR GATE G`
+
+После успешных §§3–5 и подтверждения оператора применить заранее
+отдельно-reviewed backend-патч, в котором exact `swipe-db` mapping содержит
+`ipAllowList: []`:
+
+1. убедиться, что patch основан на актуальном `swipe-backend/origin/master` и
+   меняет только network boundary + её fail-closed test;
+2. показать оператору exact PR/head и получить подтверждение merge;
+3. выполнить/дождаться Blueprint sync, preview которого не содержит других
+   изменений;
+4. убедиться, что Render показывает пустой database allowlist.
+
+Dashboard-only удаление `/32` без committed Blueprint authority не получает
+PASS: следующий sync мог бы вернуть allow-all.
+
+### 6.2 Обязательное paired proof
+
+PASS требует оба доказательства после timestamp сохранения:
+
+1. **Internal green**
+   - fresh Render-Shell read-only DB query из web;
+   - fresh successful run каждого DB-backed cron;
+   - service/deploy/run IDs и новый username hash совпадают с rotation receipt.
+2. **External refused**
+   - тот же новый external URL, доказанно успешный до closure, выполняет новый
+     PostgreSQL protocol request с Mac;
+   - request завершается non-zero без результата SQL;
+   - сохраняется только typed failure и sanitized stderr digest;
+   - DNS/обычный HTTPS с Mac остаются работоспособны; TCP-connect может быть
+     только дополнительным reachability signal, но не доказательством
+     блокировки.
+
+Health-only или dashboard-only evidence не закрывает гейт.
+
+KILL/rollback: если internal proof красный, оператор временно возвращает тот же
+точный `/32` (не `0.0.0.0/0`) для диагностики. После устранения повторяется
+fresh internal proof и `/32` снова удаляется. Если external request успешен при
+пустом allowlist, окно остаётся `NO-GO` и закрытие не заявляется.
+
+## 7. Completion matrix
+
+Финальный independent reviewer должен поставить PASS отдельно:
+
+| Requirement | Минимальное authority-evidence |
+|---|---|
+| Snapshot 2/delta | full TSV + completion sentinel + same-service Render receipt + analyzer outputs |
+| `/32` | Render rule receipt + successful PostgreSQL request после сужения |
+| New credential | username hash + Render createdAt + new-user external query |
+| All consumers rotated | workspace-wide env/Blueprint closure + fresh DB proof каждого consumer |
+| Old credential retired | zero old sessions + old URL authentication rejection |
+| PITR works | separate recovery ID + before present/after absent + schema/sample checks |
+| Source untouched | source service/deploy identities unchanged through drill |
+| Temp cost closed | finance disposition + operator-approved recovery deletion terminal receipt |
+| RPO/RTO observed | requested point, Start, Available и validation timestamps + вычисленные seconds |
+| External ingress closed | merged Blueprint `ipAllowList: []` identity + sync receipt + empty allowlist + post-change protocol rejection |
+| Internal remains green | post-closure fresh DB proof каждого consumer |
+| Secret hygiene | no credentials/IP in git/log artifacts; automated secret scan |
+
+Цель R1 считается выполненной только после независимого review всего пакета,
+а не после последнего клика в Render.
