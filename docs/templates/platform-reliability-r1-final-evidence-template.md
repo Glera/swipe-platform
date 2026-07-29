@@ -18,17 +18,17 @@ IP/CIDR, raw database username или фрагменты stderr. Для адре
 - Evidence head: `{{FULL_SHA}}`
 - Operator window: `{{UTC_START}}` → `{{UTC_END}}`
 - Source database service: `{{RENDER_SERVICE_ID}}`
-- Production mutations before reviewed operator window: `none`
+- Production mutations before reviewed operator window: `{{NONE_OR_TYPED_DEVIATION}}`
 - Unresolved deviations: `{{NONE_OR_LIST}}`
 
 ## 2. Snapshot 2 and bounded delta
 
 | Evidence | Identity / outcome |
 |---|---|
-| Snapshot TSV | `sha256:{{SHA256}}`, server time `{{UTC}}`, completion sentinel `PASS` |
-| DB capture receipt | `sha256:{{SHA256}}`, byte binding `PASS`, credential tempfile removed `PASS` |
+| Snapshot TSV | `sha256:{{SHA256}}`, server time `{{UTC}}`, completion sentinel `{{PASS_OR_FAIL}}` |
+| DB capture receipt | `sha256:{{SHA256}}`, byte binding `{{PASS_OR_FAIL}}`, credential tempfile removed `{{PASS_OR_FAIL}}` |
 | Render receipt | service `{{ID}}`, observed `{{UTC}}`, status `{{STATUS}}`, PG `{{MAJOR}}` |
-| Delta JSON | `sha256:{{SHA256}}`, analyzer exit `0` |
+| Delta JSON | `sha256:{{SHA256}}`, analyzer exit `{{INTEGER}}` |
 | Delta Markdown | `sha256:{{SHA256}}` |
 
 Observation window: `{{SECONDS}}` seconds.
@@ -102,14 +102,15 @@ Every external action is also represented in
 - Old credential identity digest: `sha256:{{SHA256}}`
 - New credential identity digest: `sha256:{{SHA256}}`
 - New credential creation time: `{{UTC}}`
-- Capability comparison: `sha256:{{SHA256}}`, `profilesEqual=true`
-- Read-only Alembic check against pinned source: `{{PASS}}`
-- Blueprint preview unexpected changes: `none`
+- Capability comparison: `sha256:{{SHA256}}`, profiles equal
+  `{{TRUE_OR_FALSE}}`
+- Read-only Alembic check against pinned source: `{{PASS_OR_FAIL}}`
+- Blueprint preview unexpected changes: `{{NONE_OR_TYPED_DIFF}}`
 - Blueprint sync identity: `{{SYNC_ID_OR_TYPED_ABSENCE}}`
-- Fresh consumers on new credential: `{{PASS}}`
-- Old sessions after bounded drain: `0`
-- Old credential after deletion: `authentication_rejected`
-- New credential after deletion: `query_succeeded`
+- Fresh consumers on new credential: `{{PASS_OR_FAIL}}`
+- Old sessions after bounded drain: `{{INTEGER}}`
+- Old credential after deletion: `{{TYPED_OUTCOME}}`
+- New credential after deletion: `{{TYPED_OUTCOME}}`
 
 ## 7. Isolated restore drill
 
@@ -121,16 +122,18 @@ Every external action is also represented in
 - Start Recovery: `{{UTC}}`
 - Recovery Available: `{{UTC}}`
 - Validation complete: `{{UTC}}`
-- Before-receipt digest: `sha256:{{SHA256}}`, present `true`
-- After-receipt digest: `sha256:{{SHA256}}`, absent `true`
-- PostgreSQL major/schema/table/sample validation: `PASS`
-- Source remained available and bindings unchanged: `PASS`
+- Before-receipt digest: `sha256:{{SHA256}}`, present
+  `{{TRUE_OR_FALSE}}`
+- After-receipt digest: `sha256:{{SHA256}}`, absent
+  `{{TRUE_OR_FALSE}}`
+- PostgreSQL major/schema/table/sample validation: `{{PASS_OR_FAIL}}`
+- Source remained available and bindings unchanged: `{{PASS_OR_FAIL}}`
 - Observed RPO: `{{SECONDS}}` seconds
 - Observed provision RTO: `{{SECONDS}}` seconds
 - Observed validation RTO: `{{SECONDS}}` seconds
 - Recovery cleanup confirmation: `{{UTC}}`
 - Recovery terminal deletion: `{{RESULT}}`
-- Temporary recurring cost remaining: `none`
+- Temporary recurring cost remaining: `{{NONE_OR_TYPED_DISPOSITION}}`
 
 These are one-drill observations, not an SLA.
 
@@ -140,17 +143,17 @@ These are one-drill observations, not an SLA.
 - Independent patch review: `{{REVIEW_ID}}` — `{{VERDICT}}`
 - Merge identity: `{{FULL_SHA}}`
 - Blueprint sync identity: `{{SYNC_ID_OR_TYPED_ABSENCE}}`
-- Render allowlist after sync: empty
+- Render allowlist rule count after sync: `{{INTEGER}}`
 - Closure saved at: `{{UTC}}`
 
 Paired proof strictly after closure:
 
 | Proof | Timestamp | Result | Evidence |
 |---|---|---|---|
-| Fresh web DB query through private network | `{{UTC}}` | `PASS` | `sha256:{{SHA256}}` |
-| Fresh DB-backed cron/worker run | `{{UTC}}` | `PASS` | `{{RUN_ID}}` |
-| Fresh external PostgreSQL protocol request | `{{UTC}}` | `network_policy_refused` before SQL | `sha256:{{SANITIZED_STDERR_SHA256}}` |
-| External DNS/HTTPS reachability control | `{{UTC}}` | `PASS` | `sha256:{{SHA256}}` |
+| Fresh web DB query through private network | `{{UTC}}` | `{{TYPED_OUTCOME}}` | `sha256:{{SHA256}}` |
+| Fresh DB-backed cron/worker run | `{{UTC}}` | `{{TYPED_OUTCOME}}` | `{{RUN_ID}}` |
+| Fresh external PostgreSQL protocol request | `{{UTC}}` | `{{TYPED_OUTCOME}}`; SQL executed `{{TRUE_OR_FALSE}}` | `sha256:{{SANITIZED_STDERR_SHA256}}` |
+| External DNS/HTTPS reachability control | `{{UTC}}` | `{{PASS_OR_FAIL}}` | `sha256:{{SHA256}}` |
 
 No health-only or TCP-only check is used as database evidence.
 
@@ -189,13 +192,13 @@ node scripts/platform-reliability-r1-evidence-scan.mjs \
   > platform-reliability-r1-secret-scan-receipt.json
 ```
 
-- Scanner status: `pass`
+- Scanner status: `{{PASS_OR_FAIL}}`
 - Scanner source digest: `sha256:{{SHA256}}`
 - Rule-set digest: `sha256:{{SHA256}}`
-- Exact patch closure: seven required evidence files plus the scan receipt
-- Secret matches: `0`
-- Exact operator IPv4 captured: `false`
-- Secrets captured: `false`
+- Exact patch closure: `{{OBSERVED_PATH_LIST_OR_DIGEST}}`
+- Secret matches: `{{INTEGER}}`
+- Exact operator IPv4 captured: `{{TRUE_OR_FALSE}}`
+- Secrets captured: `{{TRUE_OR_FALSE}}`
 
 ## 12. Independent final review
 
