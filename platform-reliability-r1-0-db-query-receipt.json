@@ -1,0 +1,65 @@
+{
+  "schema": "platform-reliability-r1-db-query-receipt.v1",
+  "capturedAt": "2026-07-29T08:31:46Z",
+  "persistedAt": "2026-07-29T10:28:25Z",
+  "renderServiceId": "dpg-d95r32favr4c73aqs4d0-a",
+  "source": {
+    "codexThreadId": "019f9402-71b6-7d20-91e6-46d10a3a1b79",
+    "sessionLog": ".codex/sessions/2026/07/24/rollout-2026-07-24T15-03-35-019f9402-71b6-7d20-91e6-46d10a3a1b79.jsonl",
+    "sessionLogPrefixThroughLine": 15165,
+    "sessionLogPrefixSha256": "7660dd9c604492fb52b494da90eb2c75d2dea2a8befa63d314bf45a96626c794",
+    "databaseUrlHandling": "The production URL was read from an opaque temporary file; neither this receipt nor the cited outputs contains the URL or credentials.",
+    "transactionGuard": "PGOPTIONS=-c default_transaction_read_only=on -c statement_timeout=30000 -c lock_timeout=3000"
+  },
+  "observations": [
+    {
+      "callId": "call_WAgay0vJbFMwSOKvDvr8LJk1",
+      "responseTimestamp": "2026-07-29T08:26:12.847Z",
+      "fullOutputSha256": "e47f769c4c88ac980be1971c40bdb13ced47584b84a5d9b19d0c16d5a73e2085",
+      "fullOutput": "Script completed\nWall time 1.8 seconds\nOutput:\nswipe_55ht|on|160014|38 MB\n",
+      "selectedOutput": "swipe_55ht|on|160014|38 MB"
+    },
+    {
+      "callId": "call_iibpAOgLzpvsPq81tY8TMl7s",
+      "responseTimestamp": "2026-07-29T08:31:46.094Z",
+      "fullOutputSha256": "325c511b689ad9ac385d19e163706b66cb3a4111e1cbd4f39b4a5ed0b51e1407",
+      "fullOutput": "Script completed\nWall time 1.5 seconds\nOutput:\n2026-07-29 08:31:46 UTC\t39541783\t38 MB\n",
+      "selectedOutput": "2026-07-29 08:31:46 UTC\t39541783\t38 MB"
+    },
+    {
+      "callId": "call_sQZryqGlw7AHUiKxGfw5jXTM",
+      "responseTimestamp": "2026-07-29T08:31:08.821Z",
+      "fullOutputSha256": "c1d2af77ba1f782635afb31052334ce9080084f03f77712bf16855e6a3e1981b",
+      "fullOutput": "Script completed\nWall time 1.6 seconds\nOutput:\nalembic_heads\t0067_feed_sequencing_evidence\npublic_tables\t145\nearliest_user\t2026-07-06 15:09:09.408355+00\tlatest_user\t2026-07-25 11:11:14.587305+00\nearliest_event\t2026-07-06 14:27:41.220243+00\tlatest_event\t2026-07-29 08:13:07.172062+00\ndb_age_days_from_events\t22\n",
+      "selectedOutput": "alembic_heads\t0067_feed_sequencing_evidence\npublic_tables\t145"
+    },
+    {
+      "callId": "call_qvZ6BdFds2tGEuoc3FPUGd08",
+      "responseTimestamp": "2026-07-29T08:28:49.079Z",
+      "fullOutputSha256": "0dd98e3aad4343055125adf922be3ff12f7fbe6ec77a81c2027156bad3feb065",
+      "fullOutput": "Script completed\nWall time 6.1 seconds\nOutput:\npublic.content_analytics_report_inputs\t9463\t3375104\t3296 kB\t356\npublic.events\t9091\t3080192\t3008 kB\t338\npublic.cp_event_inbox\t2990\t2998272\t2928 kB\t1002\npublic.feed_decisions\t943\t1941504\t1896 kB\t2058\npublic.content_impressions\t774\t548864\t536 kB\t709\npublic.affinity_impression_evidence\t755\t704512\t688 kB\t933\npublic.reward_ledger\t593\t425984\t416 kB\t718\npublic.verified_runs\t343\t327680\t320 kB\t955\npublic.run_tickets\t266\t548864\t536 kB\t2063\npublic.content_analytics_evidence_rows\t214\t483328\t472 kB\t2258\npublic.usage_counters\t186\t106496\t104 kB\t572\npublic.attempt_outcome_facts\t179\t188416\t184 kB\t1052\npublic.puzzle_ledger\t179\t155648\t152 kB\t869\npublic.attempts\t179\t131072\t128 kB\t732\npublic.evaluation_runs\t143\t983040\t960 kB\t6874\npublic.level_impressions\t139\t180224\t176 kB\t1296\npublic.level_specs\t118\t294912\t288 kB\t2499\npublic.catalog_level_configurations\t113\t196608\t192 kB\t1739\npublic.feed_effectful_plans\t97\t1507328\t1472 kB\t15539\npublic.lab_device_authorizations\t80\t253952\t248 kB\t3174\npublic.feed_slot_authorizations\t67\t286720\t280 kB\t4279\npublic.daily_quests\t66\t73728\t72 kB\t1117\npublic.island_meta_events\t59\t106496\t104 kB\t1805\npublic.lab_access_grants\t56\t106496\t104 kB\t1901\npublic.interventions\t54\t278528\t272 kB\t5157\npublic.series_levels\t41\t57344\t56 kB\t1398\npublic.entry_evaluations\t41\t40960\t40 kB\t999\npublic.level_results\t34\t65536\t64 kB\t1927\npublic.level_spec_lineage\t33\t98304\t96 kB\t2978\npublic.affinity_snapshot_impressions\t30\t40960\t40 kB\t1365\npublic.island_completion_claims\t28\t98304\t96 kB\t3510\npublic.island_completion_outcomes\t28\t81920\t80 kB\t2925\npublic.island_building_social\t27\t57344\t56 kB\t2123\npublic.affinity_signals\t26\t147456\t144 kB\t5671\npublic.affinity_snapshot_signals\t26\t40960\t40 kB\t1575\npublic.feed_roster_entries\t24\t57344\t56 kB\t2389\npublic.agents_read_audit\t22\t98304\t96 kB\t4468\npublic.island_bot_daily_plans\t20\t32768\t32 kB\t1638\npublic.entry_state_log\t19\t98304\t96 kB\t5173\npublic.publish_operations\t17\t40960\t40 kB\t2409\npublic.series_specs\t16\t122880\t120 kB\t7680\npublic.catalog_entries\t16\t98304\t96 kB\t6144\npublic.variants\t16\t32768\t32 kB\t2048\npublic.feed_policy_assignments\t14\t122880\t120 kB\t8777\npublic.content_analytics_reports\t13\t204800\t200 kB\t15753\npublic.feed_mechanic_mappings\t13\t139264\t136 kB\t10712\npublic.content_analytics_scheduler_run_receipts\t12\t81920\t80 kB\t6826\npublic.island_bake_jobs\t11\t98304\t96 kB\t8936\npublic.users\t10\t81920\t80 kB\t8192\npublic.island_visits\t10\t73728\t72 kB\t7372\n145\t102\t26656768\t25 MB\t9019392\t8808 kB\t12984320\t12 MB\n",
+      "selectedOutput": "145\t102\t26656768\t25 MB\t9019392\t8808 kB\t12984320\t12 MB"
+    },
+    {
+      "callId": "call_WblVfuixrAyhOtNuiJqVIB3F",
+      "responseTimestamp": "2026-07-29T08:34:04.886Z",
+      "fullOutputSha256": "523c7d37aca6895ee02331e52391b52cd5365a1e249a38a75217da126c98bfda",
+      "fullOutput": "Script completed\nWall time 4.0 seconds\nOutput:\n27880|102\n",
+      "selectedOutput": "27880|102"
+    },
+    {
+      "callId": "call_SNUk8YuiuOIsMS87p9E0gNgX",
+      "responseTimestamp": "2026-07-29T08:30:55.629Z",
+      "fullOutputSha256": "6f2b05dc26b98bb0b4e29257fb2f4a2d7ae99841bef124400911df56234df410",
+      "fullOutput": "Script completed\nWall time 1.6 seconds\nOutput:\nconnections\t6\t103\nstates\tactive\t1\nstates\tidle\t5\nlongest_active_seconds\t0\nlock_waiters\t0\nstats\t1623587\t689918\t2761\t437048342\t100.00\t0\t0\t17\t0\t\ntuples\t27882\t964\t2157\t132\t115\n",
+      "selectedOutput": "stats\t1623587\t689918\t2761\t437048342\t100.00\t0\t0\t17\t0\t"
+    }
+  ],
+  "limitations": [
+    "This is a post-run persistence of exact output excerpts, not a collector-generated raw TSV.",
+    "The complete 102-table exact-row map was never printed and cannot be reconstructed.",
+    "Aggregate surfaces were observed between 08:28:49Z and 08:34:04Z; each delta surface uses its own observation timestamp."
+  ],
+  "secretsCaptured": false,
+  "mutationsPerformed": false
+}

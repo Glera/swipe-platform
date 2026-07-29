@@ -75,6 +75,25 @@ SELECT
 FROM parts
 \gexec
 
+-- Exact coverage/total sentinel. Unlike n_live_tup, this cannot drift merely
+-- because ANALYZE has not run; the comparator uses it to reject truncated TSV.
+WITH parts AS (
+  SELECT format(
+    'SELECT count(*)::bigint AS exact_rows FROM %I.%I',
+    schemaname,
+    relname
+  ) AS sql_part
+  FROM pg_stat_user_tables
+  WHERE schemaname = 'public'
+)
+SELECT
+  'SELECT ''exact_row_summary'', '
+  || 'count(*) FILTER (WHERE exact_rows > 0), '
+  || 'sum(exact_rows) '
+  || 'FROM (' || string_agg(sql_part, ' UNION ALL ') || ') q;'
+FROM parts
+\gexec
+
 -- Pick one insertion-like clock per table. Mutable updated_at is deliberately
 -- last priority and is labelled in output so it is never mistaken for inserts.
 WITH ranked AS (
@@ -313,5 +332,7 @@ WHERE schemaname = 'public'
 GROUP BY relname
 HAVING count(*) >= 6
 ORDER BY count(*) DESC, sum(pg_relation_size(indexrelid)) DESC;
+
+SELECT 'snapshot_complete', 'ok';
 
 ROLLBACK;

@@ -1,0 +1,44 @@
+{
+  "schema": "platform-reliability-r1-db-snapshot-baseline.v1",
+  "timestamp": "2026-07-29T08:31:46Z",
+  "database": "swipe_55ht",
+  "renderServiceId": "dpg-d95r32favr4c73aqs4d0-a",
+  "observationTimes": {
+    "database": "2026-07-29T08:31:46.094Z",
+    "relations": "2026-07-29T08:28:49.079Z",
+    "rows": "2026-07-29T08:34:04.886Z",
+    "deadlocks": "2026-07-29T08:30:55.629Z"
+  },
+  "readOnly": true,
+  "timezone": "UTC",
+  "postgresVersionNum": "160014",
+  "databaseBytes": 39541783,
+  "publicTableCount": 145,
+  "alembicHeads": "0067_feed_sequencing_evidence",
+  "relationCount": 145,
+  "nonemptyRelationCount": 102,
+  "relationBytes": 26656768,
+  "heapBytes": 9019392,
+  "indexBytes": 12984320,
+  "exactRowsTotal": 27880,
+  "exactRowsByTable": null,
+  "databaseStats": {
+    "commits": 1623587,
+    "rollbacks": 689918,
+    "blocksRead": 2761,
+    "blocksHit": 437048342,
+    "tempFiles": 0,
+    "tempBytes": 0,
+    "deadlocks": 17,
+    "conflicts": 0,
+    "statsReset": null
+  },
+  "provenance": {
+    "evidenceMergeCommit": "8becca89a77a655a0c6786ece253992ab10c0680",
+    "evidenceSourceCommit": "720c8bae3580131d8292dfd47167b8559c9cc3ac",
+    "evidenceDocument": "platform-reliability-r1-0-evidence.md",
+    "databaseQueryReceipt": "platform-reliability-r1-0-db-query-receipt.json",
+    "databaseQueryReceiptSha256": "9f50491f5f0da18023b13ac26aa80be28f61faec9195770ad3a58e58115c0751",
+    "limitation": "The original collector output was validated in-memory but not persisted. Aggregate values are preserved in timestamped production query receipts and the merged evidence; the complete 102-table exact-row map is unavailable."
+  }
+}
