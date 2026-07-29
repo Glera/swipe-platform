@@ -266,13 +266,18 @@ Review 3 утвердил polyline baseline, пять собственных у�
   и exact operator packet;
 - [`block-out/CLASS-BRIEF.md`](block-out/CLASS-BRIEF.md) — `BO-G`,
   proposed gameplay/content/runtime boundaries и workstreams
-  `BO-R/G/E/S/F/P/I/A/Q`.
+  `BO-R/G/E/S/F/P/I/A/Q`;
+- [`block-out/REVIEW-1-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-1-INDEPENDENT-2026-07-29.md)
+  — independent **accept as research**, findings F1–F5 и их disposition.
 
-Статус: **research only / Review 2 blocked on operator packet**. Primary
+Статус: **Review 1 accepted as research / Review 2 blocked on operator
+packet**. Primary
 reference (`P`) — [Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
 fidelity band (`P`) — exact-build levels `6–10` либо эквивалентный ранний
-static pre-modifier участок. До exact link, levels, native recording,
-must-preserve и `Defaults approve`/exceptions implementation не разрешена.
+static pre-modifier участок. Operator success clips L11–13 добавлены как
+частичное `R-native`: они подтверждают continuous carry, timer и win flow, но
+не заменяют scripted movement probes, fail/invalid evidence, must-preserve и
+`Defaults approve`/exceptions. Implementation не разрешена.
 
 ### Core loop
 

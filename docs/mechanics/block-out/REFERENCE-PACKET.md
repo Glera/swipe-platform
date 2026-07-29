@@ -1,11 +1,13 @@
 # BO-R: reference packet — Block Out!
 
 - Дата среза: **29.07.2026**
-- Статус: **Review 1 research complete / Review 2 blocked on operator packet**
+- Статус: **Review 1 accepted as research / Review 2 blocked on operator packet**
 - Предлагаемый primary reference (`P`): **Block Out! - Color Sort Puzzle,
   Grand Games A.Ş.**
 - Предлагаемый fidelity band (`P`): **ранние статические уровни 6–10**
 - Связанный brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
+- Независимое ревью:
+  [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md)
 
 > Документ разводит несколько разных core loop'ов, которые рынок называет
 > похожими именами. Он не утверждает primary reference, gameplay defaults,
@@ -15,12 +17,14 @@
 
 ## Обозначения evidence
 
-- `R` — измерено или непосредственно наблюдено по указанному референсу;
+- `R-web` — измерено или непосредственно наблюдено по указанному web-source;
+- `R-native` — измерено или непосредственно наблюдено в operator recording;
 - `O` — явно утверждено оператором;
 - `P` — предлагаемое значение или правило, ещё не ставшее authority.
+- `B` — blocking: данных или решения пока недостаточно.
 
-`R` относится к конкретному source snapshot. Store-copy подтверждает identity и
-заявленные правила, но не заменяет покадровое измерение. Публичный montage
+Любой `R-*` относится к конкретному source snapshot. Store-copy подтверждает
+identity и заявленные правила, но не заменяет покадровое измерение. Публичный montage
 подтверждает видимый loop, однако не даёт надёжного touch-down, haptic и
 sub-frame timing.
 
@@ -28,7 +32,8 @@ sub-frame timing.
 
 - gameplay/feel-решений со статусом `O` **нет**;
 - recommendation и defaults имеют только статус `P`;
-- числовой feel остаётся blocking до operator recording.
+- часть числового feel остаётся `B`: полученные clips не содержат invalid/fail
+  probes и не являются 60 fps feel capture.
 
 ## Taxonomy decision: что здесь называется Block Out!
 
@@ -67,6 +72,8 @@ versioned rules и отдельного operator approve после статич
 | `BO-R-S5b` | [Color Block Jam levels 1–20 iOS gameplay](https://www.youtube.com/watch?v=sXslmdaKW9Y) | independent gross-duration comparison раннего progression | public recording, версия неизвестна |
 | `BO-R-S6` | [App Store: Wood Out: Color Jam](https://apps.apple.com/gb/app/wood-out-color-jam/id6742745080) | matching doors, Arrow/Locked/Ice/Double Layer modifiers | exact duration/control не измерены |
 | `BO-R-S7` | [App Store: Unblock Me Premium](https://apps.apple.com/us/app/unblock-me-premium/id315021242) | target-exit negative control и зрелая sliding-block difficulty model | другой core loop; не fidelity candidate |
+| `BO-R-N1` | operator clip `telegram-cloud-document-2-5424755505455214087.mp4`, SHA-256 `0fb2e58e…cda9a` | Grand Games Level 11, 384×832, 30 fps, 67.20 s; success, timer, numbered/generator-like content, win flow | no fail/invalid/release probe; haptic физически не измерим |
+| `BO-R-N2` | operator clip `telegram-cloud-document-2-5427007305268896417.mp4`, SHA-256 `3b463279…13f9d1`, 384×832, 29.97 fps, 134.43 s | Grand Games Levels 12–13; continuous carried pose, timer, exits, numbered/ice-like content, success flow | montage из двух success runs; no fail/invalid/release probe |
 
 Store metadata и live progression меняются. Поэтому operator recording после
 Review 1 становится fidelity authority, если он расходится с публичным видео.
@@ -75,10 +82,10 @@ Review 1 становится fidelity authority, если он расходит
 
 | Candidate | Точное ядро | Управление | Win / fail | Наблюдаемая длительность | Модель сложности | Disposition |
 | --- | --- | --- | --- | --- | --- | --- |
-| **Block Out! — Grand Games** | вывести все polyomino blocks через matching boundary gates, переставляя их внутри тесного поля | `R`: one-finger drag, ортогональное grid-snap перемещение; exact free-stop vs slide-stop требует native clip | `R`: clear all / timer expiry; позднее lives/boosters принадлежат meta | `R`: public compilations дают `6:51 / 15 ≈ 27 s` и `9:48 / 20 ≈ 29 s` gross на ранний уровень, включая transitions | формы, occupancy, число ворот, gate contention, detours, order dependencies; позднее generators/elevators/shutters и более жёсткий timer | **primary (`P`)** |
-| **Color Block Jam — Rollic/Gybe** | тот же color-gate clear-all family, но с быстро растущим modifier language | `R`: store прямо говорит «slide freely»; video показывает grid drag и direction-constrained blocks | `R`: clear all / timer expiry | `R`: public early recordings `11:35 / 20 ≈ 35 s` gross; другой recording `15:00 / 20 ≈ 45 s` gross | shapes, свободное место, directional blocks, blockers, moving paths, later obstacle language | secondary/fallback |
-| **Wood Out: Color Jam — Loop Games** | деревянные color blocks к matching doors плюс obstacle anthology | `R`: slide/move blocks; exact snap semantics не измерены | `R`: clear all; timer подтверждён listing reviews, exact fail UX не измерен | `R`: не измерено | Arrow, Locked, Ice, Double Layer; difficulty сильно зависит от special rules | secondary only |
-| **Unblock Me — Kiragames** | вывести один красный target block, переставляя axis-locked blockers | `R`: drag blocks вдоль собственной оси | `R`: target exits; Relax без time fail, Challenge добавляет pressure | `R`: не измерено для этого packet | minimal moves, blockers, corridor depth, dependency chain | negative control; solver inspiration only |
+| **Block Out! — Grand Games** | вывести все polyomino blocks через matching boundary gates, переставляя их внутри тесного поля | `R-native`: carried block непрерывно следует drag; exact free-stop vs slide-stop и release snap остаются `B` | `R-web/R-native`: clear all; listing/reviews подтверждают timer pressure, clips — success | `R-web`: `6:50 / 15 ≈ 27 s` и `9:49 / 20 ≈ 29 s` gross на ранний уровень; `R-native`: L11–13 расходуют ≈55/57/51 s видимого active timer | формы, occupancy, число ворот, gate contention, detours, order dependencies; позднее generators/elevators/shutters и более жёсткий timer | **primary (`P`)** |
+| **Color Block Jam — Rollic/Gybe** | тот же color-gate clear-all family, но с быстро растущим modifier language | `R-web`: store прямо говорит «slide freely»; video показывает grid drag и direction-constrained blocks | `R-web`: clear all / timer expiry | `R-web`: `11:34 / 20 ≈ 35 s`; independent recording `15:08 / 20 ≈ 45 s` gross | shapes, свободное место, directional blocks, blockers, moving paths, later obstacle language | secondary/fallback |
+| **Wood Out: Color Jam — Loop Games** | деревянные color blocks к matching doors плюс obstacle anthology | `R-web`: slide/move blocks; exact snap semantics не измерены | `R-web`: clear all; timer подтверждён listing reviews, exact fail UX не измерен | `B`: не измерено | Arrow, Locked, Ice, Double Layer; difficulty сильно зависит от special rules | secondary only |
+| **Unblock Me — Kiragames** | вывести один красный target block, переставляя axis-locked blockers | `R-web`: drag blocks вдоль собственной оси | `R-web`: target exits; Relax без time fail, Challenge добавляет pressure | `B`: не измерено для этого packet | minimal moves, blockers, corridor depth, dependency chain | negative control; solver inspiration only |
 
 Gross averages не являются target feel: записи включают start/win transitions,
 а игроки знают решение. Они показывают лишь совместимость family с короткой
@@ -160,21 +167,23 @@ release в любой reachable lattice anchor, slide до collision, либо �
 
 ## Time-to-rule, autoplay и takeover
 
-Предлагаемый contract (`P`, не `R`):
+Предлагаемый contract (`P`, не `R-*`):
 
-1. first live frame сразу показывает board, blocks и gates;
-2. AutoCursor берёт один очевидный block, визуально несёт его и выводит через
+1. scene-visible frame сразу показывает board, blocks и gates;
+2. scene visible -> input-ready settle занимает `≤450 ms` (`P`) и измеряется
+   отдельно от объясняющего действия;
+3. AutoCursor берёт один очевидный block, визуально несёт его и выводит через
    matching gate;
-3. первый completed exit происходит за `≤1.50 s` от first live frame (`P`);
-4. autoplay делает `2` legal moves или не более `25%` witness trace (`P`);
-5. первый pointerdown по live block атомарно переводит в manual;
-6. takeover сохраняет exact logical state и in-flight presentation, без restart
+4. первый completed exit происходит за `≤1.50 s` от scene-visible frame (`P`);
+5. autoplay делает `2` legal moves или не более `25%` witness trace (`P`);
+6. первый pointerdown по live block атомарно переводит в manual;
+7. takeover сохраняет exact logical state и in-flight presentation, без restart
    и скрытого autoplay move;
-7. pointerdown/drag по background остаётся host swipe по platform authority;
-8. autoplay никогда не демонстрирует fail, booster или monetization.
+8. pointerdown/drag по background остаётся host swipe по platform authority;
+9. autoplay никогда не демонстрирует fail, booster или monetization.
 
-Числа выше — design proposals, не measurements. После native recording они
-либо заменяются `R`, либо становятся явными `O`.
+Числа выше — design proposals, не measurements. После нужного evidence они
+либо заменяются `R-native`, либо становятся явными `O`.
 
 ## Генеративность и solver authority
 
@@ -184,7 +193,9 @@ release в любой reachable lattice anchor, slide до collision, либо �
 - block — stable id, role/color, immutable polyomino footprint и mutable anchor;
 - rotation disabled;
 - gate — boundary span, role/color и exit direction;
-- stable state — anchors live blocks + remaining timer/resource state;
+- solver identity — canonical tuple `rulesVersion + live block ids + anchors`;
+- logical timer/resource и presentation phase входят в runtime snapshot, но
+  исключены из spatial solver identity;
 - legal move — reachable collision-free translation и optional matching exit;
 - terminal success — no live blocks.
 
@@ -221,7 +232,8 @@ Solver **не** утверждает:
    dependency, не ломая сохранённый reverse witness;
 5. после полной сборки решить уровень forward solver'ом;
 6. измерить branching, forced order, detours, dead ends и minimum drag count;
-7. отбросить trivial, duplicate, unreadable и timer-infeasible candidates;
+7. отбросить trivial, duplicate, unreadable candidates; timer feasibility
+   фильтровать только после появления calibrated human action-time model;
 8. передать solver-valid candidates human taste review.
 
 Если утверждённая movement semantics необратима (например, forced slide to
@@ -243,6 +255,20 @@ collision), construction хранит точные inverse-predecessor constrain
 - reference timer slack только после action-time calibration.
 
 Density сама по себе не равна difficulty.
+
+### Dead ends и stuck state
+
+`B`: legal move может оставить spatially valid, но уже unsolvable state.
+Runtime-solver не входит в baseline, поэтому Review 2 должен выбрать observable
+policy:
+
+- reference-like timer-only fail; либо
+- явный restart affordance без автоматического объявления «тупик».
+
+V1 generator/factory (`P`) обязан измерять `deadEndExposure` и отклонять
+candidates с ранним/нечитаемым irreversible dead end. Solver witness доказывает
+наличие решения из initial state, но не защищает игрока после каждого legal
+manual move.
 
 ## WebView performance risk
 
@@ -326,23 +352,26 @@ Own visual identity:
 
 | Параметр | Значение | Статус | Основание / блокер |
 | --- | ---: | :---: | --- |
-| Early compilation gross duration | `~27–29 s/level` | `R` | `BO-R-S2/S3`; включает transitions, не target |
-| Color Block Jam early gross duration | `~35–45 s/level` | `R` | `BO-R-S5/S5b`; comparison only |
-| First live frame -> first completed exit | `≤1,500 ms` | `P` | feed-hook proposal; native timing pending |
+| Early compilation gross duration | `~27–29 s/level` | `R-web` | YouTube metadata `9:49/20` и `6:50/15`; включает transitions, не target |
+| Color Block Jam early gross duration | `~35–45 s/level` | `R-web` | YouTube metadata `11:34/20` и `15:08/20`; comparison only |
+| L11/L12/L13 active timer consumed to success | `≈55/57/51 s` | `R-native` | `BO-R-N1/N2`; разность видимых timer values, не frame-accurate feel timing |
+| Scene visible -> input-ready settle | `≤450 ms` | `P` | отдельный feed settle budget |
+| Scene visible -> first completed exit | `≤1,500 ms` | `P` | feed-hook proposal; native timing pending |
 | Autoplay moves | `2` или `≤25%` witness | `P` | takeover proposal |
 | Bounded manual duration | `20–45 s`, hard review at `60 s` | `P` | swipe-card proposal, не reference measurement |
-| Board fit, cell size, drag lag | blocking | — | нужен native crop и aspect |
-| Touch-down response | blocking | — | нужен native `60 fps` recording |
-| Carry easing / snap / release | blocking | — | exact movement semantics не подтверждена |
-| Gate consume duration | blocking | — | нужен successful exit close-up |
-| Invalid drag feedback | blocking | — | нужен error episode |
-| Win/fail onset and settle | blocking | — | нужен full success + timer fail |
-| Haptic semantics/intensity | blocking | — | recording не измеряет физический haptic; решение `O` |
+| Board fit / portrait crop | `384×832`, levels fit without camera motion | `R-native` | `BO-R-N1/N2`; cell-size px measurement not yet requested |
+| Continuous carried pose while held | observed at 30/29.97 fps | `R-native` | `BO-R-N1/N2`; does not determine release policy |
+| Touch-down response | `B` | `B` | нужен native `60 fps` probe |
+| Carry easing / snap / release | `B` | `B` | exact release semantics не подтверждена |
+| Gate consume duration | `B` | `B` | нужен 60 fps successful-exit close-up |
+| Invalid drag feedback | `B` | `B` | нужен scripted error episode |
+| Win/fail onset and settle | success observed; exact timing/fail `B` | `R-native/B` | clips содержат success, но не timer fail |
+| Haptic semantics/intensity | `B` | `B` | recording не измеряет физический haptic; решение `O` |
 
 ## Preliminary parity checklist
 
 Пункты с числами `P` становятся acceptance только после Review 2. Остальные
-получат `R/O` значения из native evidence.
+получат `R-native/O/B` значения из native evidence и operator decisions.
 
 ### Rule/state
 
@@ -373,26 +402,41 @@ Own visual identity:
 - [ ] Background vertical gesture остаётся feed swipe по runtime authority.
 - [ ] Host pause замораживает timer, carry и exit clocks.
 - [ ] Completion отправляется ровно один раз.
-- [ ] Cover совпадает с first live frame.
+- [ ] Cover совпадает с scene-visible frame.
 
 ## Review 2 operator packet — пять обязательных входов
 
+### Minimum logic packet — разблокирует BO-G/BO-E/BO-S
+
 1. **Exact link:** store/developer URL выбранной игры; желательно версия/build
    и дата записи.
-2. **Progression slice:** exact levels или непрерывный участок. Предложение
+2. **Movement probe clip:** один короткий uncut portrait clip, где намеренно
+   выполнены все различающие пробы:
+   - отпустить block посреди свободного коридора: остаётся ли промежуточная
+     позиция или происходит snap/forced slide;
+   - изменить направление drag без release: допускается ли L-траектория;
+   - быстрый flick в свободное пространство;
+   - диагональная попытка;
+   - release в invalid позиции: rollback, clamp к последнему legal anchor или
+     иной feedback.
+
+Полученные `BO-R-N1/N2` — полноценные success runs уровней 11–13, но не
+закрывают эти probes.
+
+### Full presentation packet — обязателен до BO-P
+
+3. **Progression slice:** exact levels или непрерывный участок. Предложение
    (`P`) для Grand Games — `6–10`, либо эквивалентный static pre-modifier band.
-3. **Native portrait screen recording:** минимум один полный success и один
-   timer fail/restart; обязательно видны first frame, свободный reposition,
-   blocked/invalid drag, matching gate exit, win и rapid second action.
-   Предпочтительно `60 fps`, без ускорения и монтажных склеек.
-4. **Must preserve:** `3–7` конкретных feel-моментов — carry, snap, gate
-   consume, timer pressure, blocked feedback, win, haptic и т.п.
+4. **Native feel evidence + must preserve:** uncut `60 fps` success и timer
+   fail/restart с first scene-visible frame, gate exit, rapid second action,
+   invalid feedback и win; отдельно список `3–7` обязательных feel-моментов.
+   Физический haptic описывается оператором, а не выводится из recording.
 5. **Defaults:** точная строка `Defaults approve` либо исключения по movement,
-   timer/fail, five-level band, static-only scope, autoplay/takeover и
-   accessibility markers.
+   stuck/restart policy, timer/fail, five-level band, static-only scope,
+   autoplay/takeover и accessibility markers.
 
 После получения packet `BO-R` выполняет frame/timestamp measurement и заменяет
-blocking rows числами `R`; operator choices становятся `O`. Только затем
+`B` rows числами `R-native`; operator choices становятся `O`. Только затем
 закрывается Review 2 и brief может идти в independent Review 3.
 
 ## Disposition BO-R
@@ -401,5 +445,6 @@ blocking rows числами `R`; operator choices становятся `O`. Т�
   или Tap Away.
 - Recommended primary: **Block Out! / Grand Games (`P`)**.
 - Recommended target: **levels 6–10 static band (`P`)**.
-- Review 2: **blocked on five operator inputs**.
+- Review 2: **blocked**; `BO-R-N1/N2` закрывают success/progression evidence для
+  уровней 11–13, но minimum logic probe и operator decisions ещё не получены.
 - Implementation authority: **none**.

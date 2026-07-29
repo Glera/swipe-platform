@@ -1,11 +1,13 @@
 # Class Brief: `block-out-v1`
 
 - Дата: **29.07.2026**
-- Статус: **review — Review 2 blocked on operator packet**
+- Статус: **Review 1 accepted as research — Review 2 blocked on operator packet**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
-- Независимый reviewer: **не назначен; нужен для Review 3**
+- Независимый reviewer: **Review 1 получен 29.07.2026; Review 3 ещё нужен**
 - Reference packet: [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md)
+- Review 1:
+  [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md)
 
 > Brief фиксирует исследовательскую декомпозицию и typed boundaries. Primary
 > reference, target difficulty, defaults и gameplay contract пока имеют статус
@@ -13,11 +15,13 @@
 
 ## Evidence notation
 
-- `R` — измерено/наблюдено по exact source;
+- `R-web` — измерено/наблюдено по exact web source;
+- `R-native` — измерено/наблюдено в operator recording;
 - `O` — явно утверждено оператором;
 - `P` — предложение до operator approve.
+- `B` — blocking: evidence или operator decision отсутствует.
 
-Ни одно feel-значение не считается `R` только потому, что оно выглядит
+Ни одно feel-значение не считается `R-*` только потому, что оно выглядит
 правдоподобно. На текущем этапе gameplay/feel значений `O` нет.
 
 ## VISION-триаж
@@ -58,13 +62,14 @@ clarity, при пяти собственных уровнях и собстве
 ### Proposed primary reference
 
 - Название (`P`): **Block Out! - Color Sort Puzzle**.
-- Developer (`R`): **Grand Games A.Ş.**
-- Listing snapshot (`R`): App Store page observed 29.07.2026; live listing
+- Developer (`R-web`): **Grand Games A.Ş.**
+- Listing snapshot (`R-web`): App Store page observed 29.07.2026; live listing
   version/build может измениться.
 - Ссылка: [App Store](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568).
 - Public recording:
   [levels 1–20](https://www.youtube.com/watch?v=VU9mQ_gleN8).
-- Native screen recording: **blocking — ждём оператора**.
+- Native recordings (`R-native`): Levels 11–13 success получены; movement
+  edge-case probes и fail recording остаются `B`.
 - Диапазон (`P`): **levels 6–10 exact operator build** либо эквивалентный
   static pre-modifier band.
 
@@ -85,9 +90,11 @@ clarity, при пяти собственных уровнях и собстве
 
 | Параметр | Значение | Статус |
 | --- | ---: | :---: |
-| Block Out public early gross duration | `~27–29 s/level` | `R`, montage-inclusive |
+| Block Out public early gross duration | `~27–29 s/level` | `R-web`, montage-inclusive |
+| Levels 11/12/13 active timer consumed | `≈55/57/51 s` | `R-native`, visible-timer delta |
 | Manual target duration | `20–45 s`, review at `60 s` | `P` |
-| First live frame -> first completed gate exit | `≤1,500 ms` | `P` |
+| Scene visible -> input-ready settle | `≤450 ms` | `P` |
+| Scene visible -> first completed gate exit | `≤1,500 ms` | `P` |
 | Autoplay demonstration | `2` moves или `≤25%` witness | `P` |
 | Drag response/snap/gate/win/fail/haptic | blocking | native evidence required |
 
@@ -95,7 +102,7 @@ clarity, при пяти собственных уровнях и собстве
 
 Review 2 seed checklist находится в
 [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md#preliminary-parity-checklist).
-Review 3 нельзя закрывать до числового `R/O/P` checklist.
+Review 3 нельзя закрывать до числового `R-web/R-native/O/P/B` checklist.
 
 ### Rights boundary
 
@@ -120,13 +127,16 @@ Review 3 нельзя закрывать до числового `R/O/P` checkli
 
 ## Первый экран и autoplay
 
-- Первый frame (`P`): board полностью виден, blocks/gates читаются, timer
+- Scene-visible frame (`P`): board полностью виден, blocks/gates читаются, timer
   присутствует если approve; title-card отсутствует.
+- Settle (`P`): scene visible -> input-ready `≤450 ms`; этот budget не
+  скрывается внутри time-to-rule.
 - Правило без текста (`P`): AutoCursor берёт очевидный block и физически несёт
   его через matching gate.
 - Autoplay (`P`): deterministic solver witness, `2` legal moves или `≤25%`
   solution.
-- Time-to-rule (`P`): первый completed gate exit за `≤1.50 s`.
+- Time-to-rule (`P`): первый completed gate exit за `≤1.50 s` от
+  scene-visible frame.
 - Оптимальность (`P`): legal/reproducible, но первый ход выбирается по
   explainability среди solver-safe candidates.
 - Takeover (`P`): первый pointerdown по live block атомарно отменяет будущие
@@ -147,8 +157,11 @@ Review 3 нельзя закрывать до числового `R/O/P` checkli
 5. когда logical state commit'ится — по crossing cell, release или gate consume;
 6. invalid drag возвращает block, clamps к последней legal anchor или не
    начинает carry;
-7. timer идёт во время autoplay и pause;
-8. разрешены ли параллельные exit animations и следующий drag.
+7. timer идёт ли во время autoplay; host pause уже замораживает logical timer
+   как proposed runtime invariant;
+8. разрешены ли параллельные exit animations и следующий drag;
+9. после legal move, сделавшего level unsolvable, игрок ждёт timer fail или
+   использует явный restart affordance.
 
 ## Proposed input contract
 
@@ -204,11 +217,14 @@ Invariants (`P`):
 
 ## Win / fail / restart
 
-- Win (`R/P`): все required blocks вышли через matching gates; exact win timing
-  ждёт recording.
-- Fail (`R/P`): reference timer expiry; exact budget/continue UX ждёт recording.
+- Win (`R-native/P`): все required blocks вышли через matching gates; success
+  flow виден в L11–13, exact 60 fps timing остаётся `B`.
+- Fail (`R-web/P`): reference timer expiry; exact budget/continue UX и native
+  fail остаются `B`.
 - Неверный drag (`P`): non-terminal, no hidden state mutation.
 - Restart (`P`): exact initial anchors, live set, timer и presentation reset.
+- Stuck (`B`): runtime solver не объявляет тупик; Review 2 выбирает timer-only
+  fail либо явный restart affordance.
 - Undo (`P`): не входит baseline; solver trace оставляет future hook.
 - Hint (`P`): не входит baseline; не нужен для first prototype.
 - Move limit (`P`): отсутствует, если reference packet не опровергнет.
@@ -219,7 +235,8 @@ Invariants (`P`):
 - Manual target: `20–45 s` (`P`).
 - Hard review boundary: `60 s` (`P`), не forced fail сверх approved timer.
 - Successful actions: blocking до solver annotation selected band.
-- Time-to-rule: `≤1.50 s` (`P`).
+- Scene visible -> input-ready settle: `≤450 ms` (`P`).
+- Scene visible -> first completed exit: `≤1.50 s` (`P`).
 - Idle (`P`): manual state не делает скрытых moves; host может сменить карточку.
 
 ## Bounded prototype
@@ -336,6 +353,8 @@ default.
   publication worthiness.
 - Legal action: **blocking on Review 2 movement semantics**.
 - Stable terminal: `liveBlockCount === 0`.
+- Spatial search identity: canonical `rulesVersion + live block ids + anchors`;
+  logical timer/resource/presentation phase не входят в memoization key.
 - Fail timer не используется для spatial solvability; отдельный feasibility
   receipt возможен только после calibrated action-time model.
 - Difficulty: block/shape/gate counts, occupied/free cells, move distance,
@@ -346,6 +365,9 @@ default.
   budgets устанавливаются после approved rules spike.
 - Reject: invalid geometry, missing role gate, unsolvable, trivial, duplicate,
   target-band miss, unreadable scale, budget exceeded.
+- Dead-end exposure: feature receipt считает reachable irreversible dead ends;
+  v1 rejects candidates с ранним/нечитаемым dead-end cliff. Наличие initial
+  witness не доказывает solvability после произвольного legal manual move.
 
 ## Generation strategy
 
@@ -378,14 +400,15 @@ annotated.
 | 4 | освободить contested corridor | deeper dependency, more complex shape | unreadable cell scale |
 | 5 | upper approved band | longer witness, controlled dead-end exposure | generator/elevator/shutter |
 
-Exact target ranges получают `R/O` после Review 2.
+Exact target ranges получают `R-native/O` после Review 2.
 
 ## Presentation
 
 - Art (`P`): own theme-neutral shapes, no studs; role token separated from
   display palette.
 - Layout (`P`): portrait-first board, gates on boundary, HUD secondary.
-- Essential animation: blocking `R` measurements for pickup/carry/snap/exit.
+- Essential animation: `R-native` success clips подтверждают continuous carried
+  pose; pickup/snap/invalid/exit timing остаются `B`.
 - Sound: optional; sound-off experience complete.
 - Haptic: semantics/intensity require operator `O` and device review.
 - Success/fail: exact onset/cadence blocking on recording.
@@ -458,11 +481,11 @@ Telemetry не получает product authority; qualified outcome остаё�
 | ID | Workstream | Scope | Inputs | Typed outputs | Не трогает | Reviewer |
 | --- | --- | --- | --- | --- | --- | --- |
 | `BO-R` | Reference | exact game, recording, frame measurements, parity | operator packet + public sources | `BlockOutReferenceEvidenceV1` | implementation | operator |
-| `BO-G` | Gameplay | approved rule/state/schema/defaults | BO-R approved | `BlockOutRulesV1`, `BlockOutLevelSpecV1`, acceptance fixtures | code/art | operator + independent |
+| `BO-G` | Gameplay | approved rule/state/schema/defaults | BO-R minimum logic packet approved | `BlockOutRulesV1`, `BlockOutLevelSpecV1`, acceptance fixtures | code/art | operator + independent |
 | `BO-E` | Engine | stable transitions, gesture commit, replay, pause | BO-G | `BlockOutActionV1`, `BlockOutStateV1`, headless tests | solver search/theme | independent |
 | `BO-S` | Solver | validator/search/trace/features | BO-G schema/rules | `BlockOutSolverResultV1`, `BlockOutTraceV1` | rendering/taste | independent |
 | `BO-F` | Factory | reverse/goal-pull candidates and series | BO-S API | typed pack + `BlockOutValidationReceiptV1` | taste declaration | operator |
-| `BO-P` | Presentation | layout/carry/snap/exit/audio/haptic/skin | BO-R feel + BO-G projection | `BlockOutPresentationProjectionV1`, SkinSpec, visual harness | engine legality | operator |
+| `BO-P` | Presentation | layout/carry/snap/exit/audio/haptic/skin | BO-R full presentation packet + BO-G projection | `BlockOutPresentationProjectionV1`, SkinSpec, visual harness | engine legality | operator |
 | `BO-I` | Integration | feed lifecycle, staged boot, takeover, completion | BO-E + runtime authority | `BlockOutRuntimeBridgeV1`, swipe evidence | solver internals | independent |
 | `BO-A` | Analytics | question/event mapping | BO-G milestones | `BlockOutMeasurementBriefV1` | success authority | operator |
 | `BO-Q` | QA | parity/runtime/device/perf/reference delta | integrated candidate | Review 4 evidence packet | product changes | independent |
@@ -489,7 +512,8 @@ enter solver trace.
 
 Rules version, phase/mode, stable anchors/live ids, logical timer, sequence,
 initial/current digest and completion guard. Presentation-only carry pose and
-particles are excluded.
+particles are excluded. Full runtime snapshot may contain timer and phase, but
+solver identity is only canonical rules version + live ids + anchors.
 
 ### `BlockOutSolverResultV1`
 
@@ -531,6 +555,7 @@ redefine VISION success.
 | Input и solver реализуют разные drag semantics | high до recording | high | shared fixture per edge case | BO-G single rules authority |
 | Vertical drag конфликтует со swipe feed | high | high | real feed-shell takeover test | block-hit claim; background remains host |
 | Timer punitive для ICP | medium/high | high | friend cohort + reference comparison | operator exception/no-timer variant as separate decision |
+| Legal move leaves player in unsolvable state | medium до solver data | high | dead-end exposure receipt + restart UX review | reject early cliffs; operator chooses timer-only vs restart |
 | Color-only gates | high | high | grayscale/color-vision check | marker/pattern mandatory |
 | Generator valid, но levels tedious | high | high | blind human rank vs features | rejection filters + taste gate |
 | Pointermove/redraw jank in WebView | medium | high | low-tier device trace | occupancy masks, coalescing, capped DPR |
@@ -549,10 +574,12 @@ redefine VISION success.
 6. Win clear-all; fail reference timer; no move limit/lives/boosters (`P`).
 7. Movement/commit/invalid policy: **not defaulted**; copied from native evidence
    and explicitly approved.
-8. Autoplay `2` moves/`≤25%`, exact-state takeover, time-to-rule `≤1.50 s`
-   (`P`).
+8. Autoplay `2` moves/`≤25%`, exact-state takeover, scene settle `≤450 ms`,
+   scene-visible time-to-rule `≤1.50 s` (`P`).
 9. Color-independent role markers mandatory (`P`).
 10. Own theme-neutral no-stud SkinSpec baseline (`P`).
+11. Stuck state: **not defaulted**; operator chooses timer-only fail or visible
+    restart affordance after dead-end risk review.
 
 ## Открытые решения
 
@@ -562,7 +589,8 @@ redefine VISION success.
 | Target progression | difficulty/modifiers drift | operator | levels/slice | blocking |
 | Movement/free-stop/slide-stop | меняет engine/solver/generator | operator from recording | native edge cases | blocking |
 | Commit + invalid release | меняет replay/takeover/feel | operator | native recording | blocking |
-| Timer budget and pause | меняет fail/ICP | operator | success+fail recording | blocking |
+| Timer during autoplay | меняет pressure до takeover | operator | success/fail recording | blocking |
+| Stuck/unsolvable state UX | legal move может превратить timer в скрытое ожидание fail | operator | dead-end receipt + reference probe | blocking |
 | Must-preserve feel | задаёт BO-P acceptance | operator | list 3–7 | blocking |
 | Haptic | screen recording не измеряет | operator/device | Review 2/4 | blocking for BO-P |
 | Dynamic modifiers | schema explosion | operator | after static baseline | deferred |
@@ -582,7 +610,7 @@ redefine VISION success.
 - [ ] Native success/fail/error recording получен.
 - [ ] Must-preserve list утверждён.
 - [ ] `Defaults approve` или exceptions получены.
-- [ ] Feel table измерена и размечена `R/O/P`.
+- [ ] Feel table измерена и размечена `R-web/R-native/O/P/B`.
 
 ### Review 3 — class brief
 
@@ -615,10 +643,11 @@ redefine VISION success.
 | Evidence | Path/URL | Version/digest | Disposition |
 | --- | --- | --- | --- |
 | Reference packet | [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md) | snapshot 29.07.2026 | Review 1 complete |
+| Independent Review 1 | [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md) | 29.07.2026 | accept as research; F1–F5 disposition |
 | Grand Games listing | [App Store](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568) | live snapshot | primary proposal only |
 | Grand Games public gameplay | [YouTube 1–20](https://www.youtube.com/watch?v=VU9mQ_gleN8) | public montage | rule/progression evidence, not feel authority |
 | Color Block Jam listing | [App Store](https://apps.apple.com/in/app/color-block-jam/id6504332779) | live snapshot | secondary |
-| Native operator packet | operator delivery | — | blocking |
+| Native success clips L11–13 | operator delivery | SHA-256 in reference packet | partial `R-native`; movement probes/fail still blocking |
 | Review 3 / solver / visual / runtime | future BO-Q index | — | not started |
 
 ## Final decision
