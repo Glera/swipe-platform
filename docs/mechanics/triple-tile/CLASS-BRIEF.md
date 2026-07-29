@@ -1,7 +1,7 @@
 # Class Brief: `triple-tile-v1`
 
 - Дата: **29.07.2026**
-- Статус: **Review 3 logic GO / TT-P fidelity blocked**
+- Статус: **development active / Zen Match primary / TT-P prototype GO**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude** —
@@ -9,8 +9,8 @@
 - Reference packet: [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md)
 
 > Brief — typed boundary для solver-first разработки. Оператор разрешил
-> TT-G/TT-S/TT-E после merge документации. Presentation work, публикация и
-> rollout не разрешены; fidelity `P/B` блокируют TT-P.
+> TT-G/TT-S/TT-E/TT-F и prototype TT-P. Публикация и rollout не разрешены;
+> final native-parity claim остаётся отдельным device/taste gate.
 
 ## Authority legend
 
@@ -28,18 +28,19 @@
   зависит от фирменных assets (`O`).
 - Почему допустимо сейчас: отдельная research-инициатива готовит future
   supply и не открывает новый platform contour (`O`).
-- Утверждено оператором: Triple Tile primary, Zen Match secondary, captures
-  `20 / 25 / 30`, отсутствие boosters/crowns/meta (`O`).
-- Fail-on-7th утверждён оператором; haptic/audio и полный primary recording
-  нужны только перед TT-P (`O/B`).
-- Что документ не разрешает: TT-P fidelity code до primary evidence,
-  rollout, exact reference layouts/assets и смешение с Mahjong Solitaire
-  (`O`).
+- Утверждено оператором: Zen Match primary, Triple Tile secondary,
+  structural anchors `6–10`, отсутствие boosters/crowns/meta (`O`).
+- Fail-on-7th, audio off и haptics `light accepted / soft triple / rigid
+  unavailable+fail` утверждены оператором (`O`).
+- Autoplay default-on только в swipe, проходит весь level и ждёт accepted
+  takeover tap (`O`).
+- Что документ не разрешает: rollout, exact reference layouts/assets и
+  смешение с Mahjong Solitaire (`O`).
 
 ## Цель
 
 После утверждения эталона оператор на устройстве не может назвать, чем
-30-секундный side-by-side прототипа и target Triple Tile отличаются по
+30-секундный side-by-side прототипа и target Zen Match отличаются по
 tap response, tile flight, tray grouping/compression, triple removal,
 readability и win/fail cadence, при собственной visual identity (`P`).
 
@@ -60,20 +61,23 @@ readability и win/fail cadence, при собственной visual identity (
 
 ### Primary reference (`O`)
 
-- Название: **Triple Tile: Match Puzzle Game**
-- Listing snapshot: App Store `2.75.03`, наблюдение 29.07.2026 (`R-web`).
-- Ссылка: [App Store](https://apps.apple.com/us/app/triple-tile-match-puzzle-game/id1572661625).
-- Public screen recordings:
-  [Level 20](https://www.youtube.com/watch?v=okG_yeEDoI8),
-  [Level 30](https://www.youtube.com/watch?v=ZBxxq-RZ3VM) (`R-web`).
-- Capture set: **Levels 20 / 25 / 30**; Level 30 — holdout (`O`).
-- Native current-build primary recording: **отсутствует (`B` для TT-P)**.
+- Название: **Zen Match**
+- Native current-build Level 17 recording, SHA-256
+  `18101e019f8a2b2f6241bff67f16d9b16eae1ddf2fac9e126651d3e96e4e68fb`
+  (`R-native-primary`).
+- Feel authority: board→tray flights, concurrent accepted taps, grouped
+  insertion, third-landing barrier, sequential triple removal and win
+  cadence (`R-native-primary`).
+- Structural anchors: early Levels `6–10` from a public 2022 walkthrough
+  (`R-web/O`); topology/progression only, never exact layouts.
+- Cold board assembly, deliberate covered tap и intentional fail отсутствуют
+  в evidence (`P` до final parity, не blocker implementation).
 
 ### Secondary references
 
 | Reference | Что берём | Что не берём | Status |
 | --- | --- | --- | :---: |
-| Zen Match | capacity/holder semantics, match across intervening tray tiles, grouped insertion, concurrent flights | boosters, blockers, rooms, crowns/goals, monetization | `R-web/R-native-secondary/O` |
+| Triple Tile | taxonomy/core-loop comparison, readable no-booster public paths | target band, exact presentation, boosters/tools | `R-web/O` |
 | Tile Busters | progression boundary и readable blocker examples | blockers и timed challenge из v1 | `R-web/P` |
 | Tile Club | compact early-round cadence | club/tournament/meta | `R-web/P` |
 | Tile Family | explicit seven-tile fail и no-timer baseline | story wrapper, exact art/UI | `R-web/P` |
@@ -82,29 +86,32 @@ readability и win/fail cadence, при собственной visual identity (
 
 ### Числовой feel-разбор
 
-`TT-P` заблокирован, пока все строки не получат `R-native` или `O`.
+`P` строки разрешены для prototype и должны получить TT-Q measurement/taste
+disposition до final parity claim.
 
 | Параметр | Proposed value | Status |
 | --- | ---: | :---: |
-| Visible response after tap | `≤50 ms` | `P/B` |
-| Lift phase | `40–80 ms`, scale to `1.04` | `P/B` |
-| Tile flight | primary target `220–320 ms`; supplied Zen paths about `300–400 ms` | `R-native-secondary/P/B` |
-| Flight arc | normal offset `0.04–0.08` card width | `P/B` |
-| Tray rearrange | `140–220 ms` | `P/B` |
-| Triple recognition delay | `50–100 ms` | `P/B` |
-| Triple removal | `180–260 ms` | `P/B` |
-| Covered tap feedback | onset `≤50 ms`, duration `120–180 ms` | `P/B` |
-| Board settle | `300–450 ms` scene-visible to input-ready | `P/B` |
-| Input during flight | accepted; logical actions serial, flights may overlap | `R-native-secondary/P` |
-| Accepted-tap haptic | `selection/light`, `0–20 ms` | `P/B` |
-| Triple haptic | `success/soft` at removal onset | `P/B` |
-| Last triple -> win | `200–350 ms` | `P/B` |
-| Fail recognition -> fail UI | `300–500 ms` | `P/B` |
-| Scene visible -> first autoplay tap | `≤650 ms` | `P/B` |
-| Scene visible -> first autoplay triple | `≤2.20 s` | `P/B` |
+| Visible response after tap | `≤50 ms` | `P` |
+| Lift phase | no separate delay; visible flight starts immediately | `O/P` |
+| Tile flight | `280–380 ms` | `R-native-primary/P` |
+| Flight arc | quadratic, control point about `54 px` above midpoint | `R-native-primary/P` |
+| Tray rearrange | `180 ms` | `R-native-primary/P` |
+| Triple recognition delay | `70 ms` after third landing | `R-native-primary/P` |
+| Triple removal | `190 ms` each, `68 ms` stagger + light particles | `R-native-primary/P` |
+| Covered tap feedback | onset `≤50 ms`, duration `180 ms` | `P` |
+| Board settle | `300 ms`/tile, `12 ms` stagger, input gate `760 ms` | `P` |
+| Input during flight | accepted; logical actions serial, flights may overlap | `R-native-primary/O` |
+| Accepted-tap haptic | `light` at accepted transition | `O` |
+| Triple haptic | `soft` at removal onset | `O` |
+| Unavailable/fail haptic | `rigid` at feedback/fail onset | `O` |
+| Audio | off | `O` |
+| Last triple -> win | after presentation queue drains | `O/P` |
+| Fail recognition -> fail UI | after presentation queue drains | `O/P` |
+| Scene visible -> first autoplay tap | `≤900 ms` | `P` |
+| Scene visible -> first autoplay triple | `≤3.0 s` | `P` |
 
 Source/measurement plan и полный parity checklist:
-[`REFERENCE-PACKET.md`](REFERENCE-PACKET.md#feel-preliminary-targets).
+[`REFERENCE-PACKET.md`](REFERENCE-PACKET.md#feel-prototype-acceptance-targets).
 
 ### Rights boundary
 
@@ -131,17 +138,16 @@ Source/measurement plan и полный parity checklist:
 
 - Первый frame: exact initial board/tray geometry без title-card; cover
   совпадает с pre-settle scene (`P`).
-- Load: deterministic settle `300–450 ms`, не меняющий state (`P/B`).
-- Правило без текста: AutoCursor собирает одну очевидную triple, открывая
-  нижнюю плитку и освобождая tray (`P`).
-- Autoplay: deterministic no-booster solver witness (`O`).
-- Длина: `4–7 s`, `3–6` taps, не более `20%` уровня (`P`).
-- Time-to-rule от scene visible: первый tap `≤650 ms`, первая triple
-  resolved `≤2.20 s`; overlapping flights разрешены (`P/B`).
-- Autoplay не обязан быть единственным/оптимальным; он выбирает trace,
-  максимально ясно показывающий exposure -> tray -> triple (`P`).
-- Takeover: первый принятый user tap отменяет будущий AutoCursor action
-  атомарно (`P`).
+- Load: deterministic cascading assembly, `300 ms` per tile с `12 ms`
+  stagger; input gate `760 ms`, state не меняется (`P`).
+- Autoplay default-on только в swipe build; standalone/AppLovin manual даже
+  при `?auto=1` (`O`).
+- Autoplay проходит полный deterministic solver-verified construction
+  witness до win, пока ждёт tap (`O/P`).
+- Opening witness собирает одну очевидную triple первой группой; target
+  first autoplay tap `≤900 ms`, resolved triple `≤3.0 s` (`P`).
+- Background/covered tap не отменяет autoplay. Первый принятый user tap
+  отменяет только будущий action атомарно (`O/P`).
 - Exact board + tray state продолжается без restart/reshuffle (`O/P`).
 
 ## Input contract
@@ -149,7 +155,7 @@ Source/measurement plan и полный parity checklist:
 | Input | Условие | State transition | Feedback | Status |
 | --- | --- | --- | --- | :---: |
 | `tapTile(id)` | tile live + exposed + interactive | pure placement/resolve transition | flight + light haptic | `O/P` |
-| tap covered tile | tile live, blocked by live cover | no state change | covered cue | `P/B` |
+| tap covered tile | tile live, blocked by live cover | no state change | `180 ms` pulse + rigid haptic | `O/P` |
 | tap removed/in-flight tile | id no longer board-live | no-op | none | `P` |
 | tap background | interactive | no-op | none | `P` |
 | exposed tap that reaches fail threshold after resolve | interactive/manual | terminal fail | fail cue | `O/P` |
@@ -161,7 +167,7 @@ Source/measurement plan и полный parity checklist:
 принимается только после takeover classification; pointer move,
 классифицированный как feed swipe, не создаёт action (`P`).
 
-Accepted taps во время предыдущего flight разрешены (`R-native-secondary/P`).
+Accepted taps во время предыдущего flight разрешены (`R-native-primary/O`).
 Каждый action читает уже обновлённое logical state и сериализуется атомарно;
 presentation может одновременно показывать несколько flights.
 
@@ -213,7 +219,7 @@ input обрабатывается по уже обновлённому state. P
 - Win: `remaining.size === 0 && trayOccupancy === 0` после deterministic
   auto-resolve (`O/P`).
 - Fail: post-resolve tray occupancy достигает `7` (`O`).
-- Covered tap: не ошибка ресурса и не fail (`P/B`).
+- Covered tap: не ошибка ресурса и не fail (`O/P`).
 - Restart: exact initial remaining/exposure/tray/mode; runtime randomness `0`
   (`O/P`).
 - Undo/Shuffle/Hint: отсутствуют в bounded v1 (`O`).
@@ -241,8 +247,8 @@ input обрабатывается по уже обновлённому state. P
 - solver-safe edge требует `trayOccupancy < failAtResolvedCount`
   (`O`).
 
-Intentional primary fail clip остаётся optional parity evidence для TT-P и
-не блокирует schema/solver (`O`).
+Intentional fail clip остаётся optional final-parity evidence и не блокирует
+schema/solver/prototype (`O`).
 
 ## Duration budget
 
@@ -257,7 +263,7 @@ Intentional primary fail clip остаётся optional parity evidence для T
 
 ### Входит (`P`)
 
-- пять собственных уровней, калиброванных по Triple Tile 20–30;
+- пять собственных solver-verified structural analogues Zen Match `6–10`;
 - один static layered-board rule;
 - один tray policy и capacity/fail threshold;
 - `4–6` symbol types из собственного набора;
@@ -276,9 +282,9 @@ Intentional primary fail clip остаётся optional parity evidence для T
 
 ### Disposable spike
 
-После Review 3 можно разрешить отдельный mocked-state motion harness для
-flight/insertion/triple removal. Он не определяет gameplay semantics и
-удаляется либо изолируется после TT-P evidence (`P/B`).
+Motion projection реализуется как отдельный presentation layer для
+flight/insertion/triple removal. Он не определяет gameplay semantics и не
+входит в content digest (`O/P`).
 
 ### Baseline class
 
@@ -325,7 +331,7 @@ interface TripleTileLevelSpecV1 {
   generator: {
     version: string;
     recipe: string;
-    targetBand: "triple-tile-20-30";
+    targetBand: "zen-match-early-6-10-structural";
   };
 }
 
@@ -517,33 +523,33 @@ minimum required diagnostic fraction (`P`).
 
 | Уровень | Новое требование | Target features | Запрещённый скачок |
 | ---: | --- | --- | --- |
-| 1 | считать exposure -> triple | `24` tiles, `4` types, depth `2–3`, pressure `≤3` | false affordances и tight tray |
-| 2 | держать один незакрытый pair | `27–30`, `4–5` types, depth `3`, unpaired `≤2` | рост types и depth одновременно |
-| 3 | выбрать между двумя ветвями | `30–33`, `5` types, branching `2–4`, pressure `4–5` | required covered-identity decision |
-| 4 | восстановиться после tempting tap | `33–36`, `5–6` types, recovery slack `1–2`, false affordances `1–2` | fail-only branch без visual cue |
-| 5 | upper holdout feel | `36–39`, `6` types, depth `4–5`, pressure `5–6`, multiple solutions | новый blocker/booster/rule |
+| 6 | считать exposure -> triple | `24` tiles, `4` types, depth `3`, pressure `6` | false affordances |
+| 7 | держать один незакрытый pair | `27`, `4` types, depth `4`, pressure `6` | рост types и depth одновременно |
+| 8 | выбрать между ветвями | `30`, `5` types, depth `4`, pressure `6` | required covered-identity decision |
+| 9 | читать более глубокую форму | `33`, `5` types, depth `5`, pressure `6` | fail-only branch без cue |
+| 10 | upper early-band analogue | `36`, `6` types, depth `6`, pressure `6` | новый blocker/booster/rule |
 
-Reference Level 30 — perceived-difficulty holdout, не layout fixture (`P`).
-Точные ranges калибруются только после native target recordings (`B`).
+Reference numbers `6–10` — progression anchors, не layout fixtures. Exact
+geometry/seeds/types принадлежат first-party generator (`O/P`).
 
 ## Presentation
 
 - Art: own Garden Curios symbols, light tactile tile faces, calm but не
   reference-identical palette/background (`P`).
 - Layout: portrait-first; board `65–72%` card height, tray в нижней safe zone
-  (`P/B`).
-- Essential motion: lift, arced flight, same-type insertion, stable
-  compression, triple removal, reveal (`P/B`).
-- Camera: static after one board settle; no per-move zoom (`P/B`).
-- Essential sound: light pick, ceramic/wooden landing, soft triple chime;
-  sound-off остаётся полон (`P/B`).
-- Haptic: light accepted tap; soft success triple; rigid unavailable/fail
-  (`P/B`).
-- Success: last triple, short board-clear breath, restrained particles
-  (`P/B`).
-- Error: covered tile does not move; cover/edge pulse shows cause (`P/B`).
-- Fail: tray warning differentiated from win by motion, shape and sound,
-  not only color (`P/B`).
+  (`P`).
+- Essential motion: cascading board assembly, arced board→tray flight,
+  same-type insertion/compression, third-landing barrier, sequential triple
+  removal and reveal (`O/P`).
+- Camera: static after one board settle; no per-move zoom (`O/P`).
+- Audio: off (`O`); motion, particles, shape and haptics carry feedback.
+- Haptic: manual play only — light accepted tap; soft success triple; rigid
+  unavailable/fail. Autonomous autoplay never vibrates (`O/P`).
+- Success: last triple drains presentation, restrained particles, then one
+  completion (`O/P`).
+- Error: covered tile does not move; `180 ms` edge pulse shows cause (`P`).
+- Fail: tray warning differentiated from win by motion and shape, not only
+  color or sound (`P`).
 - Color-independent cues: unique symbol silhouettes + line detail; slot
   warning uses outline/scale, not only red (`P`).
 - Low-tier: no blur/particles; same timings, paths and logical projection
@@ -559,8 +565,8 @@ Reference Level 30 — perceived-difficulty holdout, не layout fixture (`P`).
 | Tile face/edge/shadow | code/SkinSpec tokens | CSS/SVG | `≤12 KB` | yes | `P` |
 | Background | owned/generated | AVIF/WebP | `≤80 KB` | yes | `P` |
 | Tray/slot states | code/SkinSpec | vector/CSS | `≤8 KB` | yes | `P` |
-| Pick/land/triple/fail audio | owned/generated | compressed audio | `≤40 KB` total | yes | `P` |
-| Haptics | platform semantic bridge | events | n/a | profile only | `P/B` |
+| Audio | operator-disabled | none | `0 KB` | n/a | `O` |
+| Haptics | platform semantic bridge | events | n/a | profile only | `O` |
 | Particles | generated in code | runtime | low-tier off | yes | `P` |
 
 SkinSpec обязан version/provenance-log каждого symbol, tile tokens, states,
@@ -609,9 +615,10 @@ triple или takeover (`O`).
 | `TT-A` | Analytics | question -> event mapping | TT-G | measurement brief | success authority | operator |
 | `TT-Q` | Device fidelity/evidence | device/aspect/parity/runtime | integrated candidate | Review 4 packet | product changes | independent |
 
-После merge документации TT-G/TT-S/TT-E разрешены в отдельной
-implementation-ветке. Partial-visibility threshold блокирует финальный
-TT-F content acceptance и TT-P, но не logical state contract (`O/B`).
+TT-G/TT-S/TT-E/TT-F/TT-P разрешены в отдельной implementation-ветке.
+Partial-visibility threshold и оставшиеся native clips блокируют только
+final parity/taste claim, не prototype code или logical state contract
+(`O/P`).
 
 ## Typed integration boundaries
 
@@ -637,35 +644,37 @@ TT-F content acceptance и TT-P, но не logical state contract (`O/B`).
 | Presentation order протекает в logic/content digest | medium | high | permutation fixtures + digest comparison | tray multiset authority; order only in projection |
 | Solver-valid levels требуют угадывания | high | high | observable-information replay + visibility feature | reject `requiredCoveredIdentityDecisionRate > 0` |
 | Symbols сливаются на compact screen | medium | high | debug glyph/aspect test | silhouette/line-detail gate |
-| Public walkthrough устарел | high | high | native current build capture | do not start TT-P |
-| Autoplay слишком долго показывает triple | medium | high | `≤2.20 s` time-to-rule | shorter obvious opening |
+| Public early walkthrough устарел | high | high | использовать только structural archetype | never copy exact layout |
+| Autoplay слишком долго показывает triple | medium | high | `≤3.0 s` time-to-rule | construction witness opens with triple |
 | Concurrent taps читают stale exposure/tray | medium | high | chained input fixtures | atomic logical transition |
 
 ## Открытые решения
 
 | Вопрос | Почему блокирует | Кто решает | Trigger | Status |
 | --- | --- | --- | --- | :---: |
-| Triple Tile — primary? | определяет fidelity | operator | Review 2 | `O` |
-| Levels 20 / 25 / 30? | difficulty/recording | operator | Review 2 | `O` |
+| Zen Match — primary? | определяет fidelity | operator | latest override | `O` |
+| Structural anchors 6–10? | early progression | operator | latest override | `O` |
 | `7th` или `8th` fail? | schema/solver/engine | operator | Review 3 | `O: fail on 7th` |
-| Grouped insertion или stable append? | presentation motion only | primary recording | before TT-P | `R-native-secondary/B` |
-| Concurrent taps during flight? | engine cadence | supplied recording | Review 2 | `R-native-secondary/P` |
-| Minimum covered diagnostic fraction? | generator fairness/readability | operator/device | before TT-F/TT-P | `P/B` |
-| Какой covered feedback? | fidelity/input | operator/reference | before TT-P | `B` |
+| Grouped insertion или stable append? | presentation motion only | primary recording | latest override | `R-native-primary/O: grouped` |
+| Concurrent taps during flight? | engine cadence | supplied recording | latest override | `R-native-primary/O` |
+| Minimum covered diagnostic fraction? | generator fairness/readability | operator/device | before final parity | `P` |
+| Какой covered feedback? | fidelity/input | operator/reference | TT-Q | `P: 180 ms pulse` |
 | Какие boosters explicitly excluded? | bounded rule | operator | Review 2 | `O: all` |
-| Haptic/audio semantics? | device fidelity | operator | before TT-P | `B` |
-| Round `30–50 s`, `24–39` taps? | feed fit/ladder | operator | Review 3 | `P/B` |
+| Haptic/audio semantics? | device fidelity | operator | latest override | `O: light/soft/rigid; audio off` |
+| Round `30–50 s`, `24–39` taps? | feed fit/ladder | operator | Review 3 | `P` |
 
 ## Acceptance
 
 ### Review 2 logic disposition
 
 - [x] Taxonomy split принят.
-- [x] Primary/secondary утверждены.
-- [x] Target captures `20 / 25 / 30` утверждены.
-- [x] Secondary native recording приложен и разобран.
+- [x] Zen Match primary / Triple Tile secondary утверждены.
+- [x] Structural anchors `6–10` утверждены; exact copy запрещён.
+- [x] Primary native Level 17 recording приложен и разобран.
 - [x] Boosters/crowns/meta исключены.
 - [x] Exact fail threshold: post-resolve occupancy `7` (`O`).
+- [x] Full swipe autoplay/takeover contract утверждён.
+- [x] Audio off и light/soft/rigid haptics утверждены.
 
 ### Review 3 gameplay
 
@@ -685,18 +694,19 @@ TT-F content acceptance и TT-P, но не logical state contract (`O/B`).
 
 ### Platform/presentation
 
-- [ ] Primary native captures `20 / 25 / 30` приложены.
-- [ ] Haptic/audio expectations записаны.
+- [x] Primary motion evidence приложен.
+- [x] Haptic/audio expectations записаны.
+- [ ] Cold load, covered tap и intentional fail evidence приложены.
 - [ ] Staged boot, pause/resume, cleanup и single completion проверены.
 - [ ] Compact/tall gameplay читаем без звука и без одного цвета.
-- [ ] Feel-table закрыта `R/O` до TT-P.
+- [ ] Prototype feel-table измерена TT-Q и получила operator disposition.
 - [ ] Parity checklist + side-by-side приняты на устройстве.
 - [ ] Before/after GIF приложены к каждой feel-итерации.
 
 ## Kill criteria (`P`)
 
-- Current target reference использует другой core loop либо обязательные
-  special rules в captures `20 / 25 / 30`.
+- Current Zen Match reference использует другой core loop либо обязательные
+  special rules входят в базовые early levels.
 - Первый autoplay triple не укладывается в утверждённый time-to-rule.
 - Менее `20%` solver-valid candidates получают human-accept после трёх
   generator-итераций без ручного ремонта.
@@ -712,19 +722,19 @@ TT-F content acceptance и TT-P, но не logical state contract (`O/B`).
 | --- | --- | --- | --- |
 | Reference packet | [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md) | snapshot 29.07.2026 | Review 1/2 proposal |
 | Triple Tile listing | [App Store](https://apps.apple.com/us/app/triple-tile-match-puzzle-game/id1572661625) | observed `2.75.03` | identity/market only |
-| Public Level 20 | [YouTube](https://www.youtube.com/watch?v=okG_yeEDoI8) | unknown build | provisional lower anchor |
-| Public Level 30 | [YouTube](https://www.youtube.com/watch?v=ZBxxq-RZ3VM) | unknown build | provisional upper holdout |
-| Supplied Zen Match Level 17 | operator-provided; binary not committed | SHA-256 `18101e019f8a2b2f6241bff67f16d9b16eae1ddf2fac9e126651d3e96e4e68fb` | current secondary behavior; closes concurrent taps and shows grouped presentation |
+| Public Triple Tile Level 20 | [YouTube](https://www.youtube.com/watch?v=okG_yeEDoI8) | unknown build | secondary comparison only |
+| Public Triple Tile Level 30 | [YouTube](https://www.youtube.com/watch?v=ZBxxq-RZ3VM) | unknown build | secondary comparison only |
+| Supplied Zen Match Level 17 | operator-provided; binary not committed | SHA-256 `18101e019f8a2b2f6241bff67f16d9b16eae1ddf2fac9e126651d3e96e4e68fb` | current primary feel authority; closes flights, concurrent taps, grouped insertion and sequential removal |
+| Public Zen Match Levels 6–10 | [walkthrough](https://appsmenow.com/walkthrough/183750-zen-match-relaxing-puzzle/level-6-10) | 2022 public build | provisional structural archetypes only |
 | Independent Review 1/2 | [`REVIEW-INDEPENDENT-2026-07-29.md`](REVIEW-INDEPENDENT-2026-07-29.md) | `a52b52e` / merged via `a35a8a6` | accept as research; F1–F4 incorporated |
-| Primary native captures `20 / 25 / 30` | operator-provided | — | blocking TT-P |
-| Primary intentional fail clip | operator-provided | — | optional TT-P parity evidence |
+| Cold load / covered tap / intentional fail | operator-provided | — | final parity evidence, not prototype blocker |
 
 ## Final decision
 
-- Decision: **Review 3 logic GO; solver-first development authorized**.
-- Approved: Triple Tile primary, Zen Match secondary, captures
-  `20 / 25 / 30`; fail-on-7th; no boosters/crowns/meta (`O`).
-- Next for logic: TT-G → TT-S → TT-E in a separate implementation branch.
-- Next for presentation: full primary feel packet and haptic/audio decision.
-- Explicitly deferred: all gameplay/presentation code, boosters, blockers,
-  meta, server factory, rollout.
+- Decision: **development GO; Zen Match primary; TT-P prototype authorized**.
+- Approved: structural anchors `6–10`, fail-on-7th, no
+  boosters/crowns/meta, full swipe autoplay with accepted-tap takeover,
+  audio off and light/soft/rigid haptics (`O`).
+- Implementation order: TT-G → TT-S → TT-E → TT-F → TT-P → TT-I/TT-A/TT-Q.
+- Explicitly deferred: exact reference assets/layouts, boosters, blockers,
+  meta, server factory, publication and rollout.
