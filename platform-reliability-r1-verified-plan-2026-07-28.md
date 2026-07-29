@@ -148,6 +148,26 @@ hypotheses.json одновременно с v3.
 Read-only часть R1-0 (пп. 1–2) запускается немедленно; drill, ротация,
 расходы и любые production-переключения — операторские гейты.
 
+### Утверждённая последовательность закрытия ingress (оператор, 29.07)
+
+Целевое состояние: полностью закрытый external PostgreSQL ingress
+(карта источников закрыта 29.07: постоянных внешних потребителей нет —
+backend и C1 cron ходят по private network через Blueprint
+`fromDatabase.connectionString`; единственный внешний класс — ручные
+operator/Codex/Claude-сессии с Mac).
+
+1. Snapshot 2 (нужен внешний доступ).
+2. `0.0.0.0/0` → точный IP Mac `/32`.
+3. Ротация DB credentials — zero-downtime цепочка: новый user → Blueprint
+   sync/redeploy → smoke web/C1 → удаление старого user (новый user попадает
+   в `fromDatabase.connectionString` при следующем Blueprint sync, не
+   мгновенно).
+4. Restore-drill (isolated, с оператором).
+5. Удаление `/32`; проверка backend + C1 cron через private network.
+
+Дальнейшая диагностика — временный точный `/32` на сессию с закрытием после.
+До snapshot 2 конфигурация не меняется.
+
 ## 4. Нарезка
 
 | Пакет | Содержимое | Authority-граница |
