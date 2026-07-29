@@ -180,8 +180,24 @@ Triple-tile, а Survivor вести как отдельный action-bet ряд�
 
 ### Референсы
 
+- [Arrows – Puzzle Escape, Lessmore](https://apps.apple.com/us/app/arrows-puzzle-escape/id6748397500)
 - [Arrow Puzzle — Tap Away Game, Easybrain](https://apps.apple.com/us/app/arrow-puzzle-tap-away-game/id6755482314)
 - [Arrows Puzzle](https://arrows-puzzle.com/)
+
+### Выбранный reference packet
+
+Review 2 закрыт выбором **Arrows – Puzzle Escape**, target band — уровни
+`10–15`. Подготовлены:
+
+- [`arrows/REFERENCE-PACKET.md`](arrows/REFERENCE-PACKET.md) — AR-R,
+  покадровый feel-разбор и parity checklist;
+- [`arrows/CLASS-BRIEF.md`](arrows/CLASS-BRIEF.md) — AR-G, gameplay/schema/
+  solver/generator contract и вопросы Review 3.
+
+Статус: `approved-for-prototype / ready for parallel implementation`.
+Review 3 утвердил polyline baseline, пять собственных уровней в target band
+`10–15` и Level 15 как holdout. Native recording закрыл timing успешного
+exit, blocked feedback, lives/fail и adaptive intro camera.
 
 ### Core loop
 
