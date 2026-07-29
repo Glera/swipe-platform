@@ -17,6 +17,10 @@ const RECEIPT_TEMPLATE = path.join(
   ROOT,
   'docs/templates/platform-reliability-r1-operator-receipt-template.json',
 );
+const OPERATOR_RUNBOOK = path.join(
+  ROOT,
+  'platform-reliability-r1-operator-runbook.md',
+);
 
 test('final evidence template preserves every completion requirement and gate', () => {
   const markdown = fs.readFileSync(FINAL_TEMPLATE, 'utf8');
@@ -121,4 +125,19 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
       || Object.hasOwn(receipt, 'connectionString'),
     false,
   );
+});
+
+test('operator runbook fail-closes the undocumented Blueprint hook path', () => {
+  const runbook = fs.readFileSync(OPERATOR_RUNBOOK, 'utf8');
+
+  assert.match(runbook, /provider_path_not_documented/);
+  assert.match(
+    runbook,
+    /api-docs\.render\.com\/v1\.0\/openapi\/render-public-api-1\.json/,
+  );
+  assert.match(runbook, /operator window не начинает Gate A/);
+  assert.match(runbook, /Выключение Auto Sync не доказывает инвалидирование hook/);
+  assert.match(runbook, /Disconnect\/reconnect[\s\S]+не являются допустимой диспозицией/);
+  assert.match(runbook, /Ответ Render Support сам по себе не открывает Gate A/);
+  assert.match(runbook, /Сам hook value нельзя читать или передавать Support/);
 });
