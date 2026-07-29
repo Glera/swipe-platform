@@ -8,9 +8,9 @@ import { fileURLToPath } from 'node:url';
 
 import { captureSnapshot } from './platform-reliability-r1-db-capture.mjs';
 
-function managedCredentialPath() {
+function managedCredentialPath(directory = os.tmpdir()) {
   return path.join(
-    os.tmpdir(),
+    directory,
     `p4g-r1-db-url-${process.pid}-${crypto.randomUUID()}`,
   );
 }
@@ -31,13 +31,21 @@ function fixture() {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'p4g-r1-capture-test-'));
   const fakePsql = path.join(directory, 'fake-psql.mjs');
   const trace = path.join(directory, 'trace.json');
+  const snapshotInput = path.join(directory, 'snapshot-input.tsv');
+  const exitCode = path.join(directory, 'exit-code.txt');
   const output = path.join(directory, 'snapshot.tsv');
   fs.writeFileSync(
     fakePsql,
     [
       '#!/usr/bin/env node',
       "import fs from 'node:fs';",
-      'fs.writeFileSync(process.env.P4G_FAKE_TRACE, JSON.stringify({',
+      "import path from 'node:path';",
+      "import { fileURLToPath } from 'node:url';",
+      'const directory = path.dirname(fileURLToPath(import.meta.url));',
+      "const trace = path.join(directory, 'trace.json');",
+      "const snapshot = path.join(directory, 'snapshot-input.tsv');",
+      "const exitCode = path.join(directory, 'exit-code.txt');",
+      'fs.writeFileSync(trace, JSON.stringify({',
       '  argv: process.argv.slice(2),',
       '  host: process.env.PGHOST,',
       '  port: process.env.PGPORT,',
@@ -49,16 +57,19 @@ function fixture() {
       '  inheritedDatabaseUrl: process.env.DATABASE_URL ?? null,',
       '  inheritedService: process.env.PGSERVICE ?? null,',
       '}));',
-      'process.stdout.write(process.env.P4G_FAKE_SNAPSHOT);',
-      'process.exit(Number(process.env.P4G_FAKE_EXIT ?? 0));',
+      "process.stdout.write(fs.readFileSync(snapshot, 'utf8'));",
+      "process.exit(fs.existsSync(exitCode) ? Number(fs.readFileSync(exitCode, 'utf8')) : 0);",
       '',
     ].join('\n'),
     { mode: 0o700 },
   );
+  fs.writeFileSync(snapshotInput, validSnapshot());
   return {
     directory,
     fakePsql,
     trace,
+    snapshotInput,
+    exitCode,
     output,
     cleanup() {
       fs.rmSync(directory, { recursive: true, force: true });
@@ -66,8 +77,8 @@ function fixture() {
   };
 }
 
-function writeCredential(contents, mode = 0o600) {
-  const credential = managedCredentialPath();
+function writeCredential(contents, mode = 0o600, directory = os.tmpdir()) {
+  const credential = managedCredentialPath(directory);
   fs.writeFileSync(credential, contents, { flag: 'wx', mode });
   return credential;
 }
@@ -87,8 +98,6 @@ test('captures a validated snapshot without putting credentials in argv', () => 
         PATH: process.env.PATH,
         DATABASE_URL: 'postgresql://ambient:secret@wrong.invalid/db',
         PGSERVICE: 'ambient-service',
-        P4G_FAKE_TRACE: files.trace,
-        P4G_FAKE_SNAPSHOT: validSnapshot(),
       },
     });
     const trace = JSON.parse(fs.readFileSync(files.trace, 'utf8'));
@@ -133,6 +142,8 @@ test('removes the credential and partial output when psql fails', () => {
     'postgresql://user:password@db.example.test/swipe?sslmode=require',
   );
   try {
+    fs.writeFileSync(files.snapshotInput, 'partial');
+    fs.writeFileSync(files.exitCode, '2');
     assert.throws(
       () => captureSnapshot({
         credentialFile: credential,
@@ -141,9 +152,6 @@ test('removes the credential and partial output when psql fails', () => {
         psqlBinary: files.fakePsql,
         sourceEnvironment: {
           PATH: process.env.PATH,
-          P4G_FAKE_TRACE: files.trace,
-          P4G_FAKE_SNAPSHOT: 'partial',
-          P4G_FAKE_EXIT: '2',
         },
       }),
       /psql snapshot failed with exit 2/,
@@ -171,8 +179,6 @@ test('fails closed on insecure credential permissions and consumes the temp file
         psqlBinary: files.fakePsql,
         sourceEnvironment: {
           PATH: process.env.PATH,
-          P4G_FAKE_TRACE: files.trace,
-          P4G_FAKE_SNAPSHOT: validSnapshot(),
         },
       }),
       /must not be readable or writable by group\/other/,
@@ -192,6 +198,10 @@ test('rejects a snapshot captured before the evidence boundary', () => {
     'postgresql://user:password@db.example.test/swipe?sslmode=require',
   );
   try {
+    fs.writeFileSync(
+      files.snapshotInput,
+      validSnapshot('2026-07-30 08:30:59 UTC'),
+    );
     assert.throws(
       () => captureSnapshot({
         credentialFile: credential,
@@ -200,8 +210,6 @@ test('rejects a snapshot captured before the evidence boundary', () => {
         psqlBinary: files.fakePsql,
         sourceEnvironment: {
           PATH: process.env.PATH,
-          P4G_FAKE_TRACE: files.trace,
-          P4G_FAKE_SNAPSHOT: validSnapshot('2026-07-30 08:30:59 UTC'),
         },
       }),
       /precedes required/,
@@ -232,6 +240,38 @@ test('consumes the credential even when local arguments fail before psql', () =>
     assert.equal(fs.existsSync(credential), false);
     assert.equal(fs.existsSync(files.output), false);
     assert.equal(fs.existsSync(files.trace), false);
+  } finally {
+    fs.rmSync(credential, { force: true });
+    files.cleanup();
+  }
+});
+
+test('accepts the documented /tmp credential path on macOS', (context) => {
+  if (
+    !fs.existsSync('/tmp')
+    || fs.realpathSync('/tmp') === fs.realpathSync(os.tmpdir())
+  ) {
+    context.skip('/tmp and os.tmpdir() resolve to the same directory');
+    return;
+  }
+  const files = fixture();
+  const credential = writeCredential(
+    'postgresql://user:password@db.example.test/swipe?sslmode=require',
+    0o600,
+    '/tmp',
+  );
+  try {
+    const receipt = captureSnapshot({
+      credentialFile: credential,
+      outputFile: files.output,
+      notBefore: '2026-07-30T08:31:00Z',
+      psqlBinary: files.fakePsql,
+      sourceEnvironment: {
+        PATH: process.env.PATH,
+      },
+    });
+    assert.equal(receipt.status, 'ok');
+    assert.equal(fs.existsSync(credential), false);
   } finally {
     fs.rmSync(credential, { force: true });
     files.cleanup();

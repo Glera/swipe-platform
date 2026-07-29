@@ -31,14 +31,20 @@ function decodeUrlComponent(value, label) {
 
 function validateManagedCredentialPath(inputPath) {
   const resolved = path.resolve(inputPath);
-  const temporaryDirectory = fs.realpathSync(os.tmpdir());
+  const temporaryDirectories = new Set(
+    [os.tmpdir(), '/tmp']
+      .filter((candidate) => fs.existsSync(candidate))
+      .map((candidate) => fs.realpathSync(candidate)),
+  );
   const parent = fs.realpathSync(path.dirname(resolved));
+  const basename = path.basename(resolved);
   if (
-    parent !== temporaryDirectory
-    || !path.basename(resolved).startsWith(CREDENTIAL_PREFIX)
+    !temporaryDirectories.has(parent)
+    || !new RegExp(`^${CREDENTIAL_PREFIX}[A-Za-z0-9][A-Za-z0-9._-]{5,127}$`)
+      .test(basename)
   ) {
     fail(
-      `credential file must be a direct ${os.tmpdir()}/${CREDENTIAL_PREFIX}* file`,
+      `credential file must be a direct system-temp ${CREDENTIAL_PREFIX}<nonce> file`,
     );
   }
   return resolved;
@@ -116,9 +122,11 @@ function readConnectionEnvironment(credentialFile) {
 }
 
 function isolatedChildEnvironment(connectionEnvironment, sourceEnvironment) {
-  const environment = { ...sourceEnvironment };
-  for (const key of Object.keys(environment)) {
-    if (key === 'DATABASE_URL' || key.startsWith('PG')) delete environment[key];
+  const environment = {};
+  for (const key of ['PATH', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TMPDIR', 'TZ']) {
+    if (typeof sourceEnvironment[key] === 'string') {
+      environment[key] = sourceEnvironment[key];
+    }
   }
   return {
     ...environment,
