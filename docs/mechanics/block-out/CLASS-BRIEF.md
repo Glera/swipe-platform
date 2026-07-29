@@ -1,7 +1,8 @@
 # Class Brief: `block-out-v1`
 
 - Дата: **29.07.2026**
-- Статус: **Review 3 conditional GO — BO-A/BO-E/BO-S ready; code not authorized**
+- Статус: **Prototype authorized — BO-A/BO-E/BO-S implementation allowed;
+  BO-P fidelity blocked on 60 fps evidence**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude (Review 1 и Review 3)**
@@ -15,7 +16,8 @@
 > reference, target band и core movement/no-timer/no-stuck decisions утверждены
 > оператором (`O`). Review 3 закрыл collision/exit/snap contracts и дал
 > workstream-ready disposition для `BO-A/BO-E/BO-S`. Measured presentation feel
-> остаётся открытым для `BO-P`; prototype code и rollout не разрешены.
+> остаётся открытым для `BO-P`. Operator отдельно разрешил prototype code
+> 29.07.2026; rollout/publication не разрешены.
 
 ## Evidence notation
 
@@ -41,8 +43,9 @@
 - Operator ruling: exact game/link, progression slice, movement core,
   no-inertia release, no-timer/no-stuck и must-preserve direction получены;
   haptic deferred.
-- Что документ не разрешает: code, prototype, публикацию, перенос Arrows
-  gameplay decisions, копирование levels/assets или старт downstream packages.
+- Что authorization не разрешает: rollout/publication, перенос Arrows gameplay
+  decisions, копирование levels/assets, dynamic modifiers или запуск `BO-P`
+  acceptance без 60 fps evidence.
 
 ## Цель
 
@@ -60,7 +63,17 @@ clarity, при осознанно исключённом timer и собств�
 - Runtime physics, WebGL или solver в пользовательском request path.
 - Доказательство fun/retention одной solver solvability.
 - Внутренний progression между уровнями: серию ведёт feed.
-- Старт реализации до отдельного prototype authorization.
+- Rollout/publication прототипа без отдельного release authorization.
+
+## Prototype authorization receipt
+
+- Дата: **29.07.2026**.
+- Authority: **operator (`O`)**.
+- Exact ruling: **«Разрешаю начать разработку прототипа Block Out! v1 по
+  утверждённому CLASS-BRIEF. Playables Arrows не затрагивать.»**
+- Scope: `BO-G/BO-E/BO-S/BO-A` и минимальный isolated playable/runtime harness.
+- Не открывает: `BO-P` fidelity acceptance, haptic, modifiers, rollout,
+  publication или изменения Arrows.
 
 ## Точный эталон
 
@@ -655,8 +668,8 @@ expected stable action/state digest и rules digest:
 | `BO-FX-REPLAY-BYTES` | engine trace -> replay | byte-equivalent stable state/action digests |
 | `BO-FX-MONOTONE-PROPERTY` | random legal translation/exit sequence из solvable static level | remaining state solvable; lemma premises never silently change |
 
-Fixture IDs и expected outcomes являются BO-G authority. Executable fixtures
-создаются только после prototype authorization.
+Fixture IDs и expected outcomes являются BO-G authority. Их executable form
+разрешена operator prototype authorization от 29.07.2026.
 
 ## Risks
 
@@ -727,7 +740,8 @@ Fixture IDs и expected outcomes являются BO-G authority. Executable fix
 - [x] A3′ deterministic snap/tie-break закрыта.
 - [x] Typed fixture list приложен; executable form ждёт authorization.
 - [x] Independent reviewer дал conditional GO.
-- [ ] Отдельная prototype authorization получена.
+- [x] Отдельная prototype authorization получена 29.07.2026; exact ruling
+  записан выше.
 
 ### Future Review 4 — evidence
 
@@ -768,7 +782,8 @@ Fixture IDs и expected outcomes являются BO-G authority. Executable fix
 - Gameplay: positive-area-overlap/contact-allowed collision, unit-step anchor
   BFS, deterministic snap, full-crossing reusable gates, no timer and
   monotone strong-solvability contract.
-- Workstreams: `BO-A/BO-E/BO-S` technically ready; `BO-P` blocked on 60 fps
-  feel evidence.
-- Implementation: **not authorized**.
-- Explicitly deferred: code, dynamic modifiers, meta, rollout, publication.
+- Workstreams: `BO-A/BO-E/BO-S` implementation authorized; `BO-P` blocked on
+  60 fps feel evidence.
+- Implementation: **prototype authorized 29.07.2026**.
+- Explicitly deferred: `BO-P` fidelity acceptance, haptic, dynamic modifiers,
+  rollout и publication.

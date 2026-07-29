@@ -278,7 +278,8 @@ Review 3 утвердил polyline baseline, пять собственных у�
 - [`block-out/REVIEW-3-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-3-INDEPENDENT-2026-07-29.md)
   — independent conditional GO и blockers A1′–A3′.
 
-Статус: **Review 3 conditional GO; A1′–A3′ applied**. Primary (`O`) —
+Статус: **Prototype authorized 29.07.2026; Review 4 evidence pending**.
+Primary (`O`) —
 [Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
 fidelity band (`O`) — levels `6–10`. Operator утвердил continuous two-axis
 collision-constrained drag с grid snap, отсутствие timer/fail и strong-solvable
@@ -287,7 +288,8 @@ byte/frame verified как `R-native`;
 полные SHA-256 находятся в packet. Review 3 зафиксировал contact-allowed
 positive-area collision, unit-step anchor BFS, full-crossing reusable gates,
 deterministic nearest snap и monotonicity proof. `BO-A/BO-E/BO-S` технически
-готовы; `BO-P` ждёт 60 fps evidence. Prototype code по-прежнему не разрешён.
+получили operator authorization на prototype implementation; `BO-P` ждёт
+60 fps evidence. Rollout/publication не разрешены.
 
 ### Core loop
 
