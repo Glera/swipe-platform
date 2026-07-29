@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,8 +21,28 @@ export const R1_COMPLETION_REQUIREMENTS = Object.freeze([
 ]);
 
 const GATES = Object.freeze(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
+const REQUIRED_SECRET_EXPOSURE_ID =
+  'r1-prewindow-blueprint-sync-hook-dom-20260729';
+const REQUIRED_SECRET_EXPOSURE_KIND =
+  'render_blueprint_sync_hook_dom_exposure';
+const REQUIRED_SECRET_EXPOSURE_OBSERVED_AT = '2026-07-29T15:01:19Z';
+const SECRET_EXPOSURE_METHODS = Object.freeze({
+  render_blueprint_sync_hook_dom_exposure: Object.freeze([
+    'regenerate_sync_hook',
+    'revoke_sync_hook',
+  ]),
+  render_database_credential_dom_exposure: Object.freeze([
+    'rotate_database_credential',
+    'revoke_database_credential',
+  ]),
+});
 const SHA256_RE = /^[a-f0-9]{64}$/;
 const GIT_SHA_RE = /^[a-f0-9]{40}$/;
+const SAFE_ID_RE = /^[a-z0-9][a-z0-9._:-]{0,127}$/;
+const INCIDENT_ID_RE =
+  /^r1-window-(blueprint-sync-hook|database-credential)-dom-(\d{8})-\d{1,3}$/;
+const DECISION_ID_RE = /^r1-decision-(\d{8})-\d{1,3}$/;
+const SECRET_ACTION_ID_RE = /^r1-secret-action-(\d{8})-\d{1,3}$/;
 const UTC_RE =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
 
@@ -63,6 +84,36 @@ function nonemptyString(value, location) {
     fail(location, 'must be a bounded nonempty string');
   }
   return value;
+}
+
+function safeIdValue(value, location) {
+  if (typeof value !== 'string' || !SAFE_ID_RE.test(value)) {
+    fail(location, 'must be a lowercase safe identifier');
+  }
+  return value;
+}
+
+function structuredIdValue(value, location, pattern) {
+  if (typeof value !== 'string' || !pattern.test(value)) {
+    fail(location, 'must use the required non-opaque structured identifier');
+  }
+  return value;
+}
+
+function utcDayToken(timestamp) {
+  return new Date(timestamp).toISOString().slice(0, 10).replaceAll('-', '');
+}
+
+function credentialProofBinding(proof) {
+  if (proof === null) {
+    return '`none`';
+  }
+  return (
+    `\`${proof.observedAt}\` / `
+    + `\`${proof.terminalOutcome}\` / `
+    + `\`sha256:${proof.usernameSha256}\` / `
+    + `\`sha256:${proof.evidenceSha256}\``
+  );
 }
 
 function enumValue(value, location, allowed) {
@@ -482,6 +533,68 @@ function validateFinalEvidenceBindings(markdown, receipt) {
       `finalEvidence.ingressClosure.${key}`,
     );
   }
+
+  const incidentLines = markdownSectionLines(
+    markdown,
+    11,
+    'finalEvidence.secretExposureIncidents',
+  );
+  const expectedIncidentLines = receipt.secretExposureIncidents.map(
+    (incident) => (
+      `- Secret-exposure incident \`${incident.incidentId}\`: `
+      + `\`${incident.kind}\` observed \`${incident.observedAt}\`; `
+      + `target \`${incident.targetIdentityKind}\` / `
+      + `\`sha256:${incident.targetSha256}\`; approval `
+      + `\`${incident.operatorDecision.decisionId}\` / `
+      + `\`${incident.operatorDecision.confirmedAt}\` / `
+      + `\`${incident.operatorDecision.decision}\`; disposition `
+      + `\`${incident.disposition.actionId}\` / `
+      + `\`${incident.disposition.startedAt}\` / `
+      + `\`${incident.disposition.completedAt}\` / `
+      + `\`${incident.disposition.terminalOutcome}\` / `
+      + `\`${incident.disposition.providerMethod}\` / `
+      + `\`${incident.disposition.providerReceipt.kind}\` / `
+      + `\`${incident.disposition.providerReceipt.observedAt}\` / `
+      + `\`${incident.disposition.providerReceipt.action}\` / `
+      + `\`${incident.disposition.providerReceipt.terminalOutcome}\` / `
+      + `\`sha256:${incident.disposition.providerReceipt.targetSha256}\` / `
+      + `\`sha256:${incident.disposition.providerReceipt.evidenceSha256}\` / `
+      + `credential proof ${credentialProofBinding(
+        incident.disposition.credentialNegativeProof,
+      )}; `
+      + `before \`${incident.disposition.blueprintContinuity.before.observedAt}\` / `
+      + `\`${incident.disposition.blueprintContinuity.before.blueprintId}\` / `
+      + `\`${incident.disposition.blueprintContinuity.before.sourceRepository}\` / `
+      + `\`${incident.disposition.blueprintContinuity.before.sourceBranch}\` / `
+      + `\`${incident.disposition.blueprintContinuity.before.blueprintPath}\` / `
+      + `\`sha256:${incident.disposition.blueprintContinuity.before.evidenceSha256}\` / `
+      + `after \`${incident.disposition.blueprintContinuity.after.observedAt}\` / `
+      + `\`${incident.disposition.blueprintContinuity.after.blueprintId}\` / `
+      + `\`${incident.disposition.blueprintContinuity.after.sourceRepository}\` / `
+      + `\`${incident.disposition.blueprintContinuity.after.sourceBranch}\` / `
+      + `\`${incident.disposition.blueprintContinuity.after.blueprintPath}\` / `
+      + `\`sha256:${incident.disposition.blueprintContinuity.after.evidenceSha256}\` / `
+      + `continuity \`${incident.disposition.blueprintContinuity.comparisonResult}\` / `
+      + `terminal \`sha256:${incident.disposition.terminalProofSha256}\`; `
+      + `secrets captured \`${incident.disposition.secretsCaptured}\``
+    ),
+  );
+  const observedIncidentLines = allMarkdownLines.filter(
+    (line) => line.includes('Secret-exposure incident'),
+  );
+  if (
+    observedIncidentLines.length !== expectedIncidentLines.length
+    || expectedIncidentLines.some((line) => (
+      !incidentLines.includes(line)
+      || observedIncidentLines.filter((candidate) => candidate === line).length
+        !== 1
+    ))
+  ) {
+    fail(
+      'finalEvidence.secretExposureIncidents',
+      'must exactly and uniquely bind every structured incident disposition',
+    );
+  }
 }
 
 export function validateOperatorEvidence(
@@ -501,6 +614,7 @@ export function validateOperatorEvidence(
     'consumerClosure',
     'operatorConfirmations',
     'actions',
+    'secretExposureIncidents',
     'ingressNarrowing',
     'credentialRotation',
     'restoreDrill',
@@ -824,6 +938,510 @@ export function validateOperatorEvidence(
         .at(-1).terminalOutcome !== 'succeeded'
     ) {
       fail(`receipt.actions.${gate}`, 'last action must succeed for final evidence');
+    }
+  }
+
+  const incidents = receipt.secretExposureIncidents;
+  if (!Array.isArray(incidents) || incidents.length < 1) {
+    fail(
+      'receipt.secretExposureIncidents',
+      'must include the known Blueprint Sync Hook exposure',
+    );
+  }
+  const incidentIds = new Set();
+  const incidentDecisionIds = new Set();
+  const incidentActionIds = new Set();
+  const authorityIds = new Set(actionsById.keys());
+  const normalizedIncidents = [];
+  let requiredIncidentCount = 0;
+  for (const [index, incident] of incidents.entries()) {
+    const location = `receipt.secretExposureIncidents[${index}]`;
+    exactKeys(incident, location, [
+      'incidentId',
+      'kind',
+      'observedAt',
+      'targetIdentityKind',
+      'targetSha256',
+      'operatorDecision',
+      'disposition',
+    ]);
+    const incidentId = incident.incidentId === REQUIRED_SECRET_EXPOSURE_ID
+      ? incident.incidentId
+      : structuredIdValue(
+        incident.incidentId,
+        `${location}.incidentId`,
+        INCIDENT_ID_RE,
+      );
+    if (incidentIds.has(incidentId)) {
+      fail(`${location}.incidentId`, 'duplicates an incident');
+    }
+    if (authorityIds.has(incidentId)) {
+      fail(`${location}.incidentId`, 'duplicates another authority identity');
+    }
+    incidentIds.add(incidentId);
+    authorityIds.add(incidentId);
+    const incidentKind = enumValue(
+      incident.kind,
+      `${location}.kind`,
+      Object.keys(SECRET_EXPOSURE_METHODS),
+    );
+    if (incidentId === REQUIRED_SECRET_EXPOSURE_ID) {
+      if (
+        incidentKind !== REQUIRED_SECRET_EXPOSURE_KIND
+        || incident.observedAt !== REQUIRED_SECRET_EXPOSURE_OBSERVED_AT
+        || utcValue(incident.observedAt, `${location}.observedAt`) >= windowStart
+      ) {
+        fail(
+          location,
+          'known Blueprint Sync Hook incident must retain its pre-window identity',
+        );
+      }
+      requiredIncidentCount += 1;
+    }
+    const observedAt = utcValue(incident.observedAt, `${location}.observedAt`);
+    if (incidentId !== REQUIRED_SECRET_EXPOSURE_ID) {
+      const [, idKind, idDay] = incidentId.match(INCIDENT_ID_RE);
+      const expectedIdKind =
+        incidentKind === 'render_blueprint_sync_hook_dom_exposure'
+          ? 'blueprint-sync-hook'
+          : 'database-credential';
+      if (
+        idKind !== expectedIdKind
+        || idDay !== utcDayToken(observedAt)
+      ) {
+        fail(
+          `${location}.incidentId`,
+          'must bind the incident kind and observed UTC day',
+        );
+      }
+    }
+    if (observedAt > windowEnd) {
+      fail(`${location}.observedAt`, 'is after the operator window');
+    }
+    const targetIdentityKind = enumValue(
+      incident.targetIdentityKind,
+      `${location}.targetIdentityKind`,
+      ['render_blueprint_id', 'database_username'],
+    );
+    const expectedTargetIdentityKind =
+      incidentKind === 'render_blueprint_sync_hook_dom_exposure'
+        ? 'render_blueprint_id'
+        : 'database_username';
+    if (targetIdentityKind !== expectedTargetIdentityKind) {
+      fail(
+        `${location}.targetIdentityKind`,
+        'does not match the incident kind',
+      );
+    }
+    const targetDigest = sha256Value(
+      incident.targetSha256,
+      `${location}.targetSha256`,
+    );
+
+    const decision = incident.operatorDecision;
+    exactKeys(decision, `${location}.operatorDecision`, [
+      'decisionId',
+      'confirmedAt',
+      'decision',
+      'targetSha256',
+    ]);
+    const decisionId = structuredIdValue(
+      decision.decisionId,
+      `${location}.operatorDecision.decisionId`,
+      DECISION_ID_RE,
+    );
+    if (incidentDecisionIds.has(decisionId)) {
+      fail(`${location}.operatorDecision.decisionId`, 'duplicates a decision');
+    }
+    incidentDecisionIds.add(decisionId);
+    if (authorityIds.has(decisionId)) {
+      fail(
+        `${location}.operatorDecision.decisionId`,
+        'duplicates another authority identity',
+      );
+    }
+    authorityIds.add(decisionId);
+    const decisionAt = utcValue(
+      decision.confirmedAt,
+      `${location}.operatorDecision.confirmedAt`,
+    );
+    if (
+      decisionId.match(DECISION_ID_RE)[1] !== utcDayToken(decisionAt)
+    ) {
+      fail(
+        `${location}.operatorDecision.decisionId`,
+        'must bind the decision UTC day',
+      );
+    }
+    if (decisionAt < windowStart || decisionAt > windowEnd) {
+      fail(`${location}.operatorDecision.confirmedAt`, 'is outside the window');
+    }
+    enumValue(
+      decision.decision,
+      `${location}.operatorDecision.decision`,
+      ['approved', 'denied'],
+    );
+    if (
+      sha256Value(
+        decision.targetSha256,
+        `${location}.operatorDecision.targetSha256`,
+      ) !== targetDigest
+    ) {
+      fail(`${location}.operatorDecision.targetSha256`, 'does not match target');
+    }
+    if (requirePass && decision.decision !== 'approved') {
+      fail(`${location}.operatorDecision.decision`, 'must be approved for PASS');
+    }
+
+    const disposition = incident.disposition;
+    exactKeys(disposition, `${location}.disposition`, [
+      'actionId',
+      'startedAt',
+      'completedAt',
+      'terminalOutcome',
+      'providerMethod',
+      'providerReceipt',
+      'credentialNegativeProof',
+      'blueprintContinuity',
+      'terminalProofSha256',
+      'secretsCaptured',
+    ]);
+    const dispositionActionId = structuredIdValue(
+      disposition.actionId,
+      `${location}.disposition.actionId`,
+      SECRET_ACTION_ID_RE,
+    );
+    if (
+      incidentActionIds.has(dispositionActionId)
+      || actionsById.has(dispositionActionId)
+    ) {
+      fail(`${location}.disposition.actionId`, 'duplicates another action');
+    }
+    incidentActionIds.add(dispositionActionId);
+    if (authorityIds.has(dispositionActionId)) {
+      fail(
+        `${location}.disposition.actionId`,
+        'duplicates another authority identity',
+      );
+    }
+    authorityIds.add(dispositionActionId);
+    const dispositionStartedAt = utcValue(
+      disposition.startedAt,
+      `${location}.disposition.startedAt`,
+    );
+    const dispositionCompletedAt = utcValue(
+      disposition.completedAt,
+      `${location}.disposition.completedAt`,
+    );
+    if (
+      dispositionActionId.match(SECRET_ACTION_ID_RE)[1]
+        !== utcDayToken(dispositionStartedAt)
+    ) {
+      fail(
+        `${location}.disposition.actionId`,
+        'must bind the action start UTC day',
+      );
+    }
+    if (
+      observedAt > decisionAt
+      || decisionAt > dispositionStartedAt
+      || dispositionStartedAt > dispositionCompletedAt
+      || dispositionStartedAt < windowStart
+      || dispositionCompletedAt > windowEnd
+    ) {
+      fail(location, 'incident approval/disposition chronology is invalid');
+    }
+    enumValue(
+      disposition.terminalOutcome,
+      `${location}.disposition.terminalOutcome`,
+      ['rotated', 'invalidated'],
+    );
+    const providerMethod = enumValue(
+      disposition.providerMethod,
+      `${location}.disposition.providerMethod`,
+      SECRET_EXPOSURE_METHODS[incidentKind],
+    );
+    const expectedTerminalOutcome = providerMethod.startsWith('revoke_')
+      ? 'invalidated'
+      : 'rotated';
+    if (disposition.terminalOutcome !== expectedTerminalOutcome) {
+      fail(
+        `${location}.disposition.terminalOutcome`,
+        'does not match the provider method',
+      );
+    }
+    const providerReceipt = disposition.providerReceipt;
+    exactKeys(providerReceipt, `${location}.disposition.providerReceipt`, [
+      'kind',
+      'observedAt',
+      'action',
+      'terminalOutcome',
+      'targetSha256',
+      'evidenceSha256',
+      'secretsCaptured',
+    ]);
+    enumValue(
+      providerReceipt.kind,
+      `${location}.disposition.providerReceipt.kind`,
+      ['render_dashboard_terminal_observation'],
+    );
+    const providerObservedAt = utcValue(
+      providerReceipt.observedAt,
+      `${location}.disposition.providerReceipt.observedAt`,
+    );
+    if (
+      providerObservedAt < dispositionStartedAt
+      || providerObservedAt > dispositionCompletedAt
+    ) {
+      fail(
+        `${location}.disposition.providerReceipt.observedAt`,
+        'must be observed during the disposition action',
+      );
+    }
+    if (
+      enumValue(
+        providerReceipt.action,
+        `${location}.disposition.providerReceipt.action`,
+        SECRET_EXPOSURE_METHODS[incidentKind],
+      ) !== providerMethod
+      || enumValue(
+        providerReceipt.terminalOutcome,
+        `${location}.disposition.providerReceipt.terminalOutcome`,
+        ['rotated', 'invalidated'],
+      ) !== disposition.terminalOutcome
+      || sha256Value(
+        providerReceipt.targetSha256,
+        `${location}.disposition.providerReceipt.targetSha256`,
+      ) !== targetDigest
+    ) {
+      fail(
+        `${location}.disposition.providerReceipt`,
+        'does not bind the exact method, outcome, and typed target',
+      );
+    }
+    sha256Value(
+      providerReceipt.evidenceSha256,
+      `${location}.disposition.providerReceipt.evidenceSha256`,
+    );
+    if (providerReceipt.secretsCaptured !== false) {
+      fail(
+        `${location}.disposition.providerReceipt.secretsCaptured`,
+        'must be false',
+      );
+    }
+    const credentialNegativeProof = disposition.credentialNegativeProof;
+    if (incidentKind === 'render_database_credential_dom_exposure') {
+      const proofLocation =
+        `${location}.disposition.credentialNegativeProof`;
+      exactKeys(credentialNegativeProof, proofLocation, [
+        'observedAt',
+        'terminalOutcome',
+        'usernameSha256',
+        'evidenceSha256',
+        'secretsCaptured',
+      ]);
+      const proofObservedAt = utcValue(
+        credentialNegativeProof.observedAt,
+        `${proofLocation}.observedAt`,
+      );
+      if (
+        proofObservedAt < providerObservedAt
+        || proofObservedAt > dispositionCompletedAt
+        || enumValue(
+          credentialNegativeProof.terminalOutcome,
+          `${proofLocation}.terminalOutcome`,
+          ['authentication_rejected'],
+        ) !== 'authentication_rejected'
+        || sha256Value(
+          credentialNegativeProof.usernameSha256,
+          `${proofLocation}.usernameSha256`,
+        ) !== targetDigest
+      ) {
+        fail(
+          proofLocation,
+          'must prove authentication rejection for the exact exposed username',
+        );
+      }
+      sha256Value(
+        credentialNegativeProof.evidenceSha256,
+        `${proofLocation}.evidenceSha256`,
+      );
+      if (credentialNegativeProof.secretsCaptured !== false) {
+        fail(`${proofLocation}.secretsCaptured`, 'must be false');
+      }
+    } else if (credentialNegativeProof !== null) {
+      fail(
+        `${location}.disposition.credentialNegativeProof`,
+        'must be null for a non-credential incident',
+      );
+    }
+    const blueprintContinuity = disposition.blueprintContinuity;
+    exactKeys(
+      blueprintContinuity,
+      `${location}.disposition.blueprintContinuity`,
+      ['before', 'after', 'comparisonResult'],
+    );
+    const continuityObservations = {};
+    for (const phase of ['before', 'after']) {
+      const observation = blueprintContinuity[phase];
+      const observationLocation =
+        `${location}.disposition.blueprintContinuity.${phase}`;
+      exactKeys(observation, observationLocation, [
+        'observedAt',
+        'blueprintId',
+        'sourceRepository',
+        'sourceBranch',
+        'blueprintPath',
+        'evidenceSha256',
+      ]);
+      continuityObservations[phase] = {
+        observedAt: utcValue(
+          observation.observedAt,
+          `${observationLocation}.observedAt`,
+        ),
+        blueprintId: safeIdValue(
+          observation.blueprintId,
+          `${observationLocation}.blueprintId`,
+        ),
+        sourceRepository: enumValue(
+          observation.sourceRepository,
+          `${observationLocation}.sourceRepository`,
+          ['Glera/swipe-backend'],
+        ),
+        sourceBranch: enumValue(
+          observation.sourceBranch,
+          `${observationLocation}.sourceBranch`,
+          ['master'],
+        ),
+        blueprintPath: enumValue(
+          observation.blueprintPath,
+          `${observationLocation}.blueprintPath`,
+          ['render.yaml'],
+        ),
+        evidenceSha256: sha256Value(
+          observation.evidenceSha256,
+          `${observationLocation}.evidenceSha256`,
+        ),
+      };
+    }
+    if (
+      continuityObservations.before.observedAt > dispositionStartedAt
+      || continuityObservations.before.observedAt < decisionAt
+      || continuityObservations.after.observedAt < dispositionCompletedAt
+      || continuityObservations.before.observedAt < windowStart
+      || continuityObservations.after.observedAt > windowEnd
+      || (
+        observedAt < windowStart
+        && continuityObservations.after.observedAt
+          > gateBounds.get('A').gateStart
+      )
+      || JSON.stringify({
+        ...continuityObservations.before,
+        observedAt: null,
+        evidenceSha256: null,
+      }) !== JSON.stringify({
+        ...continuityObservations.after,
+        observedAt: null,
+        evidenceSha256: null,
+      })
+      || blueprintContinuity.comparisonResult !== 'equal'
+      || continuityObservations.before.evidenceSha256
+        === continuityObservations.after.evidenceSha256
+    ) {
+      fail(
+        `${location}.disposition.blueprintContinuity`,
+        'must prove equal dated observations before and after disposition',
+      );
+    }
+    const continuityBlueprintId = continuityObservations.after.blueprintId;
+    const closedBlueprintIds = new Set(
+      [...consumers.values()].map((consumer) => consumer.blueprintReferenceId),
+    );
+    if (
+      closedBlueprintIds.size !== 1
+      || !closedBlueprintIds.has(continuityBlueprintId)
+    ) {
+      fail(
+        `${location}.disposition.blueprintContinuity`,
+        'does not bind the exact closed Blueprint target',
+      );
+    }
+    if (
+      incidentKind === REQUIRED_SECRET_EXPOSURE_KIND
+      && targetDigest !== crypto
+        .createHash('sha256')
+        .update(continuityBlueprintId)
+        .digest('hex')
+    ) {
+      fail(
+        `${location}.targetSha256`,
+        'does not bind the typed provider target',
+      );
+    }
+    sha256Value(
+      disposition.terminalProofSha256,
+      `${location}.disposition.terminalProofSha256`,
+    );
+    if (disposition.secretsCaptured !== false) {
+      fail(`${location}.disposition.secretsCaptured`, 'must be false');
+    }
+
+    normalizedIncidents.push({
+      actionId: dispositionActionId,
+      observedAt,
+      dispositionStartedAt,
+      dispositionCompletedAt,
+    });
+    if (observedAt < windowStart) {
+      if (dispositionCompletedAt > gateBounds.get('A').gateStart) {
+        fail(location, 'known pre-window incident was not closed before Gate A');
+      }
+    }
+  }
+  if (requiredIncidentCount !== 1) {
+    fail(
+      'receipt.secretExposureIncidents',
+      'must contain exactly one known Blueprint Sync Hook exposure',
+    );
+  }
+  const unifiedActions = [
+    ...actionsById.values(),
+    ...normalizedIncidents.map((incident) => ({
+      actionId: incident.actionId,
+      startedAt: incident.dispositionStartedAt,
+      completedAt: incident.dispositionCompletedAt,
+      terminalOutcome: 'succeeded',
+      rollbackOutcome: 'not_needed',
+      kind: 'secret-disposition',
+    })),
+  ];
+  for (const incident of normalizedIncidents.filter(
+    (candidate) => candidate.observedAt >= windowStart,
+  )) {
+    for (const action of unifiedActions) {
+      if (action.actionId === incident.actionId) {
+        continue;
+      }
+      const spansObservation =
+        action.startedAt < incident.observedAt
+        && action.completedAt > incident.observedAt;
+      const containedBeforeDisposition =
+        action.kind !== 'secret-disposition'
+        && action.terminalOutcome === 'failed'
+        && ['rolled_back', 'contained'].includes(action.rollbackOutcome)
+        && action.completedAt <= incident.dispositionStartedAt;
+      const startsBeforeDisposition =
+        action.startedAt >= incident.observedAt
+        && action.startedAt < incident.dispositionCompletedAt;
+      if (
+        (spansObservation && !containedBeforeDisposition)
+        || startsBeforeDisposition
+      ) {
+        fail(
+          'receipt.secretExposureIncidents',
+          'an action continued or started before incident disposition',
+        );
+      }
     }
   }
 
@@ -1618,6 +2236,7 @@ export function validateOperatorEvidence(
     gateCount: GATES.length,
     actionCount: receipt.actions.length,
     consumerCount: consumers.size,
+    secretExposureIncidentCount: incidents.length,
     completionRequirementCount: R1_COMPLETION_REQUIREMENTS.length,
     placeholdersResolved: true,
     sourceContinuityEqual: continuityEqual,

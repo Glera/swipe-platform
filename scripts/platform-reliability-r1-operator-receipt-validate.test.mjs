@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -16,6 +17,82 @@ import {
 
 function clone(value) {
   return structuredClone(value);
+}
+
+function digest(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function makeDatabaseExposureIncident(receipt, {
+  ordinal,
+  observedAt,
+  confirmedAt,
+  startedAt,
+  completedAt,
+  beforeObservedAt,
+  providerObservedAt,
+}) {
+  const targetSha256 = digest(`database-user-exposed-${ordinal}`);
+  return {
+    ...clone(receipt.secretExposureIncidents[0]),
+    incidentId:
+      `r1-window-database-credential-dom-20260730-${ordinal}`,
+    kind: 'render_database_credential_dom_exposure',
+    observedAt,
+    targetIdentityKind: 'database_username',
+    targetSha256,
+    operatorDecision: {
+      decisionId: `r1-decision-20260730-${ordinal}`,
+      confirmedAt,
+      decision: 'approved',
+      targetSha256,
+    },
+    disposition: {
+      ...clone(receipt.secretExposureIncidents[0].disposition),
+      actionId: `r1-secret-action-20260730-${ordinal}`,
+      startedAt,
+      completedAt,
+      terminalOutcome: 'invalidated',
+      providerMethod: 'revoke_database_credential',
+      providerReceipt: {
+        kind: 'render_dashboard_terminal_observation',
+        observedAt: providerObservedAt,
+        action: 'revoke_database_credential',
+        terminalOutcome: 'invalidated',
+        targetSha256,
+        evidenceSha256: digest(`provider-receipt-${ordinal}`),
+        secretsCaptured: false,
+      },
+      credentialNegativeProof: {
+        observedAt: completedAt,
+        terminalOutcome: 'authentication_rejected',
+        usernameSha256: targetSha256,
+        evidenceSha256: digest(`negative-proof-${ordinal}`),
+        secretsCaptured: false,
+      },
+      blueprintContinuity: {
+        ...clone(
+          receipt.secretExposureIncidents[0].disposition.blueprintContinuity,
+        ),
+        before: {
+          ...clone(
+            receipt.secretExposureIncidents[0].disposition
+              .blueprintContinuity.before,
+          ),
+          observedAt: beforeObservedAt,
+          evidenceSha256: digest(`blueprint-before-${ordinal}`),
+        },
+        after: {
+          ...clone(
+            receipt.secretExposureIncidents[0].disposition
+              .blueprintContinuity.after,
+          ),
+          observedAt: completedAt,
+          evidenceSha256: digest(`blueprint-after-${ordinal}`),
+        },
+      },
+    },
+  };
 }
 
 const SCRIPT = path.join(
@@ -35,6 +112,7 @@ test('accepts a complete PASS receipt and returns bounded summary only', () => {
     gateCount: 7,
     actionCount: 7,
     consumerCount: 2,
+    secretExposureIncidentCount: 1,
     completionRequirementCount: 12,
     placeholdersResolved: true,
     sourceContinuityEqual: true,
@@ -42,6 +120,410 @@ test('accepts a complete PASS receipt and returns bounded summary only', () => {
     externalIngressClosed: true,
     secretsCaptured: false,
   });
+});
+
+test('requires terminal disposition of the known secret exposure before Gate A', () => {
+  const cases = [
+    (receipt) => {
+      receipt.secretExposureIncidents = [];
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].kind = 'other-secret-exposure';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].operatorDecision.decision = 'denied';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].operatorDecision.targetSha256 =
+        '0'.repeat(64);
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.terminalOutcome =
+        'pending';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.completedAt =
+        '2026-07-30T09:02:00Z';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].operatorDecision.confirmedAt =
+        '2026-07-30T08:54:59Z';
+    },
+  ];
+
+  for (const mutate of cases) {
+    const receipt = makeValidOperatorReceipt();
+    mutate(receipt);
+    assert.throws(
+      () => validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)),
+      /secretExposureIncidents|known pre-window incident|terminalOutcome|operatorDecision/,
+    );
+  }
+});
+
+test('stops later gate actions until a new in-window exposure is disposed', () => {
+  {
+    const receipt = makeValidOperatorReceipt();
+    const targetSha256 = digest('database-user-exposed-1');
+    receipt.secretExposureIncidents.push({
+      ...clone(receipt.secretExposureIncidents[0]),
+      incidentId: 'r1-window-database-credential-dom-20260730-1',
+      kind: 'render_database_credential_dom_exposure',
+      observedAt: '2026-07-30T09:05:10Z',
+      targetIdentityKind: 'database_username',
+      operatorDecision: {
+        decisionId: 'r1-decision-20260730-2',
+        confirmedAt: '2026-07-30T09:05:20Z',
+        decision: 'approved',
+        targetSha256,
+      },
+      targetSha256,
+      disposition: {
+        actionId: 'r1-secret-action-20260730-2',
+        startedAt: '2026-07-30T09:05:30Z',
+        completedAt: '2026-07-30T09:05:50Z',
+        terminalOutcome: 'invalidated',
+        providerMethod: 'revoke_database_credential',
+        providerReceipt: {
+          kind: 'render_dashboard_terminal_observation',
+          observedAt: '2026-07-30T09:05:50Z',
+          action: 'revoke_database_credential',
+          terminalOutcome: 'invalidated',
+          targetSha256,
+          evidenceSha256: 'd'.repeat(64),
+          secretsCaptured: false,
+        },
+        credentialNegativeProof: {
+          observedAt: '2026-07-30T09:05:50Z',
+          terminalOutcome: 'authentication_rejected',
+          usernameSha256: targetSha256,
+          evidenceSha256: 'e'.repeat(64),
+          secretsCaptured: false,
+        },
+        blueprintContinuity: {
+          ...clone(
+            receipt.secretExposureIncidents[0].disposition.blueprintContinuity,
+          ),
+          before: {
+            ...clone(
+              receipt.secretExposureIncidents[0].disposition
+                .blueprintContinuity.before,
+            ),
+            observedAt: '2026-07-30T09:05:25Z',
+          },
+          after: {
+            ...clone(
+              receipt.secretExposureIncidents[0].disposition
+                .blueprintContinuity.after,
+            ),
+            observedAt: '2026-07-30T09:05:50Z',
+          },
+        },
+        terminalProofSha256: 'f'.repeat(64),
+        secretsCaptured: false,
+      },
+    });
+    assert.equal(
+      validateOperatorEvidence(
+        receipt,
+        makeValidFinalEvidence(receipt),
+      ).status,
+      'pass',
+    );
+  }
+  {
+    const receipt = makeValidOperatorReceipt();
+    const targetSha256 = digest('database-user-exposed-2');
+    receipt.secretExposureIncidents.push({
+      ...clone(receipt.secretExposureIncidents[0]),
+      incidentId: 'r1-window-database-credential-dom-20260730-2',
+      kind: 'render_database_credential_dom_exposure',
+      observedAt: '2026-07-30T09:06:30Z',
+      targetIdentityKind: 'database_username',
+      operatorDecision: {
+        decisionId: 'r1-decision-20260730-3',
+        confirmedAt: '2026-07-30T09:07:00Z',
+        decision: 'approved',
+        targetSha256,
+      },
+      targetSha256,
+      disposition: {
+        actionId: 'r1-secret-action-20260730-3',
+        startedAt: '2026-07-30T09:07:10Z',
+        completedAt: '2026-07-30T09:07:30Z',
+        terminalOutcome: 'invalidated',
+        providerMethod: 'revoke_database_credential',
+        providerReceipt: {
+          kind: 'render_dashboard_terminal_observation',
+          observedAt: '2026-07-30T09:07:30Z',
+          action: 'revoke_database_credential',
+          terminalOutcome: 'invalidated',
+          targetSha256,
+          evidenceSha256: 'd'.repeat(64),
+          secretsCaptured: false,
+        },
+        credentialNegativeProof: {
+          observedAt: '2026-07-30T09:07:30Z',
+          terminalOutcome: 'authentication_rejected',
+          usernameSha256: targetSha256,
+          evidenceSha256: 'e'.repeat(64),
+          secretsCaptured: false,
+        },
+        blueprintContinuity: {
+          ...clone(
+            receipt.secretExposureIncidents[0].disposition.blueprintContinuity,
+          ),
+          before: {
+            ...clone(
+              receipt.secretExposureIncidents[0].disposition
+                .blueprintContinuity.before,
+            ),
+            observedAt: '2026-07-30T09:07:05Z',
+          },
+          after: {
+            ...clone(
+              receipt.secretExposureIncidents[0].disposition
+                .blueprintContinuity.after,
+            ),
+            observedAt: '2026-07-30T09:07:30Z',
+          },
+        },
+        terminalProofSha256: 'f'.repeat(64),
+        secretsCaptured: false,
+      },
+    });
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        makeValidFinalEvidence(receipt),
+      ),
+      /action continued or started/,
+    );
+  }
+});
+
+test('rejects incident identity, provider receipt, and Blueprint continuity bypasses', () => {
+  const cases = [
+    (receipt) => {
+      const incident = receipt.secretExposureIncidents[0];
+      incident.observedAt = '2026-07-30T10:51:00Z';
+      incident.operatorDecision.confirmedAt = '2026-07-30T10:52:00Z';
+      incident.disposition.startedAt = '2026-07-30T10:53:00Z';
+      incident.disposition.completedAt = '2026-07-30T10:54:00Z';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].incidentId = 'secret=value';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].incidentId = 'a'.repeat(64);
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].operatorDecision.decisionId =
+        'decision secret';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].operatorDecision.decisionId =
+        'a'.repeat(64);
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].operatorDecision.decisionId =
+        'r1-decision-19990101-1';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.actionId =
+        'action/secret';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.actionId =
+        'a'.repeat(64);
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.actionId =
+        'r1-secret-action-19990101-1';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.providerMethod =
+        'disconnect_blueprint';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.providerReceipt.kind =
+        'free_text';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.providerReceipt.action =
+        'revoke_sync_hook';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.providerReceipt.observedAt =
+        '2026-07-30T09:00:00Z';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].targetIdentityKind =
+        'database_username';
+    },
+    (receipt) => {
+      receipt.actions[0].actionId =
+        receipt.secretExposureIncidents[0].operatorDecision.decisionId;
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.blueprintContinuity.disconnected =
+        true;
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.blueprintContinuity
+        .after.sourceBranch = 'other';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.blueprintContinuity
+        .after.blueprintId =
+        'different-blueprint';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].disposition.terminalOutcome =
+        'invalidated';
+    },
+    (receipt) => {
+      receipt.secretExposureIncidents[0].targetSha256 = '0'.repeat(64);
+      receipt.secretExposureIncidents[0].operatorDecision.targetSha256 =
+        '0'.repeat(64);
+      receipt.secretExposureIncidents[0].disposition.providerReceipt.targetSha256 =
+        '0'.repeat(64);
+    },
+  ];
+
+  for (const mutate of cases) {
+    const receipt = makeValidOperatorReceipt();
+    mutate(receipt);
+    assert.throws(
+      () => validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)),
+      /secretExposureIncidents|structured identifier|UTC day|provider method|providerReceipt|authority identity|Blueprint|typed provider target|targetIdentityKind|pre-window identity|exactly these keys/,
+    );
+  }
+});
+
+test('binds dynamic incident IDs to kind/day and credential proof to username', () => {
+  const receipt = makeValidOperatorReceipt();
+  const targetSha256 = digest('database-user-exposed-3');
+  const incident = {
+    ...clone(receipt.secretExposureIncidents[0]),
+    incidentId: 'r1-window-database-credential-dom-20260730-3',
+    kind: 'render_database_credential_dom_exposure',
+    observedAt: '2026-07-30T09:05:10Z',
+    targetIdentityKind: 'database_username',
+    targetSha256,
+    operatorDecision: {
+      decisionId: 'r1-decision-20260730-4',
+      confirmedAt: '2026-07-30T09:05:20Z',
+      decision: 'approved',
+      targetSha256,
+    },
+    disposition: {
+      ...clone(receipt.secretExposureIncidents[0].disposition),
+      actionId: 'r1-secret-action-20260730-4',
+      startedAt: '2026-07-30T09:05:30Z',
+      completedAt: '2026-07-30T09:05:50Z',
+      terminalOutcome: 'invalidated',
+      providerMethod: 'revoke_database_credential',
+      providerReceipt: {
+        kind: 'render_dashboard_terminal_observation',
+        observedAt: '2026-07-30T09:05:45Z',
+        action: 'revoke_database_credential',
+        terminalOutcome: 'invalidated',
+        targetSha256,
+        evidenceSha256: 'a'.repeat(64),
+        secretsCaptured: false,
+      },
+      credentialNegativeProof: {
+        observedAt: '2026-07-30T09:05:50Z',
+        terminalOutcome: 'authentication_rejected',
+        usernameSha256: targetSha256,
+        evidenceSha256: 'b'.repeat(64),
+        secretsCaptured: false,
+      },
+      blueprintContinuity: {
+        ...clone(
+          receipt.secretExposureIncidents[0].disposition.blueprintContinuity,
+        ),
+        before: {
+          ...clone(
+            receipt.secretExposureIncidents[0].disposition
+              .blueprintContinuity.before,
+          ),
+          observedAt: '2026-07-30T09:05:25Z',
+        },
+        after: {
+          ...clone(
+            receipt.secretExposureIncidents[0].disposition
+              .blueprintContinuity.after,
+          ),
+          observedAt: '2026-07-30T09:05:50Z',
+        },
+      },
+    },
+  };
+  receipt.secretExposureIncidents.push(incident);
+  assert.equal(
+    validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)).status,
+    'pass',
+  );
+
+  for (const mutate of [
+    (candidate) => {
+      candidate.incidentId =
+        'r1-window-blueprint-sync-hook-dom-20260730-3';
+    },
+    (candidate) => {
+      candidate.incidentId =
+        'r1-window-database-credential-dom-19990101-3';
+    },
+    (candidate) => {
+      candidate.disposition.credentialNegativeProof.usernameSha256 =
+        '0'.repeat(64);
+    },
+    (candidate) => {
+      candidate.disposition.credentialNegativeProof = null;
+    },
+  ]) {
+    const candidateReceipt = makeValidOperatorReceipt();
+    const candidate = clone(incident);
+    mutate(candidate);
+    candidateReceipt.secretExposureIncidents.push(candidate);
+    assert.throws(
+      () => validateOperatorEvidence(
+        candidateReceipt,
+        makeValidFinalEvidence(candidateReceipt),
+      ),
+      /incident kind|observed UTC day|credentialNegativeProof|exact exposed username/,
+    );
+  }
+});
+
+test('rejects a secret disposition that remains active across another incident', () => {
+  const receipt = makeValidOperatorReceipt();
+  receipt.secretExposureIncidents.push(
+    makeDatabaseExposureIncident(receipt, {
+      ordinal: 5,
+      observedAt: '2026-07-30T09:05:10Z',
+      confirmedAt: '2026-07-30T09:05:20Z',
+      startedAt: '2026-07-30T09:05:30Z',
+      completedAt: '2026-07-30T09:05:55Z',
+      beforeObservedAt: '2026-07-30T09:05:25Z',
+      providerObservedAt: '2026-07-30T09:05:50Z',
+    }),
+    makeDatabaseExposureIncident(receipt, {
+      ordinal: 6,
+      observedAt: '2026-07-30T09:05:35Z',
+      confirmedAt: '2026-07-30T09:05:36Z',
+      startedAt: '2026-07-30T09:05:40Z',
+      completedAt: '2026-07-30T09:05:45Z',
+      beforeObservedAt: '2026-07-30T09:05:38Z',
+      providerObservedAt: '2026-07-30T09:05:44Z',
+    }),
+  );
+  assert.throws(
+    () => validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)),
+    /action continued or started/,
+  );
 });
 
 test('requires server-owned PITR ordering and recomputable RPO/RTO', () => {
@@ -439,6 +921,11 @@ test('cross-binds key receipt identities into the full final synthesis', () => {
     receipt.ingressClosure.blueprintSyncIdentity.typedAbsence,
     receipt.ingressClosure.manualSyncTerminal.evidenceSha256,
     receipt.ingressClosure.savedAt,
+    receipt.secretExposureIncidents[0].incidentId,
+    receipt.secretExposureIncidents[0].targetSha256,
+    receipt.secretExposureIncidents[0].operatorDecision.decisionId,
+    receipt.secretExposureIncidents[0].disposition.actionId,
+    receipt.secretExposureIncidents[0].disposition.terminalProofSha256,
     receipt.ingressClosure.internalFreshProofs[1].evidenceSha256,
     receipt.ingressClosure.externalProtocolProof.sanitizedStderrSha256,
   ]) {
@@ -447,7 +934,29 @@ test('cross-binds key receipt identities into the full final synthesis', () => {
         receipt,
         markdown.replaceAll(value, 'removed-evidence-value'),
       ),
-      /is not bound into final evidence|exact receipt-bound line/,
+      /is not bound into final evidence|exact receipt-bound line|secretExposureIncidents/,
+    );
+  }
+  {
+    const incidentLine = markdown
+      .split('\n')
+      .find((line) => line.startsWith('- Secret-exposure incident `'));
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        markdown.replace(
+          incidentLine,
+          '- Secret-exposure incidents: `none`',
+        ),
+      ),
+      /secretExposureIncidents/,
+    );
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        `${markdown}\n- Secret-exposure incident \`invented\`: \`none\`\n`,
+      ),
+      /secretExposureIncidents/,
     );
   }
   assert.throws(
