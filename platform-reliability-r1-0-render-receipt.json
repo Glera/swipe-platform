@@ -1,0 +1,46 @@
+{
+  "schema": "platform-reliability-r1-render-observation.v1",
+  "observedAt": "2026-07-29T08:31:46Z",
+  "observer": "codex",
+  "mode": "read-only browser DOM inspection",
+  "workspace": "My Workspace",
+  "database": {
+    "name": "swipe-db",
+    "serviceId": "dpg-d95r32favr4c73aqs4d0-a",
+    "region": "Oregon",
+    "postgresMajor": 16,
+    "plan": "Basic-256mb",
+    "storage": {
+      "allocatedGiB": 1,
+      "usedPercent": 11.5,
+      "autoscalingEnabled": false
+    },
+    "externalIngress": {
+      "cidr": "0.0.0.0/0",
+      "description": "everywhere"
+    }
+  },
+  "recovery": {
+    "pointInTimeRecoveryAvailable": true,
+    "windowDays": 3,
+    "restoreActionAvailable": true,
+    "logicalExportAvailable": true,
+    "logicalExportRetentionMinimumDays": 7,
+    "restoreStarted": false,
+    "exportStarted": false
+  },
+  "metrics": {
+    "selectedWindow": "12h",
+    "cpu": "No data captured in the last 12 hours",
+    "disk": "No data captured in the last 12 hours",
+    "connections": "No data captured in the last 12 hours",
+    "transactions": "No data captured in the last 12 hours"
+  },
+  "pagesInspected": [
+    "database/info",
+    "database/recovery",
+    "database/metrics"
+  ],
+  "secretsCaptured": false,
+  "mutationsPerformed": false
+}
