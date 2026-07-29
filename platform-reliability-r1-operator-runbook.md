@@ -211,6 +211,9 @@ options. PostgreSQL 16/17-зависимые `SET ROLE`/`MAINTAIN` capabilities
 фиксируются явно как unsupported, а не пропускаются. В evidence идут profile,
 cluster, database, username и object identity SHA-256 плюс typed diff; raw
 профили (включая ACL/config values) остаются operator-local и не коммитятся.
+Self-references в default ACL нормализуются в `CURRENT_USER`, чтобы одинаковая
+future-object authority двух credentials не расходилась только из-за разных
+имён grantor/grantee.
 Только exit `0` и `profilesEqual=true` разрешают Blueprint sync; любой parse,
 coverage, cluster или capability miss — fail closed.
 
