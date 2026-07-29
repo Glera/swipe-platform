@@ -1,7 +1,7 @@
 # TT-R: reference packet — Triple-tile
 
 - Дата исследовательского среза: **29.07.2026**
-- Статус: **Review 2 — operator choices recorded / blocked on exact fail**
+- Статус: **Review 3 logic GO / TT-P blocked on primary fidelity**
 - Primary reference: **Triple Tile: Match Puzzle Game (`O`)**
 - Secondary reference: **Zen Match (`O`)**
 - Target captures: **Triple Tile Levels 20 / 25 / 30 (`O`)**
@@ -11,8 +11,9 @@
 
 > Пакет фиксирует taxonomy boundary и утверждённый эталон. Он не
 > разрешает gameplay-код, presentation work, rollout или копирование
-> референсных layouts/assets. Для Review 3 остаётся один логический блокер:
-> exact fail threshold. Fidelity defaults остаются blocking до TT-P.
+> референсных layouts/assets. Оператор утвердил fail-on-7th и разрешил
+> solver-first разработку TT-G/TT-S/TT-E после merge. Fidelity defaults
+> остаются blocking до TT-P.
 
 ## Обозначения authority
 
@@ -94,7 +95,7 @@ Ratings показывают наличие устойчивой аудитор�
 
 | Reference | Availability / overlap | Tray и порядок | Win / fail | Undo / shuffle / hint |
 | --- | --- | --- | --- | --- |
-| **Triple Tile** | layered board; tap только видимой верхней плитки (`R-web`) | `7` видимых slots в Level 20/30; совпадение работает по type; visual grouping требует primary capture только для TT-P (`R-web/B`) | clear all (`R-web`); точный `7th vs 8th` fail требует current-build fail clip (`B`) | три in-level tools видны, но весь booster/tool contour исключён из v1 (`R-web/O`) |
+| **Triple Tile** | layered board; tap только видимой верхней плитки (`R-web`) | `7` видимых slots в Level 20/30; совпадение работает по type; visual grouping требует primary capture только для TT-P (`R-web/B`) | clear all (`R-web`); reference boundary не снят clip, но v1 утверждён как fail-on-7th (`O`) | три in-level tools видны, но весь booster/tool contour исключён из v1 (`R-web/O`) |
 | **Zen Match** | следить за layers; поздние blockers дополнительно меняют availability (`R-web`) | usual capacity `7`, extra-slot booster даёт `8`; три одинаковые match даже через другие tiles (`R-web`) | clear board или отдельная goal-based цель; overload holder завершает round (`R-web`) | Undo, Super Undo, Shuffle, Magnet; pre-level Plane/Extra Slot/Spring (`R-web`) |
 | **Tile Busters** | layered overlap + Ice/Chain/Glue/Tile Maker (`R-web`) | семь slots видны в Level 30; auto-remove triple; insertion order не подтверждён (`R-web/B`) | clear board; также есть blocker/timed fails (`R-web`) | listing заявляет пять boosters; точные функции требуют native capture (`B`) |
 | **Tile Club** | layered triple-tile layouts (`R-web`) | bounded tray наблюдается; точный capacity/order не зафиксирован current build (`B`) | clear board; tray fail наблюдаем в genre, но нужен exact clip (`B`) | listing явно называет undo и powerful boosters (`R-web`) |
@@ -175,7 +176,8 @@ rule, отклонение фиксируется evidence и band возвра�
 - Level 18 entry показывает сильно перекрытые и полностью скрытые faces.
   Это evidence риска F2, но не разрешение переносить hidden-face rule.
 - Audio track фактически silent; haptics screen recording не фиксирует.
-- Намеренного fail нет, поэтому `7th` против attempted `8th` остаётся `B`.
+- Намеренного fail нет, поэтому запись не доказывает reference boundary;
+  operator authority утвердил для v1 fail-on-7th (`O`).
 
 ## Конкретный recording plan
 
@@ -192,16 +194,19 @@ rule, отклонение фиксируется evidence и band возвра�
 Эти timecodes служат только navigation aids. Они не закрывают feel-table
 из-за неизвестной версии, монтажа, fps и отсутствия touch/haptic evidence.
 
-### Minimum capture for logic (`B`)
+### Logic decision (`O`)
 
-Для TT-G/TT-E/TT-S остаётся один короткий primary clip:
+Оператор утвердил fail-on-7th:
 
-1. намеренно заполнить tray несовпадающими types;
-2. показать, наступает ли fail на седьмой post-resolve tile или только при
-   попытке положить восьмую.
+1. если placement завершает triple и post-resolve occupancy меньше `7`, ход
+   безопасен;
+2. если post-resolve occupancy достигает `7`, round немедленно завершается
+   fail;
+3. attempted eighth не является отдельным состоянием baseline.
 
 Быстрые taps во время flight уже подтверждены `TT-R-S15`. Grouped insertion
-не является logical input: она перенесена в full feel packet.
+не является logical input: она перенесена в full feel packet. Intentional
+primary fail clip теперь optional parity evidence для TT-P, не blocker logic.
 
 ### Full feel capture before TT-P (`P/B`)
 
@@ -256,10 +261,8 @@ Booster, crown/meta и revive clips не требуются (`O`).
 | Scene visible -> first autoplay tap | `≤650 ms` | `P/B` | includes settle; removes F3 contradiction |
 | Scene visible -> first autoplay triple | `≤2.20 s` | `P/B` | overlapping flights allowed; device acceptance |
 
-### Blocked facts
+### TT-P blocked facts
 
-- exact tray fail threshold in current Triple Tile (`7th` versus attempted
-  `8th`) — единственный blocker TT-G/TT-E/TT-S;
 - minimum readable diagnostic fraction для partially covered symbols;
 - primary grouped-insertion timings, covered-tap visual/audio/haptic,
   camera/load и win/fail cadence — blockers только TT-P;
@@ -375,8 +378,8 @@ Gameplay должен оставаться читаемым на theme-neutral d
 
 Минимум для Review 3 logic:
 
-- [ ] один intentional primary fail clip: fail на седьмой post-resolve tile
-  или только на attempted eighth.
+- [x] fail-on-7th утверждён оператором; седьмая placement, завершившая
+  triple и оставившая occupancy `<7`, безопасна (`O`).
 
 Только перед TT-P:
 
@@ -387,8 +390,8 @@ Gameplay должен оставаться читаемым на theme-neutral d
 ## Disposition TT-R
 
 - Taxonomy: **accept split** — Triple-tile и Mahjong Solitaire разные классы.
-- Priority: **research accepted; Review 2 choices partially closed**.
+- Priority: **research accepted; Review 3 logic gate closed**.
 - Primary/secondary/band и no-booster rule: **approved (`O`)**.
-- Logic: **blocked only on exact fail threshold**.
+- Logic: **Review 3 GO; TT-G/TT-S/TT-E authorized after merge (`O`)**.
 - Fidelity: **blocked on primary current-build feel evidence and defaults**.
-- Gameplay/presentation code: **не разрешён**.
+- Presentation code/final fidelity: **не разрешены до TT-P inputs**.

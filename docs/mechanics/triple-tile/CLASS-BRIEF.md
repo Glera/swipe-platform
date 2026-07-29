@@ -1,16 +1,16 @@
 # Class Brief: `triple-tile-v1`
 
 - Дата: **29.07.2026**
-- Статус: **Review 2 disposition / blocked on exact fail threshold**
+- Статус: **Review 3 logic GO / TT-P fidelity blocked**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude** —
   [`REVIEW-INDEPENDENT-2026-07-29.md`](REVIEW-INDEPENDENT-2026-07-29.md)
 - Reference packet: [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md)
 
-> Brief — proposed typed boundary для Review 3. Он не разрешает gameplay-код,
-> presentation work, публикацию или rollout. Exact fail threshold блокирует
-> TT-G/TT-E/TT-S; fidelity `P/B` блокируют TT-P.
+> Brief — typed boundary для solver-first разработки. Оператор разрешил
+> TT-G/TT-S/TT-E после merge документации. Presentation work, публикация и
+> rollout не разрешены; fidelity `P/B` блокируют TT-P.
 
 ## Authority legend
 
@@ -30,10 +30,11 @@
   supply и не открывает новый platform contour (`O`).
 - Утверждено оператором: Triple Tile primary, Zen Match secondary, captures
   `20 / 25 / 30`, отсутствие boosters/crowns/meta (`O`).
-- Следующий logical input: intentional fail clip; haptic/audio и полный
-  primary recording нужны только перед TT-P (`O/B`).
-- Что документ не разрешает: gameplay-код до Review 2/3, rollout, exact
-  reference layouts/assets, смешение с Mahjong Solitaire (`O`).
+- Fail-on-7th утверждён оператором; haptic/audio и полный primary recording
+  нужны только перед TT-P (`O/B`).
+- Что документ не разрешает: TT-P fidelity code до primary evidence,
+  rollout, exact reference layouts/assets и смешение с Mahjong Solitaire
+  (`O`).
 
 ## Цель
 
@@ -151,7 +152,7 @@ Source/measurement plan и полный parity checklist:
 | tap covered tile | tile live, blocked by live cover | no state change | covered cue | `P/B` |
 | tap removed/in-flight tile | id no longer board-live | no-op | none | `P` |
 | tap background | interactive | no-op | none | `P` |
-| exposed tap that reaches fail threshold after resolve | interactive/manual | terminal fail | fail cue | `P/B` |
+| exposed tap that reaches fail threshold after resolve | interactive/manual | terminal fail | fail cue | `O/P` |
 | first manual tap | autoplay | cancel queued autoplay, apply against exact state | no reset | `O/P` |
 | host pause | any interactive/animated state | snapshot + freeze clocks | none | `O/P` |
 | restart | manual/fail | exact initial state | load choreography | `P` |
@@ -211,8 +212,7 @@ input обрабатывается по уже обновлённому state. P
 
 - Win: `remaining.size === 0 && trayOccupancy === 0` после deterministic
   auto-resolve (`O/P`).
-- Fail: post-resolve tray occupancy достигает утверждённого fail threshold
-  (`O/P/B`).
+- Fail: post-resolve tray occupancy достигает `7` (`O`).
 - Covered tap: не ошибка ресурса и не fail (`P/B`).
 - Restart: exact initial remaining/exposure/tray/mode; runtime randomness `0`
   (`O/P`).
@@ -221,7 +221,7 @@ input обрабатывается по уже обновлённому state. P
 - Boosters/revive/continue/extra slot: отсутствуют (`O`).
 - После fail доступен только deterministic replay того же level (`O`).
 
-### Capacity ambiguity — plain-language boundary (`B`)
+### Capacity decision — fail on 7th (`O`)
 
 При семи нарисованных slots существуют два разных правила:
 
@@ -231,18 +231,18 @@ input обрабатывается по уже обновлённому state. P
    возникает только при следующей placement.
 
 Различие меняет legal/safe move solver. Visual grouped insertion к этому
-решению отношения не имеет. Для v1 пока предлагается:
+решению отношения не имеет. Для v1 утверждено:
 
-- `traySlotCount = 7` (`P`);
+- `traySlotCount = 7` (`O`);
 - `failAtResolvedCount = 7` — седьмая tile, не удалённая triple, завершает
-  round (`P`);
+  round (`O`);
 - move, который на седьмой placement завершает triple и после resolve
-  оставляет меньше `7`, безопасен (`P`);
-- solver-safe edge требует `postResolveTray.length < failAtResolvedCount`
-  (`P`).
+  оставляет меньше `7`, безопасен (`O`);
+- solver-safe edge требует `trayOccupancy < failAtResolvedCount`
+  (`O`).
 
-Оператор должен подтвердить policy по current primary fail clip. Schema и
-solver не фиксируются до этого решения.
+Intentional primary fail clip остаётся optional parity evidence для TT-P и
+не блокирует schema/solver (`O`).
 
 ## Duration budget
 
@@ -317,8 +317,8 @@ interface TripleTileLevelSpecV1 {
     overlapRuleVersion: "axis-overlap-v1";
   };
   tray: {
-    slotCount: 7; // P/B
-    failAtResolvedCount: 7; // P/B
+    slotCount: 7; // O
+    failAtResolvedCount: 7; // O
   };
   tileTypes: readonly TileTypeId[];
   tiles: readonly TileSpecV1[];
@@ -406,7 +406,7 @@ events и visible tray order не входят в solver state.
 2. у неё нет live blockers (`O`);
 3. placement увеличивает count type и автоматически удаляет count `3`
    независимо от visual order (`O`);
-4. post-resolve tray не пересекает fail boundary (`O/P/B`).
+4. post-resolve tray occupancy `< 7` (`O`).
 
 Exposed tap, который ведёт в fail, runtime принимает как terminal failing
 action; в winning search он не является safe edge (`P`).
@@ -448,7 +448,7 @@ action; в winning search он не является safe edge (`P`).
   legality, terminal result и transposition key;
 - seventh placement completes triple и не fails;
 - post-resolve occupancy `7` с mixed counts, например `2 + 2 + 2 + 1`,
-  даёт exact fail при proposed fail-on-7th policy;
+  даёт exact fail при approved fail-on-7th policy;
 - covered tile no-op;
 - multi-layer reveal;
 - два winning orders с deterministic chosen witness;
@@ -609,9 +609,9 @@ triple или takeover (`O`).
 | `TT-A` | Analytics | question -> event mapping | TT-G | measurement brief | success authority | operator |
 | `TT-Q` | Device fidelity/evidence | device/aspect/parity/runtime | integrated candidate | Review 4 packet | product changes | independent |
 
-После Review 2 `TT-G` остаётся draft до exact fail decision; code workstreams
-не стартуют. Partial-visibility threshold блокирует TT-F/TT-P, но не
-logical state contract (`O/B`).
+После merge документации TT-G/TT-S/TT-E разрешены в отдельной
+implementation-ветке. Partial-visibility threshold блокирует финальный
+TT-F content acceptance и TT-P, но не logical state contract (`O/B`).
 
 ## Typed integration boundaries
 
@@ -633,7 +633,7 @@ logical state contract (`O/B`).
 | Risk | Вероятность | Ущерб | Ранний тест | Stop/mitigation |
 | --- | --- | --- | --- | --- |
 | Triple-tile снова назван Mahjong и получает pair rules | medium | high | taxonomy fixtures/docs review | отдельный schema/mechanic id |
-| Fail threshold расходится engine/solver | high до O | high | 7th/8th current fail clip + fixtures | versioned threshold |
+| Fail threshold расходится engine/solver | low после O | high | fail-on-7th fixtures | versioned threshold `7` |
 | Presentation order протекает в logic/content digest | medium | high | permutation fixtures + digest comparison | tray multiset authority; order only in projection |
 | Solver-valid levels требуют угадывания | high | high | observable-information replay + visibility feature | reject `requiredCoveredIdentityDecisionRate > 0` |
 | Symbols сливаются на compact screen | medium | high | debug glyph/aspect test | silhouette/line-detail gate |
@@ -647,7 +647,7 @@ logical state contract (`O/B`).
 | --- | --- | --- | --- | :---: |
 | Triple Tile — primary? | определяет fidelity | operator | Review 2 | `O` |
 | Levels 20 / 25 / 30? | difficulty/recording | operator | Review 2 | `O` |
-| `7th` или `8th` fail? | schema/solver/engine | operator from native clip | before Review 3 | `B` |
+| `7th` или `8th` fail? | schema/solver/engine | operator | Review 3 | `O: fail on 7th` |
 | Grouped insertion или stable append? | presentation motion only | primary recording | before TT-P | `R-native-secondary/B` |
 | Concurrent taps during flight? | engine cadence | supplied recording | Review 2 | `R-native-secondary/P` |
 | Minimum covered diagnostic fraction? | generator fairness/readability | operator/device | before TT-F/TT-P | `P/B` |
@@ -665,7 +665,7 @@ logical state contract (`O/B`).
 - [x] Target captures `20 / 25 / 30` утверждены.
 - [x] Secondary native recording приложен и разобран.
 - [x] Boosters/crowns/meta исключены.
-- [ ] Exact fail threshold утверждён.
+- [x] Exact fail threshold: post-resolve occupancy `7` (`O`).
 
 ### Review 3 gameplay
 
@@ -697,7 +697,6 @@ logical state contract (`O/B`).
 
 - Current target reference использует другой core loop либо обязательные
   special rules в captures `20 / 25 / 30`.
-- Нельзя однозначно зафиксировать fail threshold.
 - Первый autoplay triple не укладывается в утверждённый time-to-rule.
 - Менее `20%` solver-valid candidates получают human-accept после трёх
   generator-итераций без ручного ремонта.
@@ -718,15 +717,14 @@ logical state contract (`O/B`).
 | Supplied Zen Match Level 17 | operator-provided; binary not committed | SHA-256 `18101e019f8a2b2f6241bff67f16d9b16eae1ddf2fac9e126651d3e96e4e68fb` | current secondary behavior; closes concurrent taps and shows grouped presentation |
 | Independent Review 1/2 | [`REVIEW-INDEPENDENT-2026-07-29.md`](REVIEW-INDEPENDENT-2026-07-29.md) | `a52b52e` / merged via `a35a8a6` | accept as research; F1–F4 incorporated |
 | Primary native captures `20 / 25 / 30` | operator-provided | — | blocking TT-P |
-| Primary intentional fail clip | operator-provided | — | blocking Review 3 logic |
+| Primary intentional fail clip | operator-provided | — | optional TT-P parity evidence |
 
 ## Final decision
 
-- Decision: **research accepted; blocked on one exact fail fact**.
+- Decision: **Review 3 logic GO; solver-first development authorized**.
 - Approved: Triple Tile primary, Zen Match secondary, captures
-  `20 / 25 / 30`; no boosters/crowns/meta (`O`).
-- Next for logic: intentional fail clip resolving `7th` versus attempted
-  `8th`; then independent Review 3 of the revised typed boundary.
+  `20 / 25 / 30`; fail-on-7th; no boosters/crowns/meta (`O`).
+- Next for logic: TT-G → TT-S → TT-E in a separate implementation branch.
 - Next for presentation: full primary feel packet and haptic/audio decision.
 - Explicitly deferred: all gameplay/presentation code, boosters, blockers,
   meta, server factory, rollout.

@@ -431,13 +431,12 @@ Tetris. Референс используется для исследовани�
   — accept as research; F1 tray multiset, F2 partial visibility, F3
   time-to-rule и F4 duration.
 
-Статус: `Review 2 — blocked on exact fail threshold`. Оператор утвердил
+Статус: `Review 3 logic GO / TT-P fidelity blocked`. Оператор утвердил
 **Triple Tile** как primary, **Zen Match** как secondary, captures
-`20 / 25 / 30` и baseline без boosters/crowns/meta. Supplied Zen Match
-Level 17 recording подтвердил concurrent taps during flight и visual grouped
-insertion. Для Review 3 logic нужен один intentional primary fail clip;
-полный feel packet нужен только перед TT-P. Gameplay/presentation code пока
-не начинается.
+`20 / 25 / 30`, fail-on-7th и baseline без boosters/crowns/meta. Supplied
+Zen Match Level 17 recording подтвердил concurrent taps during flight и
+visual grouped insertion. TT-G/TT-S/TT-E разрешены после merge в отдельной
+implementation-ветке; полный feel packet нужен только перед TT-P.
 
 ### Core loop
 
@@ -462,8 +461,7 @@ insertion. Для Review 3 logic нужен один intentional primary fail cl
 ### Риски
 
 - формально проходимый уровень может быть нечестным для человека;
-- `7th` против `8th` fail меняет solver и должен быть зафиксирован по
-  current reference;
+- fail-on-7th должен оставаться единым versioned rule в engine/solver;
 - presentation order может ошибочно протечь в logical/content identity;
 - частичное перекрытие может превратить solver-valid выбор в угадайку;
 - hit areas перекрывающихся плиток;
@@ -1201,10 +1199,11 @@ contract)?
 2. Нужна ли цена за ошибочный тап или только feedback?
 3. Какой референс имеется в виду под carry-stack/production?
 4. Block Blast нужен как endless score или как конечный puzzle?
-5. Для Triple-tile остался exact fail threshold: fail на седьмой
-   post-resolve tile или только на attempted eighth. Primary Triple Tile,
-   captures `20 / 25 / 30` и no-booster baseline уже утверждены. Classic
-   exposed-pair Mahjong запускается только отдельной инициативой.
+5. Для Triple-tile logic decisions закрыты: fail наступает при post-resolve
+   occupancy `7`; primary Triple Tile, captures `20 / 25 / 30` и no-booster
+   baseline утверждены. Перед TT-P остаются primary feel recordings и
+   haptic/audio. Classic exposed-pair Mahjong запускается только отдельной
+   инициативой.
 6. Для Word первого класса приоритетнее русский, английский или
    мультиязычность с первого дня?
 7. Traffic Jam — target-exit или clear-all?
