@@ -213,6 +213,7 @@ node scripts/platform-reliability-r1-evidence-scan.mjs \
 - Secret matches: `{{INTEGER}}`
 - Exact operator IPv4 captured: `{{TRUE_OR_FALSE}}`
 - Secrets captured: `{{TRUE_OR_FALSE}}`
+- Secret-exposure incident `{{INCIDENT_ID}}`: `{{TYPED_KIND}}` observed `{{UTC}}`; target `{{TARGET_IDENTITY_KIND}}` / `sha256:{{SHA256}}`; approval `{{DECISION_ID}}` / `{{UTC}}` / `{{APPROVED}}`; disposition `{{ACTION_ID}}` / `{{UTC}}` / `{{UTC}}` / `{{ROTATED_OR_INVALIDATED}}` / `{{PROVIDER_METHOD}}` / `render_dashboard_terminal_observation` / `{{UTC}}` / `{{PROVIDER_METHOD}}` / `{{ROTATED_OR_INVALIDATED}}` / `sha256:{{SHA256}}` / `sha256:{{SHA256}}` / credential proof `{{NONE_OR_UTC_AUTHENTICATION_REJECTED_USERNAME_SHA256_EVIDENCE_SHA256}}`; before `{{UTC}}` / `{{RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / `sha256:{{SHA256}}` / after `{{UTC}}` / `{{RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / `sha256:{{SHA256}}` / continuity `equal` / terminal `sha256:{{SHA256}}`; secrets captured `false`
 
 ## 12. Independent final review
 

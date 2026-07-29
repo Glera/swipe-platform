@@ -1,6 +1,20 @@
+import crypto from 'node:crypto';
+
 import { R1_COMPLETION_REQUIREMENTS } from './platform-reliability-r1-operator-receipt-validate.mjs';
 
 const hash = (character) => character.repeat(64);
+const digest = (value) => crypto.createHash('sha256').update(value).digest('hex');
+const credentialProofBinding = (proof) => {
+  if (proof === null) {
+    return '`none`';
+  }
+  return (
+    `\`${proof.observedAt}\` / `
+    + `\`${proof.terminalOutcome}\` / `
+    + `\`sha256:${proof.usernameSha256}\` / `
+    + `\`sha256:${proof.evidenceSha256}\``
+  );
+};
 
 export function makeValidOperatorReceipt() {
   const consumers = [
@@ -42,7 +56,7 @@ export function makeValidOperatorReceipt() {
     status: 'pass',
     sourceDatabaseServiceId: 'dpg-source',
     window: {
-      startedAt: '2026-07-30T09:00:00Z',
+      startedAt: '2026-07-30T08:55:00Z',
       completedAt: '2026-07-30T11:00:00Z',
     },
     consumerClosure: {
@@ -79,6 +93,59 @@ export function makeValidOperatorReceipt() {
         secretsCaptured: false,
       }),
     ),
+    secretExposureIncidents: [
+      {
+        incidentId: 'r1-prewindow-blueprint-sync-hook-dom-20260729',
+        kind: 'render_blueprint_sync_hook_dom_exposure',
+        observedAt: '2026-07-29T15:01:19Z',
+        targetIdentityKind: 'render_blueprint_id',
+        targetSha256: digest('blueprint-main'),
+        operatorDecision: {
+          decisionId: 'r1-decision-20260730-1',
+          confirmedAt: '2026-07-30T08:56:00Z',
+          decision: 'approved',
+          targetSha256: digest('blueprint-main'),
+        },
+        disposition: {
+          actionId: 'r1-secret-action-20260730-1',
+          startedAt: '2026-07-30T08:57:00Z',
+          completedAt: '2026-07-30T08:59:00Z',
+          terminalOutcome: 'rotated',
+          providerMethod: 'regenerate_sync_hook',
+          providerReceipt: {
+            kind: 'render_dashboard_terminal_observation',
+            observedAt: '2026-07-30T08:59:00Z',
+            action: 'regenerate_sync_hook',
+            terminalOutcome: 'rotated',
+            targetSha256: digest('blueprint-main'),
+            evidenceSha256: hash('c'),
+            secretsCaptured: false,
+          },
+          credentialNegativeProof: null,
+          blueprintContinuity: {
+            before: {
+              observedAt: '2026-07-30T08:56:30Z',
+              blueprintId: 'blueprint-main',
+              sourceRepository: 'Glera/swipe-backend',
+              sourceBranch: 'master',
+              blueprintPath: 'render.yaml',
+              evidenceSha256: hash('e'),
+            },
+            after: {
+              observedAt: '2026-07-30T08:59:00Z',
+              blueprintId: 'blueprint-main',
+              sourceRepository: 'Glera/swipe-backend',
+              sourceBranch: 'master',
+              blueprintPath: 'render.yaml',
+              evidenceSha256: hash('f'),
+            },
+            comparisonResult: 'equal',
+          },
+          terminalProofSha256: hash('d'),
+          secretsCaptured: false,
+        },
+      },
+    ],
     ingressNarrowing: {
       cidrKind: 'single-ipv4',
       operatorEgressCidrSha256: hash('8'),
@@ -352,6 +419,44 @@ export function makeValidFinalEvidence(
     '',
     '- platform-reliability-r1-secret-scan-receipt.json',
     '- Scanner status: `PASS`',
+    ...receipt.secretExposureIncidents.map((incident) => (
+      `- Secret-exposure incident \`${incident.incidentId}\`: `
+      + `\`${incident.kind}\` observed \`${incident.observedAt}\`; `
+      + `target \`${incident.targetIdentityKind}\` / `
+      + `\`sha256:${incident.targetSha256}\`; approval `
+      + `\`${incident.operatorDecision.decisionId}\` / `
+      + `\`${incident.operatorDecision.confirmedAt}\` / `
+      + `\`${incident.operatorDecision.decision}\`; disposition `
+      + `\`${incident.disposition.actionId}\` / `
+      + `\`${incident.disposition.startedAt}\` / `
+      + `\`${incident.disposition.completedAt}\` / `
+      + `\`${incident.disposition.terminalOutcome}\` / `
+      + `\`${incident.disposition.providerMethod}\` / `
+      + `\`${incident.disposition.providerReceipt.kind}\` / `
+      + `\`${incident.disposition.providerReceipt.observedAt}\` / `
+      + `\`${incident.disposition.providerReceipt.action}\` / `
+      + `\`${incident.disposition.providerReceipt.terminalOutcome}\` / `
+      + `\`sha256:${incident.disposition.providerReceipt.targetSha256}\` / `
+      + `\`sha256:${incident.disposition.providerReceipt.evidenceSha256}\` / `
+      + `credential proof ${credentialProofBinding(
+        incident.disposition.credentialNegativeProof,
+      )}; `
+      + `before \`${incident.disposition.blueprintContinuity.before.observedAt}\` / `
+      + `\`${incident.disposition.blueprintContinuity.before.blueprintId}\` / `
+      + `\`${incident.disposition.blueprintContinuity.before.sourceRepository}\` / `
+      + `\`${incident.disposition.blueprintContinuity.before.sourceBranch}\` / `
+      + `\`${incident.disposition.blueprintContinuity.before.blueprintPath}\` / `
+      + `\`sha256:${incident.disposition.blueprintContinuity.before.evidenceSha256}\` / `
+      + `after \`${incident.disposition.blueprintContinuity.after.observedAt}\` / `
+      + `\`${incident.disposition.blueprintContinuity.after.blueprintId}\` / `
+      + `\`${incident.disposition.blueprintContinuity.after.sourceRepository}\` / `
+      + `\`${incident.disposition.blueprintContinuity.after.sourceBranch}\` / `
+      + `\`${incident.disposition.blueprintContinuity.after.blueprintPath}\` / `
+      + `\`sha256:${incident.disposition.blueprintContinuity.after.evidenceSha256}\` / `
+      + `continuity \`${incident.disposition.blueprintContinuity.comparisonResult}\` / `
+      + `terminal \`sha256:${incident.disposition.terminalProofSha256}\`; `
+      + `secrets captured \`${incident.disposition.secretsCaptured}\``
+    )),
     '',
     '## 12. Independent final review',
     '',

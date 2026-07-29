@@ -38,6 +38,24 @@
 - Connection strings, пароли, PSQL commands и точный внешний IP не пишутся в
   логи, shell history, git или evidence. В receipt допускаются только
   SHA-256 username/CIDR и несекретные Render identity.
+- Render Settings/Credentials могут содержать visually-masked secrets прямо в
+  DOM. На этих страницах запрещены broad DOM snapshots, body dumps и
+  clipboard reads. Нужный state проверяется только точечным locator/evaluate,
+  который возвращает несекретное поле; ephemeral secret handoff выполняется
+  одним доверенным вызовом без возврата значения наружу.
+- Если hook/credential всё же появился в сохраняемом browser/tool output, он
+  считается exposed даже без copy/save. Final PASS требует отдельного
+  операторского решения и подтверждённой provider-supported
+  rotation/invalidation; в evidence пишутся только typed outcome, локальный
+  структурный action ID, targeted Dashboard terminal receipt без opaque
+  provider ID и digest несекретного proof. Тот же Blueprint дополнительно
+  подтверждается двумя датированными targeted observations до и после action.
+  Для database-credential incident target — SHA-256 конкретного несекретного
+  username, а terminal proof показывает `authentication_rejected` ровно для
+  этого digest. Incident/decision/action ID имеют закрытые форматы, связанные
+  с typed kind и UTC-днём события.
+  Невозможность безопасно инвалидировать значение — `NO-GO`, а не разрешение
+  на disconnect/reconnect Blueprint.
 - Открытие расходов, создание/deletion credential, Blueprint sync/redeploy,
   запуск cron, recovery и изменение allowlist — только в operator window.
 
@@ -144,6 +162,11 @@ Stdout wrapper сохраняется как обязательный capture-re
   дали один замкнутый consumer set; manual/external consumers отсутствуют либо
   явно диспозированы;
 - нет активного deploy/Blueprint sync/recovery/export;
+- каждый известный до окна secret-exposure incident имеет поддерживаемый
+  provider-ом rotation/invalidation path, отдельное operator approval и
+  terminal proof; диспозиция завершается до начала Gate A. Для текущего R1
+  обязательно закрывается typed incident
+  `render_blueprint_sync_hook_dom_exposure`;
 - у оператора есть окно на весь цикл и подтверждён возможный расход recovery;
 - сохранён pinned source SHA и last-known-good deploy identity каждого
   потребителя;
@@ -151,6 +174,15 @@ Stdout wrapper сохраняется как обязательный capture-re
   post-deletion negative test.
 
 Любой unmet-пункт — `NO-GO`, production не меняется.
+
+Если новый secret-exposure incident возникает уже в окне, текущий action
+останавливается/получает typed containment, и никакой следующий gate-action не
+начинается до отдельного operator approval и terminal
+rotation/invalidation proof. Каждый такой incident добавляется в
+`secretExposureIncidents`; умолчание или запись `none` запрещены.
+Stop-rule применяется к единой временной шкале: и A–G actions, и другие
+secret-disposition actions. Вложенная disposition не считается containment
+для продолжающейся внешней disposition.
 
 ## 3. Сужение ingress: `0.0.0.0/0` → operator `/32`
 
@@ -399,8 +431,9 @@ Suspend — только аварийная отсрочка, не PASS и не 
 1. убедиться, что patch основан на актуальном `swipe-backend/origin/master` и
    меняет только network boundary + её fail-closed validation closure;
 2. подтвердить в Render exact linked Blueprint, source repo/branch/path и
-   текущее состояние Auto Sync; несоответствие receipt baseline останавливает
-   окно;
+   текущее состояние Auto Sync только targeted reads несекретных controls;
+   broad snapshot страницы Settings запрещён. Не читать/показывать Sync Hook.
+   Несоответствие receipt baseline останавливает окно;
 3. показать оператору exact PR/head и получить отдельное подтверждение
    production-мутации. Если Auto Sync включён, с подтверждением оператора
    сначала выключить его и зафиксировать результат. Невозможность выключить
@@ -412,7 +445,11 @@ Suspend — только аварийная отсрочка, не PASS и не 
 6. убедиться, что Render показывает пустой database allowlist;
 7. записать итоговое состояние Auto Sync. Не включать его обратно молча:
    любое восстановление состояния — отдельное подтверждённое решение
-   оператора.
+   оператора;
+8. если в Gate G возник новый typed secret-exposure incident, немедленно
+   остановить текущий action и применить общее stop-rule из §2. Возобновление
+   возможно только новым action после terminal disposition. Эта операция не
+   подразумевает разрешения отключать или пересоздавать Blueprint.
 
 Dashboard-only удаление `/32` без committed Blueprint authority не получает
 PASS: следующий sync мог бы вернуть allow-all.
@@ -458,7 +495,7 @@ fresh internal proof и `/32` снова удаляется. Если external r
 | RPO/RTO observed | requested point, Start, Available и validation timestamps + вычисленные seconds |
 | External ingress closed | merged Blueprint `ipAllowList: []` identity + sync receipt + empty allowlist + post-change protocol rejection |
 | Internal remains green | post-closure fresh DB proof каждого consumer |
-| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master > platform-reliability-r1-secret-scan-receipt.json` PASS |
+| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; любой typed secret-exposure incident имеет operator-approved terminal rotation/invalidation proof; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master > platform-reliability-r1-secret-scan-receipt.json` PASS |
 
 Цель R1 считается выполненной только после независимого review всего пакета,
 а не после последнего клика в Render.

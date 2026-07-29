@@ -51,6 +51,45 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
   assert.equal(receipt.ingressNarrowing.cidrKind, 'single-ipv4');
   assert.ok(Array.isArray(receipt.consumerClosure.consumers));
   assert.ok(Array.isArray(receipt.actions));
+  assert.ok(Array.isArray(receipt.secretExposureIncidents));
+  assert.equal(
+    receipt.secretExposureIncidents[0].kind,
+    'render_blueprint_sync_hook_dom_exposure',
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[0].incidentId,
+    'r1-prewindow-blueprint-sync-hook-dom-20260729',
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[0].targetIdentityKind,
+    'render_blueprint_id',
+  );
+  assert.ok(receipt.secretExposureIncidents[0].operatorDecision.decisionId);
+  assert.ok(receipt.secretExposureIncidents[0].disposition.actionId);
+  assert.ok(receipt.secretExposureIncidents[0].disposition.providerMethod);
+  assert.equal(
+    receipt.secretExposureIncidents[0].disposition.providerReceipt.kind,
+    'render_dashboard_terminal_observation',
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[0].disposition.credentialNegativeProof,
+    null,
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[0].disposition
+      .blueprintContinuity.before.blueprintId,
+    receipt.secretExposureIncidents[0].disposition
+      .blueprintContinuity.after.blueprintId,
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[0].disposition
+      .blueprintContinuity.comparisonResult,
+    'equal',
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[0].disposition.secretsCaptured,
+    false,
+  );
   assert.ok(Array.isArray(receipt.ingressClosure.internalFreshProofs));
   assert.ok(receipt.restoreDrill.beforeObservation.observedDbAt);
   assert.ok(receipt.restoreDrill.afterTerminalRun.runId);
