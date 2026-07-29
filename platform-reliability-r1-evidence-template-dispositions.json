@@ -1,0 +1,137 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 104,
+      "desc": "The restore receipt omitted server-owned before observation, after-boundary terminal run, and Start Recovery database-clock evidence needed to prove ordering and recompute RPO."
+    },
+    {
+      "id": "F002",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 112,
+      "desc": "Source continuity was represented only by a caller-authored boolean rather than exact before and after source service, deploy, and binding identities."
+    },
+    {
+      "id": "F003",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 116,
+      "desc": "A suspended recovery cleanup could not retain the mandatory named owner, finance notification, and deletion deadline within 24 hours."
+    },
+    {
+      "id": "F004",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 130,
+      "desc": "Post-closure internal proofs omitted deploy or run identity and rotated username binding for exact consumer-set coverage."
+    },
+    {
+      "id": "F005",
+      "severity": "P2",
+      "file": "docs/templates/platform-reliability-r1-operator-receipt-template.json",
+      "line": 87,
+      "desc": "Quoted boolean and numeric placeholders could produce stringly typed final receipts without a strict schema validator."
+    },
+    {
+      "id": "F006",
+      "severity": "P2",
+      "file": "scripts/platform-reliability-r1-evidence-template.test.mjs",
+      "line": 35,
+      "desc": "Static label checks did not protect authority fields, negative structural cases, or reject unresolved placeholders in final evidence."
+    },
+    {
+      "id": "F007",
+      "severity": "P2",
+      "file": "scripts/platform-reliability-r1-operator-receipt-validate.mjs",
+      "line": 196,
+      "desc": "A synthetic 15-line Markdown file with PASS labels but none of the required authority sections or bound evidence values was accepted as final evidence."
+    },
+    {
+      "id": "F008",
+      "severity": "P2",
+      "file": "scripts/platform-reliability-r1-operator-receipt-validate.mjs",
+      "line": 789,
+      "desc": "Matching before and after source continuity sets were not bound to the exact rotated consumer runtime identities."
+    },
+    {
+      "id": "F009",
+      "severity": "P2",
+      "file": "scripts/platform-reliability-r1-operator-receipt-validate.mjs",
+      "line": 674,
+      "desc": "Start Recovery database clock was not time-bounded to the operator action and lacked its own observation digest."
+    },
+    {
+      "id": "F010",
+      "severity": "P2",
+      "file": "scripts/platform-reliability-r1-operator-receipt-validate.mjs",
+      "line": 1015,
+      "desc": "A cron or worker post-closure proof could reuse the pre-closure rotation run identity instead of proving a fresh run."
+    },
+    {
+      "id": "F011",
+      "severity": "P2",
+      "file": "scripts/platform-reliability-r1-operator-receipt-validate.mjs",
+      "line": 485,
+      "desc": "An unresolved failed action could be hidden by an unrelated later successful action in the same gate."
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "F001",
+      "action": "fixed"
+    },
+    {
+      "id": "F002",
+      "action": "fixed"
+    },
+    {
+      "id": "F003",
+      "action": "fixed"
+    },
+    {
+      "id": "F004",
+      "action": "fixed"
+    },
+    {
+      "id": "F005",
+      "action": "fixed"
+    },
+    {
+      "id": "F006",
+      "action": "fixed"
+    },
+    {
+      "id": "F007",
+      "action": "fixed"
+    },
+    {
+      "id": "F008",
+      "action": "fixed"
+    },
+    {
+      "id": "F009",
+      "action": "fixed"
+    },
+    {
+      "id": "F010",
+      "action": "fixed"
+    },
+    {
+      "id": "F011",
+      "action": "fixed"
+    }
+  ],
+  "verify": [
+    {
+      "command": "node --test 'scripts/*.test.mjs'",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ]
+}

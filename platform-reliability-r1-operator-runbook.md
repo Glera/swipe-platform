@@ -82,6 +82,22 @@ preview обязан явно сохранить действующий `/32`; �
 | `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
 | `platform-reliability-r1-secret-scan-receipt.json` | SHA-256 всех обязательных артефактов + zero-match secret/IP scan |
 
+Перед окном использовать
+`docs/templates/platform-reliability-r1-operator-receipt-template.json` и
+`docs/templates/platform-reliability-r1-final-evidence-template.md` как
+чеклисты полноты. Копии с runtime-фактами создаются только под точными
+именами из таблицы; каждый placeholder обязан быть заменён или удалён.
+Шаблон не является evidence и не получает статус PASS.
+Перед secret scan instantiated receipt и final evidence обязаны пройти
+строгую structural/chronology-проверку без неразрешённых `{{...}}`;
+проверка встроена в финальный evidence scanner и не заменяется визуальным
+просмотром шаблона.
+DB clock для Start Recovery сохраняется с отдельным evidence digest; разница
+с operator action timestamp не может превышать 60 секунд. Каждый action имеет
+уникальный `actionId` и стабильный `operationId`: failed attempt закрывается
+либо typed rollback/containment, либо более поздним successful action того же
+operation/target с явным `resolvesActionId`.
+
 Snapshot 2 снимается только через
 `scripts/platform-reliability-r1-db-capture.mjs`. В одном доверенном in-app
 browser/Node-вызове Render input value передаётся экспортированной
