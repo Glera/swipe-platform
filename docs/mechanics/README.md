@@ -131,7 +131,7 @@ Sort и Pins уже прошли путь «эталон → серия → ле
 | Block Out! | 5 | 5 | 4 | 4 | M | solver + динамические элементы | 2 |
 | Survivor micro-wave | 5 | 5 | 4 | 5 | L | perf + баланс | 3 |
 | Placement blocks / Block Blast | 4 | 4 | 4 | 4 | S–M | честная выдача фигур | 4 |
-| Triple-tile / Zen Match | 5 | 5 | 3 | 4 | M | гарантированная проходимость | 5 |
+| Triple-tile / tray triples | 5 | 5 | 3 | 4 | M | гарантированная проходимость | 5 |
 | Word Search / Fillwords | 3 | 4 | 5 | 4 | S–M | качество языка | 6 |
 | Traffic / Parking Jam | 5 | 5 | 3 | 4 | M | solver + жесты | 7 |
 | Bubble Shooter | 5 | 5 | 3 | 4 | M | hex collision + trajectory | 8 |
@@ -404,29 +404,58 @@ placement puzzle с конечной целью, а не бесконечная 
 Tetris. Референс используется для исследования игрового взаимодействия, а не
 для переноса защищённых материалов.
 
-## 6. Triple-tile / Zen Match
+## 6. Triple-tile / tray triples
 
-### Референс
+### Taxonomy boundary
 
-- [Zen Match](https://apps.apple.com/us/app/zen-match-relaxing-puzzle/id1560124228)
+Выбранное ядро: exposed tiles → bounded bottom tray → auto-remove triples.
+Это **не** Mahjong Solitaire: pair-matching открытых плиток без tray является
+отдельным будущим классом. Tile sorting, swap Match-3 и hidden-object также не
+входят в этот baseline.
+
+### Review 1/2 packet
+
+Исследованы [Triple Tile](https://apps.apple.com/us/app/triple-tile-match-puzzle-game/id1572661625),
+[Zen Match](https://apps.apple.com/us/app/zen-match-relaxing-puzzle/id1560124228),
+[Tile Busters](https://apps.apple.com/us/app/tile-busters-match-3-tiles/id6443449716),
+[Tile Club](https://apps.apple.com/us/app/tile-club-matching-game/id1640075364)
+и [Tile Family](https://apps.apple.com/us/app/tile-family-match-puzzle-game/id6444056676).
+
+Подготовлены:
+
+- [`triple-tile/REFERENCE-PACKET.md`](triple-tile/REFERENCE-PACKET.md) —
+  taxonomy, сравнение пяти продуктов, fidelity plan и recommendation;
+- [`triple-tile/CLASS-BRIEF.md`](triple-tile/CLASS-BRIEF.md) — proposed
+  gameplay/schema/solver/reverse-generator boundary.
+
+Статус: `Review 1/2 — blocked on operator choice`. Предложены **Triple Tile**
+как primary, **Zen Match** как secondary и Levels `20–30` с Level 30 как
+holdout. До утверждения current-build recording, tray/fail policy и feel
+defaults gameplay/presentation code не начинается.
 
 ### Core loop
 
 Игрок выбирает доступные плитки, они попадают в ограниченный tray, три
 одинаковые исчезают. Победа — очистить сцену; проигрыш — переполнить tray.
 
-### MVP
+### Proposed bounded baseline
 
 - только triple matching;
 - плоские слои с ясным overlap;
-- фиксированная ёмкость tray;
-- undo/hint вне первого logic spike;
-- пять заранее проверенных раскладок;
-- solver учитывает все допустимые выборы, а не только авторское решение.
+- одна явно утверждённая capacity/fail policy;
+- undo/shuffle/hint/boosters вне v1;
+- пять собственных solver-verified раскладок;
+- exact tray order входит в engine/solver state;
+- solver учитывает все допустимые выборы, а не только авторский witness;
+- reverse generator симулирует tray pressure и не объявляет
+  solver-valid уровень интересным.
 
 ### Риски
 
 - формально проходимый уровень может быть нечестным для человека;
+- `7th` против `8th` fail меняет solver и должен быть зафиксирован по
+  current reference;
+- visual grouping tray может разойтись с exact logical order;
 - hit areas перекрывающихся плиток;
 - недостаточная различимость символов;
 - слишком большое число типов плиток делает ранний уровень случайным;
@@ -1162,7 +1191,9 @@ contract)?
 2. Нужна ли цена за ошибочный тап или только feedback?
 3. Какой референс имеется в виду под carry-stack/production?
 4. Block Blast нужен как endless score или как конечный puzzle?
-5. Для Mahjong требуется classic exposed-pair или triple-tile tray?
+5. Какой exact primary, target levels и tray defaults утверждаются для
+   Triple-tile? Classic exposed-pair Mahjong запускается только отдельной
+   инициативой.
 6. Для Word первого класса приоритетнее русский, английский или
    мультиязычность с первого дня?
 7. Traffic Jam — target-exit или clear-all?
