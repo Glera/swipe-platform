@@ -270,20 +270,20 @@ Review 3 утвердил polyline baseline, пять собственных у�
 - [`block-out/REVIEW-1-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-1-INDEPENDENT-2026-07-29.md)
   — independent **accept as research**, findings F1–F5 и их disposition.
 
-Статус: **Review 1 accepted as research / Review 2 blocked on operator
-packet**. Primary
-reference (`P`) — [Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
-fidelity band (`P`) — exact-build levels `6–10` либо эквивалентный ранний
-static pre-modifier участок. Operator success clips L11–13 добавлены как
-частичное `R-native`: они подтверждают continuous carry, timer и win flow, но
-не заменяют scripted movement probes, fail/invalid evidence, must-preserve и
-`Defaults approve`/exceptions. Implementation не разрешена.
+Статус: **Review 1 accepted / Review 2 operator ruling captured; quick flick
+остаётся `B`**. Primary (`O`) —
+[Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
+fidelity band (`O`) — levels `6–10`. Operator утвердил continuous two-axis
+collision-constrained drag с grid snap, отсутствие timer/fail и strong-solvable
+accepted pack. Operator clips L11–13 byte/frame verified как `R-native`;
+полные SHA-256 находятся в packet. Haptic deferred. Implementation отдельным
+research ruling не разрешена.
 
 ### Core loop
 
 Игрок drag'ом reposition'ит разноформенные цветные блоки по ограниченному
 ортогональному полю и выводит каждый через matching boundary gate. Победа —
-очистить поле; выбранные рыночные references используют timer fail. Порядок
+очистить поле; reference использует timer, own v1 исключает timer/fail (`O`). Порядок
 освобождения пространства определяет решение. Поздние уровни добавляют лифты,
 генераторы, shutters и другие versioned modifiers.
 
@@ -300,8 +300,9 @@ static pre-modifier участок. Operator success clips L11–13 добавл
 - блоки одного или нескольких размеров;
 - статические стены;
 - статические цветные выходы;
-- exact free-stop / slide-stop / unit-step semantics фиксируется только по
-  operator recording;
+- continuous two-axis drag по collision-free corridor, с turns/diagonal и
+  grid snap на release (`O`);
+- каждый accepted level strong-solvable из любого reachable stable state (`O`);
 - без лифтов, generators, shutters и booster/meta rules;
 - solver обязателен до фабричной генерации.
 

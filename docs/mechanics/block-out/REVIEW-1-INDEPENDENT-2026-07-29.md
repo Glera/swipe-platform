@@ -1,6 +1,8 @@
 # Независимое ревью `block-out-v1` — Review 1
 
 - Дата: **29.07.2026**
+- Reviewer: **Claude**
+- Автор reference packet и disposition правок: **Codex**
 - Reviewed commit: **`2e392ea70c88292c9e42f257152d6f9e4351c28e`**
 - Ветка: **`codex/block-out-reference-packet`**
 - Вердикт: **accept as research**
