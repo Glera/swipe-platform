@@ -1,13 +1,15 @@
 # BO-R: reference packet — Block Out!
 
 - Дата среза: **29.07.2026**
-- Статус: **Review 1 accepted / Review 2 complete / ready for Review 3**
+- Статус: **Review 3 conditional GO / BO-A/BO-E/BO-S ready / code not authorized**
 - Primary reference (`O`): **Block Out! - Color Sort Puzzle,
   Grand Games A.Ş.**
 - Fidelity band (`O`): **ранние статические уровни 6–10**
 - Связанный brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
-- Независимое ревью:
+- Независимое Review 1:
   [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md)
+- Независимое Review 3:
+  [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md)
 
 > Документ разводит несколько разных core loop'ов, которые рынок называет
 > похожими именами. Operator ruling утвердил reference, target band, continuous
@@ -161,12 +163,28 @@ gesture заканчивается обычным grid snap.
 | Release привязывает фигуру к legal lattice cell | `O` |
 | Timer отсутствует в own v1 | `O` |
 | Accepted level не имеет reachable unsolvable state | `O` |
-| Must-preserve: максимальная близость к reference по carry, collision, snap, gate consume, feedback, win cadence и board clarity в пределах IP boundary | `O` |
+| Must-preserve: максимальная близость к reference по carry, collision, snap, block consume at gate, feedback, win cadence и board clarity в пределах IP boundary | `O` |
 | Haptic | deferred; отдельное нетривиальное решение, не v1 blocker |
 | Quick flick: no inertia, ordinary grid snap | `O` |
 
 «Максимально близко» не разрешает копировать layouts, assets или trade dress и
 не превращает ещё не измеренный feel в `R-native`.
+
+## Review 3 technical disposition
+
+- Collision = positive-area overlap; boundary contact legal.
+- Unit-step BFS по legal lattice anchors — exact discrete reachability
+  authority для contact-allowed v1; clamp/engine/solver используют одну
+  predicate.
+- Release snap выбирает legal anchor с минимальной squared Euclidean distance;
+  tie-break — меньший `y`, затем `x`.
+- Valid clamped pose всегда имеет хотя бы один legal anchor в своей component;
+  нарушение — contract error, не fallback.
+- Exit commit требует, чтобы весь footprint пересёк board boundary через
+  compatible gate span. Partial crossing release делает обычный in-board snap.
+- Gates reusable/non-consuming.
+- Takeover во время autoplay-carry и host pause mid-drag rollback'ят
+  uncommitted pose в last stable anchor без logical mutation.
 
 ## Почему family подходит ICP и swipe-ленте
 
@@ -197,12 +215,15 @@ gesture заканчивается обычным grid snap.
 3. AutoCursor берёт один очевидный block, визуально несёт его и выводит через
    matching gate;
 4. первый completed exit происходит за `≤1.50 s` от scene-visible frame (`P`);
-5. autoplay делает `2` legal moves или не более `25%` witness trace (`P`);
+5. autoplay budget (`P`) =
+   `min(2, max(1, floor(0.25 * witnessLength)))`; один explanatory move —
+   исключение из percentage cap для witness `<4`;
 6. первый pointerdown по live block атомарно переводит в manual;
-7. takeover сохраняет exact logical state и in-flight presentation, без restart
-   и скрытого autoplay move;
+7. takeover во время autoplay-carry rollback'ит uncommitted pose в last stable
+   anchor и начинает manual без restart/hidden move;
 8. pointerdown/drag по background остаётся host swipe по platform authority;
-9. autoplay никогда не демонстрирует fail, booster или monetization.
+9. host pause mid-drag rollback'ит uncommitted pose; paused snapshot stable;
+10. autoplay никогда не демонстрирует fail, booster или monetization.
 
 Числа выше — design proposals, не measurements. После нужного evidence они
 либо заменяются `R-native`, либо становятся явными `O`.
@@ -215,29 +236,33 @@ gesture заканчивается обычным grid snap.
 - block — stable id, role/color, immutable polyomino footprint и mutable anchor;
 - rotation disabled;
 - gate — boundary span, role/color и exit direction;
+- gates reusable/non-consuming;
 - solver identity — canonical tuple `rulesVersion + live block ids + anchors`;
 - runtime resource и presentation phase входят в runtime snapshot, но
   исключены из spatial solver identity;
-- legal move (`O`) — любой target lattice anchor в том же collision-free
-  configuration-space component; gesture может идти по двум осям и поворачивать
-  без release;
+- collision — positive-area overlap; contact legal;
+- legal move (`O`) — любой target lattice anchor, reachable unit-step BFS'ом
+  через anchors с valid endpoint footprints;
 - transient carried pose clamp'ится на configuration-space boundary и не
   становится solver state;
-- release (`O`) commit'ит legal lattice anchor; pointer velocity не создаёт
-  inertia или дополнительный solver action;
+- release (`O`) выбирает nearest legal anchor по squared distance, tie-break
+  меньший `y`, затем `x`; pointer velocity не создаёт inertia;
+- exit (`O`) commit'ится только после full-footprint crossing через compatible
+  gate span; partial crossing использует in-board snap;
 - terminal success — no live blocks.
 
-Solver legal transition строится через configuration-space reachability для
-полного footprint. Input, engine и solver используют одну collision authority;
-solver не моделирует raw pointer samples.
+Для unit translation swept region равен union endpoint footprints. Поэтому при
+contact-allowed v1 unit-step anchor BFS exact-equivalent continuous
+reachability. Input clamp, engine и solver используют одну collision authority;
+raw pointer samples не входят в solver.
 
 ### Что может утверждать solver
 
 - schema/geometry validity;
 - legal transitions;
 - наличие хотя бы одного all-clear witness;
-- strong solvability: каждый reachable stable state accepted level имеет путь к
-  all-clear (`O` publication invariant);
+- strong solvability v1: initial witness + verified reversible-monotone lemma
+  доказывают all-clear path из каждого reachable stable state;
 - minimal или bounded move count при утверждённой action semantics;
 - deterministic witness trace;
 - feature vector и duplicate fingerprint;
@@ -289,15 +314,19 @@ Operator ruling (`O`): reachable stuck/unsolvable state в accepted v1 level
 невозможен. Поэтому:
 
 - runtime не объявляет dead-end и не имеет timer-only fail;
-- offline solver проверяет strong solvability всего reachable stable-state
-  graph, а не только initial witness;
-- generator отклоняет candidate при первом reachable state без all-clear path;
+- offline solver хранит initial all-clear witness;
+- validator проверяет premises `reversible-monotone-v1`: static walls, reusable
+  gates, reversible translations, no timer и exits только удаляют blocks;
+- solvable initial state остаётся solvable после любой legal sequence:
+  translations обратимы, а exit лишь освобождает occupancy; индукция по exits
+  сохраняет witness suffix для remaining blocks;
 - `deadEndExposure` для принятого pack равен `0`;
 - restart может оставаться user convenience, но не recovery из допустимого
   stuck state.
 
-Если exhaustive proof не помещается в утверждённый offline budget, candidate
-не проходит validation; ослаблять invariant до эвристики нельзя.
+Exhaustive graph proof optional как defense-in-depth. Любой future modifier,
+который ломает premises (`locks/ice/one-way/consuming gate`), требует нового
+rules version и обязательного отдельного proof; иначе candidate rejected.
 
 ## WebView performance risk
 
@@ -387,43 +416,50 @@ Own visual identity:
 | L11/L12/L13 active timer consumed to success | `≈55/57/51 s` | `R-native` | `BO-R-N1/N2`; разность видимых timer values, не frame-accurate feel timing |
 | Scene visible -> input-ready settle | `≤450 ms` | `P` | отдельный feed settle budget |
 | Scene visible -> first completed exit | `≤1,500 ms` | `P` | feed-hook proposal; native timing pending |
-| Autoplay moves | `2` или `≤25%` witness | `P` | takeover proposal |
+| Autoplay moves | `min(2,max(1,floor(25% witness)))` | `P` | one-move exception for witness `<4` |
 | Bounded manual duration | `20–45 s`, hard review at `60 s` | `P` | swipe-card proposal, не reference measurement |
 | Board fit / portrait crop | `384×832`, levels fit without camera motion | `R-native` | `BO-R-N1/N2`; cell-size px measurement not yet requested |
 | Continuous carried pose while held | observed at 30/29.97 fps | `R-native` | `BO-R-N1/N2`; does not determine release policy |
 | Touch-down response | `B` | `B` | нужен native `60 fps` probe |
 | Carry easing / snap / release | `B` | `B` | exact release semantics не подтверждена |
-| Gate consume duration | `B` | `B` | нужен 60 fps successful-exit close-up |
+| Block exit/clear duration | `B` | `B` | нужен 60 fps successful-exit close-up |
 | Invalid drag feedback | `B` | `B` | нужен scripted error episode |
 | Win onset and settle | success observed; exact timing `B` | `R-native/B` | clips содержат success; own v1 не имеет fail (`O`) |
 | Haptic semantics/intensity | deferred | `O` | отдельное нетривиальное решение; не входит в v1 |
 
 ## Preliminary parity checklist
 
-Пункты с числами `P` становятся acceptance только после Review 2. Остальные
-получат `R-native/O/B` значения из native evidence и operator decisions.
+Пункты с числами `P` не становятся acceptance автоматически после Review 2/3:
+нужны explicit approve либо `R-native`. Остальные сохраняют
+`R-native/O/B` authority.
 
 ### Rule/state
 
 - [ ] Один и тот же approved movement rule используется input, engine и solver.
-- [ ] Block footprint не пересекает walls или live blocks в stable state.
+- [ ] Collision = positive-area overlap; contact legal; one predicate shared by
+  clamp/engine/solver.
+- [ ] Unit-step anchor BFS и continuous reachability совпадают на typed fixtures.
 - [ ] Rotation отсутствует, если отдельно не утверждена оператором.
 - [ ] Через gate выходит только block совпадающего gameplay role.
-- [ ] Exit принимается только когда footprint целиком совместим с gate opening.
+- [ ] Exit принимается только после full-footprint crossing через compatible
+  gate span; partial crossing snap'ится in-board.
+- [ ] Gate reusable и не меняет state при exit.
 - [ ] Successful exit удаляет ровно один live block.
 - [ ] Win наступает только после выхода всех required blocks.
-- [ ] Accepted pack подтверждён strong-solvable из каждого reachable stable
-  state; timer/fail state отсутствует (`O`).
+- [ ] Accepted pack имеет witness + verified `reversible-monotone-v1` premises;
+  timer/fail state отсутствует (`O`).
 - [ ] Restart, если оставлен как convenience, возвращает exact initial state.
 
 ### Drag/feedback
 
 - [ ] Pointerdown по live block начинает carry без state teleport.
 - [ ] Visual carried block следует finger; исходный block не рисуется дважды.
-- [ ] Collision response и release snap совпадают с native reference.
+- [ ] Snap выбирает nearest legal anchor по squared distance; tie-break `y,x`.
+- [ ] Valid clamped pose всегда имеет хотя бы один legal anchor.
 - [ ] Collision clamp не допускает invalid carried pose; release commit'ит
   legal lattice anchor и не создаёт скрытого solver move.
-- [ ] Gate consume сохраняет shape identity до утверждённой exit phase.
+- [ ] Block exit/clear сохраняет shape identity до утверждённой exit phase;
+  gate остаётся reusable.
 - [ ] Color-independent marker остаётся читаем во время carry и в gate.
 - [ ] Success feedback работает без звука; fail state отсутствует (`O`).
 
@@ -431,9 +467,9 @@ Own visual identity:
 
 - [ ] Первый completed autoplay exit происходит за `≤1,500 ms` (`P`).
 - [ ] Autoplay использует deterministic solver witness.
-- [ ] Takeover продолжает exact state без restart/hidden move.
+- [ ] Takeover mid-carry rollback'ит last stable state без restart/hidden move.
 - [ ] Background vertical gesture остаётся feed swipe по runtime authority.
-- [ ] Host pause замораживает carry, exit и autoplay clocks.
+- [ ] Host pause mid-drag rollback'ит carry, затем замораживает stable snapshot.
 - [ ] Completion отправляется ровно один раз.
 - [ ] Cover совпадает с scene-visible frame.
 
@@ -460,5 +496,6 @@ Minimum logic packet закрыт: quick flick не имеет inertia и зак
   или Tap Away.
 - Primary: **Block Out! / Grand Games (`O`)**.
 - Target: **levels 6–10 static band (`O`)**.
-- Review 2: **complete; ready for independent Review 3**.
+- Review 3: **conditional GO; A1′–A3′ dispositions applied**.
+- Workstreams: **BO-A/BO-E/BO-S technically ready; BO-P awaits 60 fps feel**.
 - Implementation authority: **none**.

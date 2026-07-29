@@ -257,7 +257,7 @@ Review 3 утвердил polyline baseline, пять собственных у�
 
 ## 2. Block Out! / color gates
 
-### Review 1/2 packet
+### Review packet
 
 Подготовлены:
 
@@ -269,15 +269,19 @@ Review 3 утвердил polyline baseline, пять собственных у�
   `BO-R/G/E/S/F/P/I/A/Q`;
 - [`block-out/REVIEW-1-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-1-INDEPENDENT-2026-07-29.md)
   — independent **accept as research**, findings F1–F5 и их disposition.
+- [`block-out/REVIEW-3-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-3-INDEPENDENT-2026-07-29.md)
+  — independent conditional GO и blockers A1′–A3′.
 
-Статус: **Review 2 complete / ready for independent Review 3**. Primary (`O`) —
+Статус: **Review 3 conditional GO; A1′–A3′ applied**. Primary (`O`) —
 [Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
 fidelity band (`O`) — levels `6–10`. Operator утвердил continuous two-axis
 collision-constrained drag с grid snap, отсутствие timer/fail и strong-solvable
 accepted pack; quick flick не имеет inertia (`O`). Operator clips L11–13
 byte/frame verified как `R-native`;
-полные SHA-256 находятся в packet. Haptic deferred. Implementation отдельным
-research ruling не разрешена.
+полные SHA-256 находятся в packet. Review 3 зафиксировал contact-allowed
+positive-area collision, unit-step anchor BFS, full-crossing reusable gates,
+deterministic nearest snap и monotonicity proof. `BO-A/BO-E/BO-S` технически
+готовы; `BO-P` ждёт 60 fps evidence. Prototype code по-прежнему не разрешён.
 
 ### Core loop
 
@@ -302,7 +306,10 @@ research ruling не разрешена.
 - статические цветные выходы;
 - continuous two-axis drag по collision-free corridor, с turns/diagonal и
   grid snap на release (`O`);
-- каждый accepted level strong-solvable из любого reachable stable state (`O`);
+- contact legal, collision только при positive-area overlap;
+- full-crossing reusable gates; partial crossing snap'ится in-board;
+- deterministic nearest snap с tie-break `y,x`;
+- initial witness + v1 monotonicity lemma доказывают strong solvability;
 - без лифтов, generators, shutters и booster/meta rules;
 - solver обязателен до фабричной генерации.
 
