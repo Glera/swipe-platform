@@ -104,6 +104,11 @@ preview обязан явно сохранить действующий `/32`; �
 | `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
 | `platform-reliability-r1-secret-scan-receipt.json` | SHA-256 всех обязательных артефактов + zero-match secret/IP scan |
 
+Оба delta-output содержат одинаковый provenance-набор SHA-256: snapshot 1
+baseline, snapshot 2 TSV, snapshot 2 capture receipt и оба same-service Render
+receipt. Несовпадение любого hash или Markdown без этого блока — `NO-GO` для
+snapshot review.
+
 Перед окном использовать
 `docs/templates/platform-reliability-r1-operator-receipt-template.json` и
 `docs/templates/platform-reliability-r1-final-evidence-template.md` как

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -11,6 +12,10 @@ import {
   scanEvidence,
 } from './platform-reliability-r1-evidence-scan.mjs';
 import {
+  analyzeDeltaEvidence,
+  toMarkdown as deltaToMarkdown,
+} from './platform-reliability-r1-db-delta.mjs';
+import {
   makeValidFinalEvidence,
   makeValidOperatorReceipt,
 } from './platform-reliability-r1-operator-receipt-test-fixture.mjs';
@@ -19,6 +24,7 @@ const SCRIPT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'platform-reliability-r1-evidence-scan.mjs',
 );
+const REPO_ROOT = path.resolve(path.dirname(SCRIPT), '..');
 const BASE_REF = 'master';
 
 function git(root, args) {
@@ -28,11 +34,131 @@ function git(root, args) {
   });
 }
 
+function writeValidDeltaEvidence(root, { providerAfterOverrides = {} } = {}) {
+  const baselinePath = path.join(
+    root,
+    'platform-reliability-r1-0-snapshot-baseline.json',
+  );
+  const providerBeforePath = path.join(
+    root,
+    'platform-reliability-r1-0-render-receipt.json',
+  );
+  const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+  const providerAfter = JSON.parse(
+    fs.readFileSync(providerBeforePath, 'utf8'),
+  );
+  providerAfter.observedAt = '2026-07-30T08:31:46Z';
+  providerAfter.database.storage.usedPercent += 0.1;
+  Object.assign(providerAfter, providerAfterOverrides);
+  const after = [
+    [
+      'snapshot_meta',
+      '2026-07-30 08:31:46 UTC',
+      baseline.database,
+      'on',
+      'UTC',
+      baseline.postgresVersionNum,
+      baseline.databaseBytes + 1,
+      'n/a',
+    ],
+    ['schema', baseline.publicTableCount, baseline.alembicHeads],
+    [
+      'relation_totals',
+      baseline.relationCount,
+      1,
+      baseline.relationBytes + 1,
+      'n/a',
+      baseline.heapBytes,
+      'n/a',
+      baseline.indexBytes,
+      'n/a',
+    ],
+    ['exact_row_count', 'public.fixture_table', baseline.exactRowsTotal + 1],
+    ['exact_row_summary', 1, baseline.exactRowsTotal + 1],
+    [
+      'runtime',
+      'database_stats',
+      baseline.databaseStats.commits + 1,
+      baseline.databaseStats.rollbacks,
+      baseline.databaseStats.blocksRead,
+      baseline.databaseStats.blocksHit + 1,
+      baseline.databaseStats.tempFiles,
+      baseline.databaseStats.tempBytes,
+      baseline.databaseStats.deadlocks,
+      baseline.databaseStats.conflicts,
+      baseline.databaseStats.statsReset ?? '',
+    ],
+    ['snapshot_complete', 'ok'],
+  ].map((row) => row.join('\t')).join('\n');
+  const afterBytes = Buffer.from(after);
+  const captureAfter = {
+    schema: 'platform-reliability-r1-db-capture-receipt.v1',
+    status: 'ok',
+    capturedAt: '2026-07-30T08:31:46.000Z',
+    outputSha256: crypto.createHash('sha256').update(afterBytes).digest('hex'),
+    outputBytes: afterBytes.length,
+    readOnly: true,
+    completionSentinel: 'ok',
+    credentialFileConsumed: true,
+    credentialInArgv: false,
+    secretsCaptured: false,
+  };
+  const afterPath = path.join(
+    root,
+    'platform-reliability-r1-0-snapshot-2.tsv',
+  );
+  const captureAfterPath = path.join(
+    root,
+    'platform-reliability-r1-0-snapshot-2-db-capture-receipt.json',
+  );
+  const providerAfterPath = path.join(
+    root,
+    'platform-reliability-r1-0-snapshot-2-render-receipt.json',
+  );
+  fs.writeFileSync(afterPath, afterBytes);
+  fs.writeFileSync(
+    captureAfterPath,
+    `${JSON.stringify(captureAfter, null, 2)}\n`,
+  );
+  fs.writeFileSync(
+    providerAfterPath,
+    `${JSON.stringify(providerAfter, null, 2)}\n`,
+  );
+  const result = analyzeDeltaEvidence({
+    beforePath: baselinePath,
+    beforeBytes: fs.readFileSync(baselinePath),
+    afterPath,
+    afterBytes,
+    captureAfterBytes: fs.readFileSync(captureAfterPath),
+    providerBeforeBytes: fs.readFileSync(providerBeforePath),
+    providerAfterBytes: fs.readFileSync(providerAfterPath),
+  });
+  fs.writeFileSync(
+    path.join(root, 'platform-reliability-r1-0-snapshot-delta.json'),
+    `${JSON.stringify(result, null, 2)}\n`,
+  );
+  fs.writeFileSync(
+    path.join(root, 'platform-reliability-r1-0-snapshot-delta.md'),
+    deltaToMarkdown(result),
+  );
+}
+
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-evidence-scan-'));
   git(root, ['init', '--initial-branch=master']);
   fs.writeFileSync(path.join(root, 'README.md'), 'fixture baseline\n');
-  git(root, ['add', 'README.md']);
+  for (const filename of [
+    'platform-reliability-r1-0-snapshot-baseline.json',
+    'platform-reliability-r1-0-db-query-receipt.json',
+    'platform-reliability-r1-0-render-receipt.json',
+  ]) {
+    fs.copyFileSync(path.join(REPO_ROOT, filename), path.join(root, filename));
+  }
+  git(root, ['add', 'README.md', ...[
+    'platform-reliability-r1-0-snapshot-baseline.json',
+    'platform-reliability-r1-0-db-query-receipt.json',
+    'platform-reliability-r1-0-render-receipt.json',
+  ]]);
   git(root, [
     '-c',
     'user.name=R1 Test',
@@ -54,6 +180,7 @@ function fixture() {
       : `${filename}\nstatus pass\nsha256 ${'a'.repeat(64)}\n`;
     fs.writeFileSync(path.join(root, filename), content);
   }
+  writeValidDeltaEvidence(root);
   fs.writeFileSync(
     path.join(root, 'platform-reliability-r1-operator-receipt.json'),
     `${JSON.stringify(makeValidOperatorReceipt())}\n`,
@@ -90,9 +217,15 @@ test('scans the exact git patch manifest and emits only hashes', () => {
     assert.equal(result.operatorValidation.gateCount, 7);
     assert.equal(result.operatorValidation.completionRequirementCount, 12);
     assert.equal(result.operatorValidation.placeholdersResolved, true);
+    assert.equal(result.deltaValidation.status, 'pass');
+    assert.equal(
+      result.deltaValidation.schema,
+      'platform-reliability-r1-snapshot-delta.v1',
+    );
     assert.match(result.ruleSetSha256, /^[a-f0-9]{64}$/);
     assert.match(result.scannerSourceSha256, /^[a-f0-9]{64}$/);
     assert.match(result.operatorValidatorSourceSha256, /^[a-f0-9]{64}$/);
+    assert.match(result.deltaAnalyzerSourceSha256, /^[a-f0-9]{64}$/);
     for (const artifact of result.requiredFiles) {
       assert.match(artifact.sha256, /^[a-f0-9]{64}$/);
       assert.equal(Object.hasOwn(artifact, 'content'), false);
@@ -109,20 +242,80 @@ test('scans the exact git patch manifest and emits only hashes', () => {
   }
 });
 
+test('rejects stale or independently modified delta outputs and inputs', () => {
+  for (const mutate of [
+    (root) => {
+      fs.appendFileSync(
+        path.join(root, 'platform-reliability-r1-0-snapshot-delta.md'),
+        '\nstale review text\n',
+      );
+    },
+    (root) => {
+      const target = path.join(
+        root,
+        'platform-reliability-r1-0-snapshot-delta.json',
+      );
+      const delta = JSON.parse(fs.readFileSync(target, 'utf8'));
+      delta.database.deltaBytes += 1;
+      fs.writeFileSync(target, `${JSON.stringify(delta, null, 2)}\n`);
+    },
+    (root) => {
+      const target = path.join(
+        root,
+        'platform-reliability-r1-0-snapshot-2-render-receipt.json',
+      );
+      const provider = JSON.parse(fs.readFileSync(target, 'utf8'));
+      provider.database.storage.usedPercent += 0.1;
+      fs.writeFileSync(target, `${JSON.stringify(provider, null, 2)}\n`);
+    },
+    (root) => {
+      const target = path.join(
+        root,
+        'platform-reliability-r1-0-snapshot-delta.json',
+      );
+      fs.writeFileSync(
+        target,
+        Buffer.concat([
+          Buffer.from([0xef, 0xbb, 0xbf]),
+          fs.readFileSync(target),
+        ]),
+      );
+    },
+    (root) => {
+      const target = path.join(
+        root,
+        'platform-reliability-r1-0-snapshot-delta.md',
+      );
+      fs.writeFileSync(
+        target,
+        Buffer.concat([
+          Buffer.from([0xef, 0xbb, 0xbf]),
+          fs.readFileSync(target),
+        ]),
+      );
+    },
+  ]) {
+    const files = fixture();
+    try {
+      mutate(files.root);
+      assert.throws(
+        () => scan(files.root),
+        /delta JSON\/Markdown pair does not match the exact evidence inputs/,
+      );
+    } finally {
+      files.cleanup();
+    }
+  }
+});
+
 test('accepts complete operator evidence and the all-IPv4 sentinel', () => {
   const files = fixture();
   try {
-    fs.writeFileSync(
-      path.join(
-        files.root,
-        'platform-reliability-r1-0-snapshot-2-render-receipt.json',
-      ),
-      `${JSON.stringify({
-        schema: 'safe-render-receipt.v1',
+    writeValidDeltaEvidence(files.root, {
+      providerAfterOverrides: {
         preWindowRule: '0.0.0.0/0',
-        secretsCaptured: false,
-      })}\n`,
-    );
+      },
+    });
     fs.writeFileSync(
       path.join(files.root, 'platform-reliability-r1-final-evidence.md'),
       [

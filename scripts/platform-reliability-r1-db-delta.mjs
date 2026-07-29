@@ -3,12 +3,35 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';
+import { TextDecoder } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
 const GIB = 1024 ** 3;
+const UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 
 function fail(message) {
   throw new Error(message);
+}
+
+function sha256(bytes) {
+  return crypto.createHash('sha256').update(bytes).digest('hex');
+}
+
+function decodeUtf8(bytes, label) {
+  try {
+    return UTF8_DECODER.decode(bytes);
+  } catch {
+    fail(`${label} is not valid UTF-8`);
+  }
+}
+
+function parseJsonBytes(bytes, label) {
+  const text = decodeUtf8(bytes, label);
+  try {
+    return JSON.parse(text);
+  } catch {
+    fail(`${label} is not valid JSON`);
+  }
 }
 
 function integer(value, label) {
@@ -780,6 +803,20 @@ export function toMarkdown(result) {
   if (result.warnings.length) {
     lines.push('', '## Warnings', '', ...result.warnings.map((warning) => `- ${warning}`));
   }
+  if (result.provenance) {
+    lines.push(
+      '',
+      '## Evidence provenance',
+      '',
+      '| Input | SHA-256 |',
+      '|---|---|',
+      `| Snapshot 1 baseline | \`${result.provenance.beforeSnapshotSha256}\` |`,
+      `| Snapshot 2 TSV | \`${result.provenance.afterSnapshotSha256}\` |`,
+      `| Snapshot 2 capture receipt | \`${result.provenance.captureAfterReceiptSha256}\` |`,
+      `| Render receipt before | \`${result.provenance.providerBeforeReceiptSha256}\` |`,
+      `| Render receipt after | \`${result.provenance.providerAfterReceiptSha256}\` |`,
+    );
+  }
   return `${lines.join('\n')}\n`;
 }
 
@@ -792,6 +829,8 @@ function parseArgs(argv) {
     'provider-before',
     'provider-after',
     'format',
+    'verify-json',
+    'verify-markdown',
   ]);
   for (let i = 0; i < argv.length; i += 2) {
     const key = argv[i];
@@ -814,26 +853,49 @@ function parseArgs(argv) {
   if (args.format && !['json', 'markdown'].includes(args.format)) {
     fail('--format must be json or markdown');
   }
+  const verifiesPair = Boolean(args['verify-json'] || args['verify-markdown']);
+  if (
+    verifiesPair
+    && (
+      !args['verify-json']
+      || !args['verify-markdown']
+      || args.format
+    )
+  ) {
+    fail('--verify-json and --verify-markdown are required together without --format');
+  }
   return args;
 }
 
-export function main(argv = process.argv.slice(2)) {
-  const args = parseArgs(argv);
-  const beforePath = path.resolve(args.before);
-  const afterPath = path.resolve(args.after);
-  const snapshotBefore = parseBaseline(fs.readFileSync(beforePath, 'utf8'));
-  const snapshotAfterBytes = fs.readFileSync(afterPath);
-  const snapshotAfter = parseBaseline(snapshotAfterBytes.toString('utf8'));
+export function analyzeDeltaEvidence({
+  beforePath,
+  beforeBytes,
+  afterPath,
+  afterBytes,
+  captureAfterBytes,
+  providerBeforeBytes,
+  providerAfterBytes,
+}) {
+  const snapshotBefore = parseBaseline(
+    decodeUtf8(beforeBytes, 'snapshot 1 baseline'),
+  );
+  const snapshotAfter = parseBaseline(
+    decodeUtf8(afterBytes, 'snapshot 2 TSV'),
+  );
   verifyBaselineProvenance(snapshotBefore, beforePath);
   verifyBaselineProvenance(snapshotAfter, afterPath);
-  const captureAfterBytes = fs.readFileSync(path.resolve(args['capture-after']));
-  const captureAfter = JSON.parse(captureAfterBytes.toString('utf8'));
-  verifyCaptureReceipt(snapshotAfter, snapshotAfterBytes, captureAfter);
-  const providerBefore = JSON.parse(
-    fs.readFileSync(path.resolve(args['provider-before']), 'utf8'),
+  const captureAfter = parseJsonBytes(
+    captureAfterBytes,
+    'snapshot 2 capture receipt',
   );
-  const providerAfter = JSON.parse(
-    fs.readFileSync(path.resolve(args['provider-after']), 'utf8'),
+  verifyCaptureReceipt(snapshotAfter, afterBytes, captureAfter);
+  const providerBefore = parseJsonBytes(
+    providerBeforeBytes,
+    'Render receipt before',
+  );
+  const providerAfter = parseJsonBytes(
+    providerAfterBytes,
+    'Render receipt after',
   );
   const result = compareSnapshots(
     snapshotBefore,
@@ -842,14 +904,54 @@ export function main(argv = process.argv.slice(2)) {
     providerAfter,
   );
   result.provenance = {
-    afterSnapshotSha256: captureAfter.outputSha256,
-    captureAfterReceiptSha256: crypto
-      .createHash('sha256')
-      .update(captureAfterBytes)
-      .digest('hex'),
+    beforeSnapshotSha256: sha256(beforeBytes),
+    afterSnapshotSha256: sha256(afterBytes),
+    captureAfterReceiptSha256: sha256(captureAfterBytes),
+    providerBeforeReceiptSha256: sha256(providerBeforeBytes),
+    providerAfterReceiptSha256: sha256(providerAfterBytes),
   };
+  return result;
+}
+
+export function main(argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
+  const beforePath = path.resolve(args.before);
+  const afterPath = path.resolve(args.after);
+  const result = analyzeDeltaEvidence({
+    beforePath,
+    beforeBytes: fs.readFileSync(beforePath),
+    afterPath,
+    afterBytes: fs.readFileSync(afterPath),
+    captureAfterBytes: fs.readFileSync(path.resolve(args['capture-after'])),
+    providerBeforeBytes: fs.readFileSync(path.resolve(args['provider-before'])),
+    providerAfterBytes: fs.readFileSync(path.resolve(args['provider-after'])),
+  });
+  const canonicalJson = `${JSON.stringify(result, null, 2)}\n`;
+  const canonicalMarkdown = toMarkdown(result);
+  if (args['verify-json']) {
+    const canonicalJsonBytes = Buffer.from(canonicalJson);
+    const canonicalMarkdownBytes = Buffer.from(canonicalMarkdown);
+    const observedJsonBytes = fs.readFileSync(path.resolve(args['verify-json']));
+    const observedMarkdownBytes = fs.readFileSync(
+      path.resolve(args['verify-markdown']),
+    );
+    if (
+      !observedJsonBytes.equals(canonicalJsonBytes)
+      || !observedMarkdownBytes.equals(canonicalMarkdownBytes)
+    ) {
+      fail('published delta JSON/Markdown pair does not match exact inputs');
+    }
+    process.stdout.write(`${JSON.stringify({
+      schema: 'platform-reliability-r1-delta-pair-verification.v1',
+      status: 'pass',
+      provenance: result.provenance,
+      jsonSha256: sha256(observedJsonBytes),
+      markdownSha256: sha256(observedMarkdownBytes),
+    }, null, 2)}\n`);
+    return;
+  }
   process.stdout.write(
-    args.format === 'markdown' ? toMarkdown(result) : `${JSON.stringify(result, null, 2)}\n`,
+    args.format === 'markdown' ? canonicalMarkdown : canonicalJson,
   );
 }
 
