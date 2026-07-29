@@ -7,6 +7,10 @@ import path from 'node:path';
 import { TextDecoder } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
+import {
+  analyzeDeltaEvidence,
+  toMarkdown as deltaToMarkdown,
+} from './platform-reliability-r1-db-delta.mjs';
 import { validateOperatorEvidence } from './platform-reliability-r1-operator-receipt-validate.mjs';
 
 const MAX_ARTIFACT_BYTES = 5 * 1024 * 1024;
@@ -15,7 +19,14 @@ const SCANNER_SOURCE_PATH = fileURLToPath(import.meta.url);
 const OPERATOR_VALIDATOR_SOURCE_PATH = fileURLToPath(
   new URL('./platform-reliability-r1-operator-receipt-validate.mjs', import.meta.url),
 );
+const DELTA_ANALYZER_SOURCE_PATH = fileURLToPath(
+  new URL('./platform-reliability-r1-db-delta.mjs', import.meta.url),
+);
 const UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
+const SNAPSHOT_BASELINE =
+  'platform-reliability-r1-0-snapshot-baseline.json';
+const PROVIDER_BASELINE =
+  'platform-reliability-r1-0-render-receipt.json';
 
 export const REQUIRED_EVIDENCE_FILES = Object.freeze([
   'platform-reliability-r1-0-snapshot-2.tsv',
@@ -336,6 +347,7 @@ function readArtifact(root, relativePath) {
       },
       text,
       decoded,
+      bytes,
     };
   } finally {
     fs.closeSync(descriptor);
@@ -354,6 +366,41 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   const byPath = new Map(
     artifacts.map((artifact) => [artifact.metadata.path, artifact]),
   );
+  const snapshotBaseline = readArtifact(root, SNAPSHOT_BASELINE);
+  const providerBaseline = readArtifact(root, PROVIDER_BASELINE);
+  const expectedDelta = analyzeDeltaEvidence({
+    beforePath: path.join(root, SNAPSHOT_BASELINE),
+    beforeBytes: snapshotBaseline.bytes,
+    afterPath: path.join(
+      root,
+      'platform-reliability-r1-0-snapshot-2.tsv',
+    ),
+    afterBytes:
+      byPath.get('platform-reliability-r1-0-snapshot-2.tsv').bytes,
+    captureAfterBytes:
+      byPath
+        .get('platform-reliability-r1-0-snapshot-2-db-capture-receipt.json')
+        .bytes,
+    providerBeforeBytes: providerBaseline.bytes,
+    providerAfterBytes:
+      byPath
+        .get('platform-reliability-r1-0-snapshot-2-render-receipt.json')
+        .bytes,
+  });
+  const expectedDeltaJson = `${JSON.stringify(expectedDelta, null, 2)}\n`;
+  const expectedDeltaMarkdown = deltaToMarkdown(expectedDelta);
+  if (
+    !byPath
+      .get('platform-reliability-r1-0-snapshot-delta.json')
+      .bytes
+      .equals(Buffer.from(expectedDeltaJson))
+    || !byPath
+      .get('platform-reliability-r1-0-snapshot-delta.md')
+      .bytes
+      .equals(Buffer.from(expectedDeltaMarkdown))
+  ) {
+    fail('delta JSON/Markdown pair does not match the exact evidence inputs');
+  }
   const operatorValidation = validateOperatorEvidence(
     byPath.get('platform-reliability-r1-operator-receipt.json').decoded,
     byPath.get('platform-reliability-r1-final-evidence.md').text,
@@ -369,6 +416,9 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
     operatorValidatorSourceSha256: sha256(
       fs.readFileSync(OPERATOR_VALIDATOR_SOURCE_PATH),
     ),
+    deltaAnalyzerSourceSha256: sha256(
+      fs.readFileSync(DELTA_ANALYZER_SOURCE_PATH),
+    ),
   };
   return {
     schema: 'platform-reliability-r1-secret-scan-receipt.v2',
@@ -376,9 +426,16 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
     scannerSourceSha256: sha256(fs.readFileSync(SCANNER_SOURCE_PATH)),
     operatorValidatorSourceSha256:
       ruleDefinitions.operatorValidatorSourceSha256,
+    deltaAnalyzerSourceSha256:
+      ruleDefinitions.deltaAnalyzerSourceSha256,
     ruleSetSha256: sha256(Buffer.from(JSON.stringify(ruleDefinitions))),
     patchClosure,
     operatorValidation,
+    deltaValidation: {
+      schema: expectedDelta.schema,
+      status: 'pass',
+      provenance: expectedDelta.provenance,
+    },
     requiredFiles: files,
     secretMatches: 0,
     exactIpv4Captured: false,

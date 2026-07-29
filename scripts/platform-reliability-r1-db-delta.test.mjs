@@ -713,7 +713,25 @@ test('CLI emits machine JSON and reviewable Markdown', () => {
       json.provenance.afterSnapshotSha256,
       captureReceipt(afterBytes, '2026-07-30T08:31:46.000Z').outputSha256,
     );
+    assert.equal(
+      json.provenance.beforeSnapshotSha256,
+      crypto.createHash('sha256').update(fs.readFileSync(beforePath)).digest('hex'),
+    );
     assert.match(json.provenance.captureAfterReceiptSha256, /^[a-f0-9]{64}$/);
+    assert.equal(
+      json.provenance.providerBeforeReceiptSha256,
+      crypto
+        .createHash('sha256')
+        .update(fs.readFileSync(providerBeforePath))
+        .digest('hex'),
+    );
+    assert.equal(
+      json.provenance.providerAfterReceiptSha256,
+      crypto
+        .createHash('sha256')
+        .update(fs.readFileSync(providerAfterPath))
+        .digest('hex'),
+    );
 
     const markdown = execFileSync(
       'node',
@@ -724,6 +742,90 @@ test('CLI emits machine JSON and reviewable Markdown', () => {
     assert.match(markdown, /Render provider storage/);
     assert.match(markdown, /Render provider window/);
     assert.match(markdown, /Largest row deltas/);
+    assert.match(markdown, /## Evidence provenance/);
+    for (const value of Object.values(json.provenance)) {
+      assert.match(markdown, new RegExp(value));
+    }
+
+    const jsonPath = path.join(temp, 'published-delta.json');
+    const markdownPath = path.join(temp, 'published-delta.md');
+    fs.writeFileSync(jsonPath, `${JSON.stringify(json, null, 2)}\n`);
+    fs.writeFileSync(markdownPath, markdown);
+    const verification = JSON.parse(execFileSync(
+      'node',
+      [
+        SCRIPT,
+        ...common,
+        '--verify-json', jsonPath,
+        '--verify-markdown', markdownPath,
+      ],
+      { encoding: 'utf8' },
+    ));
+    assert.equal(verification.status, 'pass');
+    assert.deepEqual(verification.provenance, json.provenance);
+    assert.equal(
+      verification.jsonSha256,
+      crypto.createHash('sha256').update(fs.readFileSync(jsonPath)).digest('hex'),
+    );
+    assert.equal(
+      verification.markdownSha256,
+      crypto
+        .createHash('sha256')
+        .update(fs.readFileSync(markdownPath))
+        .digest('hex'),
+    );
+
+    fs.appendFileSync(markdownPath, '\nstale\n');
+    assert.throws(
+      () => execFileSync(
+        'node',
+        [
+          SCRIPT,
+          ...common,
+          '--verify-json', jsonPath,
+          '--verify-markdown', markdownPath,
+        ],
+        { encoding: 'utf8' },
+      ),
+      /does not match exact inputs/,
+    );
+    fs.writeFileSync(markdownPath, markdown);
+
+    const canonicalJsonBytes = fs.readFileSync(jsonPath);
+    const malformedJsonBytes = Buffer.from(canonicalJsonBytes);
+    malformedJsonBytes[0] = 0xff;
+    fs.writeFileSync(jsonPath, malformedJsonBytes);
+    assert.throws(
+      () => execFileSync(
+        'node',
+        [
+          SCRIPT,
+          ...common,
+          '--verify-json', jsonPath,
+          '--verify-markdown', markdownPath,
+        ],
+        { encoding: 'utf8' },
+      ),
+      /does not match exact inputs/,
+    );
+    fs.writeFileSync(jsonPath, canonicalJsonBytes);
+
+    const providerBeforeBytes = fs.readFileSync(providerBeforePath);
+    fs.writeFileSync(providerBeforePath, Buffer.from([0x7b, 0xff, 0x7d]));
+    assert.throws(
+      () => execFileSync(
+        'node',
+        [
+          SCRIPT,
+          ...common,
+          '--verify-json', jsonPath,
+          '--verify-markdown', markdownPath,
+        ],
+        { encoding: 'utf8' },
+      ),
+      /Render receipt before is not valid UTF-8/,
+    );
+    fs.writeFileSync(providerBeforePath, providerBeforeBytes);
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
