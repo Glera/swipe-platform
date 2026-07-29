@@ -389,9 +389,28 @@ SELECT json_build_object(
     coalesce(quote_ident(n.nspname), '*')
     || ':' || defaults.defaclobjtype::text,
   'acl', ARRAY(
-    SELECT item::text
-    FROM unnest(coalesce(defaults.defaclacl, ARRAY[]::aclitem[])) AS item
-    ORDER BY item::text
+    SELECT normalized.entry
+    FROM (
+      SELECT json_build_object(
+        'grantee', CASE
+          WHEN acl.grantee = 0 THEN 'PUBLIC'
+          WHEN acl.grantee = defaults.defaclrole THEN 'CURRENT_USER'
+          ELSE 'ROLE:' || grantee.rolname
+        END,
+        'grantor', CASE
+          WHEN acl.grantor = defaults.defaclrole THEN 'CURRENT_USER'
+          ELSE 'ROLE:' || grantor.rolname
+        END,
+        'privilege', acl.privilege_type,
+        'grantable', acl.is_grantable
+      )::text AS entry
+      FROM aclexplode(
+        coalesce(defaults.defaclacl, ARRAY[]::aclitem[])
+      ) AS acl
+      LEFT JOIN pg_roles AS grantee ON grantee.oid = acl.grantee
+      LEFT JOIN pg_roles AS grantor ON grantor.oid = acl.grantor
+    ) AS normalized
+    ORDER BY normalized.entry
   )
 )::text
 FROM pg_default_acl AS defaults

@@ -1,0 +1,248 @@
+name: postgres-capability
+
+# Target-dialect proof for the credential-rotation gate. It runs only when
+# the capability collector/comparator or this workflow changes.
+
+"on":
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/postgres-capability.yml"
+      - "scripts/platform-reliability-r1-db-capability.sql"
+      - "scripts/platform-reliability-r1-db-capability-compare.mjs"
+      - "scripts/platform-reliability-r1-db-capability-compare.test.mjs"
+  pull_request:
+    paths:
+      - ".github/workflows/postgres-capability.yml"
+      - "scripts/platform-reliability-r1-db-capability.sql"
+      - "scripts/platform-reliability-r1-db-capability-compare.mjs"
+      - "scripts/platform-reliability-r1-db-capability-compare.test.mjs"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: postgres-capability-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  postgres-16-capability-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: capability_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d capability_test"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+
+      - name: Create equivalent direct-login credentials and capability fixture
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "5432"
+          PGDATABASE: capability_test
+          PGUSER: postgres
+        run: |
+          psql -X -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE r1_ci_owner NOLOGIN;
+          CREATE ROLE r1_ci_external NOLOGIN;
+          CREATE ROLE r1_ci_old LOGIN;
+          CREATE ROLE r1_ci_new LOGIN;
+          GRANT CONNECT, TEMPORARY ON DATABASE capability_test TO r1_ci_owner;
+          GRANT USAGE, CREATE ON SCHEMA public TO r1_ci_owner;
+          GRANT r1_ci_owner TO r1_ci_old, r1_ci_new
+            WITH INHERIT TRUE, SET TRUE;
+
+          SET ROLE r1_ci_owner;
+          CREATE TYPE public.r1_ci_kind AS ENUM ('one', 'two');
+          CREATE TABLE public.r1_ci_events (
+            id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            payload text NOT NULL,
+            kind public.r1_ci_kind NOT NULL DEFAULT 'one'
+          );
+          CREATE FUNCTION public.r1_ci_echo(value text)
+          RETURNS text
+          LANGUAGE sql
+          IMMUTABLE
+          RETURN value;
+          ALTER TABLE public.r1_ci_events ENABLE ROW LEVEL SECURITY;
+          CREATE POLICY r1_ci_owner_policy
+            ON public.r1_ci_events
+            TO r1_ci_owner
+            USING (true)
+            WITH CHECK (true);
+          RESET ROLE;
+
+          ALTER ROLE r1_ci_old
+            SET application_name = 'r1-capability-proof';
+          ALTER ROLE r1_ci_new
+            SET application_name = 'r1-capability-proof';
+          ALTER DEFAULT PRIVILEGES FOR ROLE r1_ci_old
+            GRANT SELECT ON TABLES TO PUBLIC;
+          ALTER DEFAULT PRIVILEGES FOR ROLE r1_ci_new
+            GRANT SELECT ON TABLES TO PUBLIC;
+          ALTER DEFAULT PRIVILEGES FOR ROLE r1_ci_old
+            GRANT INSERT ON TABLES TO r1_ci_external;
+          ALTER DEFAULT PRIVILEGES FOR ROLE r1_ci_new
+            GRANT INSERT ON TABLES TO r1_ci_external;
+          SQL
+
+      - name: Capture and compare direct-login profiles
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "5432"
+          PGDATABASE: capability_test
+        run: |
+          PGUSER=r1_ci_old psql -X -q \
+            -f scripts/platform-reliability-r1-db-capability.sql \
+            > "${RUNNER_TEMP}/old-profile.jsonl"
+          sleep 1
+          PGUSER=r1_ci_new psql -X -q \
+            -f scripts/platform-reliability-r1-db-capability.sql \
+            > "${RUNNER_TEMP}/new-profile.jsonl"
+          node scripts/platform-reliability-r1-db-capability-compare.mjs \
+            --old "${RUNNER_TEMP}/old-profile.jsonl" \
+            --new "${RUNNER_TEMP}/new-profile.jsonl" \
+            > "${RUNNER_TEMP}/comparison.json"
+
+      - name: Assert target-version coverage and sanitized evidence
+        env:
+          OLD_PROFILE: ${{ runner.temp }}/old-profile.jsonl
+          NEW_PROFILE: ${{ runner.temp }}/new-profile.jsonl
+          COMPARISON: ${{ runner.temp }}/comparison.json
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import {
+            compareProfiles,
+            parseProfile,
+          } from './scripts/platform-reliability-r1-db-capability-compare.mjs';
+
+          const oldProfile = parseProfile(
+            fs.readFileSync(process.env.OLD_PROFILE, 'utf8'),
+          );
+          const newProfile = parseProfile(
+            fs.readFileSync(process.env.NEW_PROFILE, 'utf8'),
+          );
+          const result = compareProfiles(oldProfile, newProfile);
+          const committedResult = JSON.parse(
+            fs.readFileSync(process.env.COMPARISON, 'utf8'),
+          );
+
+          assert.equal(oldProfile.serverVersionNum.startsWith('16'), true);
+          assert.equal(
+            oldProfile.records.get('membership\0r1_ci_owner').setRole,
+            true,
+          );
+          assert.equal(
+            oldProfile.records.get(
+              'relation\0public.r1_ci_events',
+            ).maintain,
+            null,
+          );
+          for (const key of [
+            'column\0public.r1_ci_events.payload',
+            'policy\0public.r1_ci_events.r1_ci_owner_policy',
+            'defaultAcl\0*:r',
+            'setting\0all-databases',
+          ]) {
+            assert.equal(oldProfile.records.has(key), true, key);
+            assert.equal(newProfile.records.has(key), true, key);
+          }
+
+          const aclKey = (entry) => [
+            entry.grantee,
+            entry.grantor,
+            entry.privilege,
+            String(entry.grantable),
+          ].join('\0');
+          const normalizedAcl = (profile) =>
+            profile.records
+              .get('defaultAcl\0*:r')
+              .acl
+              .map((entry) => JSON.parse(entry))
+              .sort((left, right) => (
+                aclKey(left) < aclKey(right)
+                  ? -1
+                  : aclKey(left) > aclKey(right) ? 1 : 0
+              ));
+          const expectedAcl = [
+            'DELETE',
+            'INSERT',
+            'REFERENCES',
+            'SELECT',
+            'TRIGGER',
+            'TRUNCATE',
+            'UPDATE',
+          ].map((privilege) => ({
+            grantee: 'CURRENT_USER',
+            grantor: 'CURRENT_USER',
+            privilege,
+            grantable: false,
+          }));
+          expectedAcl.push(
+            {
+              grantee: 'PUBLIC',
+              grantor: 'CURRENT_USER',
+              privilege: 'SELECT',
+              grantable: false,
+            },
+            {
+              grantee: 'ROLE:r1_ci_external',
+              grantor: 'CURRENT_USER',
+              privilege: 'INSERT',
+              grantable: false,
+            },
+          );
+          expectedAcl.sort((left, right) => (
+            aclKey(left) < aclKey(right)
+              ? -1
+              : aclKey(left) > aclKey(right) ? 1 : 0
+          ));
+          assert.deepEqual(normalizedAcl(oldProfile), expectedAcl);
+          assert.deepEqual(normalizedAcl(newProfile), expectedAcl);
+
+          assert.equal(result.profilesEqual, true);
+          assert.deepEqual(committedResult, result);
+
+          const serialized = JSON.stringify(result);
+          for (const forbidden of [
+            'r1_ci_old',
+            'r1_ci_new',
+            'capability_test',
+            'r1_ci_events',
+          ]) {
+            assert.equal(serialized.includes(forbidden), false, forbidden);
+          }
+          process.stdout.write(JSON.stringify({
+            serverVersionNum: result.serverVersionNum,
+            oldProfileSha256: result.oldProfileSha256,
+            newProfileSha256: result.newProfileSha256,
+            clusterIdentitySha256: result.clusterIdentitySha256,
+            recordCount: oldProfile.records.size,
+            profilesEqual: result.profilesEqual,
+          }) + '\n');
+          NODE
