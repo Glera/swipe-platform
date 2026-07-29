@@ -22,6 +22,14 @@
   publication intent is a separate TMA approval of one exact
   `catalog.promotion-binding.v1`; the screen must show the server-derived
   publish/content/runtime identity and every ordered level before Approve.
+  That TMA Approve is the **final** human publication act (operator decision
+  29.07.2026): before it the phone surface must expose an explicit Cancel/Deny;
+  after it a server-owned scheduler may finish catalog delivery with no open
+  browser and no second desktop click, and cancellation is not promised because
+  delivery may already be running. The scheduler is delivery of an
+  already-approved binding, never new authority: it accepts only an exact
+  active flow with exact draft/revision/binding identity, and a catalog refusal
+  must surface to the operator rather than dying in a log line.
 - Catalog credentials are singleton scopes: evaluation and publication can
   never share a grant. `POST /api/catalog/publish` is absent unless both Lab
   auth and the separate publish flag are enabled. A human Approve is then
