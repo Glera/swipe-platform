@@ -250,7 +250,8 @@ review.
 - [x] Compact/tall/landscape, pause/resume, autoplay/takeover и single
   completion проверены.
 - [x] Visual proof, montage Levels 6–10 и delta list приложены.
-- [ ] Final independent review приложен.
+- [x] Final independent review приложен: `PASS`, без blocking/material
+  findings.
 
 ## Explicit decision boundary
 

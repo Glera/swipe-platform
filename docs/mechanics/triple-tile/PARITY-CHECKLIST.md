@@ -54,4 +54,5 @@ Status values: `measured`, `decision`, `gap`, `pass`, `fail`.
 - [x] Updated native / neutral Twin / Production side-by-side and 15-second
   montage are attached; receipt binds manifest, extracted-evidence receipt,
   native frame SHA-256 and production build digest.
-- [ ] Final independent review is attached.
+- [x] [Final independent review](REVIEW-Z2-INDEPENDENT-2026-07-30.md) is
+  attached with verdict `PASS`.

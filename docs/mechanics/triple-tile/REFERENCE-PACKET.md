@@ -212,5 +212,5 @@ No final parity claim is valid without:
 - five trace replays;
 - production deny/near-duplicate gates;
 - side-by-side visual evidence;
-- independent review;
+- [independent review](REVIEW-Z2-INDEPENDENT-2026-07-30.md) with `PASS`;
 - operator disposition of remaining deltas.
