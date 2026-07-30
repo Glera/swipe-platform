@@ -1,6 +1,6 @@
 {
   "schema": "hypothesis-scoreboard.v1",
-  "asOf": "2026-07-28",
+  "asOf": "2026-07-30",
   "goals": [
     {
       "title": "Cohort-ready лента",
@@ -8,7 +8,7 @@
       "exit": [
         "✅ real-backend browser E2E: стенд+workflow влиты в master 28.07; enforced CI-гейт зелёный на master (run 30386237682, ~2 мин)",
         "🟡 p95: бюджет ≤5s утверждён 23.07; perf-harness и throttle-числа (4.5–5.0s) влиты в feed master 28.07; открыт device-якорь (замер на реальном устройстве)",
-        "✅ защитный конверт UGC: post-moderation жив в проде (report/takedown, allowlist модераторов, block, revocable delivery); боевой recall выполнен 17.07. (Пункт «остров скрыт» снят: VISION v2.6 включил остров глобально)",
+        "🟡 Island-off baseline: legacy-поверхность/writers/runners выключены, protective контуры сохранены; финальный ≥24h freeze-manifest ещё не закрыт",
         "⏳ external scheduling + levelSeries=true: продуктовая выдача не включена; фактические значения sequencing-флагов — только в rollout-authority (render.yaml; консоль/debug/shadow-ops включены оператором 28.07)",
         "⏳ контрольный проход «нулевого друга» → не-inconclusive строка (последний C1: inconclusive, input_projection_incomplete при 1 игроке)"
       ],
@@ -70,6 +70,23 @@
     }
   ],
   "hypotheses": [
+    {
+      "id": "mission-retention",
+      "title": "Миссионный слой усиливает возврат без давления",
+      "status": "queued",
+      "cohort": "delayed holdout после mission-slice dogfood; campaign-трафик исключён",
+      "metric": "D7 / active days / organic return после exposure к кейсу; отдельно completion церемоний contribution, UNLOCKED и FULFILLED",
+      "threshold": "числовой вывод только после power calculation; на dogfood — понятность, доверие и отсутствие guilt-фрейминга",
+      "funnel": [
+        "chest",
+        "return"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "Stage 0 выключает legacy-остров; mission-slice ещё не реализован"
+      },
+      "next": "закрыть Island-off baseline, затем Stage 1 mission-slice v0 default-off"
+    },
     {
       "id": "autoplay-delight",
       "title": "Autoplay → быстрый первый восторг",
@@ -171,7 +188,7 @@
       "title": "Реклама с капом + подписка не ломают возврат",
       "status": "queued",
       "cohort": "числовые когорты (шаг 3+), совместно с retention-замерами",
-      "metric": "active days / возвраты при введении ad load; конверсия в подписку «без рекламы + VIP мета»",
+      "metric": "active days / возвраты при введении ad load; конверсия в подписку «без рекламы + contribution-бонус к qualified-сериям»",
       "threshold": "ad load капится guardrail-метрикой удержания (VISION §Экономика)",
       "funnel": [
         "reveal",
@@ -188,7 +205,7 @@
       "title": "Виральные петли дают заметный K-фактор",
       "status": "queued",
       "cohort": "share/challenge v1 на friend cohort (directional); числово — шаг 3+",
-      "metric": "K-фактор = инвайты × acceptance × активация приведённого (дейлики с сериями + возврат D2); награда токенами, не за клик",
+      "metric": "K-фактор = инвайты × acceptance × qualified-активность приведённого (дейлики с сериями + возврат D2); награда возможна только за qualified-активность, не за клик",
       "threshold": "на cohort — directional «делятся ли вообще»; числовой порог — с шага 3",
       "funnel": [
         "reveal",
