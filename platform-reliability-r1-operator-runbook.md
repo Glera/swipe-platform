@@ -45,17 +45,22 @@
   одним доверенным вызовом без возврата значения наружу.
 - Если hook/credential всё же появился в сохраняемом browser/tool output, он
   считается exposed даже без copy/save. Final PASS требует отдельного
-  операторского решения и подтверждённой provider-supported
-  rotation/invalidation; в evidence пишутся только typed outcome, локальный
-  структурный action ID, targeted Dashboard terminal receipt без opaque
-  provider ID и digest несекретного proof. Тот же Blueprint дополнительно
-  подтверждается двумя датированными targeted observations до и после action.
+  операторского решения и, по умолчанию, подтверждённой provider-supported
+  rotation/invalidation. Единственное исключение — exact pre-window Sync Hook
+  incident из §2.1 с typed `operator_accepted_residual`; оно не расширяется на
+  новые инциденты. В evidence пишутся только typed outcome, локальный
+  структурный action ID и digest несекретного proof. При настоящей
+  rotation/invalidation нужен targeted Dashboard terminal receipt без opaque
+  provider ID; при accepted residual — acceptance digest, deadline и
+  reopen triggers. Тот же Blueprint дополнительно подтверждается двумя
+  датированными targeted observations до и после action.
   Для database-credential incident target — SHA-256 конкретного несекретного
   username, а terminal proof показывает `authentication_rejected` ровно для
   этого digest. Incident/decision/action ID имеют закрытые форматы, связанные
   с typed kind и UTC-днём события.
-  Невозможность безопасно инвалидировать значение — `NO-GO`, а не разрешение
-  на disconnect/reconnect Blueprint.
+  Невозможность безопасно инвалидировать значение — `NO-GO`, кроме ровно
+  принятого в §2.1 исторического Render residual; disconnect/reconnect Blueprint
+  сам по себе ничего не инвалидирует.
 - Открытие расходов, создание/deletion credential, Blueprint sync/redeploy,
   запуск cron, recovery и изменение allowlist — только в operator window.
 
@@ -167,11 +172,11 @@ Stdout wrapper сохраняется как обязательный capture-re
   дали один замкнутый consumer set; manual/external consumers отсутствуют либо
   явно диспозированы;
 - нет активного deploy/Blueprint sync/recovery/export;
-- каждый известный до окна secret-exposure incident имеет поддерживаемый
-  provider-ом rotation/invalidation path, отдельное operator approval и
-  terminal proof; диспозиция завершается до начала Gate A. Для текущего R1
-  обязательно закрывается typed incident
-  `render_blueprint_sync_hook_dom_exposure`;
+- каждый известный до окна secret-exposure incident до Gate A имеет отдельное
+  operator approval и либо provider-supported rotation/invalidation terminal
+  proof, либо — только для exact incident из §2.1 — полностью заполненную
+  `operator_accepted_residual` disposition. Новые Sync Hook incidents и любые
+  database-credential incidents исключения не имеют;
 - у оператора есть окно на весь цикл и подтверждён возможный расход recovery;
 - сохранён pinned source SHA и last-known-good deploy identity каждого
   потребителя;
@@ -195,23 +200,40 @@ Read-only факт-проверка `2026-07-29` не нашла публичн�
   [service deploy hooks](https://render.com/docs/deploy-hooks), а не к
   Blueprint.
 
-До нового provider evidence состояние инцидента —
-`provider_path_not_documented`, поэтому operator window не начинает Gate A.
-Snapshot 2 и его независимое read-only review от этого не блокируются.
+Targeted button-only проверка Dashboard `2026-07-30`, не читавшая и не
+возвращавшая hook value, показала только `Show secret` и `Copy`: provider
+control Regenerate/Revoke отсутствует. Состояние инцидента остаётся
+`provider_path_not_documented`.
 
-Снять `NO-GO` в текущем evidence-contract можно только одним доказательством:
-в присутствии оператора targeted button-only проверка Dashboard, не читающая
-и не возвращающая hook value, показывает отдельный provider control
-Regenerate/Revoke для того же Blueprint; затем action проходит по
-`secretExposureIncidents` contract.
+Оператор `2026-07-30` принял этот единственный остаточный риск для текущего
+`non_strategic_dogfood`-использования Render: платформа рассматривается как
+тестовая площадка и может быть заменена до масштаба. Это решение открывает
+Gate A только через typed-диспозицию `operator_accepted_residual`. Она не
+означает, что hook отозван, ротирован или безопасен: известный hook по-прежнему
+может дать неавторизованный запуск Blueprint Sync, но не прямой доступ к
+PostgreSQL.
 
-Ответ Render Support сам по себе не открывает Gate A: текущая схема не умеет
-честно представить Support receipt. Такой путь сначала требует отдельного
-reviewed contract patch. Сам hook value нельзя читать или передавать Support;
-допустима только несекретная Blueprint identity.
+Typed-диспозиция обязана:
+
+- относиться ровно к
+  `r1-prewindow-blueprint-sync-hook-dom-20260729`, тому же Blueprint digest и
+  предшествовать Gate A;
+- содержать review deadline не позже 31 дня после принятия;
+- запрещать читать, копировать или использовать hook;
+- требовать durable `ipAllowList: []` до завершения R1, фиксацию финального
+  состояния Auto Sync и stop-the-line при неожиданном Blueprint Sync;
+- вновь открыть решение до расширения когорты, до 100 DAU, до появления
+  второго Blueprint-оператора/автоматизации, при решении оставить Render
+  стратегической production-площадкой или при любом неожиданном sync;
+- сохранить exact before/after continuity Blueprint/source и digest
+  операторского решения.
 
 Выключение Auto Sync не доказывает инвалидирование hook. Disconnect/reconnect
-или создание нового Blueprint не являются допустимой диспозицией.
+или создание нового Blueprint также не считаются инвалидированием. Если
+provider позже даст Regenerate/Revoke, предпочтительная диспозиция —
+настоящая rotation/invalidation; принятие риска разрешено только для этого
+исторического инцидента. Ни новый Sync Hook incident, ни любое раскрытие
+учётных данных базы так принять нельзя.
 
 Если новый secret-exposure incident возникает уже в окне, текущий action
 останавливается/получает typed containment, и никакой следующий gate-action не
@@ -533,7 +555,9 @@ fresh internal proof и `/32` снова удаляется. Если external r
 | RPO/RTO observed | requested point, Start, Available и validation timestamps + вычисленные seconds |
 | External ingress closed | merged Blueprint `ipAllowList: []` identity + sync receipt + empty allowlist + post-change protocol rejection |
 | Internal remains green | post-closure fresh DB proof каждого consumer |
-| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; любой typed secret-exposure incident имеет operator-approved terminal rotation/invalidation proof; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master > platform-reliability-r1-secret-scan-receipt.json` PASS |
+| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; любой новый typed secret-exposure incident имеет operator-approved terminal rotation/invalidation proof; известный pre-window Sync Hook либо реально ротирован/отозван, либо представлен единственным exact `operator_accepted_residual` с review deadline и reopen triggers; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master > platform-reliability-r1-secret-scan-receipt.json` PASS |
 
 Цель R1 считается выполненной только после независимого review всего пакета,
-а не после последнего клика в Render.
+а не после последнего клика в Render. При `operator_accepted_residual` итог
+формулируется как «R1 complete with accepted Render residual», а не как
+«все secret incidents закрыты».

@@ -213,7 +213,8 @@ node scripts/platform-reliability-r1-evidence-scan.mjs \
 - Secret matches: `{{INTEGER}}`
 - Exact operator IPv4 captured: `{{TRUE_OR_FALSE}}`
 - Secrets captured: `{{TRUE_OR_FALSE}}`
-- Secret-exposure incident `{{INCIDENT_ID}}`: `{{TYPED_KIND}}` observed `{{UTC}}`; target `{{TARGET_IDENTITY_KIND}}` / `sha256:{{SHA256}}`; approval `{{DECISION_ID}}` / `{{UTC}}` / `{{APPROVED}}`; disposition `{{ACTION_ID}}` / `{{UTC}}` / `{{UTC}}` / `{{ROTATED_OR_INVALIDATED}}` / `{{PROVIDER_METHOD}}` / `render_dashboard_terminal_observation` / `{{UTC}}` / `{{PROVIDER_METHOD}}` / `{{ROTATED_OR_INVALIDATED}}` / `sha256:{{SHA256}}` / `sha256:{{SHA256}}` / credential proof `{{NONE_OR_UTC_AUTHENTICATION_REJECTED_USERNAME_SHA256_EVIDENCE_SHA256}}`; before `{{UTC}}` / `{{RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / `sha256:{{SHA256}}` / after `{{UTC}}` / `{{RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / `sha256:{{SHA256}}` / continuity `equal` / terminal `sha256:{{SHA256}}`; secrets captured `false`
+- Known Render Sync Hook incident `r1-prewindow-blueprint-sync-hook-dom-20260729` is not claimed rotated or invalidated. Its exact operator-accepted residual disposition is bound below with a review deadline, fixed mitigations, and reopen triggers.
+- Secret-exposure incident `r1-prewindow-blueprint-sync-hook-dom-20260729`: `render_blueprint_sync_hook_dom_exposure` observed `2026-07-29T15:01:19Z`; target `render_blueprint_id` / `sha256:{{SHA256}}`; approval `{{DECISION_ID}}` / `{{UTC}}` / `approved`; disposition `operator_accepted_residual` / `{{ACTION_ID}}` / `{{UTC}}` / `{{UTC}}` / `accepted_residual` / risk `unauthorized_blueprint_sync` / environment `non_strategic_dogfood` / review by `{{UTC_WITHIN_31_DAYS}}` / mitigations `do_not_read_copy_or_use_hook,durable_empty_database_ip_allowlist_before_r1_completion,record_autosync_final_state,stop_on_unexpected_blueprint_sync` / reopen `before_cohort_expansion,before_triple_digit_dau,before_second_blueprint_operator_or_automation,before_render_strategic_commitment,on_unexpected_blueprint_sync`; before `{{UTC}}` / `{{RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / `sha256:{{SHA256}}` / after `{{UTC}}` / `{{RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / `sha256:{{SHA256}}` / continuity `equal` / acceptance `sha256:{{SHA256}}`; secrets captured `false`
 
 ## 12. Independent final review
 
@@ -221,6 +222,7 @@ Independent final review starts only after the evidence and scan receipt are
 committed. Its exact-head verdict lives in the PR/review authority rather than
 self-referencing this pre-review artifact.
 
-R1 is complete only when every completion-matrix row is `PASS`, final review
-has no open condition, the recovery database is deleted, and production
-external PostgreSQL ingress is empty.
+R1 is complete with one explicitly accepted Render residual only when every
+completion-matrix row is `PASS`, final review has no open condition, the
+recovery database is deleted, production external PostgreSQL ingress is empty,
+and the residual review deadline and reopen triggers remain visible.

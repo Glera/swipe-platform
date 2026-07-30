@@ -23,6 +23,37 @@ function digest(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
 }
 
+function acceptKnownRenderResidual(receipt) {
+  const previous = receipt.secretExposureIncidents[0].disposition;
+  receipt.secretExposureIncidents[0].disposition = {
+    kind: 'operator_accepted_residual',
+    actionId: previous.actionId,
+    startedAt: previous.startedAt,
+    completedAt: previous.completedAt,
+    terminalOutcome: 'accepted_residual',
+    riskClass: 'unauthorized_blueprint_sync',
+    environmentClass: 'non_strategic_dogfood',
+    reviewBy: '2026-08-29T08:59:00Z',
+    mitigations: [
+      'do_not_read_copy_or_use_hook',
+      'durable_empty_database_ip_allowlist_before_r1_completion',
+      'record_autosync_final_state',
+      'stop_on_unexpected_blueprint_sync',
+    ],
+    reopenTriggers: [
+      'before_cohort_expansion',
+      'before_triple_digit_dau',
+      'before_second_blueprint_operator_or_automation',
+      'before_render_strategic_commitment',
+      'on_unexpected_blueprint_sync',
+    ],
+    blueprintContinuity: clone(previous.blueprintContinuity),
+    acceptanceEvidenceSha256: digest('operator-render-residual-acceptance'),
+    secretsCaptured: false,
+  };
+  return receipt;
+}
+
 function makeDatabaseExposureIncident(receipt, {
   ordinal,
   observedAt,
@@ -120,6 +151,81 @@ test('accepts a complete PASS receipt and returns bounded summary only', () => {
     externalIngressClosed: true,
     secretsCaptured: false,
   });
+});
+
+test('accepts only the exact known Render residual with bounded review triggers', () => {
+  const receipt = acceptKnownRenderResidual(makeValidOperatorReceipt());
+  assert.equal(
+    validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)).status,
+    'pass',
+  );
+  assert.throws(
+    () => validateOperatorEvidence(
+      receipt,
+      makeValidFinalEvidence(receipt).replace(
+        receipt.secretExposureIncidents[0].disposition
+          .acceptanceEvidenceSha256,
+        digest('unbound-acceptance'),
+      ),
+    ),
+    /secretExposureIncidents/,
+  );
+
+  for (const mutate of [
+    (candidate) => {
+      candidate.secretExposureIncidents[0].disposition.reviewBy =
+        '2026-09-30T08:59:00Z';
+    },
+    (candidate) => {
+      candidate.secretExposureIncidents[0].disposition.reopenTriggers.pop();
+    },
+    (candidate) => {
+      candidate.secretExposureIncidents[0].disposition.mitigations[0] =
+        'ignore_hook';
+    },
+  ]) {
+    const candidate = acceptKnownRenderResidual(makeValidOperatorReceipt());
+    mutate(candidate);
+    assert.throws(
+      () => validateOperatorEvidence(
+        candidate,
+        makeValidFinalEvidence(candidate),
+      ),
+      /reviewBy|reopenTriggers|mitigations/,
+    );
+  }
+});
+
+test('never permits accepted residual for a new incident or database credential', () => {
+  {
+    const receipt = acceptKnownRenderResidual(makeValidOperatorReceipt());
+    const extra = clone(receipt.secretExposureIncidents[0]);
+    extra.incidentId = 'r1-window-blueprint-sync-hook-dom-20260730-2';
+    extra.observedAt = '2026-07-30T10:42:00Z';
+    extra.operatorDecision.decisionId = 'r1-decision-20260730-8';
+    extra.disposition.actionId = 'r1-secret-action-20260730-8';
+    receipt.secretExposureIncidents.push(extra);
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        makeValidFinalEvidence(receipt),
+      ),
+      /operator-accepted residual is limited/,
+    );
+  }
+  {
+    const receipt = acceptKnownRenderResidual(makeValidOperatorReceipt());
+    const incident = receipt.secretExposureIncidents[0];
+    incident.kind = 'render_database_credential_dom_exposure';
+    incident.targetIdentityKind = 'database_username';
+    assert.throws(
+      () => validateOperatorEvidence(
+        receipt,
+        makeValidFinalEvidence(receipt),
+      ),
+      /known Blueprint Sync Hook incident|operator-accepted residual is limited/,
+    );
+  }
 });
 
 test('requires terminal disposition of the known secret exposure before Gate A', () => {
