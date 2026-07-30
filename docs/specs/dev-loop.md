@@ -303,6 +303,46 @@ fresh changeset (частично уже существует в backend CI).
 WS3 — path-scoped workflow для пилотного playable: release-гейт +
 visual-proof артефакты.
 
+### WS4.1 — exact-SHA guard для ручного dispatch
+
+`scripts/ci-run-once.mjs` — локальный read-mostly helper, не общий
+оркестратор CI. Он уменьшает случайные повторные расходы GitHub Actions,
+не меняя workflow самих репозиториев. Его scope — test/acceptance workflow;
+release/cutover workflow запускаются только через их coordinator.
+
+Контракт:
+
+- ключ дедупликации — `(repository, workflow, full head SHA)`;
+- автоматический push/PR run имеет приоритет над ручным dispatch;
+- default — dry-run, единственная мутация требует явный `--apply`;
+- активный или успешный exact-SHA run переиспользуется;
+- любой завершённый неуспешный exact-SHA run блокирует новый dispatch:
+  helper предлагает rerun существующего run, а детерминированная ошибка
+  исправляется новым commit SHA;
+- перед dispatch remote branch должен указывать ровно на проверенный SHA;
+- непосредственно перед мутацией повторяются и run lookup, и remote-ref
+  check; ошибка `git`/`gh`, невалидный ответ или движение branch закрывают
+  операцию без dispatch.
+
+Граница гарантии: GitHub не предоставляет атомарной операции
+«создать workflow_dispatch, только если run с таким SHA отсутствует».
+Двойной preflight закрывает обычную гонку, но оператор всё равно не
+использует `--apply` сразу после push — сначала даёт зарегистрироваться
+автоматическому run.
+
+Операционное правило: один push на пакет/раунд ревью; automatic run имеет
+приоритет; manual dispatch — только после exact-SHA preflight; повтор
+инфраструктурного/флаки-падения — через `gh run rerun --failed`.
+
+Приёмка helper:
+
+- детерминированные тесты без сетевых мутаций покрывают active, success,
+  failure, cancelled, отсутствующий run, движение remote ref и появление
+  автоматического run между двумя проверками;
+- default-вызов не исполняет `gh workflow run`;
+- при любой ошибке lookup helper fail-closed;
+- shell не используется: команды исполняются массивами аргументов.
+
 ---
 
 ## WS5 — `VISION.md`, `AGENTS.md` и разделение слоёв документации
