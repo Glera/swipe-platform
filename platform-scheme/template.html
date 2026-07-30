@@ -180,8 +180,8 @@ svg{display:block;width:100%;height:auto}
   <!-- mission loop -->
   <path class="conn" d="M990,470 C950,512 880,540 812,556" marker-end="url(#arr)"/>
   <text class="alabel" x="844" y="528">qualified play → лапки</text>
-  <path class="conn" d="M910,615 C1000,615 1000,356 1000,310" marker-end="url(#arr)"/>
-  <text class="alabel" x="1010" y="500">смысл и возврат</text>
+  <path class="conn" d="M910,650 C1010,700 1230,690 1230,640 L1230,340 C1230,320 1225,310 1220,300" marker-end="url(#arr)"/>
+  <text class="alabel" x="1090" y="688">смысл и возврат</text>
 
   <!-- blocks -->
   <foreignObject x="270" y="24" width="290" height="96">
@@ -408,8 +408,8 @@ const DETAILS = {
     auth:[["Готовит","аналитик (агентская роль)"],["Утверждает","оператор — каждый brief"]]},
   mission:{t:"Текущий кейс / приют",tag:"смысл продукта",s:"plan",c:"var(--meta)",
     x:"Один активный кейс равен сезону. Проверенный и уже обеспеченный минимумом кейс проходит READY → ACTIVE → UNLOCKED → FULFILLED. Лапки открывают дополнительную долю settled rolling pool, но никогда не изображаются деньгами. После реальной передачи evidence-bearing точка остаётся в общем приюте-монументе и личной истории.",
-    today:{stage:"spec",ev:"technical",line:"Stage 0: legacy writers/runners off; authenticated smoke и T+24 freeze pending",
-      proven:"initial manifest swipe-backend/docs/receipts/stage0-island-off-initial.json @ 4fddfd6: legacy gates off, protective gate on, runners/jobs quiescent",
+    today:{stage:"spec",ev:"none",line:"Stage 0: legacy writers/runners off; authenticated smoke и T+24 freeze pending",
+      proven:"миссионный код ещё не реализован; prerequisite-only initial manifest swipe-backend/docs/receipts/stage0-island-off-initial.json @ 4fddfd6 пинит legacy gates off и quiescent runners/jobs",
       gate:"authenticated protective smoke + чистый ≥24h Island-off data-manifest; затем реализация Stage 1",owner:"оператор · Stage 0 ТЗ v7; Stage 1 v8 после baseline",here:true},
     aline:"impact-оператор; игрок только направляет",
     auth:[["Публикует","impact-оператор — exact обеспеченный case contract"],["Финансирует","компания: guarantee + policy-bound rolling pool"],["Партнёр","подтверждает потребность и результат; platform authority не получает"],["Подтверждает","impact-оператор принимает fulfillment evidence"],["Игрок","автоматически направляет лапки; финансовой authority нет"]]},
@@ -424,7 +424,7 @@ const DETAILS = {
     x:"Миссия human-true: боты не двигают публичный кейс; никаких guilt-trip или tragedy porn; деньги, игровой прогресс и факт передачи показаны раздельно. Legacy UGC снят с поверхности, но closed delivery, report/block, модерация/takedown и catalog recall остаются живыми защитными контурами.",
     today:{stage:"code",ev:"technical",line:"Stage 0: legacy off; protective routes deployed, authenticated smoke pending",
       proven:"swipe-backend/docs/specs/island-off-route-manifest.md @ 9ff13fa разделяет legacy 404 и 8 retained routes; initial manifest @ 4fddfd6 пинит protective gate on",
-      gate:"authenticated protective smoke + ≥24h freeze-manifest",owner:"оператор · Stage 0 ТЗ v7",here:true},
+      gate:"authenticated protective smoke + ≥24h freeze-manifest",owner:"оператор · Stage 0 ТЗ v7"},
     aline:"impact, moderation и recall — разные operator authorities",
     auth:[["Миссия","impact-оператор: contract/funding/fulfillment"],["Модерирует","operator allowlist: report queue, exact-revision takedown/restore"],["Отзывает","оператор recall-полномочия"]]},
   econ:{t:"Economics / impact",tag:"поперечный rail",s:"dir",c:"var(--frame)",
