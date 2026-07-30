@@ -265,9 +265,10 @@ feed_* shadow/effectful/sequencing контур (≈50 таблиц — орто
 
 ## 10. Последовательность
 
-- **Этап 0 (сейчас):** микроправка VISION (авто-вклад вместо
-  manual-vs-auto гипотезы); пересборка platform-scheme; полный пакет
-  выключения legacy-острова (§4); durable-запись в CLAUDE.md.
+- **Этап 0 (сейчас):** VISION v3.0.1 зафиксирован (`96df90a`:
+  авто-вклад, rolling pool); осталось: пересборка platform-scheme;
+  полный пакет выключения legacy-острова (§4); durable-запись в
+  CLAUDE.md.
 - **Этап 1 — Mission-slice v0 (founder dogfood):** backend `mission_*`
   ядро (контракт кейса + посев/резервирование + журнал вкладов +
   UNLOCKED receipt + ручное FULFILLED evidence через операторский
@@ -290,10 +291,10 @@ receipts, dry-run CLI, author≠reviewer, операторские гейты.
 1. **Валюта вклада: puzzles → «лапки» в UX, без миграции ledger** —
    исторический puzzle-баланс вкладом не становится; новые лапки =
    отдельные contribution receipts (§2).
-2. **Вклад — автоматический**: server-owned receipt за серию / дейлик /
-   коллекцию, без личного кошелька и spend-акта, без optimistic UI;
-   церемония дискретна. Требует микроправки VISION (manual-vs-auto
-   была записана pilot-гипотезой).
+2. **Вклад — автоматический**: server-owned receipt за завершённую
+   qualified-серию / дейлик / коллекцию, без личного кошелька и
+   spend-акта, без optimistic UI; церемония дискретна. Зафиксировано в
+   VISION v3.0.1 (`96df90a`).
 3. **Legacy-остров выключить сейчас полным пакетом** (см. §4:
    +`ISLAND_REWARDS_ENABLED=false`, +верхнеуровневый gate безусловно
    смонтированных routes; closed delivery + moderation/recall остаются
