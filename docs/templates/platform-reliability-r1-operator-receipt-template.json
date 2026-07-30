@@ -92,7 +92,7 @@
     {
       "incidentId": "r1-prewindow-blueprint-sync-hook-dom-20260729",
       "kind": "render_blueprint_sync_hook_dom_exposure",
-      "observedAt": "{{UTC}}",
+      "observedAt": "2026-07-29T15:01:19Z",
       "targetIdentityKind": "render_blueprint_id",
       "targetSha256": "{{SHA256}}",
       "operatorDecision": {
@@ -102,21 +102,27 @@
         "targetSha256": "{{SHA256}}"
       },
       "disposition": {
+        "kind": "operator_accepted_residual",
         "actionId": "{{R1_SECRET_ACTION_YYYYMMDD_N}}",
         "startedAt": "{{UTC}}",
         "completedAt": "{{UTC}}",
-        "terminalOutcome": "{{ROTATED_OR_INVALIDATED}}",
-        "providerMethod": "{{REGENERATE_OR_REVOKE_SYNC_HOOK}}",
-        "providerReceipt": {
-          "kind": "render_dashboard_terminal_observation",
-          "observedAt": "{{UTC}}",
-          "action": "{{REGENERATE_OR_REVOKE_SYNC_HOOK}}",
-          "terminalOutcome": "{{ROTATED_OR_INVALIDATED}}",
-          "targetSha256": "{{SHA256}}",
-          "evidenceSha256": "{{SHA256}}",
-          "secretsCaptured": false
-        },
-        "credentialNegativeProof": null,
+        "terminalOutcome": "accepted_residual",
+        "riskClass": "unauthorized_blueprint_sync",
+        "environmentClass": "non_strategic_dogfood",
+        "reviewBy": "{{UTC_WITHIN_31_DAYS}}",
+        "mitigations": [
+          "do_not_read_copy_or_use_hook",
+          "durable_empty_database_ip_allowlist_before_r1_completion",
+          "record_autosync_final_state",
+          "stop_on_unexpected_blueprint_sync"
+        ],
+        "reopenTriggers": [
+          "before_cohort_expansion",
+          "before_triple_digit_dau",
+          "before_second_blueprint_operator_or_automation",
+          "before_render_strategic_commitment",
+          "on_unexpected_blueprint_sync"
+        ],
         "blueprintContinuity": {
           "before": {
             "observedAt": "{{UTC}}",
@@ -136,7 +142,7 @@
           },
           "comparisonResult": "equal"
         },
-        "terminalProofSha256": "{{SHA256}}",
+        "acceptanceEvidenceSha256": "{{SHA256}}",
         "secretsCaptured": false
       }
     }

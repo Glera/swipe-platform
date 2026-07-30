@@ -15,6 +15,80 @@ const credentialProofBinding = (proof) => {
     + `\`sha256:${proof.evidenceSha256}\``
   );
 };
+const incidentEvidenceLine = (incident) => {
+  const disposition = incident.disposition;
+  const prefix = (
+    `- Secret-exposure incident \`${incident.incidentId}\`: `
+    + `\`${incident.kind}\` observed \`${incident.observedAt}\`; `
+    + `target \`${incident.targetIdentityKind}\` / `
+    + `\`sha256:${incident.targetSha256}\`; approval `
+    + `\`${incident.operatorDecision.decisionId}\` / `
+    + `\`${incident.operatorDecision.confirmedAt}\` / `
+    + `\`${incident.operatorDecision.decision}\`; disposition `
+  );
+  if (disposition.kind === 'operator_accepted_residual') {
+    return (
+      prefix
+      + `\`${disposition.kind}\` / `
+      + `\`${disposition.actionId}\` / `
+      + `\`${disposition.startedAt}\` / `
+      + `\`${disposition.completedAt}\` / `
+      + `\`${disposition.terminalOutcome}\` / `
+      + `risk \`${disposition.riskClass}\` / `
+      + `environment \`${disposition.environmentClass}\` / `
+      + `review by \`${disposition.reviewBy}\` / `
+      + `mitigations \`${disposition.mitigations.join(',')}\` / `
+      + `reopen \`${disposition.reopenTriggers.join(',')}\`; `
+      + `before \`${disposition.blueprintContinuity.before.observedAt}\` / `
+      + `\`${disposition.blueprintContinuity.before.blueprintId}\` / `
+      + `\`${disposition.blueprintContinuity.before.sourceRepository}\` / `
+      + `\`${disposition.blueprintContinuity.before.sourceBranch}\` / `
+      + `\`${disposition.blueprintContinuity.before.blueprintPath}\` / `
+      + `\`sha256:${disposition.blueprintContinuity.before.evidenceSha256}\` / `
+      + `after \`${disposition.blueprintContinuity.after.observedAt}\` / `
+      + `\`${disposition.blueprintContinuity.after.blueprintId}\` / `
+      + `\`${disposition.blueprintContinuity.after.sourceRepository}\` / `
+      + `\`${disposition.blueprintContinuity.after.sourceBranch}\` / `
+      + `\`${disposition.blueprintContinuity.after.blueprintPath}\` / `
+      + `\`sha256:${disposition.blueprintContinuity.after.evidenceSha256}\` / `
+      + `continuity \`${disposition.blueprintContinuity.comparisonResult}\` / `
+      + `acceptance \`sha256:${disposition.acceptanceEvidenceSha256}\`; `
+      + `secrets captured \`${disposition.secretsCaptured}\``
+    );
+  }
+  return (
+    prefix
+    + `\`${disposition.actionId}\` / `
+    + `\`${disposition.startedAt}\` / `
+    + `\`${disposition.completedAt}\` / `
+    + `\`${disposition.terminalOutcome}\` / `
+    + `\`${disposition.providerMethod}\` / `
+    + `\`${disposition.providerReceipt.kind}\` / `
+    + `\`${disposition.providerReceipt.observedAt}\` / `
+    + `\`${disposition.providerReceipt.action}\` / `
+    + `\`${disposition.providerReceipt.terminalOutcome}\` / `
+    + `\`sha256:${disposition.providerReceipt.targetSha256}\` / `
+    + `\`sha256:${disposition.providerReceipt.evidenceSha256}\` / `
+    + `credential proof ${credentialProofBinding(
+      disposition.credentialNegativeProof,
+    )}; `
+    + `before \`${disposition.blueprintContinuity.before.observedAt}\` / `
+    + `\`${disposition.blueprintContinuity.before.blueprintId}\` / `
+    + `\`${disposition.blueprintContinuity.before.sourceRepository}\` / `
+    + `\`${disposition.blueprintContinuity.before.sourceBranch}\` / `
+    + `\`${disposition.blueprintContinuity.before.blueprintPath}\` / `
+    + `\`sha256:${disposition.blueprintContinuity.before.evidenceSha256}\` / `
+    + `after \`${disposition.blueprintContinuity.after.observedAt}\` / `
+    + `\`${disposition.blueprintContinuity.after.blueprintId}\` / `
+    + `\`${disposition.blueprintContinuity.after.sourceRepository}\` / `
+    + `\`${disposition.blueprintContinuity.after.sourceBranch}\` / `
+    + `\`${disposition.blueprintContinuity.after.blueprintPath}\` / `
+    + `\`sha256:${disposition.blueprintContinuity.after.evidenceSha256}\` / `
+    + `continuity \`${disposition.blueprintContinuity.comparisonResult}\` / `
+    + `terminal \`sha256:${disposition.terminalProofSha256}\`; `
+    + `secrets captured \`${disposition.secretsCaptured}\``
+  );
+};
 
 export function makeValidOperatorReceipt() {
   const consumers = [
@@ -419,44 +493,7 @@ export function makeValidFinalEvidence(
     '',
     '- platform-reliability-r1-secret-scan-receipt.json',
     '- Scanner status: `PASS`',
-    ...receipt.secretExposureIncidents.map((incident) => (
-      `- Secret-exposure incident \`${incident.incidentId}\`: `
-      + `\`${incident.kind}\` observed \`${incident.observedAt}\`; `
-      + `target \`${incident.targetIdentityKind}\` / `
-      + `\`sha256:${incident.targetSha256}\`; approval `
-      + `\`${incident.operatorDecision.decisionId}\` / `
-      + `\`${incident.operatorDecision.confirmedAt}\` / `
-      + `\`${incident.operatorDecision.decision}\`; disposition `
-      + `\`${incident.disposition.actionId}\` / `
-      + `\`${incident.disposition.startedAt}\` / `
-      + `\`${incident.disposition.completedAt}\` / `
-      + `\`${incident.disposition.terminalOutcome}\` / `
-      + `\`${incident.disposition.providerMethod}\` / `
-      + `\`${incident.disposition.providerReceipt.kind}\` / `
-      + `\`${incident.disposition.providerReceipt.observedAt}\` / `
-      + `\`${incident.disposition.providerReceipt.action}\` / `
-      + `\`${incident.disposition.providerReceipt.terminalOutcome}\` / `
-      + `\`sha256:${incident.disposition.providerReceipt.targetSha256}\` / `
-      + `\`sha256:${incident.disposition.providerReceipt.evidenceSha256}\` / `
-      + `credential proof ${credentialProofBinding(
-        incident.disposition.credentialNegativeProof,
-      )}; `
-      + `before \`${incident.disposition.blueprintContinuity.before.observedAt}\` / `
-      + `\`${incident.disposition.blueprintContinuity.before.blueprintId}\` / `
-      + `\`${incident.disposition.blueprintContinuity.before.sourceRepository}\` / `
-      + `\`${incident.disposition.blueprintContinuity.before.sourceBranch}\` / `
-      + `\`${incident.disposition.blueprintContinuity.before.blueprintPath}\` / `
-      + `\`sha256:${incident.disposition.blueprintContinuity.before.evidenceSha256}\` / `
-      + `after \`${incident.disposition.blueprintContinuity.after.observedAt}\` / `
-      + `\`${incident.disposition.blueprintContinuity.after.blueprintId}\` / `
-      + `\`${incident.disposition.blueprintContinuity.after.sourceRepository}\` / `
-      + `\`${incident.disposition.blueprintContinuity.after.sourceBranch}\` / `
-      + `\`${incident.disposition.blueprintContinuity.after.blueprintPath}\` / `
-      + `\`sha256:${incident.disposition.blueprintContinuity.after.evidenceSha256}\` / `
-      + `continuity \`${incident.disposition.blueprintContinuity.comparisonResult}\` / `
-      + `terminal \`sha256:${incident.disposition.terminalProofSha256}\`; `
-      + `secrets captured \`${incident.disposition.secretsCaptured}\``
-    )),
+    ...receipt.secretExposureIncidents.map(incidentEvidenceLine),
     '',
     '## 12. Independent final review',
     '',
