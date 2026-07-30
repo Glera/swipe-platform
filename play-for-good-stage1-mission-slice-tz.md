@@ -215,7 +215,17 @@ enrolled-пользователям**, для остальных поведен�
 ### Врезки и доставка receipt до клиента
 
 - `POST /api/results` (терминальная серия) и daily-claim: в той же
-  транзакции, что RewardLedger, — mission contribution; в ответ
+  транзакции, что RewardLedger, — mission contribution.
+  **Amount-authority (дословно согласовано с R1-A §7.2):**
+  endpoint-adapter подтверждает существующий терминальный series/daily
+  факт в принадлежащей ему транзакции и передаёт в mission service
+  только typed source identity (`run_id` / `user_id+day+quest_id`);
+  amount вычисляет mission domain исключительно из активного
+  `mission_contribution_weights.document`, прочитанного и pinned парой
+  `weights_version + weights_digest` под runtime-lock. `run_id` и
+  `day/quest_id` — source identity и idempotency evidence, не источник
+  amount; импорт `app/rewards.py` mission-доменом и повторное
+  использование его reward-функций для amount запрещены. В ответ
   добавляется **optional блок `mission_contribution`** (receipt: id,
   amount, allocations по кейсам, состояние бара после). Ответ
   фиксируется как обычно; **`_verified_replay_response` восстанавливает
