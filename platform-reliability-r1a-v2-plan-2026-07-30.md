@@ -114,19 +114,27 @@ decommissioned только по факту появления новой или
 
 1. exact source/target identities и exhaustive schema parity: migration
    graph/revision, tables/columns/constraints/indexes, sequences, functions,
-   triggers, extensions, roles/grants и default privileges;
+   triggers, extensions, roles/grants и default privileges. Все constraints,
+   включая FK, находятся в validated-состоянии на обеих сторонах;
 2. initial copy связан либо с byte-bound logical dump/restore receipt, либо с
    replication start identity/LSN. После copy проверяется exhaustive
    per-table logical content parity: row count + детерминированный digest всех
    строк в canonical PK/order (включая полные append-only receipts), а также
    sequence values. Sampling допустим только для диагностики и не закрывает
    acceptance;
-3. bounded writer quiesce или доказанный replication channel;
-4. final sync после quiesce с exact source cutoff/replication LSN и повторная
-   exhaustive schema/content/sequence/digest parity по всем таблицам;
-5. CAS всего замкнутого consumer set со старой identity на новую;
-6. fresh DB-backed proof каждого consumer и negative proof отсутствия
-   оставшихся writers на старой DB;
+3. единый writer fence закрывает writes всего consumer set на source до
+   начала final sync и остаётся закрытым до promotion target. Репликация сама
+   по себе этот fence не заменяет;
+4. final sync при закрытом fence с exact source cutoff/replication LSN и
+   повторная exhaustive schema/content/sequence/digest parity по всем
+   таблицам;
+5. замкнутый consumer set переводится на target под единым монотонным
+   authority epoch/lease. Target становится единственным writable primary
+   атомарной promotion; source остаётся write-fenced. Последовательный CAS
+   connection strings без общего fence/epoch запрещён;
+6. только после promotion writers возобновляются. Обязательны fresh
+   DB-backed proof каждого consumer, proof единственного active writer epoch
+   и negative proof любых writers на source;
 7. объявленное rollback window. Старая DB остаётся недоступной внешне,
    не удаляется и имеет точное правило возврата; если target уже принимает
    writes, rollback требует доказанного reverse-sync либо запрещён до
@@ -191,9 +199,17 @@ decommissioned только по факту появления новой или
 
 Build-manifest каждого image объявляет минимальную/максимальную совместимую
 schema capability и exact migration requirement. `preDeploy` fail-closed
-сверяет source database identity, current revision, ожидаемый predecessor,
-target revision и image manifest digest; затем пишет несекретный receipt с
-результирующим revision/capability digest.
+сверяет source database identity, current revision, target revision и image
+manifest digest. Допустимы ровно три режима:
+
+1. `expected predecessor → target`: единственный режим, выполняющий migration;
+2. `target → target`: verified idempotent retry после уже успешного
+   `preDeploy`, без повторных эффектов;
+3. `newer compatible schema → pinned LKG`: capability-only rollback check,
+   без migration и schema downgrade.
+
+Любое иное состояние отклоняется. Успех пишет несекретный receipt с режимом,
+исходным и результирующим revision/capability digest.
 
 PG16 acceptance строит чистую base→target DB, выполняет current→target
 upgrade и проверяет exact ordered migration graph digest. Для миграции с
