@@ -212,9 +212,10 @@ manifest digest. Допустимы ровно три режима:
 исходным и результирующим revision/capability digest.
 
 PG16 acceptance строит чистую base→target DB, выполняет current→target
-upgrade и проверяет exact ordered migration graph digest. Для миграции с
-допустимым `down_revision` CI может проверить roundtrip, но production
-rollback всегда image-only; schema downgrade в production запрещён.
+upgrade и проверяет exact ordered migration graph digest. Для Stage 1 и
+каждой migration с реализованным `downgrade()` CI обязательно проверяет
+base→target→base→target roundtrip. Production rollback всегда image-only;
+schema downgrade в production запрещён.
 
 Destructive/contract migration запрещена в том же release, где меняется
 traffic image. Она допускается отдельным будущим пакетом только после
