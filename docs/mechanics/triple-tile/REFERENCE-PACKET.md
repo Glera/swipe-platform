@@ -111,6 +111,9 @@ Each `zen-match-level-{6..10}` fixture must contain:
 - exact expected final state and required terminal/residual assertion;
 - required Twin-only scenarios/actions;
 - source frame/action IDs on every trace step and for every asserted datum.
+- real-capture verification of every trace action → next-frame pair and
+  accepted ordinary tap coordinate, with explicit disposition for declared
+  semantic remaps.
 
 Fixture validation fails closed if provenance is absent or the manifest digest
 does not match the frozen digest above.
@@ -134,9 +137,24 @@ Production Original excludes:
 - Undo, Magnet, Continue, coins, crowns, boosters and meta;
 - any import from Reference Twin files.
 
-The five existing reverse-generated Garden Curios levels are recoverable
-engineering assets, not automatic parity evidence. They must be reclassified
-as Production Original candidates and re-gated against the exact Twin.
+The five reverse-generated Garden Curios levels are now reclassified and
+re-gated as Production Original. They retain independent geometry/assets,
+match captured density `51/54/72/36/60`, and match objective volume
+`15/18/27/clear-all 36/12`. Their capture / observable-online /
+deterministic-solver action counts are:
+
+| Level | Capture trace | Observable online | Solver |
+| --- | ---: | ---: | ---: |
+| 6 | 49 | 51 | 49 |
+| 7 | 48 | 47 | 45 |
+| 8 | 68 | 62 | 69 |
+| 9 | 35 | 36 | 36 |
+| 10 | 54 | 54 | 59 |
+
+Each recipe carries its reference count and maximum permitted delta.
+Generation fails closed if either the visible-information witness or solver
+witness leaves that band. This is parity evidence for solution effort; it does
+not authorize copied geometry, symbols or trade dress.
 
 ## Presentation observations and measurement status
 

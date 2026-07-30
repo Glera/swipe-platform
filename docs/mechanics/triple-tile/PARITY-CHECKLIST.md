@@ -35,13 +35,23 @@ Status values: `measured`, `decision`, `gap`, `pass`, `fail`.
 ## Originality and platform
 
 - [x] Production build fails on resolved Twin module imports.
-- [x] Five Production Original levels pass near-duplicate gate (`0.337314…0.466492 < 0.88`); exact geometry/exposure is rejected unconditionally.
+- [x] Five Production Original levels pass near-duplicate gate (`0.437314…0.490798 < 0.88`); exact geometry/exposure is rejected unconditionally.
+- [x] Production objective volumes match the captured models:
+  `15 / 18 / 27 / clear-all 36 / 12`.
 - [x] Five Production Original levels have solver witnesses without tools.
+- [x] Captured / observable-online / deterministic-solver action counts remain
+  in the declared per-level band:
+  `49/48/68/35/54`, `51/47/62/36/54`, `49/45/69/36/59`.
+- [x] Observable policy uses only exposed faces, geometry, tray and objective
+  progress; covered-face swaps and opaque ID relabeling do not change its
+  decision evidence.
 - [x] Autoplay reaches each current objective.
 - [x] First accepted manual tap takes over without reset.
 - [x] Blocked/background tap does not cancel autoplay.
 - [x] Pause/resume preserves result.
 - [x] Terminal completion is emitted once.
 - [x] Compact/tall/landscape and low-tier visual checks pass.
-- [x] Updated native / neutral Twin / Production side-by-side and 15-second montage are attached.
+- [x] Updated native / neutral Twin / Production side-by-side and 15-second
+  montage are attached; receipt binds manifest, extracted-evidence receipt,
+  native frame SHA-256 and production build digest.
 - [ ] Final independent review is attached.

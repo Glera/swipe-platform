@@ -201,7 +201,9 @@ remaining/tray. `unknown` при budget cutoff не считается отри�
 3. layout/type-allocation similarity ниже утверждённого threshold;
 4. собственный SkinSpec и asset provenance;
 5. solver witness без boosters;
-6. fail-closed production build при любом импорте из Twin namespace.
+6. observable-online и solver action counts внутри capture-derived effort
+   band текущего reference archetype;
+7. fail-closed production build при любом импорте из Twin namespace.
 
 Near-duplicate gate сравнивает normalized geometry graph, layer histogram,
 type-allocation signature и objective shape. Он не заменяет human visual
@@ -222,33 +224,33 @@ review.
 
 ### Authority
 
-- [ ] CLASS-BRIEF, REFERENCE-PACKET и mechanics index называют capture
+- [x] CLASS-BRIEF, REFERENCE-PACKET и mechanics index называют capture
   Levels 6–10 единственным primary.
-- [ ] В документации нет clear-all-only или no-goals конфликта.
-- [ ] Observed facts, production decisions и timing gaps явно разделены.
+- [x] В документации нет clear-all-only или no-goals конфликта.
+- [x] Observed facts, production decisions и timing gaps явно разделены.
 
 ### Reference Twin
 
-- [ ] Все пять exact fixtures воспроизводят captured state/action traces.
-- [ ] Goal win, clear-all, seventh-slot fail/safe triple, Undo, Magnet и
+- [x] Все пять exact fixtures воспроизводят captured state/action traces.
+- [x] Goal win, clear-all, seventh-slot fail/safe triple, Undo, Magnet и
   Continue имеют deterministic replay tests.
-- [ ] Twin namespace не достижим из production registry/build.
+- [x] Twin namespace не достижим из production registry/build.
 
 ### Production Original
 
-- [ ] Пять собственных levels соответствуют target difficulty/density band.
-- [ ] Каждый level solver-verified без boosters.
-- [ ] Exact assets/layouts отсутствуют; provenance и near-duplicate gate
+- [x] Пять собственных levels соответствуют target difficulty/density band.
+- [x] Каждый level solver-verified без boosters.
+- [x] Exact assets/layouts отсутствуют; provenance и near-duplicate gate
   зелёные.
 
 ### Presentation and platform
 
-- [ ] Каждая must-match строка имеет measurement либо explicit disposition.
-- [ ] Side-by-side подтверждает совпадающую причинно-следственную картину.
-- [ ] Compact/tall/landscape, pause/resume, autoplay/takeover и single
+- [x] Каждая must-match строка имеет measurement либо explicit disposition.
+- [x] Side-by-side подтверждает совпадающую причинно-следственную картину.
+- [x] Compact/tall/landscape, pause/resume, autoplay/takeover и single
   completion проверены.
-- [ ] Visual proof, montage Levels 6–10, delta list и independent review
-  приложены.
+- [x] Visual proof, montage Levels 6–10 и delta list приложены.
+- [ ] Final independent review приложен.
 
 ## Explicit decision boundary
 

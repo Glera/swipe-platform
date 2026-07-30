@@ -34,6 +34,9 @@ Every fixture binds:
 - normalized extraction tool/version;
 - fixture digest and per-scenario trace digest;
 - source frame/action IDs on every asserted trace step;
+- extracted input tap → next captured frame pairing for every trace step;
+- accepted-tap coordinates against the reconstructed tile, except the two
+  explicitly declared Level 8 post-Undo/overlay remaps;
 - exact expected final state for every scenario.
 
 The Z2 implementation validates this complete envelope, re-derives state
@@ -65,5 +68,6 @@ comparison.
 | evidence index | pass; digest `c80c4f96…75e034` |
 | geometry/type/counter extraction | pass for observed state; fully occluded residual faces explicitly inferred |
 | deterministic trace replays | pass for five primary and all captured special scenarios |
+| real action/frame cross-check | pass; `377` scenario-step bindings verified, receipt `2f86b4f8…e9c39` |
 | production import/content deny | pass in logic/browser and production build |
 | deployment override containment | production build validates the real pack; test override remains forbidden in production |
