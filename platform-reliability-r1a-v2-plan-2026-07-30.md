@@ -88,17 +88,47 @@ facts. Но DB trust gates обязательны **до первого producti
 `register-weights`, `activate-weights`, `register-contract`, `seed-pool`,
 `ready`, `activate`, `unlock-cutoff` и `fulfill` — должны быть доказаны:
 
-- внешний PostgreSQL ingress больше не равен `0.0.0.0/0`;
+- внешний PostgreSQL ingress deny-by-default: для Render —
+  durable `ipAllowList: []` + свежий protocol-level refusal с внешней сети;
+  для другого provider — доказанный эквивалент без прямого публичного
+  PostgreSQL endpoint;
 - credential свежий, consumer set замкнут, старый credential выведен;
 - isolated restore фактически прошёл на провайдере production DB с
   записанными RPO/RTO;
 - source DB не переключалась и recovery cost закрыт;
-- способ operator-доступа работает с нескольких Mac без общего ingress.
+- identity-bound и audit-visible способ operator-доступа работает с
+  нескольких Mac без прямого public PostgreSQL ingress.
 
-Механизм provider-neutral: точные IP, статический VPN/zero-trust egress,
-provider shell или новая инфраструктура допустимы, если выполняется exit.
-При миграции с Render новый provider проходит те же proof, а старый credential
-и database decommissioned отдельным receipt.
+Механизм provider-neutral: provider shell, private tunnel, identity-bound
+VPN/zero-trust gateway или новая инфраструктура допустимы, если выполняется
+exit. Простая замена `0.0.0.0/0` на широкий CIDR не является закрытием.
+Временный exact `/32` допустим только для attended диагностики и удаляется до
+первого mission writer; он не является durable Stage 1 состоянием. При
+миграции с Render generic restore-proof недостаточно: provider cutover —
+отдельный independently reviewed operator-пакет (§3.4). Старая database не
+decommissioned только по факту появления новой или по одному receipt.
+
+### 3.4 Если меняется database provider
+
+До consumer cutover обязательны:
+
+1. exact source/target identities и schema graph/revision parity;
+2. initial copy + проверка row counts, append-only max seq/cursor и
+   выборочных receipt digests;
+3. bounded writer quiesce или доказанный replication channel;
+4. final sync после quiesce и повторная schema/row/seq/digest parity;
+5. CAS всего замкнутого consumer set со старой identity на новую;
+6. fresh DB-backed proof каждого consumer и negative proof отсутствия
+   оставшихся writers на старой DB;
+7. объявленное rollback window. Старая DB остаётся недоступной внешне,
+   не удаляется и имеет точное правило возврата; если target уже принимает
+   writes, rollback требует доказанного reverse-sync либо запрещён до
+   отдельной reconciliation;
+8. operator deletion gate только после закрытия rollback window, финальной
+   parity/reconciliation и подтверждённого backup новой authority DB.
+
+Ни DNS switch, ни «новая DB отвечает», ни isolated restore сами по себе не
+являются data cutover evidence.
 
 ## 4. Exit R1-A v2
 
@@ -107,30 +137,73 @@ provider shell или новая инфраструктура допустимы
 2. В web runtime отсутствуют GitHub write-token, remote URL с token, `git`,
    Node/npm, runtime clone и `npm install`.
 3. Web startup не выполняет `alembic upgrade`; migration запускается один раз
-   через `preDeploy` из того же image digest.
-4. Каждая migration проходит expand/contract audit. Stage 1 migration
-   additive; rollback к last-known-good image не требует schema downgrade.
+   через `preDeploy` из того же image digest и создаёт exact applied receipt.
+4. Каждая migration проходит исполнимую compatibility matrix (§4.1), а не
+   текстовый expand/contract label. Stage 1 migration additive; rollback к
+   last-known-good image не требует schema downgrade.
 5. Remote coordinator сериализует production releases. Проигравший contender
    не deploy'ит; local deploy — только break-glass с receipt.
-6. Sidecar `platform-release-manifest.v1.json` фиксирует:
-   backend/feed/playables source SHA, image digest, migration requirement,
-   release-profile digest, CI build/run identity и SHA-256 `release.json v2`.
+6. Immutable build-side sidecar `platform-release-manifest.v1.json` фиксирует:
+   backend/feed/playables source SHA, image digest, exact target Alembic
+   revision, digest exact ordered migration graph/bytes, required
+   schema-capability digest, code compatibility range, LKG compatibility
+   range, release-profile digest, CI build/run identity и SHA-256
+   `release.json v2`.
    UGC identity после Stage 0 — typed absence
    `not_present_in_production_web_image_after_island_off`, не выдуманный SHA.
-7. Pinned last-known-good image, точная rollback-команда и rollback smoke
-   доказаны на том же release contour.
-8. Compact image проходит exact Stage 0 protective smoke (§6).
-9. Архитектурный guard enforcing только после Stage 1 reviewer approval
+7. Отдельный applied release receipt связывает digest build-manifest с exact
+   byte-bound successful `preDeploy` action/receipt, observed resulting
+   Alembic revision, migration graph digest, schema-capability digest, target
+   database identity и deploy identity. Fail-closed verifier перечитывает
+   production DB identity/revision/capability и сверяет их с обоими
+   артефактами до traffic acceptance. Build-manifest не притворяется знанием
+   будущего provider action.
+8. Pinned last-known-good image, его schema compatibility range, точная
+   rollback-команда и rollback smoke доказаны на том же release contour.
+   Обычный rollback проходит через тот же remote coordinator; break-glass
+   rollback имеет отдельный operator receipt и не превращается во второй
+   штатный writer.
+9. Compact image проходит exact Stage 0 protective smoke (§6).
+10. Архитектурный guard enforcing только после Stage 1 reviewer approval
    exact allowlist/budget (§7).
-10. Cutover evidence принят независимым reviewer; production mutation —
+11. Cutover evidence принят независимым reviewer; production mutation —
     отдельный operator gate после Stage 0.
+
+### 4.1 Исполнимая schema compatibility matrix
+
+Для каждого target revision CI/ephemeral PG и cutover evidence выполняют
+одинаковую матрицу:
+
+| Режим | Обязательное доказательство |
+|---|---|
+| current production image → current schema | baseline smoke до `preDeploy` |
+| current production image → target schema | старый трафик продолжает работать, пока новый deploy не принят |
+| candidate image → target schema | schema capability + полный candidate smoke |
+| pinned LKG image → target schema | rollback smoke без schema downgrade |
+
+Build-manifest каждого image объявляет минимальную/максимальную совместимую
+schema capability и exact migration requirement. `preDeploy` fail-closed
+сверяет source database identity, current revision, ожидаемый predecessor,
+target revision и image manifest digest; затем пишет несекретный receipt с
+результирующим revision/capability digest.
+
+PG16 acceptance строит чистую base→target DB, выполняет current→target
+upgrade и проверяет exact ordered migration graph digest. Для миграции с
+допустимым `down_revision` CI может проверить roundtrip, но production
+rollback всегда image-only; schema downgrade в production запрещён.
+
+Destructive/contract migration запрещена в том же release, где меняется
+traffic image. Она допускается отдельным будущим пакетом только после
+доказательства, что все production/LKG images, читающие старый контракт,
+выведены, rollback horizon закрыт оператором и новая LKG identity уже
+совместима. `alembic downgrade` не является production rollback.
 
 ## 5. Пакеты реализации
 
 | Пакет | Содержимое | Production authority |
 |---|---|---|
 | A · image | multi-stage compact image, locked Python deps, no UGC/Node/git, digest build | build/publish only |
-| B · manifest | sidecar schema, exact-byte digests, typed UGC absence, verifier | none |
+| B · manifest | build-side sidecar schema + applied-release receipt, schema range/head/capability binding, exact-byte digests, typed UGC absence, verifier | none |
 | C · coordinator | remote concurrency, source CAS, single-writer release receipt, break-glass contract | deploy off until cutover |
 | D · startup split | `preDeploy` migration, schema-capability command, clean web entrypoint | cutover gate |
 | E · rollback | LKG pointer, rollback command, expected smoke, failure receipts | no prod drill before gate |
@@ -190,6 +263,7 @@ Island, Catalog, Lab, agents или presentation code. Он может зави�
 | Existing integration point | Разрешённая зависимость | Назначение |
 |---|---|---|
 | typed API response layer | mission receipt types/parser | optional server receipt, byte-compatible absence |
+| durable result outbox | mission receipt bytes/identity | committed optional block переживает retry/reload и replay без синтетики |
 | series-win flow | mission ceremony presenter | ceremony только из committed receipt |
 | daily-claim flow | mission ceremony presenter | daily receipt ceremony |
 | session bootstrap | mission capability gate | mount только flag + capability |
@@ -231,6 +305,8 @@ baseline и mutant-тестами: запрещённый import, +1 сверх 
   operator/finance решения.
 - Любой production auto-deploy от R1-A branch/PR — stop-the-line.
 - Cutover failure откатывается на pinned LKG image; schema остаётся совместимой.
+- Штатный deploy и rollback используют один remote coordinator/concurrency
+  domain; rollback не обходит serialization.
 - Ни один green test не заменяет operator authority для deploy, mission,
   impact или financial act.
 
