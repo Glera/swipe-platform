@@ -120,6 +120,15 @@ score не закрывает failed MUST.
 - Собственные replacements (visual identity — через SkinSpec-пайплайн):
 - Открытые IP/taste-вопросы:
 
+### Reference Twin boundary
+
+- Exact internal-only fixtures:
+- Capture provenance fields:
+- Neutral presentation:
+- Production registry/build deny gate:
+- Какие exact layouts/assets никогда не shipping:
+- Near-duplicate comparison inputs:
+
 ## Core fantasy
 
 Что должен чувствовать игрок:
@@ -214,6 +223,8 @@ interface LevelSpec {
 - Initial state:
 - Allowed randomness:
 - Backward compatibility:
+- Versioned objective:
+- `referenceTwin` marker/provenance:
 
 ## Solver / validator
 
@@ -383,6 +394,9 @@ interface LevelSpec {
 ### Evidence
 
 - [ ] Reference packet приложен (включая feel-таблицу и parity checklist).
+- [ ] Capture manifest/hash chain проверены.
+- [ ] Exact Reference Twin trace replay приложен.
+- [ ] Production deny и near-duplicate gates приложены.
 - [ ] Visual proof приложен.
 - [ ] Runtime checks приложены.
 - [ ] Reference delta list заполнен.

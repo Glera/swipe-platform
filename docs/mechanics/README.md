@@ -461,7 +461,7 @@ Tetris. Референс используется для исследовани�
 отдельным будущим классом. Tile sorting, swap Match-3 и hidden-object также не
 входят в этот baseline.
 
-### Review 1/2 packet
+### Active authority and Z2 packet
 
 Исследованы [Triple Tile](https://apps.apple.com/us/app/triple-tile-match-puzzle-game/id1572661625),
 [Zen Match](https://apps.apple.com/us/app/zen-match-relaxing-puzzle/id1560124228),
@@ -469,37 +469,52 @@ Tetris. Референс используется для исследовани�
 [Tile Club](https://apps.apple.com/us/app/tile-club-matching-game/id1640075364)
 и [Tile Family](https://apps.apple.com/us/app/tile-family-match-puzzle-game/id6444056676).
 
+Primary и taste authority — immutable Android capture Zen Match build
+`220000.1.755`, Levels `6–10`, session
+`2bb6ac89-3da1-4641-b753-52c9f982f0d3`, manifest SHA-256
+`70960297ef9308d3fbe537d708f63b442a92c0f4a4de357918a3ee10172febfa`.
+Старые Triple Tile Levels 20/25/30 и Zen Match Level 17 остаются
+историческим secondary research.
+
 Подготовлены:
 
 - [`triple-tile/REFERENCE-PACKET.md`](triple-tile/REFERENCE-PACKET.md) —
-  taxonomy, сравнение пяти продуктов, fidelity plan и recommendation;
-- [`triple-tile/CLASS-BRIEF.md`](triple-tile/CLASS-BRIEF.md) — proposed
-  gameplay/schema/solver/reverse-generator boundary;
+  capture authority, две objective-модели и production decisions;
+- [`triple-tile/CLASS-BRIEF.md`](triple-tile/CLASS-BRIEF.md) — Z2
+  gameplay/schema/solver/Twin/Production Original boundary;
+- [`triple-tile/CAPTURE-MANIFEST-ZEN-2026-07-30.md`](triple-tile/CAPTURE-MANIFEST-ZEN-2026-07-30.md)
+  — acquisition receipt;
+- [`triple-tile/REFERENCE-TWIN.md`](triple-tile/REFERENCE-TWIN.md) —
+  exact-fixture map и isolation gates;
+- [`triple-tile/PROBE-MATRIX.md`](triple-tile/PROBE-MATRIX.md),
+  [`triple-tile/PARITY-CHECKLIST.md`](triple-tile/PARITY-CHECKLIST.md) и
+  [`triple-tile/REFERENCE-DELTA.md`](triple-tile/REFERENCE-DELTA.md) —
+  targeted timing work и parity evidence;
 - [`triple-tile/REVIEW-INDEPENDENT-2026-07-29.md`](triple-tile/REVIEW-INDEPENDENT-2026-07-29.md)
-  — accept as research; F1 tray multiset, F2 partial visibility, F3
-  time-to-rule и F4 duration.
+  — историческое review до нового capture; не является текущим parity
+  disposition;
+- [`triple-tile/REVIEW-INDEPENDENT-Z2-2026-07-30.md`](triple-tile/REVIEW-INDEPENDENT-Z2-2026-07-30.md)
+  — независимое approval текущего Z2 infrastructure scope; exact parity
+  остаётся pending capture transfer.
 
-Статус: `development active / Zen Match primary / TT-P prototype GO`.
-Позднейшим operator override выбран **Zen Match** как primary, **Triple
-Tile** как secondary и early structural anchors `6–10`. Это не разрешает
-копировать exact layouts: пять levels имеют собственную geometry/seeds/types
-и solver receipts. Supplied Zen Match Level 17 recording — primary feel
-evidence для board→tray flights, concurrent taps, grouped insertion и
-последовательного triple removal. Утверждены fail-on-7th, отсутствие
-boosters/crowns/meta, audio off и light/soft/rigid haptics.
-TT-G/TT-S/TT-E/TT-F/TT-P разрешены в отдельной implementation-ветке; cold
-load/covered/fail evidence остаётся final parity gate.
+Статус: `Z2 Reference Twin active / rollout not authorized`. Exact layouts
+разрешены только в изолированном non-shipping Twin. Production использует
+собственные layouts/assets и должен пройти near-duplicate/deny gates.
+Path/content deny реализован; exact five-way similarity receipts остаются
+pending до переноса и верификации capture bytes.
 
 ### Core loop
 
 Игрок выбирает доступные плитки, они попадают в ограниченный tray, три
-одинаковые исчезают. Победа — очистить сцену; проигрыш — переполнить tray.
+одинаковые исчезают. Победа зависит от versioned objective: закрыть target
+counters либо очистить board/tray. Проигрыш — post-resolve occupancy `7`.
 
 ### Proposed bounded baseline
 
 - только triple matching;
 - плоские слои с ясным overlap;
-- одна явно утверждённая capacity/fail policy;
+- `collect-target-types | clear-all`;
+- fail-on-7th после triple resolution;
 - undo/shuffle/hint/boosters/revive/extra slot отсутствуют;
 - пять собственных solver-verified раскладок;
 - logical tray state — multiset типов; visual order принадлежит presentation
@@ -513,7 +528,8 @@ load/covered/fail evidence остаётся final parity gate.
 ### Риски
 
 - формально проходимый уровень может быть нечестным для человека;
-- fail-on-7th должен оставаться единым versioned rule в engine/solver;
+- objective и fail-on-7th должны оставаться единым versioned contract в
+  engine/solver;
 - presentation order может ошибочно протечь в logical/content identity;
 - частичное перекрытие может превратить solver-valid выбор в угадайку;
 - hit areas перекрывающихся плиток;
