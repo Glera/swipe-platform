@@ -112,11 +112,18 @@ decommissioned только по факту появления новой или
 
 До consumer cutover обязательны:
 
-1. exact source/target identities и schema graph/revision parity;
-2. initial copy + проверка row counts, append-only max seq/cursor и
-   выборочных receipt digests;
+1. exact source/target identities и exhaustive schema parity: migration
+   graph/revision, tables/columns/constraints/indexes, sequences, functions,
+   triggers, extensions, roles/grants и default privileges;
+2. initial copy связан либо с byte-bound logical dump/restore receipt, либо с
+   replication start identity/LSN. После copy проверяется exhaustive
+   per-table logical content parity: row count + детерминированный digest всех
+   строк в canonical PK/order (включая полные append-only receipts), а также
+   sequence values. Sampling допустим только для диагностики и не закрывает
+   acceptance;
 3. bounded writer quiesce или доказанный replication channel;
-4. final sync после quiesce и повторная schema/row/seq/digest parity;
+4. final sync после quiesce с exact source cutoff/replication LSN и повторная
+   exhaustive schema/content/sequence/digest parity по всем таблицам;
 5. CAS всего замкнутого consumer set со старой identity на новую;
 6. fresh DB-backed proof каждого consumer и negative proof отсутствия
    оставшихся writers на старой DB;
@@ -124,8 +131,9 @@ decommissioned только по факту появления новой или
    не удаляется и имеет точное правило возврата; если target уже принимает
    writes, rollback требует доказанного reverse-sync либо запрещён до
    отдельной reconciliation;
-8. operator deletion gate только после закрытия rollback window, финальной
-   parity/reconciliation и подтверждённого backup новой authority DB.
+8. operator deletion gate только после закрытия rollback window, повторной
+   exhaustive parity/reconciliation и подтверждённого restore-capable backup
+   новой authority DB.
 
 Ни DNS switch, ни «новая DB отвечает», ни isolated restore сами по себе не
 являются data cutover evidence.
