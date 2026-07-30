@@ -307,7 +307,8 @@ visual-proof артефакты.
 
 `scripts/ci-run-once.mjs` — локальный read-mostly helper, не общий
 оркестратор CI. Он уменьшает случайные повторные расходы GitHub Actions,
-не меняя workflow самих репозиториев.
+не меняя workflow самих репозиториев. Его scope — test/acceptance workflow;
+release/cutover workflow запускаются только через их coordinator.
 
 Контракт:
 

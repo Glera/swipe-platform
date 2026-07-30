@@ -135,6 +135,8 @@ node scripts/ci-run-once.mjs \
 Не вызывай `--apply` сразу после push: GitHub может ещё не успеть показать
 автоматический run в API. Сначала обычный dry-run; manual dispatch — только
 когда автоматического триггера для этого workflow действительно нет.
+Helper предназначен для test/acceptance workflow; release/cutover workflow
+запускаются только через их coordinator.
 
 **Кейс из жизни (сегодняшний).** Generator был «зелёный локально», а CI
 вскрыл две скрытые зависимости от твоей настроенной машины: Node-версию и
