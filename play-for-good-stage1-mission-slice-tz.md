@@ -1,13 +1,12 @@
-# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v7
+# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v8
 
-Статус: **DRAFT v7 после чат-раунда R6** (author: Claude; reviewer:
-Codex; R1–R5 внесены ранее; R6 (перепроверка в чат-контексте
-оператора): weights-authority = runtime-пин + явный `activate-weights`
-с ревалидацией; `alloc_cutoff` — typed-колонка в схеме и replay-тесте;
-read API отдаёт последний UNLOCKED независимо от FULFILLED;
-CLI-контракт разделён на intervention receipts и case-events;
-bootstrap-команды policy/weights). Вердикт R6: продуктового дрейфа
-относительно VISION и R1–R2 нет.
+Статус: **DRAFT v8 после чат-раунда R7** (author: Claude; reviewer:
+Codex; R1–R6 внесены ранее; R7: weights-enforcement симметрично
+policies — PK/hex-CHECK/UNIQUE-пара, runtime и contribution с
+composite-FK на пару, негативный FK-тест; понятие «активной funding
+policy» удалено — каждый контракт пинит свою immutable policy,
+preflight проверяет разрешимость пинов). По R7 достаточно
+diff-проверки двух мест — полный раунд не требуется.
 Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §1–2.
 **Предусловие реализации: чистый Island-off baseline (Этап 0 применён
 и проверен).**
@@ -45,9 +44,11 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    ошибочная пара невозможна by construction, а не только по
    contract_digest.
 0b. **`mission_contribution_weights`** — immutable versioned веса
-   источников вклада (серия/дейлик; позже коллекции): amount-правила
-   по источникам, `weights_version`, digest (требование gap-карты
-   «веса — versioned config»). **Регистрация версии — свободная
+   источников вклада (серия/дейлик; позже коллекции): PK
+   `weights_version`; `weights_digest` с CHECK `~ '^[0-9a-f]{64}$'`;
+   **UNIQUE `(weights_version, weights_digest)`** — цель composite-FK
+   (симметрично funding policies); amount-правила по источникам в
+   `document` (требование gap-карты «веса — versioned config»). **Регистрация версии — свободная
    immutable-запись; активной версию делает только `activate-weights`
    под runtime-lock**, который в той же транзакции ревалидирует
    `token_goal` всех READY/ACTIVE кейсов против нового максимума (при
@@ -78,10 +79,13 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    денежная политика входит в contract_digest. `registered_by/at`.
 2. **`mission_runtime`** — **singleton-строка** (PK-константа,
    CHECK id=1): пара `active_case_id + active_contract_version`
-   (nullable вместе), **`active_weights_version` +
-   `active_weights_digest`** — server-owned authority активной версии
-   весов (меняется только CLI `activate-weights` под этим же lock'ом;
-   contribution читает и пинит версию отсюда в той же транзакции),
+   (nullable вместе), пара **`active_weights_version` +
+   `active_weights_digest`** (nullable только вместе,
+   **composite-FK на UNIQUE `(weights_version, weights_digest)`** —
+   runtime не может указывать на несуществующую версию или на версию с
+   чужим digest'ом) — server-owned authority активной версии весов
+   (меняется только CLI `activate-weights` под этим же lock'ом;
+   contribution читает и пинит пару отсюда в той же транзакции),
    `updated_seq`.
    **Единая точка сериализации: КАЖДЫЙ mission-writer — lifecycle,
    contribution, pool-ledger (включая seed-pool), allocations и
@@ -135,7 +139,9 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    `idempotency_key` UNIQUE: серия — `mc:{run_id}`; дейлик —
    **`mcd:{user_id}:{day}:{quest_id}`, где `day` — player-local
    `DailyQuest.day` (пин точной строки квеста; НЕ utc_date)**;
-   **пин `weights_version`** (по какой версии весов посчитан amount);
+   **пин пары `weights_version + weights_digest`** (composite-FK на
+   UNIQUE-пару; receipt содержит обе величины — по какой версии весов
+   посчитан amount, доказуемо и невыдумываемо);
    `seq` под runtime-lock; receipt в той же транзакции, replay
    byte-identical. Child-allocations (каждая пинит `(case_id,
    contract_version)`): обычно одна строка; при пересечении
@@ -230,10 +236,13 @@ evidence digest + artifact URL). Все dry-run по умолчанию, `--appl
 intervention receipt; lifecycle-команды (`ready` / `activate` /
 `unlock-cutoff` / `fulfill`) дополнительно пишут case-event** —
 register-/seed-/weights-команды case-event не пишут (их нет в
-lifecycle-enum). Bootstrap: initial funding policy и weights
-регистрируются и активируются этими командами до включения core;
-DB-preflight `ENABLE_MISSION_CORE` требует также активной policy и
-активной версии весов. Отдельный флаг `ENABLE_MISSION_OPS`,
+lifecycle-enum). Bootstrap: funding policy регистрируется **до
+регистрации контрактов** (глобальной «активной policy» не существует —
+каждый контракт пинит собственную immutable policy composite-FK'ом);
+weights регистрируются и активируются до включения core. DB-preflight
+`ENABLE_MISSION_CORE` требует: активная версия весов установлена в
+runtime, и policy-пины всех ACTIVE/READY кейсов разрешаются по
+composite-FK. Отдельный флаг `ENABLE_MISSION_OPS`,
 HTTP-маршрутов нет; impact-полномочия не смешиваются с контентными
 скоупами.
 
@@ -272,9 +281,11 @@ child-строками, частичное покрытие → отказ бе�
 совпадающей с binding → FK-отказ); снапшот воспроизводим по паре
 `(pool_cursor, alloc_cutoff)` из receipt'а при любых поздних ledger-
 и allocation-строках (включая более поздний READY-reserve);
-weights-authority: contribution пинит runtime-активную версию, ready
-после activate-weights с меньшим token_goal → отказ; округление вниз
-и границы CHECK-ов; up/down миграции.
+weights-authority: contribution пинит runtime-активную пару, ready
+после activate-weights с меньшим token_goal → отказ; негативный тест
+mismatched weights version/digest (runtime или contribution с парой,
+не существующей в UNIQUE) → FK-отказ; округление вниз и границы
+CHECK-ов; up/down миграции.
 
 ## Клиент (feed-prototype, `VITE_MISSION_ENABLED` + capability)
 
