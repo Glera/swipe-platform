@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
-  "builtAt": "2026-07-30 09:13 UTC",
+  "builtAt": "2026-07-30 12:43 UTC",
   "feedCommit": "815ea74f502ce7febf5ebb53d496a44a286c8605",
-  "exportedPlayablesCommit": "5792d944b92b60a4260467e8c90b88db32ab9dbc",
-  "deployToolingCommit": "5792d944b92b60a4260467e8c90b88db32ab9dbc",
+  "exportedPlayablesCommit": null,
+  "deployToolingCommit": "1c55b6685a2e8dd16c951b1644cc134effcafab3",
   "profileName": "cohort-operator",
-  "profileFileSha256": "f21bf8ef09f84536042269bebae06ab8cb6bfdd72d285c4b4cb87bb4dab90246",
+  "profileFileSha256": "44298d1a7b0d0783f9bd51c82ac939b7146d9940d12b6cf2932ac03eafc5092f",
   "catalogDogfood": {
     "schema": "catalog-dogfood-release-profile.v1",
     "profile": "exact-user",
@@ -20,9 +20,9 @@
   "island": {
     "schema": "island-release-profile.v1",
     "gates": {
-      "VITE_ISLAND_ENABLED": true,
-      "VITE_ISLAND_VISIT_AWARDS_ENABLED": true,
-      "VITE_ISLAND_NOTIFICATIONS_ENABLED": true
+      "VITE_ISLAND_ENABLED": false,
+      "VITE_ISLAND_VISIT_AWARDS_ENABLED": false,
+      "VITE_ISLAND_NOTIFICATIONS_ENABLED": false
     }
   }
 }
