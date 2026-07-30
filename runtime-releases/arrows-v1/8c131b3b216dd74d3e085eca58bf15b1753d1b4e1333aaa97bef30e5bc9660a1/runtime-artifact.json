@@ -1,0 +1,19 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "arrows-v1",
+  "digest": "sha256:8c131b3b216dd74d3e085eca58bf15b1753d1b4e1333aaa97bef30e5bc9660a1",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "0960952a9fc7d2d7e6f3ae23b1dffe039d97ebb9",
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 1055,
+      "sha256": "sha256:b4232706974a643bbb310c3fc8a350dbf9883b8b5c7d3096caf3a08cb791f567"
+    },
+    {
+      "path": "payload.js",
+      "bytes": 85125,
+      "sha256": "sha256:7017d1c6489d3a52f47b3fefcc08588e567adf58432b47b918341bfc3e6a41aa"
+    }
+  ]
+}
