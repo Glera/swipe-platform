@@ -1,0 +1,271 @@
+snapshot_meta	2026-07-30 08:45:12 UTC	swipe_55ht	on	UTC	160014	40270871	38 MB
+schema	145	0067_feed_sequencing_evidence
+relation_totals	145	102	27377664	26 MB	9388032	9168 kB	13221888	13 MB
+table_size	public.content_analytics_report_inputs	3538944	3456 kB	9946	0	355
+table_size	public.cp_event_inbox	3186688	3112 kB	3148	508	1012
+table_size	public.events	3145728	3072 kB	9255	0	339
+table_size	public.feed_decisions	2031616	1984 kB	989	0	2054
+table_size	public.feed_effectful_plans	1507328	1472 kB	97	5	15539
+table_size	public.evaluation_runs	983040	960 kB	143	0	6874
+table_size	public.affinity_impression_evidence	729088	712 kB	787	51	926
+table_size	public.run_tickets	581632	568 kB	278	39	2092
+table_size	public.content_impressions	548864	536 kB	808	0	679
+table_size	public.content_analytics_evidence_rows	507904	496 kB	227	0	2237
+table_size	public.reward_ledger	425984	416 kB	608	0	700
+table_size	public.verified_runs	335872	328 kB	359	0	935
+table_size	public.level_specs	294912	288 kB	118	0	2499
+table_size	public.feed_slot_authorizations	286720	280 kB	67	0	4279
+table_size	public.interventions	278528	272 kB	55	30	5064
+table_size	public.lab_device_authorizations	253952	248 kB	80	11	3174
+table_size	public.content_analytics_reports	212992	208 kB	14	0	15213
+table_size	public.attempt_outcome_facts	196608	192 kB	192	0	1024
+table_size	public.catalog_level_configurations	196608	192 kB	117	0	1680
+table_size	public.level_impressions	180224	176 kB	158	0	1140
+table_size	public.runtime_releases	180224	176 kB	4	5	45056
+table_size	public.island_states	163840	160 kB	7	15	23405
+table_size	public.puzzle_ledger	155648	152 kB	184	0	845
+table_size	public.affinity_signals	147456	144 kB	26	26	5671
+table_size	public.catalog_canary_invitations	139264	136 kB	8	8	17408
+table_size	public.feed_mechanic_mappings	139264	136 kB	14	14	9947
+table_size	public.attempts	131072	128 kB	194	0	675
+table_size	public.catalog_three_level_production_evidence	131072	128 kB	1	0	131072
+table_size	public.feed_sequencing_runner_items	131072	128 kB	43	16	3048
+table_size	public.feed_policy_assignments	122880	120 kB	14	0	8777
+table_size	public.series_specs	122880	120 kB	16	1	7680
+table_size	public.catalog_recall_command_receipts	114688	112 kB	5	0	22937
+table_size	public.feed_policy_config_versions	114688	112 kB	9	8	12743
+table_size	public.feed_roster_activations	114688	112 kB	4	0	28672
+table_size	public.island_meta_events	106496	104 kB	67	0	1589
+table_size	public.lab_access_grants	106496	104 kB	56	10	1901
+table_size	public.usage_counters	106496	104 kB	191	2	557
+table_size	public.affinity_snapshots	98304	96 kB	2	1	49152
+table_size	public.agents_read_audit	98304	96 kB	22	0	4468
+table_size	public.catalog_entries	98304	96 kB	16	36	6144
+table_size	public.entry_state_log	98304	96 kB	19	16	5173
+table_size	public.feed_affinity_configs_v2	98304	96 kB	1	1	98304
+table_size	public.feed_cold_start_config_activations	98304	96 kB	1	1	98304
+table_size	public.feed_cold_start_configs	98304	96 kB	1	1	98304
+table_size	public.feed_mechanic_ontologies	98304	96 kB	1	1	98304
+table_size	public.feed_mechanic_ontology_activations	98304	96 kB	1	1	98304
+table_size	public.feed_sequencing_runner_failures	98304	96 kB	37	0	2656
+table_size	public.feed_slot_configs_v3	98304	96 kB	1	1	98304
+table_size	public.island_bake_jobs	98304	96 kB	11	32	8936
+table_size	public.island_completion_claims	98304	96 kB	32	0	3072
+exact_row_count	public.content_analytics_report_inputs	9946
+exact_row_count	public.events	9255
+exact_row_count	public.cp_event_inbox	3148
+exact_row_count	public.feed_decisions	989
+exact_row_count	public.content_impressions	808
+exact_row_count	public.affinity_impression_evidence	787
+exact_row_count	public.reward_ledger	608
+exact_row_count	public.verified_runs	358
+exact_row_count	public.run_tickets	278
+exact_row_count	public.content_analytics_evidence_rows	227
+exact_row_count	public.attempts	194
+exact_row_count	public.attempt_outcome_facts	192
+exact_row_count	public.usage_counters	191
+exact_row_count	public.puzzle_ledger	183
+exact_row_count	public.level_impressions	158
+exact_row_count	public.evaluation_runs	143
+exact_row_count	public.level_specs	118
+exact_row_count	public.catalog_level_configurations	117
+exact_row_count	public.feed_effectful_plans	97
+exact_row_count	public.lab_device_authorizations	80
+exact_row_count	public.feed_slot_authorizations	67
+exact_row_count	public.island_meta_events	67
+exact_row_count	public.daily_quests	66
+exact_row_count	public.lab_access_grants	56
+exact_row_count	public.interventions	55
+exact_row_count	public.feed_sequencing_runner_items	43
+exact_row_count	public.entry_evaluations	41
+exact_row_count	public.series_levels	41
+exact_row_count	public.feed_roster_entries	38
+exact_row_count	public.feed_sequencing_runner_failures	37
+exact_row_count	public.level_results	35
+exact_row_count	public.level_spec_lineage	33
+exact_row_count	public.island_completion_claims	32
+exact_row_count	public.island_completion_outcomes	32
+exact_row_count	public.affinity_snapshot_impressions	30
+exact_row_count	public.island_building_social	27
+exact_row_count	public.affinity_signals	26
+exact_row_count	public.affinity_snapshot_signals	26
+exact_row_count	public.island_bot_daily_plans	24
+exact_row_count	public.agents_read_audit	22
+exact_row_count	public.entry_state_log	19
+exact_row_count	public.publish_operations	17
+exact_row_count	public.variants	17
+exact_row_count	public.catalog_entries	16
+exact_row_count	public.series_specs	16
+exact_row_count	public.content_analytics_reports	14
+exact_row_count	public.feed_mechanic_mappings	14
+exact_row_count	public.feed_policy_assignments	14
+exact_row_count	public.content_analytics_scheduler_run_receipts	13
+exact_row_count	public.island_bake_jobs	11
+exact_row_count	public.island_collect_claims	11
+exact_row_count	public.feed_mechanic_ontology_members	10
+exact_row_count	public.island_visit_awards	10
+exact_row_count	public.island_visits	10
+exact_row_count	public.users	10
+exact_row_count	public.catalog_admission_receipts	9
+exact_row_count	public.feed_policy_config_versions	9
+exact_row_count	public.canary_rollouts	8
+exact_row_count	public.catalog_canary_deliveries	8
+exact_row_count	public.catalog_canary_invitations	8
+exact_row_count	public.agents_read_rate	7
+exact_row_count	public.catalog_skins	7
+exact_row_count	public.island_states	7
+exact_row_count	public.island_notification_attempts	6
+exact_row_count	public.island_notification_outbox	6
+exact_row_count	public.canary_players	5
+exact_row_count	public.catalog_recall_command_receipts	5
+exact_row_count	public.challenges	5
+exact_row_count	public.cp_event_rejections	5
+exact_row_count	public.island_building_likes	5
+exact_row_count	public.recall_actions	5
+exact_row_count	public.feed_roster_activations	4
+exact_row_count	public.feed_roster_configs	4
+exact_row_count	public.island_bots	4
+exact_row_count	public.runtime_releases	4
+exact_row_count	public.operator_level_flags	3
+exact_row_count	public.affinity_snapshots	2
+exact_row_count	public.agents_principal_credential	2
+exact_row_count	public.island_friendships	2
+exact_row_count	public.island_theme_jobs	2
+exact_row_count	public.operator_level_flag_open_subjects	2
+exact_row_count	public.agents_principal	1
+exact_row_count	public.agents_read_denial_summary	1
+exact_row_count	public.agents_read_denial_window	1
+exact_row_count	public.alembic_version	1
+exact_row_count	public.catalog_three_level_production_evidence	1
+exact_row_count	public.catalog_ticket_supersession_actions	1
+exact_row_count	public.cohort_observability_configs	1
+exact_row_count	public.cohort_observability_subject_mappings	1
+exact_row_count	public.content_analytics_scheduler_leases	1
+exact_row_count	public.content_demand_threshold_configs	1
+exact_row_count	public.feed_affinity_configs_v2	1
+exact_row_count	public.feed_affinity_materializations	1
+exact_row_count	public.feed_affinity_materialization_snapshots	1
+exact_row_count	public.feed_cold_start_config_activations	1
+exact_row_count	public.feed_cold_start_configs	1
+exact_row_count	public.feed_mechanic_ontologies	1
+exact_row_count	public.feed_mechanic_ontology_activations	1
+exact_row_count	public.feed_sequencing_runner_activations	1
+exact_row_count	public.feed_sequencing_shadow_assignments	1
+exact_row_count	public.feed_slot_configs_v3	1
+exact_row_count	public.island_friend_codes	1
+exact_row_summary	102	29032
+clock_growth	events	created_at	9255	1148	9255
+clock_growth	cp_event_inbox	received_at	3148	350	3148
+clock_growth	feed_decisions	created_at	989	100	989
+clock_growth	content_impressions	revealed_at	808	72	808
+clock_growth	affinity_impression_evidence	created_at	787	70	787
+clock_growth	reward_ledger	created_at	608	137	608
+clock_growth	verified_runs	created_at	358	137	358
+clock_growth	run_tickets	created_at	278	77	278
+clock_growth	attempt_canonical	created_at	194	97	194
+clock_growth	attempts	created_at	194	97	194
+clock_growth	attempt_outcome_facts	received_at	192	96	192
+clock_growth	usage_counters	updated_at	191	56	191
+clock_growth	puzzle_ledger	created_at	183	72	183
+clock_growth	level_impressions	revealed_at	158	32	158
+clock_growth	evaluation_runs	evaluated_at	143	55	143
+clock_growth	level_specs	created_at	118	50	118
+clock_growth	feed_effectful_plans	planned_at	97	0	97
+clock_growth	lab_device_authorizations	created_at	80	12	80
+clock_growth	feed_slot_authorizations	created_at	67	0	67
+clock_growth	island_meta_events	occurred_at	67	67	67
+clock_growth	daily_quests	created_at	66	18	66
+clock_growth	lab_access_grants	issued_at	56	10	56
+clock_growth	interventions	started_at	55	6	55
+clock_growth	feed_sequencing_runner_items	created_at	43	43	43
+clock_growth	feed_sequencing_runner_failures	failed_at	37	37	37
+clock_growth	level_results	updated_at	35	5	35
+clock_growth	island_completion_claims	occurred_at	32	32	32
+clock_growth	island_completion_outcomes	created_at	32	32	32
+clock_growth	island_building_social	created_at	27	23	27
+clock_growth	affinity_signals	recorded_at	26	0	26
+clock_growth	island_bot_daily_plans	created_at	24	24	24
+clock_growth	entry_state_log	created_at	19	0	19
+clock_growth	publish_operations	created_at	17	3	17
+clock_growth	variants	created_at	17	4	17
+clock_growth	catalog_entries	created_at	16	3	16
+clock_growth	series_specs	created_at	16	3	16
+clock_growth	content_analytics_reports	materialized_at	14	7	14
+clock_growth	feed_mechanic_mappings	registered_at	14	4	14
+clock_growth	feed_policy_assignments	assigned_at	14	0	14
+clock_growth	content_analytics_scheduler_run_receipts	started_at	13	7	13
+clock_growth	island_bake_jobs	created_at	11	1	11
+clock_growth	island_collect_claims	created_at	11	11	11
+clock_growth	island_visit_awards	created_at	10	10	10
+clock_growth	island_visits	started_at	10	10	10
+clock_growth	users	created_at	10	4	10
+clock_growth	catalog_admission_receipts	created_at	9	3	9
+clock_growth	feed_policy_config_versions	registered_at	9	0	9
+clock_growth	canary_rollouts	started_at	8	0	8
+clock_growth	catalog_canary_invitations	created_at	8	0	8
+clock_growth	agents_read_rate	updated_at	7	0	7
+clock_growth	catalog_skins	created_at	7	2	7
+clock_growth	island_states	created_at	7	4	7
+clock_growth	island_notification_attempts	created_at	6	6	6
+clock_growth	island_notification_outbox	created_at	6	6	6
+clock_growth	canary_players	first_served_at	5	0	5
+clock_growth	catalog_recall_command_receipts	created_at	5	0	5
+clock_growth	challenges	created_at	5	0	5
+clock_growth	cp_event_rejections	received_at	5	0	5
+clock_growth	island_building_likes	created_at	5	5	5
+clock_growth	recall_actions	created_at	5	0	5
+clock_growth	feed_roster_activations	activated_at	4	2	4
+clock_growth	feed_roster_configs	registered_at	4	2	4
+clock_growth	island_bots	created_at	4	4	4
+clock_growth	runtime_releases	registered_at	4	0	4
+clock_growth	operator_level_flags	created_at	3	0	3
+clock_growth	agents_principal_credential	issued_at	2	0	2
+clock_growth	island_friendships	created_at	2	2	2
+clock_growth	island_theme_jobs	created_at	2	2	2
+clock_growth	agents_principal	created_at	1	0	1
+clock_growth	catalog_three_level_production_evidence	created_at	1	0	1
+clock_growth	catalog_ticket_supersession_actions	created_at	1	0	1
+clock_growth	cohort_observability_configs	registered_at	1	1	1
+clock_growth	cohort_observability_subject_mappings	registered_at	1	1	1
+clock_growth	content_analytics_scheduler_leases	updated_at	1	0	1
+clock_growth	content_demand_threshold_configs	registered_at	1	0	1
+clock_growth	feed_affinity_configs_v2	registered_at	1	1	1
+clock_growth	feed_affinity_materializations	materialized_at	1	0	1
+clock_growth	feed_cold_start_config_activations	activated_at	1	1	1
+clock_growth	feed_cold_start_configs	registered_at	1	1	1
+clock_growth	feed_mechanic_ontologies	registered_at	1	1	1
+clock_growth	feed_mechanic_ontology_activations	activated_at	1	1	1
+clock_growth	feed_sequencing_runner_activations	activated_at	1	1	1
+clock_growth	feed_sequencing_shadow_assignments	assigned_at	1	1	1
+clock_growth	feed_slot_configs_v3	registered_at	1	1	1
+clock_growth	island_friend_codes	created_at	1	1	1
+user_day_model	affinity_impression_evidence	70	4	0	17.50	447	926	7824	16212
+user_day_model	content_impressions	72	4	0	18.00	98	679	1761	12227
+user_day_model	cp_event_inbox	350	4	0	87.50	388	1012	33915	88575
+user_day_model	events	919	6	229	153.17	202	340	31004	52061
+user_day_model	feed_decisions	100	4	0	25.00	1408	2054	35195	51355
+user_day_model	puzzle_ledger	72	6	0	12.00	214	846	2563	10151
+user_day_model	reward_ledger	137	5	0	27.40	336	701	9206	19197
+user_day_model	run_tickets	77	5	0	15.40	209	2092	3217	32220
+user_day_model	verified_runs	137	5	0	27.40	162	936	4443	25635
+c1_manifest_model	1710	7	244.29	146	356	35770	86921
+runtime	connections	6	103
+runtime	lock_waiters	0
+runtime	database_stats	1739674	752070	2764	474667289	0	0	17	0	
+index_fanout	run_tickets	15	2	458752	107508
+index_fanout	feed_decisions	13	2	688128	56263
+index_fanout	feed_shadow_plans	9	8	73728	5
+index_fanout	feed_effectful_plans	8	2	147456	9729
+index_fanout	feed_shadow_runner_items	8	8	65536	0
+index_fanout	cp_event_inbox	7	0	1712128	167851
+index_fanout	runtime_releases	7	4	114688	27781
+index_fanout	content_impressions	6	0	352256	55166
+index_fanout	verified_runs	6	1	196608	1475
+index_fanout	evaluation_runs	6	2	196608	740
+index_fanout	feed_roster_activations	6	4	98304	1705
+index_fanout	feed_slot_authorizations	6	3	98304	3883
+index_fanout	catalog_three_level_production_evidence	6	4	98304	3
+index_fanout	feed_shadow_runner_activations	6	6	49152	0
+index_fanout	operator_level_flag_rework_handoffs	6	5	49152	1264
+index_fanout	feed_personalization_resets	6	6	49152	0
+snapshot_complete	ok

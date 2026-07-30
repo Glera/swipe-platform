@@ -1,0 +1,12 @@
+{
+  "schema": "platform-reliability-r1-db-capture-receipt.v1",
+  "status": "ok",
+  "capturedAt": "2026-07-30T08:45:12.000Z",
+  "outputSha256": "e18869e077df507b95a01424e65a428a978b70a9871ff1c27993f0952a8f2cf7",
+  "outputBytes": 14468,
+  "readOnly": true,
+  "completionSentinel": "ok",
+  "credentialFileConsumed": true,
+  "credentialInArgv": false,
+  "secretsCaptured": false
+}
