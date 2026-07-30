@@ -142,6 +142,11 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
 test('operator runbook narrowly records the accepted Render residual', () => {
   const runbook = fs.readFileSync(OPERATOR_RUNBOOK, 'utf8');
 
+  assert.match(runbook, /operator window отложено решением оператора 2026-07-30/);
+  assert.match(runbook, /active multi-Mac development/);
+  assert.match(runbook, /R1 нельзя обозначать[\s\S]+complete/);
+  assert.match(runbook, /не позже `2026-08-29`/);
+  assert.match(runbook, /Старое[\s\S]+готов к operator window[\s\S]+не переносится/);
   assert.match(runbook, /provider_path_not_documented/);
   assert.match(
     runbook,

@@ -1,8 +1,10 @@
 # Platform Reliability R1 — PostgreSQL operator runbook
 
-Статус: исполнять только после snapshot 2 и его review. Этот документ не
-является разрешением на production-изменения. Каждый помеченный `OPERATOR`
-гейт требует присутствия и явного подтверждения оператора в текущей сессии.
+Статус: **operator window отложено решением оператора 2026-07-30 до Gate A;
+production не менялся**. Snapshot 2 и его independent review завершены, но
+этот документ не является разрешением на production-изменения. Каждый
+помеченный `OPERATOR` гейт требует нового присутствия и явного подтверждения
+оператора в текущей сессии.
 
 Цель окна:
 
@@ -12,6 +14,43 @@
 4. полностью закрыть внешний ingress;
 5. доказать одновременно fresh internal connectivity и отказ нового
    PostgreSQL-запроса снаружи.
+
+### Operator deferral 2026-07-30: active multi-Mac development
+
+Оператор разрабатывает с нескольких Mac. При текущих динамических внешних
+адресах точный `/32` создаёт регулярный ручной churn и риск самоблокировки.
+Render при этом рассматривается как временная non-strategic test/dogfood
+площадка, которая может быть заменена до масштаба. Поэтому весь mutating
+operator window остановлен до Gate A:
+
+- `0.0.0.0/0` временно остаётся; это принятый внешний attack-surface, а не
+  исправленное состояние;
+- DB credential не ротировался, allowlist не менялся, Blueprint sync/redeploy,
+  recovery DB и расходы не запускались;
+- пароль PostgreSQL и TLS остаются главным барьером внешнего доступа; это
+  приемлемо только пока credential уникален, не попадает в repo/chat/log/tool
+  output и нет признаков подозрительной аутентификации;
+- R1-0 read-only baseline сохраняет ценность, но R1 нельзя обозначать
+  complete: строки `/32`, credential rotation, PITR и external ingress closure
+  completion matrix остаются незакрытыми;
+- при возобновлении окно начинается заново с fresh consumer inventory,
+  deployment/sync preflight и отдельного подтверждения Gate A. Старое
+  «готов к operator window» не переносится.
+
+Решение пересматривается не позже `2026-08-29` и немедленно раньше при любом
+из условий:
+
+- расширение за пределы operator dogfood или приближение к 100 DAU;
+- появление другого человека с прямым PostgreSQL-доступом либо внешней
+  automation;
+- решение оставить Render стратегической production-площадкой;
+- credential попал в сохраняемый output или возникла подозрительная
+  authentication/network activity;
+- стабильная сеть/VPN/zero-trust access делает multi-Mac allowlisting
+  практически дешёвым.
+
+До возобновления запрещено добавлять новые постоянные внешние DB-consumers и
+нельзя трактовать открытый ingress как production-ready.
 
 ## 0. Authority и неизменяемые ограничения
 
