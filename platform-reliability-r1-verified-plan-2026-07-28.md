@@ -9,6 +9,13 @@
 origin/master:<file>`) с фиксацией SHA. Backend-факты проверены против
 `swipe-backend@eb17916`.
 
+**Play for Good overlay (30.07):** после VISION v3.0.1 R1-A исполняется по
+отдельному reviewed-плану
+`platform-reliability-r1a-v2-plan-2026-07-30.md`. Он не отменяет этот
+foundation plan, а уточняет порядок Stage 0 → R1-A cutover → Stage 1,
+compact image после Island-off, provider-neutral DB trust gates и точный
+Mission architecture allowlist без blanket exception.
+
 ## 0. Верификация фактов среза (v3)
 
 | # | Утверждение | Вердикт | Доказательство |
