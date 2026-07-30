@@ -1,10 +1,10 @@
-# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v3
+# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v4
 
-Статус: **DRAFT v3 после кросс-ревью R2** (author: Claude; reviewer:
-Codex; R1: dogfood-изоляция, singleton, receipt-доставка, fulfillment,
-инварианты; R2: 503-путь пустой очереди вместо >100%, exact contract
-identity во всей схеме, fulfillment↔N allocations, финансовая
-идемпотентность/округление, предусловие token_goal — все внесены).
+Статус: **DRAFT v4 после кросс-ревью R3** (author: Claude; reviewer:
+Codex; R1–R2 внесены ранее; R3: `mission_case_bindings` — версия
+контракта одна на весь lifecycle by construction; монотонный
+`ledger.seq` + правило `eligible at cursor` для воспроизводимого
+UNLOCKED-снапшота).
 Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §1–2.
 **Предусловие реализации: чистый Island-off baseline (Этап 0 применён
 и проверен).**
@@ -28,6 +28,15 @@ FULFILLED, мультивалютность (v0 жёстко EUR).
 Все журналы append-only; образцы — island_completion_claims/outcomes,
 island_moderation_actions, feed_policy_config_versions, award_*.
 
+0. **`mission_case_bindings`** — immutable биндинг «кейс ↔ ровно одна
+   версия контракта»: PK `case_id`, `contract_version` (FK на
+   contracts; пара UNIQUE), `bound_at`. Создаётся при `ready` и никогда
+   не меняется: новая версия потребности = **новый case_id** (в
+   культуре «изменение биндинга = новая identity»). Все остальные
+   таблицы ссылаются composite-FK `(case_id, contract_version)` на
+   bindings, а не на contracts напрямую — расхождение версий вдоль
+   lifecycle-цепочки (READY на v1, UNLOCKED на v3) невозможно by
+   construction.
 1. **`mission_case_contracts`** — immutable контракт кейса:
    PK `(case_id, contract_version)`, `contract_digest` (JCS sha256),
    `document` JSONB schema `mission.case-contract.v1`: получатель;
@@ -51,10 +60,18 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    (composite FK), `kind ∈ ready|active|unlocked|fulfilled`,
    `payload`, `receipt_digest`; UNIQUE `(case_id, kind)`. Derived
    state кейса = последний kind по `seq DESC`.
-4. **`mission_pool_ledger`** — rolling pool: `source ∈
+4. **`mission_pool_ledger`** — rolling pool: **монотонный `seq`
+   (BIGSERIAL)**; строки immutable и вставляются только уже settled
+   (`settled_at` фиксируется при insert, задним числом строки не
+   settled-ятся); `source ∈
    seed|revenue_share|partner|subscription_share` (v0 — только seed),
-   `amount_cents`, `currency` (CHECK `='EUR'`), `settled_at`, `meta`,
-   `idempotency_key` UNIQUE.
+   `amount_cents`, `currency` (CHECK `='EUR'`), `meta`,
+   `idempotency_key` UNIQUE. **Правило cursor'а:** `pool_cursor`
+   allocation'а = max `ledger.seq` на момент снапшота; `settled
+   unallocated eligible pool на cursor` = `sum(ledger.amount при seq ≤
+   cursor) − sum(предыдущих allocations)`. Поздние строки получают
+   больший `seq` и в прошлый снапшот не входят — immutable
+   UNLOCKED-сумма воспроизводима by construction.
 5. **`mission_pool_allocations`** — деньги→кейс: `kind ∈
    reserve_guaranteed|gift_additional`, `(case_id,
    contract_version)`, `amount_cents`, `currency` (CHECK `='EUR'`),
@@ -99,8 +116,10 @@ island_moderation_actions, feed_policy_config_versions, award_*.
 **Exact contract identity проходит через всю схему:** runtime,
 case-events, pool-allocations, contribution-allocations и
 fulfillments пинят точную пару `(case_id, contract_version)`
-composite-FK — из каждой строки доказуемо, по какой версии контракта
-посчитаны goal и деньги.
+composite-FK **на `mission_case_bindings`** — версия у кейса ровно
+одна на весь lifecycle, из каждой строки доказуемо, по какой версии
+посчитаны goal и деньги, а расхождение версий между событиями
+исключено схемой, не только тестом.
 
 ### State machine и очередь
 
@@ -184,7 +203,10 @@ retryable, outbox сохраняет и повторяет после появл
 не потерян и не задублирован; fulfillment покрывает обе allocation
 child-строками, частичное покрытие → отказ без FULFILLED-события;
 пин `(case_id, contract_version)` присутствует во всех receipts;
-округление вниз и границы CHECK-ов; up/down миграции.
+негативный тест расхождения версий (событие/allocation с версией, не
+совпадающей с binding → FK-отказ); снапшот воспроизводим из
+`ledger.seq ≤ cursor` при любых поздних строках; округление вниз и
+границы CHECK-ов; up/down миграции.
 
 ## Клиент (feed-prototype, `VITE_MISSION_ENABLED` + capability)
 

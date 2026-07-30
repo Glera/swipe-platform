@@ -1,10 +1,10 @@
-# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v3
+# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v4
 
-Статус: **DRAFT v3 после кросс-ревью R2** (author: Claude; reviewer:
-Codex; R1: разделение роутеров, runners, порядок проверки, manifest;
-R2: staged rollout с pre-set true, quiesce/drain runners,
-freeze-список вместо «ноль writes», точная карта роутеров — все
-внесены). Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §4.
+Статус: **DRAFT v4 после кросс-ревью R3** (author: Claude; reviewer:
+Codex; R1–R2 внесены ранее; R3: artifact-url переклассифицирован в
+closed-delivery контур (b); user block добавлен в защитный контур (c),
+`island_friend_blocks` выведен из freeze-списка в allowlist).
+Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §4.
 
 Цель: обратимо вывести legacy-остров из прода целиком — клиентскую
 поверхность, backend-writers и генерационные runners — сохранив
@@ -26,7 +26,9 @@ env-flip или откатом билда; closed delivery, public report, мо�
 `if settings.enable_island_social:`** (:195–200) и авторизуется
 server-side allowlist'ом `ISLAND_MODERATOR_IDS` (не Lab auth);
 `island_router` из `api_island.py` — **theme/bake generation**;
-`api_island_social.py` — **artifact-url, public, visits, likes**;
+`api_island_social.py` — public, visits, likes, user-block, и
+**artifact-url (:159), который является closed-delivery resolver'ом,
+а НЕ legacy-поверхностью**;
 `start_bake_runner()` / `start_theme_runner()` вызываются безусловно в
 `lifespan` (:76–77). Поэтому простое `ENABLE_ISLAND_SOCIAL=false`
 одновременно убило бы модерацию и не остановило бы ни legacy-роуты,
@@ -57,11 +59,15 @@ pre-set компенсирующих флагов):
    island-маршрутов с файлом-источником и целевым контуром.
 1. **Разделить роутеры на четыре независимых контура** (по
    manifest'у):
-   a) legacy: state (`api_island_state`), public/visits/likes/
-      artifact-url (`api_island_social`), theme/bake generation
-      (`api_island`);
-   b) closed-delivery resolver;
-   c) public report (кнопка репорта — защитный контур);
+   a) legacy: state (`api_island_state`), public/visits/likes
+      (`api_island_social` БЕЗ artifact-url и block), theme/bake
+      generation (`api_island`);
+   b) closed-delivery resolver — **включая artifact-url endpoint
+      (`api_island_social.py:159`)**: это выдача signed GET на уже
+      опубликованные артефакты, не legacy;
+   c) защитный пользовательский контур: **public report И user block**
+      (`/island/friends/{user_id}/block`) — VISION требует report/block
+      вместе;
    d) operator moderation/takedown (allowlist `ISLAND_MODERATOR_IDS`).
    Контуры (b), (c), (d) выводятся из-под `ENABLE_ISLAND_SOCIAL` и
    получают собственные гейты: (b) — существующий
@@ -119,8 +125,8 @@ finding: чинится до П4.
    (рестарт; runners больше не стартуют; ничего не оборвано
    посередине — очередь пуста).
 5. **Prod smoke:** curl-набор по route manifest'у → 404; closed
-   delivery выдаёт signed GET на существующий артефакт; report и
-   модерационная консоль работают; в логах нет
+   delivery (artifact-url) выдаёт signed GET на существующий артефакт;
+   report, user block и модерационная консоль работают; в логах нет
    bot/notification/bake/theme runner'ов.
 
 Rollback: обратные env-flip'ы пошагово в обратном порядке; повторное
@@ -136,14 +142,16 @@ catch-up).
    `island_completion_claims`, `island_completion_outcomes`,
    `island_collect_claims`, `island_visit_awards`, `island_bots`,
    `island_bot_daily_plans`, `island_friend_codes`,
-   `island_friendships`, `island_friend_blocks`,
+   `island_friendships`,
    `island_notification_outbox`, `island_notification_attempts`,
    `island_meta_events`, `island_bake_jobs`, `island_theme_jobs`.
    Через ≥24 ч: **ноль новых записей в freeze-списке**. Защитные
-   таблицы (`island_reports`, `island_moderation_actions`) в
-   freeze-список **не входят**: их writes разрешены и проверяются как
-   audit receipts — каждая новая строка соответствует конкретному
-   report/moderation-акту. Manifest — receipt пакета.
+   таблицы (`island_reports`, `island_moderation_actions`,
+   **`island_friend_blocks`** — пользовательский block остаётся живым
+   контуром) в freeze-список **не входят**: их writes разрешены и
+   проверяются как audit receipts — каждая новая строка соответствует
+   конкретному report/block/moderation-акту. Manifest — receipt
+   пакета.
 2. Пересобрать и переопубликовать `platform-scheme` (провенанс VISION
    v3.0.1).
 3. Доки: `IMPLEMENTATION-STATUS.md` (остров выключен: дата, коммиты,
@@ -168,8 +176,8 @@ Acceptance: manifest-проверка чистая; схема опублико�
 - Свежий клиент: ноль island-запросов.
 - Backend: контур (a) → 404; bake/theme/bot/notification runners не
   стартуют; queued jobs заморожены (status/attempts без изменений).
-- Closed delivery / public report / модерация / recall — проверены
-  руками, работают.
+- Closed delivery (artifact-url) / public report / user block /
+  модерация / recall — проверены руками, работают.
 - Старый cached-клиент: pre-prod E2E пройден до применения, prod smoke
   после.
 - Rollback записан; минимум один шаг проверен обратным включением вне
