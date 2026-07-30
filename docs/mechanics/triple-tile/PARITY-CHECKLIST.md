@@ -4,38 +4,38 @@ Status values: `measured`, `decision`, `gap`, `pass`, `fail`.
 
 ## Rules and traces
 
-- [ ] Level 6 target completion wins with captured residual board/tray.
-- [ ] Level 7 target completion wins with captured residual board/tray.
-- [ ] Level 8 target completion wins with captured residual board/tray.
-- [ ] Level 9 clear-all requires empty board and tray.
-- [ ] Level 10 target completion wins with captured residual board/tray.
-- [ ] Non-resolving seventh placement fails.
-- [ ] Seventh placement resolving a triple is safe.
-- [ ] Undo replays exact before/after state.
-- [ ] Magnet replays exact captured legal actions.
-- [ ] Continue records cost `300` and restores exact captured state.
+- [x] Level 6 target completion wins with captured residual board/tray.
+- [x] Level 7 target completion wins with captured residual board/tray.
+- [x] Level 8 target completion wins with captured residual board/tray.
+- [x] Level 9 clear-all requires empty board and tray.
+- [x] Level 10 target completion wins with captured residual board/tray.
+- [x] Non-resolving seventh placement fails (Level 8).
+- [x] Seventh placement resolving a triple is safe (Level 10).
+- [x] Undo replays exact before/after state (Level 8).
+- [x] Magnet replays exact captured legal actions (Level 9).
+- [x] Continue records cost `300` and restores exact captured state (Level 8).
 
 ## Presentation
 
 | Row | Measurement / disposition | Status |
 | --- | --- | --- |
-| board assembly | extract from capture; ZP-01 only if needed | gap |
-| tap → visible response | extract frame interval | gap |
-| board→tray flight | extract by path-length buckets | gap |
-| concurrent accepted taps | captured behavior; independent extraction and browser replay pending | gap |
-| grouped insertion/compression | captured behavior; side-by-side measurement pending | gap |
-| third landing → recognition | extract frame interval | gap |
-| sequential removal + particles | captured behavior; frame interval and side-by-side pending | gap |
-| unavailable response | extract; ZP-02 only if needed | gap |
-| goal completion cadence | per captured goal level | gap |
-| fail cadence | extract; ZP-03 only if needed | gap |
+| board assembly | Level 9 10 fps sheet: response `≤100 ms`, settled/interactive `~0.8–0.9 s`; current readiness `760 ms` retained | measured |
+| tap → visible response | Level 8 60 fps sheet: `≤33 ms` | measured |
+| board→tray flight | Level 8 60 fps sheet: approximately `0.28–0.35 s`; current `280–380 ms` path bucket retained | measured |
+| concurrent accepted taps | state/presentation queue accepts rapid taps and reserves all seven slots; native exact overlap cadence not isolated | decision |
+| grouped insertion/compression | captured causal order and deterministic browser projection match; exact easing is production-owned | decision |
+| third landing → recognition | begins after observed landing; current `70 ms` retained inside 60 fps uncertainty | measured |
+| sequential removal + particles | roughly `0.35–0.55 s` after recognition; current stagger/remove constants retained | measured |
+| unavailable response | no continuous native interval; ZP-02 specifies the only authorized exact probe | gap |
+| goal completion cadence | native fragments cross deadline/invalid MP4; ZP-04 | gap |
+| fail cadence | native Level 8 event is after deadline; ZP-03 | gap |
 | audio | off | decision |
 | haptics | light / soft / rigid | decision |
 
 ## Originality and platform
 
 - [x] Production build fails on resolved Twin module imports.
-- [ ] Five Production Original levels pass near-duplicate gate.
+- [x] Five Production Original levels pass near-duplicate gate (`0.337314…0.466492 < 0.88`).
 - [x] Five Production Original levels have solver witnesses without tools.
 - [x] Autoplay reaches each current objective.
 - [x] First accepted manual tap takes over without reset.
@@ -43,4 +43,5 @@ Status values: `measured`, `decision`, `gap`, `pass`, `fail`.
 - [x] Pause/resume preserves result.
 - [x] Terminal completion is emitted once.
 - [x] Compact/tall/landscape and low-tier visual checks pass.
-- [ ] Montage, side-by-side, delta list and independent review are attached.
+- [x] Updated native / neutral Twin / Production side-by-side and 15-second montage are attached.
+- [ ] Final independent review is attached.

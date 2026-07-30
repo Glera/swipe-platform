@@ -5,11 +5,11 @@ frames/video/actions fail to answer a parity question.
 
 | ID | Gap | Existing evidence first | Minimal probe | Output / stop condition | Status |
 | --- | --- | --- | --- | --- | --- |
-| ZP-01 | exact cold assembly offsets/timing | Level start fragments + screenshots | one fresh level start, uninterrupted ≤15 s | frame-indexed assembly events | pending evidence extraction |
-| ZP-02 | unavailable-tap onset/duration | blocked action + adjacent frames | one deliberate tap on a covered tile, ≤8 s | touch frame, first response, rest frame | pending evidence extraction |
-| ZP-03 | fail UI cadence | seventh-slot fail fragment | one deterministic fail, ≤12 s | seventh landing, fail onset, stable UI | pending evidence extraction |
-| ZP-04 | goal counter closure cadence | Level 6/7/8/10 terminal fragments | no probe unless fragment crosses a declared gap | third landing, counter zero, win onset | pending evidence extraction |
-| ZP-05 | Continue restoration transition | captured Level 10 Play On action | no probe unless before/after state cannot be aligned | state digest before fail/after Continue | pending evidence extraction |
+| ZP-01 | exact cold assembly offsets/timing | Level 9 entry fragment, 10 fps contact sheet | none | first response `≤100 ms`; settled/interactive approximately `0.8–0.9 s` | measured; no probe |
+| ZP-02 | unavailable-tap onset/duration | action log and adjacent screenshots do not span a known covered tap through rest | Level 8 neutral setup; one deliberate covered-tile tap; uninterrupted `≤8 s`; `zp02-unavailable.mp4` | touch, first response and rest frames at 60 fps | concrete probe required before exact cadence claim |
+| ZP-03 | fail UI cadence | Level 8 fail actions occur after Android recording deadline | deterministic captured pre-fail state; seventh tap; uninterrupted `≤12 s`; `zp03-fail.mp4` | seventh landing, fail onset, stable UI | concrete probe required |
+| ZP-04 | goal counter closure cadence | Level 8 result fragment is hashed but invalid MP4 (`moov` absent); other terminals cross recording deadlines | Level 8 pre-terminal state; final target tap; uninterrupted `≤10 s`; `zp04-goal-win.mp4` | third landing, counter zero, win onset, stable result | concrete probe required |
+| ZP-05 | Continue restoration transition | Level 8 before/fail/after state digests are proven; timing fragment is the invalid MP4 | captured fail state; tap Play On `300`; uninterrupted `≤8 s`; `zp05-continue.mp4` | tap, restored tray/board, input-ready frame | timing-only probe required |
 
 Every added row must name build, level, setup state, exact stimulus, maximum
 duration and expected file names. Captcha, purchase, ads and real-money
