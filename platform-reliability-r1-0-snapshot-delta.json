@@ -1,0 +1,107 @@
+{
+  "schema": "platform-reliability-r1-snapshot-delta.v1",
+  "window": {
+    "before": "2026-07-29T08:31:46.000Z",
+    "after": "2026-07-30T08:45:12.000Z",
+    "elapsedHours": 24.22386277777778,
+    "surfaces": {
+      "database": {
+        "before": "2026-07-29T08:31:46.094Z",
+        "after": "2026-07-30T08:45:12.000Z",
+        "elapsedHours": 24.22386277777778
+      },
+      "relations": {
+        "before": "2026-07-29T08:28:49.079Z",
+        "after": "2026-07-30T08:45:12.000Z",
+        "elapsedHours": 24.27303361111111
+      },
+      "rows": {
+        "before": "2026-07-29T08:34:04.886Z",
+        "after": "2026-07-30T08:45:12.000Z",
+        "elapsedHours": 24.185309444444446
+      },
+      "deadlocks": {
+        "before": "2026-07-29T08:30:55.629Z",
+        "after": "2026-07-30T08:45:12.000Z",
+        "elapsedHours": 24.23788083333333
+      }
+    },
+    "providerBefore": "2026-07-29T08:31:46.000Z",
+    "providerAfter": "2026-07-30T08:48:38.000Z",
+    "providerElapsedHours": 24.281111111111112,
+    "providerSkewBeforeSeconds": 176.921,
+    "providerSkewAfterSeconds": 206
+  },
+  "identity": {
+    "database": "swipe_55ht",
+    "renderServiceId": "dpg-d95r32favr4c73aqs4d0-a",
+    "alembicBefore": "0067_feed_sequencing_evidence",
+    "alembicAfter": "0067_feed_sequencing_evidence"
+  },
+  "providerStorage": {
+    "before": {
+      "observedAt": "2026-07-29T08:31:46.000Z",
+      "logicalDatabaseName": "swipe_55ht",
+      "allocatedBytes": 1073741824,
+      "measuredBytes": 123480310,
+      "uncertaintyBytes": 536871,
+      "source": "usedPercent (0.1 percentage-point display precision)"
+    },
+    "after": {
+      "observedAt": "2026-07-30T08:48:38.000Z",
+      "logicalDatabaseName": "swipe_55ht",
+      "allocatedBytes": 1073741824,
+      "measuredBytes": 124339303,
+      "uncertaintyBytes": 53688,
+      "source": "usedPercent (0.01 percentage-point display precision)"
+    },
+    "deltaEstimateBytes": 858993,
+    "deltaLowerBoundBytes": 268434,
+    "deltaUpperBoundBytes": 1449552,
+    "deltaEstimateBytesPerDay": 849048.1306914382
+  },
+  "database": {
+    "beforeBytes": 39541783,
+    "afterBytes": 40270871,
+    "deltaBytes": 729088,
+    "deltaBytesPerDay": 722350.1949512456
+  },
+  "relations": {
+    "beforeBytes": 26656768,
+    "afterBytes": 27377664,
+    "deltaBytes": 720896,
+    "deltaBytesPerDay": 712787.0490847977,
+    "providerComparisonComparable": true,
+    "providerMinusRelationDeltaEstimateBytesPerDay": 136261.08160664048
+  },
+  "rows": {
+    "before": 27880,
+    "after": 29032,
+    "delta": 1152,
+    "deltaPerDay": 1143.1732996226335,
+    "byTableComparable": false,
+    "byTable": null
+  },
+  "deadlocks": {
+    "before": 17,
+    "after": 17,
+    "statsResetBefore": null,
+    "statsResetAfter": null,
+    "comparable": true,
+    "cumulativeStatsMonotonic": true,
+    "delta": 0,
+    "deltaPerDay": 0
+  },
+  "warnings": [
+    "provider delta is bounded by dashboard percentage quantization",
+    "per-table row delta is unavailable because snapshot 1 retained only the exact aggregate",
+    "snapshot 1 aggregate surfaces were observed across 315.807 seconds"
+  ],
+  "provenance": {
+    "beforeSnapshotSha256": "f27c6179cea4672f8812e80aed4b505aa767be9a069de1f247d21f3076289304",
+    "afterSnapshotSha256": "e18869e077df507b95a01424e65a428a978b70a9871ff1c27993f0952a8f2cf7",
+    "captureAfterReceiptSha256": "c812bb79334ef6ee692754fc3886324c5c989028023690fa6d1a85691db79294",
+    "providerBeforeReceiptSha256": "c289f3c04bfab9fd22724e4a0ea502d8e19526b00877993c8c97cf273836a4ed",
+    "providerAfterReceiptSha256": "e11b48fb29944d93574e5525774de6fec0de39a3eb27f3e9cc7be1b285a6b34a"
+  }
+}
