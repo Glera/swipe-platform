@@ -271,6 +271,7 @@ NO-GO; toolchain не возвращается «временно» без от�
 
 | Existing integration point | Разрешённая зависимость | Назначение |
 |---|---|---|
+| `app/config.py` | declarative mission flags, dogfood allowlist и pure config validation | `ENABLE_MISSION_CORE`, `ENABLE_MISSION_READ`, `ENABLE_MISSION_OPS`, `MISSION_DOGFOOD_USER_IDS`; без DB/network authority |
 | `app/api_results.py` | mission contribution application/replay adapter | optional committed `mission_contribution` в terminal series response |
 | `app/api_daily.py` | mission contribution application/replay adapter | atomic daily contribution receipt |
 | `app/api_session.py` | pure mission capability projection | `mission_dogfood`, без write authority |
@@ -282,6 +283,17 @@ NO-GO; toolchain не возвращается «временно» без от�
 service/contract API. Mission domain не импортирует endpoint modules,
 Island, Catalog, Lab, agents или presentation code. Он может зависеть только
 от shared DB/auth-safe primitives и собственных models/contracts/services.
+
+Единственный authority для `mission_contribution.amount` — активный immutable
+`mission_contribution_weights.document`, прочитанный и pinned парой
+`weights_version + weights_digest` под runtime-lock. `run_id` и
+`DailyQuest.day/quest_id` являются source identity/idempotency evidence, но не
+источником amount. Endpoint adapter подтверждает существующий terminal
+series/daily факт в принадлежащей ему транзакции и передаёт typed source
+identity в mission service; amount вычисляет mission domain. Импорт
+`app/rewards.py` из mission domain и повторное использование его reward-
+функций для amount запрещены. Это толкование должно быть дословно отражено в
+Stage 1 v8 implementation diff до первого production-кода.
 
 ### 7.3 Разрешённые client-рёбра
 
@@ -304,14 +316,19 @@ Client mission code не импортирует `island.ts`. Island data и puzz
 - `app/models.py`: **0 mission model classes**; все новые модели в
   `app/mission_models.py`;
 - `migrations/env.py`: только metadata-registration import;
+- `app/config.py`: до 25 net новых declarative/validation lines;
 - `app/api_results.py`: до 40 net новых integration lines;
 - `app/api_daily.py`: до 35;
 - `app/api_session.py`: до 20;
 - `app/main.py`: до 20;
-- `feed-prototype/src/feed.ts`: до 45 integration lines;
+- `feed-prototype/src/feed.ts`: до 90 integration lines на HUD-retiming,
+  две ceremony-врезки, CTA-stack и mount отдельного mission UI module;
 - существующий `island.ts`: 0 mission lines;
-- новый production domain module: максимум 600 строк; превышение требует
-  split или отдельной диспозиции;
+- каждый новый production domain/UI module: максимум 600 строк; превышение
+  требует split или отдельной диспозиции;
+- совокупный backend mission domain (`app/mission_*.py`, без migration и
+  tests): до 3 200 строк; совокупный client mission domain: до 1 800 строк.
+  Рост числа маленьких файлов не обходит общий budget;
 - migration и tests учитываются отдельным generated/schema и evidence
   budget, но не дают права переносить production logic в migration/test.
 
