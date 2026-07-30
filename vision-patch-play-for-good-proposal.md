@@ -644,3 +644,38 @@ versioned config на monetization-гейте. Доля цены КАЖДОЙ с
 Находки 1–4 раунда 8 подтверждены Codex как исправленные; lifecycle и
 денежная формула замкнуты. Протокол остаётся untracked до утверждения и
 коммитится одним коммитом с VISION.md.
+
+---
+
+## Дополнение — раунд 10 (30.07.2026): auto-вклад и rolling pool
+
+Решения оператора после gap-карты и кросс-ревью Codex (заменяют
+противоречащие формулировки раундов 4/7 выше):
+
+1. **Вклад — автоматический** (заменяет A/B-гипотезу «ручное "внести"
+   против автоматического»): каждая завершённая qualified-серия, дейлик
+   или завершение коллекции создаёт server-owned contribution receipt;
+   лапки сразу зачисляются в текущий ACTIVE-кейс. Личного кошелька,
+   spend-акта и «неиспользованных токенов» нет; публичный бар двигается
+   только по server receipt, без optimistic UI; церемония остаётся
+   дискретной («ты принёс 20 лапок»). Receipt, принятый после смены
+   кейса, идёт в новый ACTIVE и явно это показывает. Вклад,
+   пересекающий token goal, делится детерминированно: до цели —
+   текущему кейсу (он проходит UNLOCKED), остаток — новому ACTIVE;
+   один receipt показывает обе allocation-строки.
+2. **Rolling impact pool вместо «окна выручки сезона»**:
+   `gift = min(guaranteed + unlock_share(progress) × settled
+   unallocated eligible pool at UNLOCKED snapshot, need + stretch)`;
+   receipt фиксирует snapshot/cursor пула, всё settled позже cursor'а
+   достаётся следующим кейсам. Снимает вопрос «сезон завершился до
+   settlement его выручки».
+3. **Лапки заменяют puzzles только в UX, без миграции ledger**:
+   исторический puzzle-баланс (starter grant 120, старые daily, island
+   gifts/collect, bot-derived) не human-true и вкладом не становится;
+   новые лапки — отдельные contribution receipts в mission-домене.
+4. **Терминология**: единица вклада и VIP-бонуса — «завершённая
+   qualified-серия» (не «победа» и не отдельный уровень).
+
+Применено к `VISION.md` и `play-for-good-gap-map-v1.md` (v2);
+исследование кросс-ревью `play-for-good-gap-map-codex-research.md`
+включается в коммит как audit trail.
