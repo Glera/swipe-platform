@@ -1,7 +1,7 @@
 # Platform Reliability R1-A — implementation review packet
 
-Status: **DRAFT pending exact-head CI and independent implementation review**.
-This packet grants no production authority.
+Status: **REVIEW-READY; exact-head CI PASS, independent implementation review
+pending**. This packet grants no production authority.
 
 Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 `p4g-workspace-meta@ea89f97` after the Stage 1 reviewer GO on PR #39.
@@ -10,9 +10,9 @@ Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 
 | Repository | Branch | Exact head | PR |
 | --- | --- | --- | --- |
-| `swipe-backend` | `codex/platform-reliability-r1a-implementation` | `587fe8e` | [#33](https://github.com/Glera/swipe-backend/pull/33) |
+| `swipe-backend` | `codex/platform-reliability-r1a-implementation` | `bfccf83` | [#33](https://github.com/Glera/swipe-backend/pull/33) |
 | `feed-prototype` | `codex/platform-reliability-r1a-client-guard` | `a5be5d3` | [#15](https://github.com/Glera/feed-prototype/pull/15) |
-| `p4g-workspace-meta` | `codex/platform-reliability-r1a-evidence` | pending this packet commit | pending |
+| `p4g-workspace-meta` | `codex/platform-reliability-r1a-evidence` | exact PR head containing this packet | [#40](https://github.com/Glera/p4g-workspace-meta/pull/40) |
 
 Base production branches are unchanged by the implementation PRs. No image
 was manually published, no Render setting was changed, no deploy was
@@ -42,20 +42,33 @@ triggered, and no production database command ran.
 - predecessor, target, PostgreSQL 16 schema capability;
 - explicit accepted revision lists for candidate and LKG compatibility;
 - release profile, CI run/attempt, and `release.json v2` digests;
-- exact LKG image and exact LKG manifest.
+- exact LKG image and exact LKG manifest for every deployable candidate.
 
 Manifests use RFC 8785 JCS, reject duplicate JSON keys and noncanonical bytes,
 and have bounded input size. A first CI run exposed PostgreSQL int64 sequence
 bounds outside the JCS safe-number domain; the contract now preserves those
 exact values as decimal strings.
 
+The first immutable baseline cannot truthfully pin an earlier immutable
+manifest. Its non-deployable evidence manifest therefore carries the typed
+identity `lastKnownGood: {"kind":"bootstrap-root"}` and refuses any invented
+image/hash fields. The first deployable candidate is a separate reviewed build
+that pins the exact baseline image and bootstrap-manifest digest with
+`kind=image`. Coordinator tests prove `bootstrap-root` is rejected before a
+Render client is constructed or any remote request can occur. Candidate build
+CI downloads the exact LKG artifact by successful run ID and derives rollback
+compatibility from its canonical manifest. Build, cutover, coordinator, and
+rollback preDeploy independently reject a widened/retyped compatibility claim
+before production mutation or DB access.
+
 ## 4. Package C — remote single-writer coordinator
 
 - GitHub `production` environment is the normal production authority.
 - Global `platform-production-release`, `cancel-in-progress:false`
   concurrency serializes prepare/deploy/rollback across branches and hosts.
-- Operator supplies exact successful build run, manifest SHA-256, and current
-  Render deploy ID; “latest” discovery is forbidden.
+- Operator supplies exact successful candidate/LKG build runs, candidate
+  manifest SHA-256, and current Render deploy ID; “latest” discovery is
+  forbidden.
 - GitHub API proves build conclusion and exact `head_sha`.
 - Render Blueprint Auto Sync and service Auto Deploy must already be off.
 - Source CAS is checked before any mutation and again immediately before
@@ -96,7 +109,9 @@ one-off job.
 An implementation pass found a real design trap before merge: an old image
 cannot verify a future migration from its own migration bytes. A naive reuse
 of normal `preDeploy` would therefore block rollback after an additive schema
-change.
+change. A later self-review found the complementary trap: pinning an LKG hash
+while accepting its compatibility list as a separate manual claim would allow
+accidental widening. Both are closed in the protocol below.
 
 The corrected protocol uses two exact manifests:
 
@@ -138,9 +153,9 @@ Both guards carry exact baseline SHA/line anchors. Mutants prove a forbidden
 import, an unreviewed edge/model leak, and exactly +1 over budget turn CI red.
 No Stage 1 product code is included.
 
-## 8. Local evidence
+## 8. Package G — evidence and local acceptance
 
-- backend release/coordinator/guard: 17 tests PASS;
+- backend release/coordinator/guard: 24 tests PASS;
 - physical local migration 0068 roundtrip: PASS;
 - append-only mutation refusal: PASS;
 - nonempty downgrade refusal: PASS;
@@ -155,23 +170,42 @@ the exact-head CI service container.
 
 ## 9. CI evidence
 
-Pending exact-head results:
+Exact backend head `bfccf83`:
 
-- backend compact image + sidecar;
-- full PostgreSQL acceptance;
-- migration 0068 physical roundtrip;
-- all existing migration matrix jobs;
-- downstream reverse drift;
-- client lint + build.
+- compact image, PG16 schema capability, Mission guard, runtime inventory,
+  and built-image protective smoke: **PASS**
+  ([run 30554692436](https://github.com/Glera/swipe-backend/actions/runs/30554692436));
+- PostgreSQL acceptance: **25/25 jobs PASS**
+  ([run 30554692413](https://github.com/Glera/swipe-backend/actions/runs/30554692413));
+- full acceptance inside that run: **522 passed / 41 skipped**, device flow
+  **18 passed**, isolated durable-authorization roundtrip **1 passed**;
+- migration 0068 physical roundtrip, every existing migration-matrix job,
+  downstream reverse drift, and final head assertion
+  `0068_platform_release_receipts`: **PASS**.
+
+Exact client head `a5be5d3`:
+
+- guard, three CI mutants, TypeScript lint and production build: **PASS**
+  ([run 30552145216](https://github.com/Glera/feed-prototype/actions/runs/30552145216)).
 
 Earlier red runs are retained, not hidden:
 
 1. JCS rejected PostgreSQL int64 sequence bounds;
 2. the first image smoke ran one legacy-public test under the final
    closed-delivery flag profile; the harness was narrowed to the resolver
-   class while route-manifest behavior remains a separate image assertion.
+   class while route-manifest behavior remains a separate image assertion;
+3. the prior full PostgreSQL suite had one unrelated one-second boundary
+   alignment flake in `agents_m2m`; 521 tests and every migration job passed.
+   It was not waived;
+4. the next full run exposed a real test-contour conflict: a committed
+   append-only platform receipt correctly prevented a later legacy migration
+   test from destructively downgrading the shared acceptance DB. The
+   destructive roundtrip now creates and uses its own disposable database;
+   neither the receipt guard nor its trigger was weakened.
 
-Both failures produced code/harness changes before the final run.
+The final exact-head run is required to be green rather than waiving any of
+these failures. Findings 1, 2, and 4 produced code/harness changes; the
+unrelated timing flake in finding 3 passed on the unchanged exact-head repeat.
 
 ## 10. Production prerequisites
 
@@ -179,13 +213,21 @@ R1-A cutover remains NO-GO until all are true:
 
 1. Stage 0 P1–P5 full acceptance;
 2. ≥24 clean freeze after Stage 0;
-3. exact-head CI in §9 PASS;
-4. independent implementation review accepts packages A–G;
-5. GHCR registry credential and protected GitHub `production` environment
+3. implementation branches rebased onto the exact accepted post-Stage-0
+   heads, with a bounded integration diff and fresh exact-head CI/review;
+4. exact-head CI in §9 PASS now and again after that rebase;
+5. independent implementation review accepts packages A–G and the final
+   post-Stage-0 delta;
+6. GHCR registry credential and protected GitHub `production` environment
    configured;
-6. disposable Render-compatible source-switch/deploy/rollback rehearsal PASS;
-7. fresh production source/deploy/consumer inventory;
-8. separate operator GO for the cutover window.
+7. disposable Render-compatible source-switch/deploy/rollback rehearsal PASS;
+8. fresh production source/deploy/consumer inventory;
+9. separate operator GO for the cutover window.
+
+Merging backend PR #33 is part of the cutover preparation because it changes
+the active Docker/Render contract and could interact with current Auto Sync.
+An implementation-review GO does **not** authorize that merge. It may occur
+only after items 1–8 are evidenced in the attended cutover sequence.
 
 DB trust gates (restore drill, fresh credential, deny-by-default external
 ingress, closed consumer set) remain prerequisites for the first production
@@ -213,8 +255,9 @@ Mission writer, not for this default-off implementation branch.
 
 Return one of:
 
-- `GO` — packages A–G may be merged only as cutover preparation; production
-  still waits for §10;
+- `GO` — packages A–G may advance to post-Stage-0 rebase and disposable
+  rehearsal; it does not authorize merge, publication, Render mutation, or
+  cutover;
 - `GO WITH CONDITIONS` — exact findings and required evidence;
 - `NO-GO` — authority, rollback, schema, protective-surface, or coordinator
   invariant is unsound.
