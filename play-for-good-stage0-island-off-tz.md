@@ -1,8 +1,9 @@
-# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v2
+# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v3
 
-Статус: **DRAFT v2 после кросс-ревью R1** (author: Claude; reviewer:
-Codex; findings R1: №1 разделение роутеров, №2 bake/theme runners,
-№8 порядок проверки cached-клиента, №9 snapshot manifest — все
+Статус: **DRAFT v3 после кросс-ревью R2** (author: Claude; reviewer:
+Codex; R1: разделение роутеров, runners, порядок проверки, manifest;
+R2: staged rollout с pre-set true, quiesce/drain runners,
+freeze-список вместо «ноль writes», точная карта роутеров — все
 внесены). Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §4.
 
 Цель: обратимо вывести legacy-остров из прода целиком — клиентскую
@@ -19,16 +20,19 @@ env-flip или откатом билда; closed delivery, public report, мо�
 и recall работают на каждом шаге (проверяется в acceptance каждого
 шага, где применимо).
 
-Фактическое состояние (проверено 30.07.2026): `app/main.py` —
-`island_state_router` и `island_social_router` смонтированы безусловно
-(:193–194); **модерация смонтирована внутри
+Фактическое состояние (проверено 30.07.2026, уточнено R2):
+`app/main.py` — `island_state_router` и `island_social_router`
+смонтированы безусловно (:193–194); **модерация смонтирована внутри
 `if settings.enable_island_social:`** (:195–200) и авторизуется
-server-side allowlist'ом `ISLAND_MODERATOR_IDS` (не Lab auth); старый
-`island_router` (public/visit/like + artifact-url) — безусловно
-(:201); `start_bake_runner()` / `start_theme_runner()` вызываются
-безусловно в `lifespan` (:76–77). Поэтому простое `ENABLE_ISLAND_
-SOCIAL=false` одновременно убило бы модерацию и не остановило бы ни
-legacy-роуты, ни генерационные runners.
+server-side allowlist'ом `ISLAND_MODERATOR_IDS` (не Lab auth);
+`island_router` из `api_island.py` — **theme/bake generation**;
+`api_island_social.py` — **artifact-url, public, visits, likes**;
+`start_bake_runner()` / `start_theme_runner()` вызываются безусловно в
+`lifespan` (:76–77). Поэтому простое `ENABLE_ISLAND_SOCIAL=false`
+одновременно убило бы модерацию и не остановило бы ни legacy-роуты,
+ни генерационные runners. **Первый деливерабл П2 — точный route
+manifest**: каждый island-маршрут → файл → целевой контур; физическое
+разделение выполняется только по manifest'у, не по памяти.
 
 ---
 
@@ -46,13 +50,16 @@ Rollback: предыдущий клиентский билд.
 
 ## П2 — backend-код: физическое разделение контуров + гейты runners
 
-Изменения (одна PR в swipe-backend, деплоится при ещё включённых
-env-флагах — поведение прода не меняется):
+Изменения (одна PR в swipe-backend; прод-деплой — только в П4, после
+pre-set компенсирующих флагов):
 
-1. **Разделить роутеры на четыре независимых контура**:
-   a) legacy state/public/visit/like (включая `island_state_router`,
-      `island_social_router`, старый `island_router` без
-      закрытой доставки);
+0. **Route manifest** (деливерабл до кода): полный список
+   island-маршрутов с файлом-источником и целевым контуром.
+1. **Разделить роутеры на четыре независимых контура** (по
+   manifest'у):
+   a) legacy: state (`api_island_state`), public/visits/likes/
+      artifact-url (`api_island_social`), theme/bake generation
+      (`api_island`);
    b) closed-delivery resolver;
    c) public report (кнопка репорта — защитный контур);
    d) operator moderation/takedown (allowlist `ISLAND_MODERATOR_IDS`).
@@ -61,16 +68,20 @@ env-флагах — поведение прода не меняется):
    `ENABLE_ISLAND_CLOSED_DELIVERY`; (c) и (d) — новый
    `ENABLE_ISLAND_PROTECTIVE_SURFACE` (default **true**: защитный
    контур не должен выключаться случайно).
-2. **`ENABLE_ISLAND_LEGACY_SURFACE` (default false)** гейтит: контур
-   (a) целиком И запуск `start_bake_runner()` / `start_theme_runner()`
-   в `lifespan` (при false runners не стартуют и не claim'ят jobs).
+2. **Два раздельных гейта вместо одного** (нужны для quiesce):
+   `ENABLE_ISLAND_LEGACY_SURFACE` (default false) — роуты контура (a);
+   `ENABLE_ISLAND_GENERATION_RUNNERS` (default false) — запуск/claim
+   `start_bake_runner()` / `start_theme_runner()` в `lifespan`.
+   Раздельность позволяет состояние «роуты закрыты, runners доживают
+   очередь».
 3. Cross-flag валидатор: явные ветки на новые комбинации.
 
-Acceptance (тесты + локально): при `LEGACY_SURFACE=false` — все пути
-контура (a) → 404, bake/theme runners не стартуют, **status/attempts
-существующих queued jobs не изменяются**; при `SOCIAL=false` —
-модерация, report и closed delivery продолжают работать; полный
-тест-сьют зелёный. Rollback: env-flip `LEGACY_SURFACE=true`.
+Acceptance (тесты + локально): при `LEGACY_SURFACE=false` все пути
+контура (a) → 404; при `GENERATION_RUNNERS=false` runners не стартуют
+и **status/attempts существующих queued jobs не изменяются**; при
+`SOCIAL=false` — модерация, report и closed delivery продолжают
+работать; полный тест-сьют зелёный. Rollback: env-flip
+соответствующего флага в true.
 
 ## П3 — pre-prod проверка старого cached-клиента (ДО прод-применения)
 
@@ -84,33 +95,55 @@ visit-award, лайки).
 Acceptance: E2E зелёный. Найденная жёсткая зависимость — blocking
 finding: чинится до П4.
 
-## П4 — прод-применение
+## П4 — прод-применение (staged, каждый под-шаг — receipt + проверка)
 
-Порядок внутри шага: деплой кода П2 (флаги прода ещё on — поведение
-не меняется) → env-флипы одним изменением `render.yaml`:
-`ENABLE_ISLAND_SOCIAL=false`, `ENABLE_ISLAND_BOTS=false`,
-`ENABLE_ISLAND_VISIT_AWARDS=false`, `ENABLE_ISLAND_NOTIFICATIONS=false`,
-явно `ISLAND_REWARDS_ENABLED=false` (default true — полагаться на
-отсутствие нельзя); `ENABLE_ISLAND_LEGACY_SURFACE` не задаётся
-(default false); `ENABLE_ISLAND_CLOSED_DELIVERY=true` и
-`ENABLE_ISLAND_PROTECTIVE_SURFACE=true` сохраняются.
+1. **Pre-set (до деплоя кода!):** в `render.yaml` заранее добавить
+   `ENABLE_ISLAND_LEGACY_SURFACE=true` и
+   `ENABLE_ISLAND_GENERATION_RUNNERS=true` (плюс явные
+   `ENABLE_ISLAND_PROTECTIVE_SURFACE=true`,
+   `ENABLE_ISLAND_CLOSED_DELIVERY=true`). Затем задеплоить код П2 —
+   деплой не меняет поведение прода (default-false флаги
+   компенсированы pre-set'ом). Smoke: legacy-роуты отвечают, runners
+   работают, модерация работает.
+2. **Flip поверхности:** `ENABLE_ISLAND_SOCIAL=false`,
+   `ENABLE_ISLAND_BOTS=false`, `ENABLE_ISLAND_VISIT_AWARDS=false`,
+   `ENABLE_ISLAND_NOTIFICATIONS=false`, явно
+   `ISLAND_REWARDS_ENABLED=false` (default true),
+   `ENABLE_ISLAND_LEGACY_SURFACE=false`. Новые theme/bake jobs
+   невозможны (роуты закрыты); runners ещё включены.
+3. **Quiesce/drain:** дождаться terminal-состояния всех queued/running
+   bake/theme jobs (новых нет; bounded wait по lease TTL; job,
+   зависший в `generating`, резолвится вручную по runbook'у до
+   продолжения). Проверка: ноль незавершённых jobs.
+4. **Flip runners:** `ENABLE_ISLAND_GENERATION_RUNNERS=false`
+   (рестарт; runners больше не стартуют; ничего не оборвано
+   посередине — очередь пуста).
+5. **Prod smoke:** curl-набор по route manifest'у → 404; closed
+   delivery выдаёт signed GET на существующий артефакт; report и
+   модерационная консоль работают; в логах нет
+   bot/notification/bake/theme runner'ов.
 
-Prod smoke: curl-набор по списку legacy-роутов → 404; closed delivery
-выдаёт signed GET на существующий артефакт; report-запрос и
-модерационная консоль работают; в логах нет bot/notification/bake/theme
-runner'ов.
-
-Rollback: env-flip обратно; повторное включение ботов безопасно by
-design (immutable per-day планы, bounded catch-up).
+Rollback: обратные env-flip'ы пошагово в обратном порядке; повторное
+включение ботов безопасно by design (immutable per-day планы, bounded
+catch-up).
 
 ## П5 — snapshot manifest, схема и доки
 
-1. **Data-manifest вместо голых row counts**: после drain (П4)
-   зафиксировать snapshot: row counts + max seq/id по всем `island_*`
-   таблицам, список queued/running bake/theme jobs со status/attempts,
-   digest mutable-state (`island_states` revisions). Через ≥24 ч
-   проверить: ни одной новой island-write после cutoff, jobs не
-   изменились. Manifest — receipt пакета.
+1. **Data-manifest с явным freeze-списком** (после drain П4):
+   snapshot row counts + max seq/id + digest mutable-state по
+   **freeze-списку** legacy/social/economy таблиц: `island_states`,
+   `island_building_social`, `island_visits`, `island_building_likes`,
+   `island_completion_claims`, `island_completion_outcomes`,
+   `island_collect_claims`, `island_visit_awards`, `island_bots`,
+   `island_bot_daily_plans`, `island_friend_codes`,
+   `island_friendships`, `island_friend_blocks`,
+   `island_notification_outbox`, `island_notification_attempts`,
+   `island_meta_events`, `island_bake_jobs`, `island_theme_jobs`.
+   Через ≥24 ч: **ноль новых записей в freeze-списке**. Защитные
+   таблицы (`island_reports`, `island_moderation_actions`) в
+   freeze-список **не входят**: их writes разрешены и проверяются как
+   audit receipts — каждая новая строка соответствует конкретному
+   report/moderation-акту. Manifest — receipt пакета.
 2. Пересобрать и переопубликовать `platform-scheme` (провенанс VISION
    v3.0.1).
 3. Доки: `IMPLEMENTATION-STATUS.md` (остров выключен: дата, коммиты,
@@ -124,8 +157,9 @@ Acceptance: manifest-проверка чистая; схема опублико�
 
 ## Порядок применения
 
-П1 (клиент) → П2 (код, деплой без смены поведения) → П3 (pre-prod E2E
-старого клиента) → П4 (env-флипы + prod smoke) → П5
+П1 (клиент) → П2 (код: route manifest + разделение, PR без
+прод-деплоя) → П3 (pre-prod E2E старого клиента) → П4 (pre-set →
+деплой → staged env-flip'ы → drain → prod smoke) → П5
 (manifest/схема/доки). Каждый шаг — отдельный receipt; прод-верификация
 до следующего шага.
 
@@ -140,7 +174,7 @@ Acceptance: manifest-проверка чистая; схема опублико�
   после.
 - Rollback записан; минимум один шаг проверен обратным включением вне
   прода.
-- Data-manifest: ни одной island-write после cutoff; данные не
-  удалены.
+- Data-manifest: ноль записей в freeze-списке после cutoff; защитные
+  writes — только с audit-receipt; данные не удалены.
 
 Только после этого acceptance начинается реализация Этапа 1.

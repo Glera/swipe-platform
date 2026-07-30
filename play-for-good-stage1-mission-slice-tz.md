@@ -1,9 +1,10 @@
-# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v2
+# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v3
 
-Статус: **DRAFT v2 после кросс-ревью R1** (author: Claude; reviewer:
-Codex; findings R1: №3 dogfood-изоляция writers, №4 singleton
-ACTIVE/очередь, №5 receipt до клиента, №6 typed fulfillment/деньги,
-№7 инвариант суммы allocations, UX-watermark — все внесены).
+Статус: **DRAFT v3 после кросс-ревью R2** (author: Claude; reviewer:
+Codex; R1: dogfood-изоляция, singleton, receipt-доставка, fulfillment,
+инварианты; R2: 503-путь пустой очереди вместо >100%, exact contract
+identity во всей схеме, fulfillment↔N allocations, финансовая
+идемпотентность/округление, предусловие token_goal — все внесены).
 Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §1–2.
 **Предусловие реализации: чистый Island-off baseline (Этап 0 применён
 и проверен).**
@@ -38,7 +39,8 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    `latest_fulfillment_at`; `queue_position`; ожидаемый вид
    подтверждения. `registered_by/at`.
 2. **`mission_runtime`** — **singleton-строка** (PK-константа,
-   CHECK id=1): `active_case_id` (nullable), `updated_seq`.
+   CHECK id=1): пара `active_case_id + active_contract_version`
+   (nullable вместе), `updated_seq`.
    **Единая точка сериализации: каждый lifecycle- и
    contribution-writer начинает транзакцию с
    `SELECT … FROM mission_runtime FOR UPDATE`** — двух ACTIVE-кейсов
@@ -54,9 +56,17 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    `amount_cents`, `currency` (CHECK `='EUR'`), `settled_at`, `meta`,
    `idempotency_key` UNIQUE.
 5. **`mission_pool_allocations`** — деньги→кейс: `kind ∈
-   reserve_guaranteed|gift_additional`, `case_id`, `amount_cents`,
-   `currency` (CHECK `='EUR'`), `pool_cursor`, `receipt`. Инвариант
-   (в транзакции под runtime-lock): `sum(allocations) ≤ sum(settled
+   reserve_guaranteed|gift_additional`, `(case_id,
+   contract_version)`, `amount_cents`, `currency` (CHECK `='EUR'`),
+   `pool_cursor`, FK на породивший lifecycle event, `receipt`.
+   **Финансовая идемпотентность и границы:** UNIQUE idempotency
+   identity (`res:{case_id}:{contract_version}` /
+   `gift:{case_id}:{contract_version}`); округление
+   `unlock_share × cents` — вниз до целых центов; CHECK-и:
+   `unlock_share ∈ [0,1]` (в receipt), `guaranteed_cents ≤
+   confirmed_need_cents + stretch_cap_cents` (на контракте),
+   положительные `amount_cents` в ledger и allocations. Инвариант (в
+   транзакции под runtime-lock): `sum(allocations) ≤ sum(settled
    ledger)`. UNLOCKED-снапшот: `gift = min(guaranteed_cents +
    unlock_share(progress) × settled unallocated pool на cursor,
    confirmed_need_cents + stretch_cap_cents)`.
@@ -67,20 +77,30 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    **`mcd:{user_id}:{day}:{quest_id}`, где `day` — player-local
    `DailyQuest.day` (пин точной строки квеста; НЕ utc_date)**;
    `seq` под runtime-lock; receipt в той же транзакции, replay
-   byte-identical. Child-allocations: обычно одна строка; при
-   пересечении `token_goal` — детерминированно две. **Инвариант
+   byte-identical. Child-allocations (каждая пинит `(case_id,
+   contract_version)`): обычно одна строка; при пересечении
+   `token_goal` — детерминированно две. **Инвариант
    `sum(child)=amount` — service-level в той же транзакции +
    reconciliation-тест** (обычный SQL CHECK не читает другие строки;
    constraint trigger — опциональное усиление позже).
-7. **`mission_fulfillments`** — typed transfer receipt
-   `mission.fulfillment-receipt.v1`: `case_id` + gift/allocation
-   identity (FK на конкретные allocations), `amount_cents`,
-   `currency` (CHECK `='EUR'`), `recipient`,
-   `transfer_reference`/`transfer_date`, `evidence_digest`,
-   immutable content-addressed `artifact_url`. Сервис проверяет, что
-   transfer покрыт указанными allocations кейса (сумма совпадает).
-   Публичное «реально передано» проецируется **только** из
-   fulfillment-receipts.
+7. **`mission_fulfillments`** (+ child
+   **`mission_fulfillment_allocations`**) — typed transfer receipt
+   `mission.fulfillment-receipt.v1`: `(case_id, contract_version)`,
+   `amount_cents`, `currency` (CHECK `='EUR'`), `recipient`,
+   `transfer_reference`/`transfer_date`, `evidence_digest`, immutable
+   content-addressed `artifact_url`. Child-строки связывают receipt с
+   **каждой** покрываемой allocation-строкой (обычный перевод
+   покрывает две: `reserve_guaranteed` + `gift_additional`). Сервис
+   принимает fulfill только при полном покрытии зафиксированного gift
+   (`sum(child) = amount_cents = зарезервировано+открыто кейса`);
+   `FULFILLED` event пишется атомарно в той же транзакции. Публичное
+   «реально передано» проецируется **только** из fulfillment-receipts.
+
+**Exact contract identity проходит через всю схему:** runtime,
+case-events, pool-allocations, contribution-allocations и
+fulfillments пинят точную пару `(case_id, contract_version)`
+composite-FK — из каждой строки доказуемо, по какой версии контракта
+посчитаны goal и деньги.
 
 ### State machine и очередь
 
@@ -92,12 +112,22 @@ READY) → UNLOCKED (в транзакции пересекающего вкла
 `unlock-cutoff`) **в той же транзакции активирует следующий READY из
 очереди**. Правила:
 
-- Включение `ENABLE_MISSION_CORE` требует preflight: существует ACTIVE
-  и ≥1 READY-successor (проверка конфиг-валидатором/CLI).
-- Fallback пустой очереди: если пересекающий вклад пришёл, а READY
-  successor отсутствует — остаток зачисляется текущему кейсу сверх
-  цели (бар честно показывает >100%), вклад не теряется; операционный
-  инвариант — держать очередь непустой.
+- Включение `ENABLE_MISSION_CORE` требует **DB-preflight** —
+  CLI-команда и startup-проверка, не config-validator (у него нет
+  доступа к БД): существует ACTIVE и ≥1 READY-successor.
+- Аварийный путь пустой очереди (VISION-совместимый): транзакция
+  пересекающего вклада **не коммитится** и возвращает retryable
+  **503** — клиентский outbox сохраняет результат и повторит после
+  появления READY-кейса. Не 409: существующий result-outbox считает
+  409 terminal и удалит запись. `unlock-cutoff` при отсутствующем
+  successor отказывает до создания READY-кейса. Операционный
+  инвариант — держать очередь непустой; 503-ветка — предохранитель,
+  не рабочий режим.
+- Предусловие v0 (валидируется при `register-contract`): `token_goal`
+  каждого кейса ≥ максимально возможного одиночного вклада (максимум
+  серии/дейлика из reward-функций) — пересечение затрагивает максимум
+  два кейса, двух child-строк достаточно. Каскадное распределение по N
+  кейсам понадобится для крупных collection-наград (Этап 2).
 
 ### Dogfood-изоляция (writers И readers)
 
@@ -149,8 +179,12 @@ runtime); split-инвариант + reconciliation; pool-инвариант; sn
 не меняется от поздних settled-строк; fulfillment coverage (transfer =
 сумма указанных allocations; чужие allocations → отказ);
 **не-enrolled пользователь: `/results`/daily байт-в-байт прежние
-(golden), вкладов нет, capability нет**; пустая очередь → бар >100%,
-вклад не потерян; up/down миграции.
+(golden), вкладов нет, capability нет**; пустая очередь → 503
+retryable, outbox сохраняет и повторяет после появления READY, вклад
+не потерян и не задублирован; fulfillment покрывает обе allocation
+child-строками, частичное покрытие → отказ без FULFILLED-события;
+пин `(case_id, contract_version)` присутствует во всех receipts;
+округление вниз и границы CHECK-ов; up/down миграции.
 
 ## Клиент (feed-prototype, `VITE_MISSION_ENABLED` + capability)
 
