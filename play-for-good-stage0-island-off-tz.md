@@ -1,12 +1,12 @@
-# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v6
+# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v7
 
-Статус: **DRAFT v6 после кросс-ревью R5** (author: Claude; reviewer:
-Codex; R1–R4 внесены ранее; R5: `island_friendships` (только
-`removed_at` синхронно с block) и `island_meta_events` (только строки
-защитных актов) выведены из freeze-списка в allowlist — protective
-smoke больше не нарушает freeze by construction). Автономная петля
-остановлена на лимите 3 раундов; финальная перепроверка — в чат-треде
-оператора. Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §4.
+Статус: **ГОТОВ К РЕАЛИЗАЦИИ после чат-раунда R6** (author: Claude;
+reviewer: Codex; R1–R5 внесены ранее; R6: acceptance согласован с
+drain — очередь полностью drained до выключения runners, после cutoff
+job-таблицы не меняются. Вердикт R6: «Stage 0 после P2-уточнения можно
+считать готовым к реализации», продуктового дрейфа нет). Реализация —
+после явного «го» оператора. Основание: VISION v3.0.1 (`96df90a`),
+gap-карта v2 §4.
 
 Цель: обратимо вывести legacy-остров из прода целиком — клиентскую
 поверхность, backend-writers и генерационные runners — сохранив
@@ -183,7 +183,9 @@ Acceptance: manifest-проверка чистая; схема опублико�
 
 - Свежий клиент: ноль island-запросов.
 - Backend: контур (a) → 404; bake/theme/bot/notification runners не
-  стартуют; queued jobs заморожены (status/attempts без изменений).
+  стартуют; очередь bake/theme **полностью drained до выключения
+  runners** (ноль незавершённых jobs); после cutoff job-таблицы
+  больше не меняются.
 - Closed delivery (artifact-url) / public report / user block /
   модерация / recall — проверены руками, работают.
 - Старый cached-клиент: pre-prod E2E пройден до применения, prod smoke

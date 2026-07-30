@@ -1,12 +1,13 @@
-# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v6
+# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v7
 
-Статус: **DRAFT v6 после кросс-ревью R5** (author: Claude; reviewer:
-Codex; R1–R4 внесены ранее; R5: единый runtime-lock для ВСЕХ
-mission-writers включая pool и веса; пара cutoff'ов
-pool_cursor+alloc_cutoff; policy-пин колонками с composite-FK и CAS;
-ревалидация предусловия весов на ready/activate; resolved policy
-document в read API). Автономная петля остановлена на лимите 3
-раундов; финальная перепроверка — в чат-треде оператора.
+Статус: **DRAFT v7 после чат-раунда R6** (author: Claude; reviewer:
+Codex; R1–R5 внесены ранее; R6 (перепроверка в чат-контексте
+оператора): weights-authority = runtime-пин + явный `activate-weights`
+с ревалидацией; `alloc_cutoff` — typed-колонка в схеме и replay-тесте;
+read API отдаёт последний UNLOCKED независимо от FULFILLED;
+CLI-контракт разделён на intervention receipts и case-events;
+bootstrap-команды policy/weights). Вердикт R6: продуктового дрейфа
+относительно VISION и R1–R2 нет.
 Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §1–2.
 **Предусловие реализации: чистый Island-off baseline (Этап 0 применён
 и проверен).**
@@ -46,11 +47,13 @@ island_moderation_actions, feed_policy_config_versions, award_*.
 0b. **`mission_contribution_weights`** — immutable versioned веса
    источников вклада (серия/дейлик; позже коллекции): amount-правила
    по источникам, `weights_version`, digest (требование gap-карты
-   «веса — versioned config»). Каждый contribution пинит точную
-   версию весов. Регистрация новой версии весов **отклоняется**, если
-   её максимальный одиночный вклад превышает `token_goal` любого
-   текущего READY/ACTIVE кейса — предусловие проверяется совместно с
-   обеих сторон. Runtime-защита: вклад, не помещающийся в две
+   «веса — versioned config»). **Регистрация версии — свободная
+   immutable-запись; активной версию делает только `activate-weights`
+   под runtime-lock**, который в той же транзакции ревалидирует
+   `token_goal` всех READY/ACTIVE кейсов против нового максимума (при
+   нарушении — отказ активации, версия остаётся неактивной). Каждый
+   contribution пинит версию, прочитанную из `mission_runtime` под тем
+   же lock'ом. Runtime-защита: вклад, не помещающийся в две
    child-строки, отклоняется retryable-ошибкой до операторской
    резолюции — каскад по N кейсам в v0 запрещён.
 0c. **`mission_case_bindings`** — immutable биндинг «кейс ↔ ровно одна
@@ -75,7 +78,11 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    денежная политика входит в contract_digest. `registered_by/at`.
 2. **`mission_runtime`** — **singleton-строка** (PK-константа,
    CHECK id=1): пара `active_case_id + active_contract_version`
-   (nullable вместе), `updated_seq`.
+   (nullable вместе), **`active_weights_version` +
+   `active_weights_digest`** — server-owned authority активной версии
+   весов (меняется только CLI `activate-weights` под этим же lock'ом;
+   contribution читает и пинит версию отсюда в той же транзакции),
+   `updated_seq`.
    **Единая точка сериализации: КАЖДЫЙ mission-writer — lifecycle,
    contribution, pool-ledger (включая seed-pool), allocations и
    активация версии весов — начинает транзакцию с
@@ -107,7 +114,10 @@ island_moderation_actions, feed_policy_config_versions, award_*.
 5. **`mission_pool_allocations`** — деньги→кейс: `kind ∈
    reserve_guaranteed|gift_additional`, `(case_id,
    contract_version)`, `amount_cents`, `currency` (CHECK `='EUR'`),
-   `pool_cursor`, FK на породивший lifecycle event, `receipt`.
+   **монотонный `alloc_seq`**; `pool_cursor` и `alloc_cutoff` — **обе
+   typed-колонки строки**, обязательные для `kind='gift_additional'`
+   (CHECK) и входящие в digest receipt'а; FK на породивший lifecycle
+   event, `receipt`.
    **Финансовая идемпотентность и границы:** UNIQUE idempotency
    identity (`res:{case_id}:{contract_version}` /
    `gift:{case_id}:{contract_version}`); округление
@@ -175,14 +185,14 @@ READY) → UNLOCKED (в транзакции пересекающего вкла
   successor отказывает до создания READY-кейса. Операционный
   инвариант — держать очередь непустой; 503-ветка — предохранитель,
   не рабочий режим.
-- Предусловие v0 — **замкнуто по всему lifecycle**: проверяется при
-  `register-contract`, **повторно при `ready` и `activate`**
-  (ревалидация против активной на тот момент версии весов — окно
-  «зарегистрировали при маленьких весах, активировали крупные, ready
-  без проверки» закрыто), и при регистрации новой версии весов — её
-  максимум не превышает `token_goal` ни одного READY/ACTIVE кейса.
-  **Активация версии весов идёт под тем же runtime-lock**, что ready и
-  contributions — гонка «веса меняются между проверкой и ready»
+- Предусловие v0 — **замкнуто по всему lifecycle через один
+  authority**: активная версия весов — это runtime-пин
+  `mission_runtime.active_weights_version` (см. выше). Проверка при
+  `register-contract`, **повторно при `ready` и `activate`** против
+  runtime-активной версии (окно «зарегистрировали при маленьких весах
+  → активировали крупные → ready без проверки» закрыто), и при
+  `activate-weights` — против всех READY/ACTIVE кейсов. Всё под одним
+  runtime-lock — гонка «веса меняются между проверкой и ready»
   исключена сериализацией. Пересечение затрагивает максимум два
   кейса; runtime-нарушение → retryable-отказ; каскад по N кейсам —
   только с крупными collection-наградами (Этап 2).
@@ -212,20 +222,31 @@ enrolled-пользователям**, для остальных поведен�
 
 ### Операторский CLI `python -m app.mission_ops`
 
-Команды: `register-contract` / `seed-pool` / **`ready`** / `activate` /
-`unlock-cutoff` / `fulfill` (typed fulfillment-receipt + evidence
-digest + artifact URL). Все dry-run по умолчанию, `--apply` с
-обязательными exact-identity аргументами; каждый apply = case-event +
-receipt. Отдельный флаг `ENABLE_MISSION_OPS`, HTTP-маршрутов нет;
-impact-полномочия не смешиваются с контентными скоупами.
+Команды: `register-funding-policy` / `register-weights` /
+`activate-weights` / `register-contract` / `seed-pool` / `ready` /
+`activate` / `unlock-cutoff` / `fulfill` (typed fulfillment-receipt +
+evidence digest + artifact URL). Все dry-run по умолчанию, `--apply` с
+обязательными exact-identity аргументами. **Каждый apply создаёт typed
+intervention receipt; lifecycle-команды (`ready` / `activate` /
+`unlock-cutoff` / `fulfill`) дополнительно пишут case-event** —
+register-/seed-/weights-команды case-event не пишут (их нет в
+lifecycle-enum). Bootstrap: initial funding policy и weights
+регистрируются и активируются этими командами до включения core;
+DB-preflight `ENABLE_MISSION_CORE` требует также активной policy и
+активной версии весов. Отдельный флаг `ENABLE_MISSION_OPS`,
+HTTP-маршрутов нет; impact-полномочия не смешиваются с контентными
+скоупами.
 
 ### Read API
 
 `ENABLE_MISSION_READ` + capability: `GET /api/mission/case` — текущий
 ACTIVE (токен-бар, четыре числа: вклад сообщества / гарантировано /
 зарезервировано и открыто / реально передано-из-fulfillments), мой
-вклад, последний FULFILLED (**с immutable event id для клиентского
-watermark**), и **«контракт в один тап» с resolved документами**:
+вклад, **последний UNLOCKED и последний FULFILLED — независимо друг от
+друга, каждый с immutable event id и receipt'ом** (клиентский
+watermark; игрок, не инициировавший пересекающий вклад или вернувшийся
+позже, получает первую церемонию именно отсюда), и **«контракт в один
+тап» с resolved документами**:
 контракт кейса плюс разрешённый `mission_funding_policies.document`
 (version + digest + сам документ) — источник, определение eligible
 revenue и формула реально доступны игроку, а не только их digests
@@ -248,9 +269,12 @@ retryable, outbox сохраняет и повторяет после появл
 child-строками, частичное покрытие → отказ без FULFILLED-события;
 пин `(case_id, contract_version)` присутствует во всех receipts;
 негативный тест расхождения версий (событие/allocation с версией, не
-совпадающей с binding → FK-отказ); снапшот воспроизводим из
-`ledger.seq ≤ cursor` при любых поздних строках; округление вниз и
-границы CHECK-ов; up/down миграции.
+совпадающей с binding → FK-отказ); снапшот воспроизводим по паре
+`(pool_cursor, alloc_cutoff)` из receipt'а при любых поздних ledger-
+и allocation-строках (включая более поздний READY-reserve);
+weights-authority: contribution пинит runtime-активную версию, ready
+после activate-weights с меньшим token_goal → отказ; округление вниз
+и границы CHECK-ов; up/down миграции.
 
 ## Клиент (feed-prototype, `VITE_MISSION_ENABLED` + capability)
 
