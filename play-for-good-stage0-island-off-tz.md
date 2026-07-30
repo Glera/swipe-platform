@@ -1,9 +1,9 @@
-# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v4
+# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v5
 
-Статус: **DRAFT v4 после кросс-ревью R3** (author: Claude; reviewer:
-Codex; R1–R2 внесены ранее; R3: artifact-url переклассифицирован в
-closed-delivery контур (b); user block добавлен в защитный контур (c),
-`island_friend_blocks` выведен из freeze-списка в allowlist).
+Статус: **DRAFT v5 после кросс-ревью R4** (author: Claude; reviewer:
+Codex; R1–R3 внесены ранее; R4: block локализован в
+`api_island_p2.py:250`; route manifest получил колонку ожидаемых
+статусов, smoke проверяется по ней, а не сплошным 404).
 Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §4.
 
 Цель: обратимо вывести legacy-остров из прода целиком — клиентскую
@@ -26,9 +26,9 @@ env-flip или откатом билда; closed delivery, public report, мо�
 `if settings.enable_island_social:`** (:195–200) и авторизуется
 server-side allowlist'ом `ISLAND_MODERATOR_IDS` (не Lab auth);
 `island_router` из `api_island.py` — **theme/bake generation**;
-`api_island_social.py` — public, visits, likes, user-block, и
-**artifact-url (:159), который является closed-delivery resolver'ом,
-а НЕ legacy-поверхностью**;
+`api_island_social.py` — public, visits, likes, и **artifact-url
+(:159), который является closed-delivery resolver'ом, а НЕ
+legacy-поверхностью**; **user-block живёт в `api_island_p2.py:250`**;
 `start_bake_runner()` / `start_theme_runner()` вызываются безусловно в
 `lifespan` (:76–77). Поэтому простое `ENABLE_ISLAND_SOCIAL=false`
 одновременно убило бы модерацию и не остановило бы ни legacy-роуты,
@@ -56,7 +56,10 @@ Rollback: предыдущий клиентский билд.
 pre-set компенсирующих флагов):
 
 0. **Route manifest** (деливерабл до кода): полный список
-   island-маршрутов с файлом-источником и целевым контуром.
+   island-маршрутов с файлом-источником, целевым контуром и
+   **ожидаемым статусом после Этапа 0** (404 для контура (a); живой
+   ответ для (b)/(c)/(d)). Smoke проверяется против этой колонки, а не
+   сплошным 404.
 1. **Разделить роутеры на четыре независимых контура** (по
    manifest'у):
    a) legacy: state (`api_island_state`), public/visits/likes
@@ -66,8 +69,8 @@ pre-set компенсирующих флагов):
       (`api_island_social.py:159`)**: это выдача signed GET на уже
       опубликованные артефакты, не legacy;
    c) защитный пользовательский контур: **public report И user block**
-      (`/island/friends/{user_id}/block`) — VISION требует report/block
-      вместе;
+      (`/island/friends/{user_id}/block` из `api_island_p2.py:250`) —
+      VISION требует report/block вместе;
    d) operator moderation/takedown (allowlist `ISLAND_MODERATOR_IDS`).
    Контуры (b), (c), (d) выводятся из-под `ENABLE_ISLAND_SOCIAL` и
    получают собственные гейты: (b) — существующий
@@ -124,10 +127,11 @@ finding: чинится до П4.
 4. **Flip runners:** `ENABLE_ISLAND_GENERATION_RUNNERS=false`
    (рестарт; runners больше не стартуют; ничего не оборвано
    посередине — очередь пуста).
-5. **Prod smoke:** curl-набор по route manifest'у → 404; closed
-   delivery (artifact-url) выдаёт signed GET на существующий артефакт;
-   report, user block и модерационная консоль работают; в логах нет
-   bot/notification/bake/theme runner'ов.
+5. **Prod smoke:** curl-набор по route manifest'у — **каждый маршрут
+   отвечает ожидаемым статусом своего контура**: legacy (a) → 404;
+   artifact-url выдаёт signed GET на существующий артефакт; report,
+   user block и модерационная консоль отвечают живыми статусами; в
+   логах нет bot/notification/bake/theme runner'ов.
 
 Rollback: обратные env-flip'ы пошагово в обратном порядке; повторное
 включение ботов безопасно by design (immutable per-day планы, bounded

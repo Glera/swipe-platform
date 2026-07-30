@@ -1,10 +1,10 @@
-# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v4
+# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v5
 
-Статус: **DRAFT v4 после кросс-ревью R3** (author: Claude; reviewer:
-Codex; R1–R2 внесены ранее; R3: `mission_case_bindings` — версия
-контракта одна на весь lifecycle by construction; монотонный
-`ledger.seq` + правило `eligible at cursor` для воспроизводимого
-UNLOCKED-снапшота).
+Статус: **DRAFT v5 после кросс-ревью R4** (author: Claude; reviewer:
+Codex; R1–R3 внесены ранее; R4: `mission_funding_policies` — денежная
+политика версионируется и пинится контрактом/receipt'ами;
+`mission_contribution_weights` — веса вклада версионируются,
+предусловие token_goal проверяется с обеих сторон).
 Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §1–2.
 **Предусловие реализации: чистый Island-off baseline (Этап 0 применён
 и проверен).**
@@ -28,7 +28,27 @@ FULFILLED, мультивалютность (v0 жёстко EUR).
 Все журналы append-only; образцы — island_completion_claims/outcomes,
 island_moderation_actions, feed_policy_config_versions, award_*.
 
-0. **`mission_case_bindings`** — immutable биндинг «кейс ↔ ровно одна
+0a. **`mission_funding_policies`** — immutable денежная политика
+   (образец feed_policy_config_versions): PK `policy_version`,
+   `policy_digest`, `document` JSONB schema
+   `mission.funding-policy.v1`: полная формула gift, правило
+   snapshot/cursor (`eligible = ledger.seq ≤ cursor`), определение
+   eligible pool и допустимых источников, правило округления (вниз до
+   целых центов), валюта. Контракт кейса пинит точную пару
+   `(funding_policy_version, policy_digest)`; UNLOCKED-receipt пинит и
+   контракт, и политику — по какой денежной политике рассчитан
+   подарок, доказуемо из самого receipt, а не из глобального текста ТЗ.
+0b. **`mission_contribution_weights`** — immutable versioned веса
+   источников вклада (серия/дейлик; позже коллекции): amount-правила
+   по источникам, `weights_version`, digest (требование gap-карты
+   «веса — versioned config»). Каждый contribution пинит точную
+   версию весов. Регистрация новой версии весов **отклоняется**, если
+   её максимальный одиночный вклад превышает `token_goal` любого
+   текущего READY/ACTIVE кейса — предусловие проверяется совместно с
+   обеих сторон. Runtime-защита: вклад, не помещающийся в две
+   child-строки, отклоняется retryable-ошибкой до операторской
+   резолюции — каскад по N кейсам в v0 запрещён.
+0c. **`mission_case_bindings`** — immutable биндинг «кейс ↔ ровно одна
    версия контракта»: PK `case_id`, `contract_version` (FK на
    contracts; пара UNIQUE), `bound_at`. Создаётся при `ready` и никогда
    не меняется: новая версия потребности = **новый case_id** (в
@@ -46,7 +66,8 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    (v0 CHECK `='EUR'`); stretch deliverables; правило rollover;
    `token_goal`; `unlock_share` (v0 — пропорция); `unlock_cutoff_at`;
    `latest_fulfillment_at`; `queue_position`; ожидаемый вид
-   подтверждения. `registered_by/at`.
+   подтверждения; **пин `(funding_policy_version, policy_digest)`** —
+   денежная политика входит в contract_digest. `registered_by/at`.
 2. **`mission_runtime`** — **singleton-строка** (PK-константа,
    CHECK id=1): пара `active_case_id + active_contract_version`
    (nullable вместе), `updated_seq`.
@@ -93,6 +114,7 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    `idempotency_key` UNIQUE: серия — `mc:{run_id}`; дейлик —
    **`mcd:{user_id}:{day}:{quest_id}`, где `day` — player-local
    `DailyQuest.day` (пин точной строки квеста; НЕ utc_date)**;
+   **пин `weights_version`** (по какой версии весов посчитан amount);
    `seq` под runtime-lock; receipt в той же транзакции, replay
    byte-identical. Child-allocations (каждая пинит `(case_id,
    contract_version)`): обычно одна строка; при пересечении
@@ -142,11 +164,14 @@ READY) → UNLOCKED (в транзакции пересекающего вкла
   successor отказывает до создания READY-кейса. Операционный
   инвариант — держать очередь непустой; 503-ветка — предохранитель,
   не рабочий режим.
-- Предусловие v0 (валидируется при `register-contract`): `token_goal`
-  каждого кейса ≥ максимально возможного одиночного вклада (максимум
-  серии/дейлика из reward-функций) — пересечение затрагивает максимум
-  два кейса, двух child-строк достаточно. Каскадное распределение по N
-  кейсам понадобится для крупных collection-наград (Этап 2).
+- Предусловие v0 (проверяется с ОБЕИХ сторон): при
+  `register-contract` — `token_goal` кейса ≥ максимального одиночного
+  вклада **активной версии `mission_contribution_weights`**; при
+  регистрации новой версии весов — её максимум не превышает
+  `token_goal` ни одного READY/ACTIVE кейса (иначе отказ). Пересечение
+  затрагивает максимум два кейса, двух child-строк достаточно;
+  runtime-нарушение → retryable-отказ. Каскад по N кейсам — только с
+  крупными collection-наградами (Этап 2).
 
 ### Dogfood-изоляция (writers И readers)
 
