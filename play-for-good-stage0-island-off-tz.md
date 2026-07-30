@@ -1,10 +1,12 @@
-# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v5
+# ТЗ Этап 0 — полное выключение legacy-острова (Island-off baseline) — v6
 
-Статус: **DRAFT v5 после кросс-ревью R4** (author: Claude; reviewer:
-Codex; R1–R3 внесены ранее; R4: block локализован в
-`api_island_p2.py:250`; route manifest получил колонку ожидаемых
-статусов, smoke проверяется по ней, а не сплошным 404).
-Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §4.
+Статус: **DRAFT v6 после кросс-ревью R5** (author: Claude; reviewer:
+Codex; R1–R4 внесены ранее; R5: `island_friendships` (только
+`removed_at` синхронно с block) и `island_meta_events` (только строки
+защитных актов) выведены из freeze-списка в allowlist — protective
+smoke больше не нарушает freeze by construction). Автономная петля
+остановлена на лимите 3 раундов; финальная перепроверка — в чат-треде
+оператора. Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §4.
 
 Цель: обратимо вывести legacy-остров из прода целиком — клиентскую
 поверхность, backend-writers и генерационные runners — сохранив
@@ -146,16 +148,18 @@ catch-up).
    `island_completion_claims`, `island_completion_outcomes`,
    `island_collect_claims`, `island_visit_awards`, `island_bots`,
    `island_bot_daily_plans`, `island_friend_codes`,
-   `island_friendships`,
    `island_notification_outbox`, `island_notification_attempts`,
-   `island_meta_events`, `island_bake_jobs`, `island_theme_jobs`.
-   Через ≥24 ч: **ноль новых записей в freeze-списке**. Защитные
-   таблицы (`island_reports`, `island_moderation_actions`,
-   **`island_friend_blocks`** — пользовательский block остаётся живым
-   контуром) в freeze-список **не входят**: их writes разрешены и
-   проверяются как audit receipts — каждая новая строка соответствует
-   конкретному report/block/moderation-акту. Manifest — receipt
-   пакета.
+   `island_bake_jobs`, `island_theme_jobs`.
+   Через ≥24 ч: **ноль новых записей в freeze-списке**. Вне
+   freeze-списка — защитный allowlist с audit-правилами (каждое
+   изменение соответствует конкретному защитному акту):
+   `island_reports`, `island_moderation_actions`,
+   `island_friend_blocks`; **`island_friendships`** — разрешено только
+   изменение `removed_at`, и только синхронно с block-актом
+   (`api_island_p2.py:281`); **`island_meta_events`** — только строки,
+   порождённые report/block/takedown-актами (перечень kind'ов — в
+   manifest'е). Protective smoke по построению не нарушает freeze.
+   Manifest — receipt пакета.
 2. Пересобрать и переопубликовать `platform-scheme` (провенанс VISION
    v3.0.1).
 3. Доки: `IMPLEMENTATION-STATUS.md` (остров выключен: дата, коммиты,

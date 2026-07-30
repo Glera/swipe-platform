@@ -1,10 +1,12 @@
-# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v5
+# ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v6
 
-Статус: **DRAFT v5 после кросс-ревью R4** (author: Claude; reviewer:
-Codex; R1–R3 внесены ранее; R4: `mission_funding_policies` — денежная
-политика версионируется и пинится контрактом/receipt'ами;
-`mission_contribution_weights` — веса вклада версионируются,
-предусловие token_goal проверяется с обеих сторон).
+Статус: **DRAFT v6 после кросс-ревью R5** (author: Claude; reviewer:
+Codex; R1–R4 внесены ранее; R5: единый runtime-lock для ВСЕХ
+mission-writers включая pool и веса; пара cutoff'ов
+pool_cursor+alloc_cutoff; policy-пин колонками с composite-FK и CAS;
+ревалидация предусловия весов на ready/activate; resolved policy
+document в read API). Автономная петля остановлена на лимите 3
+раундов; финальная перепроверка — в чат-треде оператора.
 Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §1–2.
 **Предусловие реализации: чистый Island-off baseline (Этап 0 применён
 и проверен).**
@@ -30,14 +32,17 @@ island_moderation_actions, feed_policy_config_versions, award_*.
 
 0a. **`mission_funding_policies`** — immutable денежная политика
    (образец feed_policy_config_versions): PK `policy_version`,
-   `policy_digest`, `document` JSONB schema
-   `mission.funding-policy.v1`: полная формула gift, правило
-   snapshot/cursor (`eligible = ledger.seq ≤ cursor`), определение
-   eligible pool и допустимых источников, правило округления (вниз до
-   целых центов), валюта. Контракт кейса пинит точную пару
-   `(funding_policy_version, policy_digest)`; UNLOCKED-receipt пинит и
-   контракт, и политику — по какой денежной политике рассчитан
-   подарок, доказуемо из самого receipt, а не из глобального текста ТЗ.
+   `policy_digest` с CHECK `~ '^[0-9a-f]{64}$'`, **UNIQUE
+   `(policy_version, policy_digest)`** — цель composite-FK; `document`
+   JSONB schema `mission.funding-policy.v1` (jsonb-CHECK формы):
+   полная формула gift, правило snapshot/cursor, определение eligible
+   pool и допустимых источников, округление (вниз до целых центов),
+   валюта. **Пин контракта — колонками, не JSON'ом**: у контракта
+   отдельные колонки `funding_policy_version` +
+   `funding_policy_digest` с composite-FK на UNIQUE-пару; при
+   UNLOCKED сервис CAS-сверяет пару из контракта с receipt'ом —
+   ошибочная пара невозможна by construction, а не только по
+   contract_digest.
 0b. **`mission_contribution_weights`** — immutable versioned веса
    источников вклада (серия/дейлик; позже коллекции): amount-правила
    по источникам, `weights_version`, digest (требование gap-карты
@@ -71,11 +76,13 @@ island_moderation_actions, feed_policy_config_versions, award_*.
 2. **`mission_runtime`** — **singleton-строка** (PK-константа,
    CHECK id=1): пара `active_case_id + active_contract_version`
    (nullable вместе), `updated_seq`.
-   **Единая точка сериализации: каждый lifecycle- и
-   contribution-writer начинает транзакцию с
-   `SELECT … FROM mission_runtime FOR UPDATE`** — двух ACTIVE-кейсов
-   не существует by construction, авторитет «какой кейс ACTIVE» —
-   эта строка (проекция, воспроизводимая из событий).
+   **Единая точка сериализации: КАЖДЫЙ mission-writer — lifecycle,
+   contribution, pool-ledger (включая seed-pool), allocations и
+   активация версии весов — начинает транзакцию с
+   `SELECT … FROM mission_runtime FOR UPDATE`.** Двух ACTIVE-кейсов не
+   существует by construction; все денежные снапшоты вычисляются под
+   тем же lock'ом, поэтому «поздний commit с меньшим seq» невозможен —
+   писатели пула сериализованы с читателями снапшота.
 3. **`mission_case_events`** — lifecycle: `seq` (nextval
    `mission_case_events_seq` под runtime-lock), пин контракта
    (composite FK), `kind ∈ ready|active|unlocked|fulfilled`,
@@ -87,12 +94,16 @@ island_moderation_actions, feed_policy_config_versions, award_*.
    settled-ятся); `source ∈
    seed|revenue_share|partner|subscription_share` (v0 — только seed),
    `amount_cents`, `currency` (CHECK `='EUR'`), `meta`,
-   `idempotency_key` UNIQUE. **Правило cursor'а:** `pool_cursor`
-   allocation'а = max `ledger.seq` на момент снапшота; `settled
-   unallocated eligible pool на cursor` = `sum(ledger.amount при seq ≤
-   cursor) − sum(предыдущих allocations)`. Поздние строки получают
-   больший `seq` и в прошлый снапшот не входят — immutable
-   UNLOCKED-сумма воспроизводима by construction.
+   `idempotency_key` UNIQUE; **запись только под runtime-lock** (см.
+   `mission_runtime`) — присвоение `seq` и commit сериализованы, дыра
+   «меньший seq закоммичен позже cursor'а» исключена. **Правило
+   cursor'а:** снапшот вычисляется в той же транзакции под lock'ом и
+   фиксирует пару cutoff'ов — `pool_cursor` = max `ledger.seq` и
+   `alloc_cutoff` = max `allocations.alloc_seq` (у allocations свой
+   монотонный `alloc_seq`); `settled unallocated eligible pool` =
+   `sum(ledger.amount при seq ≤ pool_cursor) − sum(allocations.amount
+   при alloc_seq ≤ alloc_cutoff)`. Повторный расчёт по паре cutoff'ов
+   байт-в-байт воспроизводит сумму при любых последующих строках.
 5. **`mission_pool_allocations`** — деньги→кейс: `kind ∈
    reserve_guaranteed|gift_additional`, `(case_id,
    contract_version)`, `amount_cents`, `currency` (CHECK `='EUR'`),
@@ -164,14 +175,17 @@ READY) → UNLOCKED (в транзакции пересекающего вкла
   successor отказывает до создания READY-кейса. Операционный
   инвариант — держать очередь непустой; 503-ветка — предохранитель,
   не рабочий режим.
-- Предусловие v0 (проверяется с ОБЕИХ сторон): при
-  `register-contract` — `token_goal` кейса ≥ максимального одиночного
-  вклада **активной версии `mission_contribution_weights`**; при
-  регистрации новой версии весов — её максимум не превышает
-  `token_goal` ни одного READY/ACTIVE кейса (иначе отказ). Пересечение
-  затрагивает максимум два кейса, двух child-строк достаточно;
-  runtime-нарушение → retryable-отказ. Каскад по N кейсам — только с
-  крупными collection-наградами (Этап 2).
+- Предусловие v0 — **замкнуто по всему lifecycle**: проверяется при
+  `register-contract`, **повторно при `ready` и `activate`**
+  (ревалидация против активной на тот момент версии весов — окно
+  «зарегистрировали при маленьких весах, активировали крупные, ready
+  без проверки» закрыто), и при регистрации новой версии весов — её
+  максимум не превышает `token_goal` ни одного READY/ACTIVE кейса.
+  **Активация версии весов идёт под тем же runtime-lock**, что ready и
+  contributions — гонка «веса меняются между проверкой и ready»
+  исключена сериализацией. Пересечение затрагивает максимум два
+  кейса; runtime-нарушение → retryable-отказ; каскад по N кейсам —
+  только с крупными collection-наградами (Этап 2).
 
 ### Dogfood-изоляция (writers И readers)
 
@@ -209,9 +223,14 @@ impact-полномочия не смешиваются с контентным�
 
 `ENABLE_MISSION_READ` + capability: `GET /api/mission/case` — текущий
 ACTIVE (токен-бар, четыре числа: вклад сообщества / гарантировано /
-зарезервировано и открыто / реально передано-из-fulfillments, контракт
-в один тап), мой вклад, последний FULFILLED (**с immutable event id для
-клиентского watermark**). Ответ — проекция только из receipts.
+зарезервировано и открыто / реально передано-из-fulfillments), мой
+вклад, последний FULFILLED (**с immutable event id для клиентского
+watermark**), и **«контракт в один тап» с resolved документами**:
+контракт кейса плюс разрешённый `mission_funding_policies.document`
+(version + digest + сам документ) — источник, определение eligible
+revenue и формула реально доступны игроку, а не только их digests
+(требование VISION «полный публичный контракт рядом»). Все числа —
+проекция только из receipts.
 
 ### Тесты (PG, обязательные)
 
