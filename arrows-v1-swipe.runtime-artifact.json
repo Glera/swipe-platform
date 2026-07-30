@@ -1,19 +1,19 @@
 {
   "schema": "runtime-artifact.v1",
   "playableId": "arrows-v1-swipe",
-  "digest": "sha256:d70d4403810ab36e6f7d4caf4a8e913ef8d1cc8882c68998aaf5c757a899ab50",
+  "digest": "sha256:1c6672c1ee59c4679d0c90ab4f538c03b4b727ce72f1a3d6f28d48635b603d1d",
   "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
-  "sourceCommit": "fe892314af82b3ea98f2e485d5170277c515e557",
+  "sourceCommit": "5792d944b92b60a4260467e8c90b88db32ab9dbc",
   "files": [
     {
       "path": "arrows-v1-swipe.html",
       "bytes": 1084,
-      "sha256": "sha256:6a13a835c519abffd26e7e1fe91a09ee9c20b4596c595ecc672a10a2db1aac46"
+      "sha256": "sha256:3aa2743d825ce90dd2a4492f9a2735384d756e39d74a879399ba20cd655fa183"
     },
     {
       "path": "arrows-v1-swipe.payload.js",
-      "bytes": 75974,
-      "sha256": "sha256:3a72b992dc554d0586974c9336be10548d2729278e616bf9d290056535d3c7df"
+      "bytes": 76940,
+      "sha256": "sha256:bf835fcc66c413ebc24bfc642a18631b9b1aaadade2e442699d37d47420b4c15"
     }
   ]
 }
