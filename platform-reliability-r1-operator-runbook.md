@@ -45,17 +45,22 @@
   одним доверенным вызовом без возврата значения наружу.
 - Если hook/credential всё же появился в сохраняемом browser/tool output, он
   считается exposed даже без copy/save. Final PASS требует отдельного
-  операторского решения и подтверждённой provider-supported
-  rotation/invalidation; в evidence пишутся только typed outcome, локальный
-  структурный action ID, targeted Dashboard terminal receipt без opaque
-  provider ID и digest несекретного proof. Тот же Blueprint дополнительно
-  подтверждается двумя датированными targeted observations до и после action.
+  операторского решения и, по умолчанию, подтверждённой provider-supported
+  rotation/invalidation. Единственное исключение — exact pre-window Sync Hook
+  incident из §2.1 с typed `operator_accepted_residual`; оно не расширяется на
+  новые инциденты. В evidence пишутся только typed outcome, локальный
+  структурный action ID и digest несекретного proof. При настоящей
+  rotation/invalidation нужен targeted Dashboard terminal receipt без opaque
+  provider ID; при accepted residual — acceptance digest, deadline и
+  reopen triggers. Тот же Blueprint дополнительно подтверждается двумя
+  датированными targeted observations до и после action.
   Для database-credential incident target — SHA-256 конкретного несекретного
   username, а terminal proof показывает `authentication_rejected` ровно для
   этого digest. Incident/decision/action ID имеют закрытые форматы, связанные
   с typed kind и UTC-днём события.
-  Невозможность безопасно инвалидировать значение — `NO-GO`, а не разрешение
-  на disconnect/reconnect Blueprint.
+  Невозможность безопасно инвалидировать значение — `NO-GO`, кроме ровно
+  принятого в §2.1 исторического Render residual; disconnect/reconnect Blueprint
+  сам по себе ничего не инвалидирует.
 - Открытие расходов, создание/deletion credential, Blueprint sync/redeploy,
   запуск cron, recovery и изменение allowlist — только в operator window.
 
@@ -167,11 +172,11 @@ Stdout wrapper сохраняется как обязательный capture-re
   дали один замкнутый consumer set; manual/external consumers отсутствуют либо
   явно диспозированы;
 - нет активного deploy/Blueprint sync/recovery/export;
-- каждый известный до окна secret-exposure incident имеет поддерживаемый
-  provider-ом rotation/invalidation path, отдельное operator approval и
-  terminal proof; диспозиция завершается до начала Gate A. Для текущего R1
-  обязательно закрывается typed incident
-  `render_blueprint_sync_hook_dom_exposure`;
+- каждый известный до окна secret-exposure incident до Gate A имеет отдельное
+  operator approval и либо provider-supported rotation/invalidation terminal
+  proof, либо — только для exact incident из §2.1 — полностью заполненную
+  `operator_accepted_residual` disposition. Новые Sync Hook incidents и любые
+  database-credential incidents исключения не имеют;
 - у оператора есть окно на весь цикл и подтверждён возможный расход recovery;
 - сохранён pinned source SHA и last-known-good deploy identity каждого
   потребителя;

@@ -150,6 +150,14 @@ test('operator runbook narrowly records the accepted Render residual', () => {
   assert.match(runbook, /operator_accepted_residual/);
   assert.match(runbook, /non_strategic_dogfood/);
   assert.match(runbook, /до 100 DAU/);
+  assert.match(
+    runbook,
+    /каждый известный до окна[\s\S]+operator_accepted_residual/,
+  );
+  assert.doesNotMatch(
+    runbook,
+    /каждый известный до окна[\s\S]{0,240}обязательно закрывается/,
+  );
   assert.match(runbook, /Выключение Auto Sync не доказывает инвалидирование hook/);
   assert.match(runbook, /Ни новый Sync Hook incident[\s\S]+принять нельзя/);
 });
