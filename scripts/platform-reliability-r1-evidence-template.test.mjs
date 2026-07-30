@@ -37,7 +37,10 @@ test('final evidence template preserves every completion requirement and gate', 
   }
   assert.match(markdown, /platform-reliability-r1-evidence-scan\.mjs/);
   assert.match(markdown, /--base-ref origin\/master/);
-  assert.match(markdown, /R1 is complete only when every completion-matrix row is `PASS`/);
+  assert.match(
+    markdown,
+    /R1 is complete with one explicitly accepted Render residual only when every/,
+  );
 });
 
 test('operator receipt template is valid JSON with exact A-G confirmations', () => {
@@ -70,14 +73,23 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
   );
   assert.ok(receipt.secretExposureIncidents[0].operatorDecision.decisionId);
   assert.ok(receipt.secretExposureIncidents[0].disposition.actionId);
-  assert.ok(receipt.secretExposureIncidents[0].disposition.providerMethod);
   assert.equal(
-    receipt.secretExposureIncidents[0].disposition.providerReceipt.kind,
-    'render_dashboard_terminal_observation',
+    receipt.secretExposureIncidents[0].disposition.kind,
+    'operator_accepted_residual',
   );
   assert.equal(
-    receipt.secretExposureIncidents[0].disposition.credentialNegativeProof,
-    null,
+    receipt.secretExposureIncidents[0].disposition.terminalOutcome,
+    'accepted_residual',
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[0].disposition.environmentClass,
+    'non_strategic_dogfood',
+  );
+  assert.ok(receipt.secretExposureIncidents[0].disposition.reviewBy);
+  assert.ok(
+    receipt.secretExposureIncidents[0].disposition.reopenTriggers.includes(
+      'before_render_strategic_commitment',
+    ),
   );
   assert.equal(
     receipt.secretExposureIncidents[0].disposition
@@ -127,7 +139,7 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
   );
 });
 
-test('operator runbook fail-closes the undocumented Blueprint hook path', () => {
+test('operator runbook narrowly records the accepted Render residual', () => {
   const runbook = fs.readFileSync(OPERATOR_RUNBOOK, 'utf8');
 
   assert.match(runbook, /provider_path_not_documented/);
@@ -135,9 +147,9 @@ test('operator runbook fail-closes the undocumented Blueprint hook path', () => 
     runbook,
     /api-docs\.render\.com\/v1\.0\/openapi\/render-public-api-1\.json/,
   );
-  assert.match(runbook, /operator window не начинает Gate A/);
+  assert.match(runbook, /operator_accepted_residual/);
+  assert.match(runbook, /non_strategic_dogfood/);
+  assert.match(runbook, /до 100 DAU/);
   assert.match(runbook, /Выключение Auto Sync не доказывает инвалидирование hook/);
-  assert.match(runbook, /Disconnect\/reconnect[\s\S]+не являются допустимой диспозицией/);
-  assert.match(runbook, /Ответ Render Support сам по себе не открывает Gate A/);
-  assert.match(runbook, /Сам hook value нельзя читать или передавать Support/);
+  assert.match(runbook, /Ни новый Sync Hook incident[\s\S]+принять нельзя/);
 });
