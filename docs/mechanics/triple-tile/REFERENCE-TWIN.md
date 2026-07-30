@@ -27,8 +27,10 @@ observed action assertion.
 Every fixture binds:
 
 - capture UUID and manifest SHA-256;
+- evidence-index digest;
 - app build and level number;
-- source screenshot/video/action IDs;
+- source action IDs with JSONL entry SHA-256 and source frame IDs with
+  artifact SHA-256;
 - normalized extraction tool/version;
 - fixture digest and per-scenario trace digest;
 - source frame/action IDs on every asserted trace step;

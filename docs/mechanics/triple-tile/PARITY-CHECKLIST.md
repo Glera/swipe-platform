@@ -35,7 +35,7 @@ Status values: `measured`, `decision`, `gap`, `pass`, `fail`.
 ## Originality and platform
 
 - [x] Production build fails on resolved Twin module imports.
-- [x] Five Production Original levels pass near-duplicate gate (`0.337314…0.466492 < 0.88`).
+- [x] Five Production Original levels pass near-duplicate gate (`0.337314…0.466492 < 0.88`); exact geometry/exposure is rejected unconditionally.
 - [x] Five Production Original levels have solver witnesses without tools.
 - [x] Autoplay reaches each current objective.
 - [x] First accepted manual tap takes over without reset.

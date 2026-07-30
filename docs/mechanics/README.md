@@ -494,14 +494,16 @@ Primary и taste authority — immutable Android capture Zen Match build
   — историческое review до нового capture; не является текущим parity
   disposition;
 - [`triple-tile/REVIEW-INDEPENDENT-Z2-2026-07-30.md`](triple-tile/REVIEW-INDEPENDENT-Z2-2026-07-30.md)
-  — независимое approval текущего Z2 infrastructure scope; exact parity
-  остаётся pending capture transfer.
+  — историческое approval Z2 infrastructure до materialization реального
+  capture; не является финальным parity disposition.
 
-Статус: `Z2 Reference Twin active / rollout not authorized`. Exact layouts
-разрешены только в изолированном non-shipping Twin. Production использует
-собственные layouts/assets и должен пройти near-duplicate/deny gates.
-Path/content deny реализован; exact five-way similarity receipts остаются
-pending до переноса и верификации capture bytes.
+Статус: `Z2 final independent review / rollout not authorized`. Реальный
+capture повторно верифицирован, пять trace-exact observable Twin fixtures
+materialized, deterministic replay и five-way similarity receipts зелёные.
+Exact layouts разрешены только в изолированном non-shipping Twin. Production
+использует собственные layouts/assets; deny и near-duplicate gates включают
+безусловный reject exact geometry/exposure copy. Неразрешённые точные cadence
+значения перечислены как короткие probes, а не guessed defaults.
 
 ### Core loop
 

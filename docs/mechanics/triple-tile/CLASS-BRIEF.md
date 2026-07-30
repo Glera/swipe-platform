@@ -78,14 +78,15 @@ Reference Twin:
 | Level | Objective | Terminal rule | Captured special path |
 | ---: | --- | --- | --- |
 | 6 | `collect-target-types` | win после закрытия target counters; board/tray могут остаться непустыми | baseline goal onboarding |
-| 7 | `collect-target-types` | то же | seventh-slot boundary evidence |
-| 8 | `collect-target-types` | то же | free Undo evidence |
+| 7 | `collect-target-types` | то же | baseline target completion |
+| 8 | `collect-target-types` | то же | fail-on-7th, free Undo и Play On `300` |
 | 9 | `clear-all` | board empty и tray empty после resolve | Magnet tutorial |
-| 10 | `collect-target-types` | win после закрытия target counters; board/tray могут остаться непустыми | Play On `300` и goal completion |
+| 10 | `collect-target-types` | win после закрытия target counters; board/tray могут остаться непустыми | safe seventh-slot triple и goal completion |
 
-Точные counters, geometry, tile identity и trace IDs берутся только из
-capture manifest/frames. До materialization capture bytes в рабочем checkout
-они не заменяются приблизительными данными.
+Counters, observed coordinates/types и trace IDs машинно связаны с capture
+manifest, evidence-index digest, action entry hashes и frame hashes.
+Не наблюдаемые до terminal state residual faces имеют отдельную
+deterministic-inference disposition.
 
 ## Core rules
 
