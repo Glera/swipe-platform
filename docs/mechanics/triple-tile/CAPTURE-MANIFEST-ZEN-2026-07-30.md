@@ -46,6 +46,17 @@ materialize it separately and verify the manifest SHA-256 before generating
 or approving exact Twin fixtures. This document is an acquisition receipt,
 not a substitute for the immutable bytes.
 
+The playables Z2 branch provides a read-only verifier:
+
+```text
+npm run verify:zen-capture -- --session-dir \
+  <path>/2bb6ac89-3da1-4641-b753-52c9f982f0d3
+```
+
+It fails closed on manifest identity, file-set, size/content digests, symlinks
+or path traversal, media counts, JSONL sequence and a recomputable action hash
+chain. Its machine receipt is required before fixture extraction.
+
 Android `screenrecord` limits caused declared fragment boundaries. Do not
 derive a continuous timing interval across a boundary. Use short probes only
 for an explicitly identified timing gap.

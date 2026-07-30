@@ -57,6 +57,7 @@ complete `6–10` coverage before any five-way comparison.
 | capture receipt | present |
 | immutable bytes mounted in implementation worktree | pending transfer |
 | manifest re-verification | pending transfer |
+| read-only manifest/file/action-chain verifier | implemented and synthetically covered |
 | exact extraction | pending |
 | five deterministic trace replays | pending |
 | production import/content deny test | implemented and covered in Z2 branch |
