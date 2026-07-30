@@ -8,7 +8,7 @@
       "exit": [
         "✅ real-backend browser E2E: стенд+workflow влиты в master 28.07; enforced CI-гейт зелёный на master (run 30386237682, ~2 мин)",
         "🟡 p95: бюджет ≤5s утверждён 23.07; perf-harness и throttle-числа (4.5–5.0s) влиты в feed master 28.07; открыт device-якорь (замер на реальном устройстве)",
-        "🟡 Island-off baseline: legacy-поверхность/writers/runners выключены, protective контуры сохранены; финальный ≥24h freeze-manifest ещё не закрыт",
+        "🟡 Island-off rollout: клиент и legacy routes/writers/runners выключены в production; authenticated protective smoke и финальный ≥24h freeze-manifest ещё не закрыты",
         "⏳ external scheduling + levelSeries=true: продуктовая выдача не включена; фактические значения sequencing-флагов — только в rollout-authority (render.yaml; консоль/debug/shadow-ops включены оператором 28.07)",
         "⏳ контрольный проход «нулевого друга» → не-inconclusive строка (последний C1: inconclusive, input_projection_incomplete при 1 игроке)"
       ],
@@ -37,6 +37,7 @@
     }
   ],
   "qualifiedPlay": "сыгранная до конца серия (до сундука)",
+  "funnelNote": "Игровые этапы читаются слева направо. Contribution следует за qualified play; UNLOCKED и FULFILLED — асинхронные mission-события, а не обязательная последовательность одной сессии.",
   "funnelStages": [
     {
       "id": "reveal",
@@ -64,6 +65,21 @@
       "hint": "серия до сундука = qualified play"
     },
     {
+      "id": "contribution",
+      "label": "contribution",
+      "hint": "server receipt: лапки зачислены"
+    },
+    {
+      "id": "unlocked",
+      "label": "UNLOCKED",
+      "hint": "подарок зарезервирован receipt-ом"
+    },
+    {
+      "id": "fulfilled",
+      "label": "FULFILLED",
+      "hint": "передача подтверждена evidence"
+    },
+    {
       "id": "return",
       "label": "organic return",
       "hint": "вернулся сам, без пинга"
@@ -79,6 +95,9 @@
       "threshold": "числовой вывод только после power calculation; на dogfood — понятность, доверие и отсутствие guilt-фрейминга",
       "funnel": [
         "chest",
+        "contribution",
+        "unlocked",
+        "fulfilled",
         "return"
       ],
       "evidence": {
@@ -86,6 +105,24 @@
         "note": "Stage 0 выключает legacy-остров; mission-slice ещё не реализован"
       },
       "next": "закрыть Island-off baseline, затем Stage 1 mission-slice v0 default-off"
+    },
+    {
+      "id": "mission-comprehension",
+      "title": "Миссия понятна без ложной денежной причинности",
+      "status": "queued",
+      "cohort": "mission-slice founder dogfood; затем 3–10 друзей",
+      "metric": "после первого contribution и UNLOCKED игрок без подсказки различает: гарантированную помощь, лапки, зарезервированный подарок и фактическую передачу",
+      "threshold": "игрок не говорит, что пожертвовал свои деньги, что лапка имеет денежный курс или что без его игры помощь исчезла",
+      "funnel": [
+        "chest",
+        "contribution",
+        "unlocked"
+      ],
+      "evidence": {
+        "grade": "none",
+        "note": "mission-slice ещё не реализован; это отдельный trust-гейт, не proxy удержания"
+      },
+      "next": "проверить copy и церемонии на founder dogfood до расширения когорты"
     },
     {
       "id": "autoplay-delight",

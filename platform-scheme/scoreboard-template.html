@@ -1,6 +1,6 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Hypothesis Scoreboard — swipe</title>
+<title>Hypothesis Scoreboard — Play for Good</title>
 <style>
 :root{
   --bg:#12161E; --panel:#1A2029; --ink:#E8ECF2; --sub:#9AA5B4;
@@ -58,7 +58,7 @@ h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin:4px 0 6px;text-wr
 </style>
 
 <div class="wrap">
-  <div class="eyebrow">swipe-платформа · hypothesis scoreboard · защита моратория</div>
+  <div class="eyebrow">Play for Good · hypothesis scoreboard · защита моратория</div>
   <h1>Что мы доказываем — и что решаем дальше</h1>
   <p class="intro">Одна строка = одна продуктовая гипотеза. Любая новая стройка обязана двигать
   какую-то строку; если не двигает — это мораторий. Evidence честное:
@@ -73,7 +73,7 @@ h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin:4px 0 6px;text-wr
   </div>
 
   <div class="funnel" id="funnel"></div>
-  <div class="funnel-note">Каждая карточка читает свой сегмент воронки (подсвечен полосой внизу карточки).</div>
+  <div class="funnel-note" id="funnel-note"></div>
 
   <div class="cards" id="cards"></div>
 
@@ -85,6 +85,8 @@ const DATA = __SCOREBOARD_DATA__;
 const GRADE = { none:"evidence: none", directional:"evidence: directional", statistical:"evidence: statistical" };
 const STATUS = { active:"активна", queued:"в очереди" };
 document.getElementById("qp").textContent = DATA.qualifiedPlay;
+document.getElementById("funnel-note").textContent = DATA.funnelNote
+  || "Каждая карточка читает свой сегмент воронки (подсвечен полосой внизу карточки).";
 const GOALS = DATA.goals ?? (DATA.currentGoal ? [DATA.currentGoal] : []);
 const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 document.getElementById("goals").innerHTML = GOALS.map(g =>
