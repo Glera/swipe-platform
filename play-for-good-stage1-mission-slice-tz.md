@@ -1,12 +1,13 @@
 # ТЗ Этап 1 — Mission-slice v0 (founder dogfood) — v8
 
-Статус: **DRAFT v8 после чат-раунда R7** (author: Claude; reviewer:
-Codex; R1–R6 внесены ранее; R7: weights-enforcement симметрично
+Статус: **GO v8 после diff-проверки R8 30.07.2026** (author: Claude;
+reviewer: Codex; exact reviewed commit `4fd56cf`; R1–R6 внесены ранее;
+R7: weights-enforcement симметрично
 policies — PK/hex-CHECK/UNIQUE-пара, runtime и contribution с
 composite-FK на пару, негативный FK-тест; понятие «активной funding
 policy» удалено — каждый контракт пинит свою immutable policy,
-preflight проверяет разрешимость пинов). По R7 достаточно
-diff-проверки двух мест — полный раунд не требуется.
+preflight проверяет разрешимость пинов). R8 подтвердил оба места без
+findings; receipt: `play-for-good-stage1-v8-review-go.md`.
 Основание: VISION v3.0.1 (`96df90a`), gap-карта v2 §1–2.
 **Предусловие реализации: чистый Island-off baseline (Этап 0 применён
 и проверен).**

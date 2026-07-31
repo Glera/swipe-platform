@@ -1,6 +1,6 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Схема платформы — swipe</title>
+<title>Схема платформы — Play for Good</title>
 <style>
 :root{
   --bg:#12161E; --panel:#1A2029; --ink:#E8ECF2; --sub:#9AA5B4;
@@ -120,10 +120,13 @@ svg{display:block;width:100%;height:auto}
 
 <div class="wrap">
 <header>
-  <div class="eyebrow">swipe-платформа · хай-левел схема · VISION v2.3 · 22.07.2026</div>
-  <h1>Платформа, которая сама производит, отбирает и продвигает играбельный контент</h1>
-  <p>Человек — источник эталонов и вкуса. Всё остальное — конвейер: ночь генерит,
-  утро отсматривает, день играет, аналитика замыкает кольцо. Кликните блок — он раскроется.</p>
+  <div class="eyebrow">Play for Good · хай-левел схема · VISION v3.0.1 · 30.07.2026</div>
+  <h1>Любимые пазлы помогают закрывать реальные кейсы помощи животным</h1>
+  <p>Платформа гарантирует помощь до старта кейса; игра сообщества открывает
+  дополнительный подарок. Игрок проходит серии и коллекции, приносит лапки в
+  один текущий кейс и возвращается за подтверждённым результатом. Под этим
+  смыслом работает самоподдерживающийся конвейер игрового контента. Кликните
+  блок — он раскроется.</p>
   <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px">
     <button id="vision-btn" data-k="vision" style="margin-top:0">Читать VISION →</button>
     <div id="modes" role="tablist" aria-label="Режим схемы">
@@ -150,7 +153,7 @@ svg{display:block;width:100%;height:auto}
   <text class="zlabel" x="290" y="200">ПРОДАКШЕН</text>
   <text class="zlabel" x="630" y="200">ШЛЮЗ ВКУСА</text>
   <text class="zlabel" x="950" y="180">ПОТРЕБЛЕНИЕ</text>
-  <text class="zlabel" x="630" y="552">МЕТА / UGC</text>
+  <text class="zlabel" x="630" y="552">МИССИЯ / ПРИЮТ</text>
   <text class="zlabel" x="470" y="712">LEARNING LOOP</text>
 
   <!-- flow -->
@@ -174,11 +177,10 @@ svg{display:block;width:100%;height:auto}
   <text class="alabel" x="350" y="172">вариации плееблов</text>
   <path class="conn organic" d="M1150,186 C1150,86 1040,58 896,58" marker-end="url(#arr)"/>
   <text class="alabel" x="946" y="46">челленджи игроков</text>
-  <!-- meta return -->
-  <path class="conn" d="M990,470 C950,512 880,540 812,556" marker-end="url(#arr)"/>
-  <text class="alabel" x="848" y="528">игрок-производитель</text>
-  <path class="conn" d="M630,615 C556,615 486,566 444,506" marker-end="url(#arr)"/>
-  <text class="alabel" x="492" y="608">тот же compiler</text>
+  <!-- mission loop -->
+  <path class="conn" d="M990,470 C950,512 880,540 812,556" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text class="alabel" x="760" y="520">игра → лапки</text>
+  <text class="alabel" x="1070" y="520" text-anchor="end">смысл → возврат</text>
 
   <!-- blocks -->
   <foreignObject x="270" y="24" width="290" height="96">
@@ -192,7 +194,7 @@ svg{display:block;width:100%;height:auto}
     <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--grow)" data-k="vir" tabindex="0" role="button">
       <span class="zc-tag">органика</span>
       <h3>Виральность</h3>
-      <p>Share/challenge-ссылки; кураторы и порталы меты — гипотезы.</p>
+      <p>Campaign-first link; закрытые кейсы и помощь коллекциям дают повод делиться.</p>
     </div>
   </foreignObject>
   <foreignObject x="30" y="190" width="220" height="90">
@@ -245,7 +247,7 @@ svg{display:block;width:100%;height:auto}
     <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--cons)" data-k="player" tabindex="0" role="button">
       <span class="zc-tag">игрок</span>
       <h3>Игрок</h3>
-      <p>Играет серии, открывает сундуки — и сам создаёт.</p>
+      <p>Играет серии, собирает коллекции и автоматически приносит лапки.</p>
     </div>
   </foreignObject>
   <foreignObject x="950" y="540" width="270" height="100">
@@ -256,10 +258,10 @@ svg{display:block;width:100%;height:auto}
     </div>
   </foreignObject>
   <foreignObject x="630" y="560" width="280" height="110">
-    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--meta)" data-k="meta" tabindex="0" role="button">
-      <span class="zc-tag">генеративная мета</span>
-      <h3>Мир-витрина / UGC</h3>
-      <p>Игрок генерит рескины тем же конвейером; чужие плеи растят здания.</p>
+    <div xmlns="http://www.w3.org/1999/xhtml" class="block" style="--zc:var(--meta)" data-k="mission" tabindex="0" role="button">
+      <span class="zc-tag">смысл продукта</span>
+      <h3>Текущий кейс / приют</h3>
+      <p>Один сезон-кейс: лапки → UNLOCKED → реальная помощь → FULFILLED → память.</p>
     </div>
   </foreignObject>
   <foreignObject x="770" y="720" width="220" height="100">
@@ -284,12 +286,12 @@ svg{display:block;width:100%;height:auto}
   </foreignObject>
   <foreignObject x="34" y="888" width="560" height="44">
     <div xmlns="http://www.w3.org/1999/xhtml" class="agents-chip" data-k="safety" tabindex="0" role="button">
-      <b>▤ Safety / rights</b> — pre-moderation UGC · recall · takedown; IP-политика отложена.
+      <b>▤ Safety / trust</b> — human-true · no guilt · receipts · report/block/takedown · recall.
     </div>
   </foreignObject>
   <foreignObject x="620" y="888" width="592" height="44">
     <div xmlns="http://www.w3.org/1999/xhtml" class="agents-chip" data-k="econ" tabindex="0" role="button">
-      <b>▥ Economics / budgets</b> — реклама CPE · подписка · токены меты · R&amp;D-квоты; включение с шага 3+.
+      <b>▥ Economics / impact</b> — X% eligible net revenue → pool · gift ≤ need + stretch · rollover.
     </div>
   </foreignObject>
 </svg>
@@ -304,8 +306,8 @@ svg{display:block;width:100%;height:auto}
 
 <div class="metrics">
   <div class="metric"><div class="eyebrow">north star</div>
-    <b>Удержание через «нашёл своё в разнообразии»</b>
-    <span>Лента создаёт ожидание правильной длины; continuity-JOIN — измерительный якорь, не самоцель.</span></div>
+    <b>Incremental возврат без давления</b>
+    <span>Delayed holdout отделяет эффект миссии: игрок находит любимую механику, видит вклад и возвращается к реальному результату кейса.</span></div>
   <div class="metric"><div class="eyebrow">метрика продакшена</div>
     <b>Human-good серий на минуту внимания оператора</b>
     <span>Агенты и фабрики сужают поток до решений; дешевле кормить вкус — вот их продукт.</span></div>
@@ -317,7 +319,7 @@ svg{display:block;width:100%;height:auto}
 <div id="card" role="dialog" aria-modal="true" aria-labelledby="card-title"></div>
 
 <script>
-const ASOF = "28.07.2026";
+const ASOF = "30.07.2026";
 const DETAILS = {
   acq:{t:"Закупка на механики платформы",tag:"закупка",s:"dir",c:"var(--grow)",
     x:"Игровая единица рождается плеебл-совместимой: пайплайн таргетов AppLovin / FTUE / swipe уже работает. Цель — закупать на любую механику портфеля. Встреча игрока: payload плеебла → deep-link → первый слот той же mechanic/variant (identity-JOIN, измеримая конверсия) — это же даёт новичку стартовый affinity и решает холодный старт runway. Вариации самих плееблов печёт тот же factory kernel.",
@@ -327,7 +329,7 @@ const DETAILS = {
     aline:"UA-оператор: exact creative + бюджет",
     auth:[["Инициирует","оператор (выбор механики под закупку)"],["Утверждает","UA-оператор — exact creative + бюджет кампании"],["Аудитория","внешняя (рекламные сети)"]]},
   vir:{t:"Виральность",tag:"органика",s:"part",c:"var(--grow)",
-    x:"Второе крыло роста. Спроектировано: share/challenge — каждая ссылка это конкретный вызов, открывающийся мгновенно (план v1). Продуктовые гипотезы (не утверждены): кураторы-витрины чужих механик, порталы-дискавери в конце серий, экономика связки закупка+органика.",
+    x:"Главная единица — campaign-first playable link: получатель видит текущий кейс и сразу попадает в autoplay → перехват. Закрытие реального кейса и FULFILLED-отчёт дают честный повод делиться; друзья могут positive-sum помогать дозакрывать коллекции. Параллельно спроектирован share/challenge — каждая ссылка это конкретный вызов, открывающийся мгновенно. Обязательные social-only коллекции не входят в v1.",
     today:{stage:"spec",ev:"none",line:"V1-A смержен (backend, выключен); клиент в ветке",
       proven:"миграция 0056, ENABLE_CHALLENGE_V1 отсутствует в render.yaml = off; клиентская challenge-v1 не влита",
       gate:"включение флага + merge клиента к cohort",owner:"оператор · challenge-спека"},
@@ -367,23 +369,23 @@ const DETAILS = {
       proven:"content-addressed релизы, canary-лестница, recall, admission-receipts — в проде для оператора",
       gate:"levelSeries=true через прод-гейты",owner:"server-owned policy · IMPLEMENTATION-STATUS.md"},
     aline:"server policy после человеческого Approve",
-    auth:[["Утверждает","server-owned risk policy ПОСЛЕ человеческого Approve: stable reuse → published, новая граница → canary"],["Отзывает","оператор recall-полномочия (exact entry/runtime scope)"]]},
+    auth:[["Утверждает","server-owned risk policy ПОСЛЕ человеческого Approve: stable reuse → published, новая граница → canary"],["Отзывает","оператор recall-полномочия (exact entry/runtime/case scope)"]]},
   feed:{t:"Лента",tag:"ядро продукта",s:"plan",c:"var(--cons)",
     x:"Слотовая лента с personal runway; спрос выводится из поведения (досмотры, перехваты, серии, сундуки) — никакого UI запроса. Continuity: сундук встроенной серии = one-shot триггер, продолжение подаётся слотом и меряется exact JOIN-ом. Код за флагами (shadow-режим доказан), включение — через прод-гейты levelSeries.",
     today:{stage:"code",ev:"technical",line:"13 юнитов, серии по механикам; catalog-путь клиента off",
       proven:"optimistic rewards, тосты, церемонии — в проде 28.07; E2E-замыкание reveal→сундук = enforced CI-гейт на master",
-      gate:"device-якорь p95; enablement levelSeries → cohort",owner:"оператор · feed-policy.md",here:true},
+      gate:"device-якорь p95; enablement levelSeries → cohort",owner:"оператор · feed-policy.md"},
     aline:"server-owned policy; людей в выдаче нет",
     auth:[["Решает","server-owned allocation policy (versioned config)"],["Человеческих актов","в выдаче нет — только конфиг-версии и recall выше по цепочке"]]},
   player:{t:"Игрок",tag:"игрок",s:"ok",c:"var(--cons)",
-    x:"Автоплей показывает геймплей до касания, перехват управления незаметен. Единица потребления — серия с сундуком (qualified play = серия до конца). Игрок одновременно потребитель и (через мету) производитель контента.",
+    x:"Автоплей показывает геймплей до касания, перехват управления незаметен. Единица потребления — серия с сундуком (qualified play = серия до конца). Серии, дейлики и коллекции автоматически создают server-owned вклад в один текущий кейс; личного mission-кошелька нет.",
     today:{stage:"dogfood",ev:"technical",line:"один игрок — оператор; выборка = 1",
       proven:"полный игровой цикл жив; данные единичные",
       gate:"3–10 друзей (шаг 2 лестницы)",owner:"—"},
     aline:"—",
-    auth:[["Роль","потребитель; в мете — автор своего острова"]]},
+    auth:[["Роль","игрок и участник общей миссии"],["Не получает","денежной или impact-authority; лапки только направляют обещание компании"]]},
   tele:{t:"Телеметрия",tag:"факты",s:"ok",c:"var(--cons)",
-    x:"Append-only факты: decision → impression → attempt → outcome, durable outbox, BFCache-safe жизненный цикл, exact dwell. Оптимизируем только то, что воспроизводимо из этих фактов.",
+    x:"Append-only факты: decision → impression → attempt → outcome, durable outbox, BFCache-safe жизненный цикл, exact dwell. Mission-контур добавит server-owned contribution/lifecycle/funding/fulfillment receipts; клиентская телеметрия не станет authority.",
     today:{stage:"dogfood",ev:"technical",line:"пишет; c1.4 в master (22.07)",
       proven:"append-only контур в проде; проекционные пробелы закрыты (e358b43)",
       gate:"не-inconclusive отчёт = реальный трафик когорты",owner:"master · content-analytics"},
@@ -393,7 +395,7 @@ const DETAILS = {
     x:"Ночной cron детерминированно материализует immutable evidence-отчёты (окна D-2, replay byte-identical, честный inconclusive). Строго факты без интерпретаций; выводы (C2) — отдельная роль с человеком в цикле.",
     today:{stage:"dogfood",ev:"technical",line:"cron стабилен; Component A смержен, инертен",
       proven:"автопилот D-2; cohort observability смержен 24.07 (флаг off, крон/регистрация — отдельные гейты)",
-      gate:"A1.1 agents PR #7 + прод-регистрация когорты",owner:"cron + оператор · content-analytics",here:true},
+      gate:"A1.1 agents PR #7 + прод-регистрация когорты",owner:"cron + оператор · content-analytics"},
     aline:"отчёты read-only; C2 — человек",
     auth:[["Материализует","cron (server-owned, детерминированно)"],["Интерпретирует","только человек (C2 не начат)"]]},
   demand:{t:"Спрос и отвалы",tag:"топливо фабрики",s:"dir",c:"var(--learn)",
@@ -403,13 +405,13 @@ const DETAILS = {
       gate:"первые briefs из cohort-данных",owner:"оператор + аналитик"},
     aline:"briefs утверждает оператор",
     auth:[["Готовит","аналитик (агентская роль)"],["Утверждает","оператор — каждый brief"]]},
-  meta:{t:"Мир-витрина / UGC",tag:"генеративная мета",s:"ok",c:"var(--meta)",
-    x:"Генеративная мета: остров игрока — витрина его механик; рескины генерятся тем же trusted-компилятором (E2E с телефона доказан), здания растут от чужих плеев. Кураторство не-творцов — продуктовая гипотеза. Третий источник контента и источник шаблонов для песочницы. Ведётся как один из двух параллельных мета-экспериментов.",
-    today:{stage:"broad",ev:"technical",line:"P1–P5 в проде ГЛОБАЛЬНО (v2.6); UX-волна 28.07",
-      proven:"визиты/лайки/боты/модерация/закрытая доставка; async-only theme (P4); церемонии, гостевой режим, тосты",
-      gate:"❗ P2-гейты клиента выключены деплоем 28.07 12:44 — ждёт восстановления оператором",owner:"оператор · ISLAND.md"},
-    aline:"автор-игрок + staged post-moderation (v2.5)",
-    auth:[["Инициирует","автор-игрок (промпт, Build) + machine playability gate"],["Модерирует","оператор: post-moderation очередь, report/takedown exact artifact revision"],["Scope","все пользователи (v2.6); в общую ленту UGC не публикуется"]]},
+  mission:{t:"Текущий кейс / приют",tag:"смысл продукта",s:"plan",c:"var(--meta)",
+    x:"Один активный кейс равен сезону. Проверенный и уже обеспеченный минимумом кейс проходит READY → ACTIVE → UNLOCKED → FULFILLED. Лапки открывают дополнительную долю settled rolling pool, но никогда не изображаются деньгами. После реальной передачи evidence-bearing точка остаётся в общем приюте-монументе и личной истории.",
+    today:{stage:"spec",ev:"none",line:"Stage 0: legacy writers/runners off; authenticated smoke и T+24 freeze pending",
+      proven:"миссионный код ещё не реализован; prerequisite-only initial manifest swipe-backend/docs/receipts/stage0-island-off-initial.json @ 4fddfd6 пинит legacy gates off и quiescent runners/jobs",
+      gate:"authenticated protective smoke + чистый ≥24h Island-off data-manifest; затем реализация Stage 1",owner:"оператор · Stage 0 ТЗ v7; Stage 1 v8 после baseline",here:true},
+    aline:"impact-оператор; игрок только направляет",
+    auth:[["Публикует","impact-оператор — exact обеспеченный case contract"],["Финансирует","компания: guarantee + policy-bound rolling pool"],["Партнёр","подтверждает потребность и результат; platform authority не получает"],["Подтверждает","impact-оператор принимает fulfillment evidence"],["Игрок","автоматически направляет лапки; финансовой authority нет"]]},
   agents:{t:"Обслуживающие агенты",tag:"поперечный слой",s:"plan",c:"var(--frame)",
     x:"Команда агентов обслуживает все контуры: аналитик (C1-дайджесты), ресерчер рынка, продакшен-оркестратор (ночные кампании, ревью-подготовка), инфра-контроль (CI, диск, бэкапы, алерты) и финансовый директор (read-only spend, forecast, cost alerts). Продукт агентов — сэкономленное внимание оператора; публикационная, финансовая и расписательная authority остаётся у человека (A1 — supervised).",
     today:{stage:"code",ev:"technical",line:"A1 живёт на reserve host; тихая неделя идёт",
@@ -417,27 +419,27 @@ const DETAILS = {
       gate:"/bind finance; ❓ UTC-старт тихой недели не записан",owner:"оператор · agent-team.md"},
     aline:"никакой authority; supervised",
     auth:[["Разрешено","аналитика, ресерч, оркестрация, инфра-контроль, read-only финансовый мониторинг"],["Запрещено","публикация, траты, budget/plan changes, расписание — сверх server-owned policy"]]},
-  safety:{t:"Safety / rights / moderation",tag:"поперечный rail",s:"plan",c:"var(--frame)",
-    x:"Pre-moderation всего публичного UGC до явного акта автоматизации (решение оператора 22.07); report/takedown обязателен до расширения аудитории UGC; recall — страховка каталога; политика IP/брендов в промптах сознательно отложена (открытый вопрос VISION).",
-    today:{stage:"частично",ev:"technical",line:"recall в бою; модерация — правило записано",
-      proven:"recall-контур E2E; pre-moderation зафиксирована как правило",
-      gate:"report/takedown до аудитории UGC",owner:"оператор · VISION §Safety"},
-    aline:"модерация и recall — оператор",
-    auth:[["Модерирует","оператор (pre-moderation UGC)"],["Отзывает","оператор recall-полномочия"]]},
-  econ:{t:"Economics / budgets",tag:"поперечный rail",s:"dir",c:"var(--frame)",
-    x:"Модель выручки (VISION §Экономика): реклама как основа — рекламная единица = контентная единица, продаём CPE с evidence-backed отчётами; подписка одним SKU (без рекламы + VIP мета, Telegram Stars); токены меты + комиссия с creator-оборота. Guardrail: ad load подчинён удержанию. Включение — не раньше числовых когорт (шаг 3+), решение оператора; джокеры/near-miss отложены. R&D-квоты моделей — guardian в рамке фабрики.",
-    today:{stage:"target",ev:"none",line:"CPE+подписка+токены — направление в VISION",
-      proven:"guardian-квоты заморожены в рамке фабрики",
-      gate:"первая закупочная кампания после cohort",owner:"оператор"},
-    aline:"все бюджеты — оператор",
-    auth:[["Наблюдает","финансовый директор: spend/forecast/alerts, read-only"],["Тратит","только оператор: бюджеты закупки, R&D-квоты"],["Агентам","финансовая authority запрещена"]]},
-  vision:{t:"VISION — swipe-платформа",tag:__VISION_META__,s:"ok",c:"var(--gate)",wide:true,
+  safety:{t:"Safety / trust / moderation",tag:"поперечный rail",s:"part",c:"var(--frame)",
+    x:"Миссия human-true: боты не двигают публичный кейс; никаких guilt-trip или tragedy porn; деньги, игровой прогресс и факт передачи показаны раздельно. Legacy UGC снят с поверхности, но closed delivery, report/block, модерация/takedown и catalog recall остаются живыми защитными контурами.",
+    today:{stage:"code",ev:"technical",line:"Stage 0: legacy off; protective routes deployed, authenticated smoke pending",
+      proven:"swipe-backend/docs/specs/island-off-route-manifest.md @ 9ff13fa разделяет legacy 404 и 8 retained routes; initial manifest @ 4fddfd6 пинит protective gate on",
+      gate:"authenticated protective smoke + ≥24h freeze-manifest",owner:"оператор · Stage 0 ТЗ v7"},
+    aline:"impact, moderation и recall — разные operator authorities",
+    auth:[["Миссия","impact-оператор: contract/funding/fulfillment"],["Модерирует","operator allowlist: report queue, exact-revision takedown/restore"],["Отзывает","оператор recall-полномочия"]]},
+  econ:{t:"Economics / impact",tag:"поперечный rail",s:"dir",c:"var(--frame)",
+    x:"Компания гарантирует минимум до публикации кейса. X% × eligible net revenue (реклама + обещанная доля подписочных SKU) пополняет rolling impact pool. На UNLOCKED gift = min(гарантия + unlock_share(прогресс лапок) × settled unallocated pool, подтверждённая потребность + stretch); излишек остаётся для stretch/rollover. Подписка также может добавлять фиксированный VIP-бонус только к qualified-сериям, но не покупает личную причастность. Ad load подчинён удержанию.",
+    today:{stage:"spec",ev:"none",line:"policy/receipts спроектированы в Stage 1 v8; монетизация не включена",
+      proven:"VISION отделяет guarantee, бар лапок, reserved gift и fulfillment",
+      gate:"mission-slice → dogfood; funding policy и SKU обещания проходят отдельный legal/review gate",owner:"оператор"},
+    aline:"финансовые и impact-акты — только человек",
+    auth:[["Наблюдает","финансовый директор: read-only spend/pool/forecast"],["Регистрирует policy","финансовый/impact-оператор"],["Тратит и передаёт","только оператор; игрок не жертвует"],["Агентам","financial/impact authority запрещена"]]},
+  vision:{t:"VISION — Play for Good",tag:__VISION_META__,s:"ok",c:"var(--gate)",wide:true,
     html:__VISION_HTML__}
 };
 const badge = {ok:"работает", part:"частично работает", plan:"спроектировано", dir:"направление"};
 const MODE_NOTE = {
   vision:'<span class="status ok">работает</span> есть в проде/коде · <span class="status plan">спроектировано</span> спека заморожена · <span class="status dir">направление</span> цель',
-  today:'Лестница: target → spec → code → dogfood → cohort → broad · evidence: none → technical → human-good → product-settled · <b style="color:var(--gate)">⬤ вы здесь: friend cohort + projection-completeness</b>',
+  today:'Лестница: target → spec → code → dogfood → cohort → broad · evidence: none → technical → human-good → product-settled · <b style="color:var(--gate)">⬤ вы здесь: Island-off baseline → mission-slice</b>',
   auth:'Кто инициирует, утверждает, отзывает и тратит. Правило: контент попадает к аудитории только после явного решения соответствующего человека, привязанного к exact identity.'
 };
 let mode = "vision";
