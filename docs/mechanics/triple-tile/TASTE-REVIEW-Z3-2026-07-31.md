@@ -45,6 +45,27 @@ tile counts and total action effort match.
 The existing SWIPE artifact also defaults to autoplay, while the Twin viewer
 is manual. Future taste A/B must force identical manual input conditions.
 
+## Follow-up: viewport is part of the taste authority
+
+The first single-runtime calibration technically shared `main.ts`, but inserted
+Twin data into the old Production Original `390×700` board frame. Operator
+review rejected that result: the same Twin layout felt worse because tile
+scale, vertical composition, hit area and board-to-tray travel were materially
+reduced.
+
+The canonical direction is therefore not “move Twin data into the old Original
+renderer.” It is:
+
+- retain the former Twin `720×1600` calibration composition;
+- map normalized level geometry directly into that space;
+- run both Twin and Original through the same large-tile renderer, input,
+  presentation and lifecycle;
+- treat viewport mapping, tile scale and travel distance as measured
+  presentation authority, not incidental UI.
+
+The earlier `390×700` single-runtime projection is rejected evidence and must
+not be used for taste approval.
+
 ## Binding decisions
 
 1. `triple-tile-v1` has one canonical runtime.
@@ -52,6 +73,9 @@ is manual. Future taste A/B must force identical manual input conditions.
    implementations.
 3. Local calibration uses the same renderer, first-party SkinSpec, input,
    presentation clocks, viewport and terminal flow for both datasets.
+   The current frozen calibration viewport is `720×1600` with direct normalized
+   geometry. Visual tile scale is unchanged across host sizes; input may expand
+   only the invisible hit rectangle to preserve at least `35 CSS px`.
 4. Twin fixture data remains immutable, neutral and local-only. Mapping its
    type classes to a first-party calibration skin does not alter the fixture.
 5. Release builds force Original and fail closed on any Twin selector,

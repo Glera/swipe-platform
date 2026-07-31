@@ -133,6 +133,8 @@ score не закрывает failed MUST.
 
 - Один ли renderer/input/presentation/lifecycle используется для Twin и
   Original:
+- Из какого operator-accepted baseline взят общий viewport; его logical size,
+  tile scale, hit area и board→tray travel:
 - Как local-only выбирается `Twin | Original | Compare`:
 - Что доказывает, что selector меняет только data:
 - Как release принудительно выбирает Original:
