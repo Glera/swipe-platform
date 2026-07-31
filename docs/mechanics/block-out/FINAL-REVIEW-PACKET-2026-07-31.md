@@ -6,9 +6,12 @@
   (`codex/block-out-v1-prototype`)
 - Automated parity: **6/6 machine-pass**; browser receipt SHA-256
   `db17c3f583a3b7da637f142cccb723e50942f5bd8208aff712061351ea3b70da`
-- Review decisions: **6 complete** — every unique comparison has one hidden
-  repeat
-- Operator budget: **≤10 minutes**
+- Historical review decisions: **6 complete** — every unique comparison has
+  one hidden repeat; the two confounded Reference→Twin pairs are retained as
+  diagnostic evidence, not final parity proof
+- Remaining final decisions: **2** — one causal Reference→Twin pair plus one
+  hidden repeat
+- Remaining operator budget: **≤2 minutes**
 
 ## Round-1 session 1 — Reference→Twin (superseded surface)
 
