@@ -109,12 +109,33 @@ Signature parity defines a taste band, not permission to copy a layout.
 - [x] Dataset switching is local-only and changes data, not presentation or
   lifecycle.
 - [x] Manual same-runtime A/B is reproducible for Levels 6–10.
-- [ ] Original R1 candidates publish complete level-feel signatures.
-- [ ] Original R1 remains solver-valid and passes provenance/near-duplicate
+- [x] Original R1 candidates publish complete level-feel signatures.
+- [x] Original R1 remains solver-valid and passes provenance/near-duplicate
   gates.
 - [ ] Operator accepts Original R1 taste parity against Twin.
 - [ ] Independent review re-checks containment and evidence after the operator
   taste disposition.
+
+The R1 evidence is frozen in `triple-tile-v1-swipe/LEVEL-FEEL-Z3.json` on the
+`codex/zen-reference-twin` playables branch. Against R0, every captured anchor
+improves under the same versioned signature comparator:
+
+| Anchor | R0 | R1 |
+| ---: | ---: | ---: |
+| 6 | `0.7598` | `0.8978` |
+| 7 | `0.7869` | `0.8739` |
+| 8 | `0.7614` | `0.9215` |
+| 9 | `0.7792` | `0.8801` |
+| 10 | `0.7715` | `0.8901` |
+
+The v2 report does not use an ideal DFS path as a manual-feel proxy. Captured
+primary tap traces are authoritative for Levels `6/7/10`; booster-contaminated
+Levels `8/9` compare both datasets with the same deterministic, booster-free
+observable policy. Solver paths remain separate solvability evidence.
+
+These scores prove candidate selection and measurable recovery, not operator
+taste acceptance. Production build validation checks every R1 level against
+all five exact Twin fixtures, not only the corresponding anchor.
 
 The checked infrastructure rows are implemented on the
 `codex/zen-reference-twin` playables branch. From that worktree:
@@ -124,7 +145,7 @@ npm run preview:zen
 ```
 
 - Twin: `http://127.0.0.1:4174/?dataset=twin&level=6&auto=0`
-- Original R0: `http://127.0.0.1:4174/?dataset=original&level=6&auto=0`
+- Original R1: `http://127.0.0.1:4174/?dataset=original&level=6&auto=0`
 
 Change `level=6` through `level=10`. The launcher re-verifies the immutable
 capture, binds only to loopback and refuses production builds. The older
