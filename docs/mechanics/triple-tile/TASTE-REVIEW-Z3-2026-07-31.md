@@ -81,16 +81,31 @@ Signature parity defines a taste band, not permission to copy a layout.
 
 ## Z3 acceptance
 
-- [ ] Twin and Original run through one canonical runtime.
-- [ ] Dataset switching is local-only and changes data, not presentation or
+- [x] Twin and Original run through one canonical runtime.
+- [x] Dataset switching is local-only and changes data, not presentation or
   lifecycle.
-- [ ] Manual same-runtime A/B is reproducible for Levels 6–10.
+- [x] Manual same-runtime A/B is reproducible for Levels 6–10.
 - [ ] Original R1 candidates publish complete level-feel signatures.
 - [ ] Original R1 remains solver-valid and passes provenance/near-duplicate
   gates.
 - [ ] Operator accepts Original R1 taste parity against Twin.
 - [ ] Independent review re-checks containment and evidence after the operator
   taste disposition.
+
+The checked infrastructure rows are implemented on the
+`codex/zen-reference-twin` playables branch. From that worktree:
+
+```bash
+npm run preview:zen
+```
+
+- Twin: `http://127.0.0.1:4174/?dataset=twin&level=6&auto=0`
+- Original R0: `http://127.0.0.1:4174/?dataset=original&level=6&auto=0`
+
+Change `level=6` through `level=10`. The launcher re-verifies the immutable
+capture, binds only to loopback and refuses production builds. The older
+standalone Twin viewer remains an evidence/debug projection, not a competing
+product version.
 
 ## Cross-mechanic follow-up
 
