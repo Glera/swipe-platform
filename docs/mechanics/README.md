@@ -488,6 +488,8 @@ Primary и taste authority — immutable Android capture Zen Match build
   exact-fixture map и isolation gates;
 - [`triple-tile/TASTE-REVIEW-Z3-2026-07-31.md`](triple-tile/TASTE-REVIEW-Z3-2026-07-31.md)
   — operator taste verdict, single-runtime refreeze и reopened Original gate;
+- [`triple-tile/COMPLETION-AUDIT-Z3-2026-07-31.md`](triple-tile/COMPLETION-AUDIT-Z3-2026-07-31.md)
+  — requirement-by-requirement evidence и два оставшихся authority gates;
 - [`triple-tile/PROBE-MATRIX.md`](triple-tile/PROBE-MATRIX.md),
   [`triple-tile/PARITY-CHECKLIST.md`](triple-tile/PARITY-CHECKLIST.md) и
   [`triple-tile/REFERENCE-DELTA.md`](triple-tile/REFERENCE-DELTA.md) —
@@ -502,15 +504,14 @@ Primary и taste authority — immutable Android capture Zen Match build
   — финальный technical review Z2; сохраняется как исторический receipt, но
   предшествует Z3 operator taste delta.
 
-Статус: `Z3 single-runtime / taste-parity recovery active; rollout not
-authorized`. Z2 capture/rules/trace/solver/originality evidence сохраняется,
-но operator A/B обнаружил material taste delta: текущий Twin experience
-приятнее Garden Curios Original R0. R0 больше не считается accepted production
-baseline. Twin и Original должны стать datasets одного canonical runtime;
-готовность Original требует level-feel signature и явного operator taste
-disposition, а не только aggregate effort. Exact layouts по-прежнему
-разрешены только local/internal и блокируются production deny/near-duplicate
-gates.
+Статус: `Z3 canonical runtime + Original R1 implemented; operator taste review
+pending; rollout not authorized`. Z2 capture/rules/trace evidence сохраняется.
+R0 остаётся reproducible taste-parity-failed evidence; активный R1 проходит
+solver, complete level-feel v2 и все production deny/near-duplicate gates.
+Twin и Original уже являются datasets одного runtime. До Original readiness
+остаются explicit operator taste disposition и последующее independent review.
+Exact layouts по-прежнему разрешены только local/internal и блокируются
+production deny/near-duplicate gates.
 
 ### Core loop
 

@@ -1,8 +1,9 @@
-# Z2 Reference Packet — Zen Match Levels 6–10
+# Z3 Reference Packet — Zen Match Levels 6–10
 
 - Authority refreeze: **31.07.2026**
 - Status: **capture complete / Z3 single-runtime taste recovery active**
-- Current Original: **Garden Curios R0 / taste parity failed**
+- Current Original: **Garden Curios R1 / taste review pending**
+- Historical Original: **Garden Curios R0 / taste parity failed**
 - Primary reference: **Zen Match Android build `220000.1.755`**
 - Target range: **Levels 6–10**
 - Capture session: `2bb6ac89-3da1-4641-b753-52c9f982f0d3`
@@ -11,6 +12,8 @@
 - Brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Taste decision:
   [`TASTE-REVIEW-Z3-2026-07-31.md`](TASTE-REVIEW-Z3-2026-07-31.md)
+- Completion audit:
+  [`COMPLETION-AUDIT-Z3-2026-07-31.md`](COMPLETION-AUDIT-Z3-2026-07-31.md)
 - Capture report:
   [`CAPTURE-MANIFEST-ZEN-2026-07-30.md`](CAPTURE-MANIFEST-ZEN-2026-07-30.md)
 
@@ -178,9 +181,19 @@ Original R1 candidates must additionally match Twin-derived bands for:
 - tray occupancy/pressure;
 - target reveal and terminal cadence.
 
-The measured R0/Twin topology delta and binding decision are recorded in the
-[Z3 taste review](TASTE-REVIEW-Z3-2026-07-31.md). Original readiness now
-requires a same-runtime manual A/B and explicit `T-operator` approval.
+The active R1 pack now publishes the complete versioned signature. Its
+R0→R1 anchor scores are `0.7598→0.8978`, `0.7869→0.8739`,
+`0.7614→0.9215`, `0.7792→0.8801`, and `0.7715→0.8901`. Levels `6/7/10`
+use captured primary tap traces as reference authority; booster-contaminated
+Levels `8/9` compare both datasets with the same booster-free observable
+policy. DFS remains separate solvability evidence. All 25 R1/reference
+originality comparisons remain below `0.541 < 0.88`.
+
+The measured R0/Twin topology delta, canonical runtime recovery and R1
+selection evidence are recorded in the
+[Z3 taste review](TASTE-REVIEW-Z3-2026-07-31.md). Original readiness now has
+one remaining product gate: same-runtime manual A/B and explicit
+`T-operator` approval, followed by independent review.
 
 ## Presentation observations and measurement status
 

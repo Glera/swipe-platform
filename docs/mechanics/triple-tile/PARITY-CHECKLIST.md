@@ -39,13 +39,15 @@ parity reopened**. See
 ## Originality and platform
 
 - [x] Production build fails on resolved Twin module imports.
-- [x] Five Production Original levels pass near-duplicate gate (`0.437314…0.490798 < 0.88`); exact geometry/exposure is rejected unconditionally.
+- [x] Five R1 Production Original levels pass all 25 cross-pair
+  near-duplicate checks (`0.227644…0.540676 < 0.88`); exact
+  geometry/exposure is rejected unconditionally.
 - [x] Production objective volumes match the captured models:
   `15 / 18 / 27 / clear-all 36 / 12`.
 - [x] Five Production Original levels have solver witnesses without tools.
-- [x] Captured / observable-online / deterministic-solver action counts remain
-  in the declared per-level band:
-  `49/48/68/35/54`, `51/47/62/36/54`, `49/45/69/36/59`.
+- [x] Captured-primary / R1 observable-online / R1 deterministic-solver action
+  counts remain in the declared per-level band:
+  `49/48/68/35/54`, `47/47/65/36/56`, `48/51/63/36/51`.
 - [x] Observable policy uses only exposed faces, geometry, tray and objective
   progress; covered-face swaps and opaque ID relabeling do not change its
   decision evidence.
@@ -63,22 +65,23 @@ parity reopened**. See
 
 ## Z3 canonical runtime and level feel
 
-- [ ] Twin and Original are selected as datasets in one canonical runtime.
-- [ ] Renderer, input, presentation, viewport, terminal flow and lifecycle are
+- [x] Twin and Original are selected as datasets in one canonical runtime.
+- [x] Renderer, input, presentation, viewport, terminal flow and lifecycle are
   identical between comparison modes.
-- [ ] Manual mode is forced for taste A/B; SWIPE autoplay is not a confound.
-- [ ] Release build contains neither Twin selector nor fixtures/provenance.
-- [ ] Twin and Original publish per-level silhouette/occupancy signatures.
-- [ ] Twin and Original publish initial exposed count/type entropy.
-- [ ] Twin and Original publish forced/choice and exposure/unlock curves.
-- [ ] Twin and Original publish blocker fan-in/fan-out signatures.
-- [ ] Twin and Original publish pair/triple availability curves.
-- [ ] Twin and Original publish tray occupancy/pressure curves.
-- [ ] Twin and Original publish target reveal/terminal cadence.
-- [ ] Original R1 remains solver-valid and below originality thresholds.
+- [x] Manual mode is forced for taste A/B; SWIPE autoplay is not a confound.
+- [x] Release build contains neither Twin selector nor fixtures/provenance.
+- [x] Twin and Original publish per-level silhouette/occupancy signatures.
+- [x] Twin and Original publish initial exposed count/type entropy.
+- [x] Twin and Original publish forced/choice and exposure/unlock curves.
+- [x] Twin and Original publish blocker fan-in/fan-out signatures.
+- [x] Twin and Original publish pair/triple availability curves.
+- [x] Twin and Original publish tray occupancy/pressure curves.
+- [x] Twin and Original publish target reveal/terminal cadence.
+- [x] Original R1 remains solver-valid and below originality thresholds.
 - [ ] Operator accepts same-runtime Original R1 taste parity.
 - [ ] Independent review is repeated after operator disposition.
 
-The current Garden Curios pack is `Original R0 / taste parity failed`. Its
-checked rows above remain evidence of correctness, aggregate effort and
-containment; they do not satisfy this Z3 section.
+The current Garden Curios pack is `Original R1 / taste review pending`.
+`Original R0 / taste parity failed` remains reproducible historical evidence;
+it is not the active dataset. The two unchecked rows are authority gates, not
+missing runtime, signature, solver or containment implementation.

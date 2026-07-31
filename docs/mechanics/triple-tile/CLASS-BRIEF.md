@@ -2,7 +2,8 @@
 
 - Дата authority refreeze: **31.07.2026**
 - Статус: **Z3 single-runtime / taste-parity recovery active**
-- Current Original disposition: **Garden Curios R0 / taste parity failed**
+- Current Original disposition: **Garden Curios R1 / taste review pending**
+- Historical Original: **Garden Curios R0 / taste parity failed**
 - Primary reference и taste authority: **Zen Match build `220000.1.755`,
   Levels 6–10**
 - Capture session: `2bb6ac89-3da1-4641-b753-52c9f982f0d3`
@@ -68,7 +69,8 @@ Reference Twin:
 - Twin и Original являются datasets, а не отдельными playable versions.
 - Renderer, input semantics, presentation projection, viewport mapping,
   terminal flow, lifecycle и QA instrumentation общие.
-- Local calibration явно переключает `Twin / Original / Compare`.
+- Local calibration явно переключает `Twin / Original`; one-page review shell
+  управляет одним full-height runtime iframe и не реализует gameplay.
 - Standalone neutral viewer допустим только как proof/debug utility.
 - Release build принудительно выбирает Original и fail-closed запрещает Twin
   selector/namespace/provenance.
@@ -88,6 +90,12 @@ Reference Twin:
 Их solver, originality и aggregate-effort evidence остаётся валидным, но
 операторский review установил material taste delta относительно Twin.
 Следовательно, R0 не является accepted production baseline.
+
+Активный `Original R1` использует пять first-party branch-field layouts,
+capture/observable-authority level-feel v2, собственную type allocation и
+production provenance. Он solver-valid, проходит все 25 cross-reference
+near-duplicate comparisons и является текущим кандидатом на operator taste
+review, но ещё не accepted baseline.
 
 Не входит:
 
@@ -278,16 +286,17 @@ rules/traces, solver/originality containment и platform lifecycle. Оно не
 - [x] R0: каждый level solver-verified без boosters.
 - [x] R0: exact assets/layouts отсутствуют; provenance и near-duplicate gate
   зелёные.
-- [ ] R1: полный level-feel signature находится в Twin-derived taste band.
+- [x] R1: полный level-feel signature опубликован; каждый anchor улучшен
+  относительно R0 и находится в candidate selection band.
 - [ ] R1: same-runtime manual A/B получает положительный operator disposition.
 
 ### Canonical runtime
 
-- [ ] Twin и Original используют один renderer/input/presentation/lifecycle.
-- [ ] Dataset switch local-only и не меняет viewport, clocks или controls.
-- [ ] Release build принудительно выбирает Original и не содержит Twin
+- [x] Twin и Original используют один renderer/input/presentation/lifecycle.
+- [x] Dataset switch local-only и не меняет viewport, clocks или controls.
+- [x] Release build принудительно выбирает Original и не содержит Twin
   selector/fixtures/provenance.
-- [ ] Standalone viewer больше не выдаётся как продуктовая «версия».
+- [x] Standalone viewer больше не выдаётся как продуктовая «версия».
 
 ### Presentation and platform
 

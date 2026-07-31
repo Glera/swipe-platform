@@ -6,6 +6,8 @@
 - New status: **Z3 single-runtime / taste-parity recovery active**
 - Previous Production Original disposition: **R0 / taste parity failed**
 - Merge and rollout: **not authorized**
+- Completion audit:
+  [`COMPLETION-AUDIT-Z3-2026-07-31.md`](COMPLETION-AUDIT-Z3-2026-07-31.md)
 
 ## What this review changes
 
