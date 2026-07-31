@@ -144,13 +144,16 @@ The checked infrastructure rows are implemented on the
 npm run preview:zen
 ```
 
+- One-page review: `http://127.0.0.1:4174/calibration.html`
 - Twin: `http://127.0.0.1:4174/?dataset=twin&level=6&auto=0`
 - Original R1: `http://127.0.0.1:4174/?dataset=original&level=6&auto=0`
 
-Change `level=6` through `level=10`. The launcher re-verifies the immutable
-capture, binds only to loopback and refuses production builds. The older
-standalone Twin viewer remains an evidence/debug projection, not a competing
-product version.
+The one-page surface is a local-only control shell around one full-height game
+iframe; it does not implement or duplicate gameplay. Use `T / O`, `6–0`, or
+`Space` to switch. Direct URLs remain available for phone review. The launcher
+re-verifies the immutable capture, binds only to loopback and refuses
+production builds. The older standalone Twin viewer remains an evidence/debug
+projection, not a competing product version.
 
 ## Cross-mechanic follow-up
 
