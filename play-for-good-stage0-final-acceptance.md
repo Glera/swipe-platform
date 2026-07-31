@@ -1,6 +1,6 @@
 # Play for Good Stage 0 — final acceptance receipt
 
-Статус: **DRAFT — не является GO до закрытия всех `PENDING`**.  
+Статус: **GO — финальные evidence-гейты закрыты; meta PR разрешён к merge**.
 Authority: `play-for-good-stage0-island-off-tz.md` v7 at
 `4fd56cf0cdce7fb46674a822b2974949b8da709b`.
 
@@ -28,12 +28,14 @@ Authority: `play-for-good-stage0-island-off-tz.md` v7 at
 | P4.3: bake/theme queue fully drained before runners-off | production drain receipt in backend PR #31: `bake_nonterminal=0`, `theme_nonterminal=0` at `2026-07-30T13:17:20.868543Z` | PROVEN |
 | P4.4: generation runners off only after drain | backend PR #31, merge `d1db4a702f8be1d6060920cee563a853e1a2bc77`; production gate snapshot | PROVEN |
 | P4.5: legacy routes 404; closed delivery/report/block/moderation live | exact production apply receipt `swipe-backend/docs/receipts/stage0-island-off-protective-smoke-apply.json`, SHA-256 `f9b34b0e4782b8c5b1f41baf148b0d16a9cf693ee599f4bc55d93cb35594ff99`; independent GO receipt; merge `6f471a0d64372d33f04cab0eaaa84d66978cdd89` | PROVEN |
+| P4.5: recall остаётся защитным read-path и не затронут shutdown-пакетом | `swipe-backend/docs/specs/island-off-route-manifest.md`: recall явно вне Island surface; Stage 0 range не меняет `api_catalog_recall.py`, catalog-recall modules или `ENABLE_CATALOG_RECALL` | PROVEN |
 | P4.5: no bot/notification/bake/theme runner activity during observation window | `swipe-backend/docs/receipts/stage0-island-off-24h-log-check.md`: exact freeze interval, four source-known signatures, zero Render rows; primary proof remains gates + startup guards + DB freeze | PROVEN |
 | P5.1: initial manifest after drain is immutable and independently reviewed | `swipe-backend/docs/receipts/stage0-island-off-initial.json`, DB time `2026-07-30T15:12:16.072206Z`, SHA-256 `d0bbe8d7ea98f1bff66520ba793c6a27710783e9b5d7963dd06d881ea47279c1`; independent GO receipt | PROVEN |
 | P5.1: after ≥24h freeze tables unchanged; protective writes match audit allowlist; no data deleted | `swipe-backend/docs/receipts/stage0-island-off-24h-verification.json`: elapsed `24.13442h`, `status=clean`, 15 freeze + 5 protective tables, zero violations; receipt SHA-256 `c050df86852ac606faa00033aa2ec98ec42efac3fcd257b7b039910b4ef4915c` | PROVEN |
 | P5.2: platform-scheme rebuilt from VISION v3.0.1 and preserved as private Artifact | `play-for-good-stage0-platform-scheme-publication.md`: build/provenance digests, local + Claude preview validation, permanent authenticated private URL; public `Publish artifact` path intentionally not used | PROVEN |
-| P5.3: mutable rollout status and durable decision updated at correct authorities | final patches to backend `IMPLEMENTATION-STATUS.md` and root `CLAUDE.md`; docs-boundary lint | **PENDING** |
+| P5.3: mutable rollout status and durable decision updated at correct authorities | backend `IMPLEMENTATION-STATUS.md`, merged by `Glera/swipe-backend#40` at `3e6640ea84f405c3ba29a1b6a7fd3090b5db1b9a`; root `CLAUDE.md` candidate `6aaf026cfc6b226723d3f95f73b8b37b6b5c4a01`; docs-boundary lint clean | PROVEN |
 | Common: Stage 1 spec v8 accepted, but implementation has not started | `play-for-good-stage1-v8-review-go.md`; spec source `4fd56cf0…`; no Stage 1 implementation package in this rollout | PROVEN |
+| Final independent acceptance | `play-for-good-stage0-final-review-go.md`: fresh read-only Claude Opus/xhigh review reproduced verifier output and hashes, traced protective writes, checked authority split and returned GO without P1/P2 | PROVEN |
 
 ## Финальный gate
 
@@ -51,4 +53,5 @@ Stage 0 получает `GO` только если одновременно:
 5. Свежая read-only Claude-сессия проверяет exact final commits, receipts,
    publication URL и эту матрицу и возвращает `GO` без P1/P2.
 
-До этого момента Stage 1 не начинается.
+Все пять условий доказаны. Stage 0 получает **GO**. Stage 1 не начинался и
+может планироваться только после merge этого финального authority-пакета.
