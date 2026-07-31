@@ -147,6 +147,6 @@ Still closed pending separate authority and acceptance:
 
 - unattended A1 installation/enablement;
 - A1.1/B1 cohort-watch release and its own acceptance period;
-- cohort digest production cron and backend production dry-run;
+- cohort digest production cron and participant invitations;
 - Finance chat binding verification, billing credentials, live collectors,
   shadow start, schedule and Telegram delivery.
