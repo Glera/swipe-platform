@@ -1,13 +1,16 @@
 # Z2 Reference Packet — Zen Match Levels 6–10
 
-- Authority refreeze: **30.07.2026**
-- Status: **capture complete / Reference Twin active**
+- Authority refreeze: **31.07.2026**
+- Status: **capture complete / Z3 single-runtime taste recovery active**
+- Current Original: **Garden Curios R0 / taste parity failed**
 - Primary reference: **Zen Match Android build `220000.1.755`**
 - Target range: **Levels 6–10**
 - Capture session: `2bb6ac89-3da1-4641-b753-52c9f982f0d3`
 - Manifest SHA-256:
   `70960297ef9308d3fbe537d708f63b442a92c0f4a4de357918a3ee10172febfa`
 - Brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
+- Taste decision:
+  [`TASTE-REVIEW-Z3-2026-07-31.md`](TASTE-REVIEW-Z3-2026-07-31.md)
 - Capture report:
   [`CAPTURE-MANIFEST-ZEN-2026-07-30.md`](CAPTURE-MANIFEST-ZEN-2026-07-30.md)
 
@@ -38,6 +41,7 @@ bytes is not a new acquisition and does not justify replaying Levels 6–10.
 - `R-report`: acquisition result recorded by the evidence agent, but source
   bytes must be mounted for independent re-verification;
 - `O-production`: approved shipping decision;
+- `T-operator`: explicit operator taste disposition;
 - `G-probe`: a specific missing timing/transition measurement.
 
 No `G-probe` permits a guessed value to masquerade as reference measurement.
@@ -120,6 +124,11 @@ does not match the frozen digest above.
 
 ## Production decisions
 
+Twin и Original являются datasets одного canonical runtime. Dataset switch не
+может менять renderer, input semantics, presentation clocks, viewport mapping,
+terminal flow или lifecycle. Standalone neutral viewer остаётся proof/debug
+utility; он не является второй product implementation.
+
 Production Original preserves:
 
 - exposure graph semantics;
@@ -137,11 +146,11 @@ Production Original excludes:
 - Undo, Magnet, Continue, coins, crowns, boosters and meta;
 - any import from Reference Twin files.
 
-The five reverse-generated Garden Curios levels are now reclassified and
-re-gated as Production Original. They retain independent geometry/assets,
-match captured density `51/54/72/36/60`, and match objective volume
+The five reverse-generated Garden Curios levels are retained as
+`Production Original R0`. They have independent geometry/assets, match
+captured density `51/54/72/36/60`, and match objective volume
 `15/18/27/clear-all 36/12`. Their capture / observable-online /
-deterministic-solver action counts are:
+deterministic-solver action counts remain valid evidence:
 
 | Level | Capture trace | Observable online | Solver |
 | --- | ---: | ---: | ---: |
@@ -154,7 +163,24 @@ deterministic-solver action counts are:
 Each recipe carries its reference count and maximum permitted delta.
 Generation fails closed if either the visible-information witness or solver
 witness leaves that band. This is parity evidence for solution effort; it does
-not authorize copied geometry, symbols or trade dress.
+not authorize copied geometry, symbols or trade dress, and it does not prove
+moment-to-moment level feel.
+
+Operator review on 31.07.2026 found the Twin experience materially more
+pleasant. R0 is therefore not an accepted production baseline. Replacement
+Original R1 candidates must additionally match Twin-derived bands for:
+
+- silhouette/occupied bounds and coordinate framing;
+- initial exposed count and exposed-type entropy;
+- forced/choice ratio and exposure/unlock curve;
+- blocker fan-in/fan-out;
+- pair/triple availability;
+- tray occupancy/pressure;
+- target reveal and terminal cadence.
+
+The measured R0/Twin topology delta and binding decision are recorded in the
+[Z3 taste review](TASTE-REVIEW-Z3-2026-07-31.md). Original readiness now
+requires a same-runtime manual A/B and explicit `T-operator` approval.
 
 ## Presentation observations and measurement status
 
@@ -211,6 +237,13 @@ No final parity claim is valid without:
 - exact manifest re-verification;
 - five trace replays;
 - production deny/near-duplicate gates;
+- one canonical runtime with dataset-only switching;
+- complete level-feel signatures for Twin and current Original candidate;
 - side-by-side visual evidence;
-- [independent review](REVIEW-Z2-INDEPENDENT-2026-07-30.md) with `PASS`;
+- explicit operator taste disposition;
+- independent review after that disposition;
 - operator disposition of remaining deltas.
+
+The [Z2 independent review](REVIEW-Z2-INDEPENDENT-2026-07-30.md) remains a
+valid receipt for its technical scope, but it predates the material Z3 taste
+delta and cannot close Original readiness.

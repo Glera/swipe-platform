@@ -1,6 +1,10 @@
 # Zen Match Levels 6–10 parity checklist
 
-Status values: `measured`, `decision`, `gap`, `pass`, `fail`.
+Status values: `measured`, `decision`, `gap`, `pass`, `fail`, `reopened`.
+
+Current overall disposition: **Z2 technical evidence retained; Z3 taste
+parity reopened**. See
+[`TASTE-REVIEW-Z3-2026-07-31.md`](TASTE-REVIEW-Z3-2026-07-31.md).
 
 ## Rules and traces
 
@@ -55,4 +59,26 @@ Status values: `measured`, `decision`, `gap`, `pass`, `fail`.
   montage are attached; receipt binds manifest, extracted-evidence receipt,
   native frame SHA-256 and production build digest.
 - [x] [Final independent review](REVIEW-Z2-INDEPENDENT-2026-07-30.md) is
-  attached with verdict `PASS`.
+  attached with verdict `PASS` for the previous technical scope.
+
+## Z3 canonical runtime and level feel
+
+- [ ] Twin and Original are selected as datasets in one canonical runtime.
+- [ ] Renderer, input, presentation, viewport, terminal flow and lifecycle are
+  identical between comparison modes.
+- [ ] Manual mode is forced for taste A/B; SWIPE autoplay is not a confound.
+- [ ] Release build contains neither Twin selector nor fixtures/provenance.
+- [ ] Twin and Original publish per-level silhouette/occupancy signatures.
+- [ ] Twin and Original publish initial exposed count/type entropy.
+- [ ] Twin and Original publish forced/choice and exposure/unlock curves.
+- [ ] Twin and Original publish blocker fan-in/fan-out signatures.
+- [ ] Twin and Original publish pair/triple availability curves.
+- [ ] Twin and Original publish tray occupancy/pressure curves.
+- [ ] Twin and Original publish target reveal/terminal cadence.
+- [ ] Original R1 remains solver-valid and below originality thresholds.
+- [ ] Operator accepts same-runtime Original R1 taste parity.
+- [ ] Independent review is repeated after operator disposition.
+
+The current Garden Curios pack is `Original R0 / taste parity failed`. Its
+checked rows above remain evidence of correctness, aggregate effort and
+containment; they do not satisfy this Z3 section.

@@ -480,12 +480,14 @@ Primary и taste authority — immutable Android capture Zen Match build
 
 - [`triple-tile/REFERENCE-PACKET.md`](triple-tile/REFERENCE-PACKET.md) —
   capture authority, две objective-модели и production decisions;
-- [`triple-tile/CLASS-BRIEF.md`](triple-tile/CLASS-BRIEF.md) — Z2
-  gameplay/schema/solver/Twin/Production Original boundary;
+- [`triple-tile/CLASS-BRIEF.md`](triple-tile/CLASS-BRIEF.md) — Z3
+  gameplay/schema/solver, single-runtime и Twin/Original dataset boundary;
 - [`triple-tile/CAPTURE-MANIFEST-ZEN-2026-07-30.md`](triple-tile/CAPTURE-MANIFEST-ZEN-2026-07-30.md)
   — acquisition receipt;
 - [`triple-tile/REFERENCE-TWIN.md`](triple-tile/REFERENCE-TWIN.md) —
   exact-fixture map и isolation gates;
+- [`triple-tile/TASTE-REVIEW-Z3-2026-07-31.md`](triple-tile/TASTE-REVIEW-Z3-2026-07-31.md)
+  — operator taste verdict, single-runtime refreeze и reopened Original gate;
 - [`triple-tile/PROBE-MATRIX.md`](triple-tile/PROBE-MATRIX.md),
   [`triple-tile/PARITY-CHECKLIST.md`](triple-tile/PARITY-CHECKLIST.md) и
   [`triple-tile/REFERENCE-DELTA.md`](triple-tile/REFERENCE-DELTA.md) —
@@ -496,14 +498,19 @@ Primary и taste authority — immutable Android capture Zen Match build
 - [`triple-tile/REVIEW-INDEPENDENT-Z2-2026-07-30.md`](triple-tile/REVIEW-INDEPENDENT-Z2-2026-07-30.md)
   — историческое approval Z2 infrastructure до materialization реального
   capture; не является финальным parity disposition.
+- [`triple-tile/REVIEW-Z2-INDEPENDENT-2026-07-30.md`](triple-tile/REVIEW-Z2-INDEPENDENT-2026-07-30.md)
+  — финальный technical review Z2; сохраняется как исторический receipt, но
+  предшествует Z3 operator taste delta.
 
-Статус: `Z2 final independent review / rollout not authorized`. Реальный
-capture повторно верифицирован, пять trace-exact observable Twin fixtures
-materialized, deterministic replay и five-way similarity receipts зелёные.
-Exact layouts разрешены только в изолированном non-shipping Twin. Production
-использует собственные layouts/assets; deny и near-duplicate gates включают
-безусловный reject exact geometry/exposure copy. Неразрешённые точные cadence
-значения перечислены как короткие probes, а не guessed defaults.
+Статус: `Z3 single-runtime / taste-parity recovery active; rollout not
+authorized`. Z2 capture/rules/trace/solver/originality evidence сохраняется,
+но operator A/B обнаружил material taste delta: текущий Twin experience
+приятнее Garden Curios Original R0. R0 больше не считается accepted production
+baseline. Twin и Original должны стать datasets одного canonical runtime;
+готовность Original требует level-feel signature и явного operator taste
+disposition, а не только aggregate effort. Exact layouts по-прежнему
+разрешены только local/internal и блокируются production deny/near-duplicate
+gates.
 
 ### Core loop
 

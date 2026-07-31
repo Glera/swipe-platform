@@ -4,6 +4,12 @@ Reference Twin is an internal measurement instrument. It may reproduce exact
 captured layouts because it is neutral-skinned, non-shipping and denied by
 production tooling.
 
+Twin является dataset/evidence authority, а не отдельной версией игры.
+Canonical calibration подаёт Twin и Original data в один renderer/input/
+presentation/lifecycle. Standalone neutral viewer остаётся допустимым
+proof/debug utility, но не является default development surface или
+product candidate.
+
 ## Fixture map
 
 | Fixture | Objective | Required trace features |
@@ -54,9 +60,12 @@ comparison.
 - Production build denies the Twin namespace and scans every resolved target
   module for static/concatenated Twin marker fragments, capture identity or
   fixture ID.
-- Twin fixtures never receive production SkinSpec/assets.
+- Twin fixtures never persist production SkinSpec/assets. Local calibration
+  runtime may map neutral type classes through the current first-party
+  renderer without changing fixture data.
 - Production candidates carry `referenceTwin: false` and first-party
   provenance.
+- Release graph denies both Twin fixture imports and runtime dataset selectors.
 
 ## Readiness
 

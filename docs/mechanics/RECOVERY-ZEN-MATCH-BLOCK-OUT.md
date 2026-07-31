@@ -5,7 +5,7 @@
 
 ## Zen Match
 
-Current entry point: **Z2 Reference Twin Levels 6–10**.
+Current entry point: **Z3 single-runtime / taste-parity recovery**.
 
 - acquisition завершён;
 - повторный полный capture запрещён;
@@ -13,7 +13,13 @@ Current entry point: **Z2 Reference Twin Levels 6–10**.
 - существующие exposure graph, tray multiset, solver и reverse generator
   сохраняются, пока Twin trace не докажет несовместимость;
 - presentation калибруется на fixed Twin, не на factory output;
-- после parity создаются/проверяются Production Originals.
+- Reference Twin и Production Original являются datasets одного canonical
+  runtime, а не отдельными playable implementations;
+- текущий Twin experience — active taste baseline;
+- текущие Garden Curios levels сохраняются как `Original R0 / taste parity
+  failed`, а не как production baseline;
+- после same-runtime A/B создаются/проверяются Original R1 candidates по
+  level-feel signature, solver и originality gates.
 
 ## Block Out
 
@@ -27,4 +33,6 @@ Block Out не входит в текущую Zen Match цель. При воз�
 
 Reference acquisition/Twin могут перезапускать evidence authority, но не
 обнуляют совместимый код. Exact Twin и shipping originals всегда разделены
-production deny/near-duplicate gates.
+production deny/near-duplicate gates. По умолчанию они используют один
+runtime; перенос этого правила на все классы механик требует повторной
+проверки ещё на одной механике.

@@ -129,6 +129,31 @@ score не закрывает failed MUST.
 - Какие exact layouts/assets никогда не shipping:
 - Near-duplicate comparison inputs:
 
+### Canonical runtime / dataset boundary
+
+- Один ли renderer/input/presentation/lifecycle используется для Twin и
+  Original:
+- Как local-only выбирается `Twin | Original | Compare`:
+- Что доказывает, что selector меняет только data:
+- Как release принудительно выбирает Original:
+- Как standalone Twin viewer ограничен proof/debug ролью:
+- Как исключён autoplay/input confound из taste A/B:
+
+### Level-feel signature
+
+Solver и aggregate action count не закрывают этот раздел.
+
+| Signal | Twin measurement | Original band | Evidence |
+| --- | --- | --- | --- |
+| silhouette / occupied bounds | | | |
+| initial exposed count / type entropy | | | |
+| forced / choice ratio | | | |
+| exposure / unlock curve | | | |
+| blocker fan-in / fan-out | | | |
+| pair / match availability curve | | | |
+| tray pressure curve | | | |
+| target / terminal cadence | | | |
+
 ## Core fantasy
 
 Что должен чувствовать игрок:
@@ -396,6 +421,7 @@ interface LevelSpec {
 - [ ] Reference packet приложен (включая feel-таблицу и parity checklist).
 - [ ] Capture manifest/hash chain проверены.
 - [ ] Exact Reference Twin trace replay приложен.
+- [ ] Dataset-only switch одного canonical runtime доказан.
 - [ ] Production deny и near-duplicate gates приложены.
 - [ ] Visual proof приложен.
 - [ ] Runtime checks приложены.

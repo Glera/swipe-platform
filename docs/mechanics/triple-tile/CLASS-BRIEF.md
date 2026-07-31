@@ -1,7 +1,8 @@
 # Class Brief: `triple-tile-v1`
 
-- Дата authority refreeze: **30.07.2026**
-- Статус: **Z2 Reference Twin active / production rollout not authorized**
+- Дата authority refreeze: **31.07.2026**
+- Статус: **Z3 single-runtime / taste-parity recovery active**
+- Current Original disposition: **Garden Curios R0 / taste parity failed**
 - Primary reference и taste authority: **Zen Match build `220000.1.755`,
   Levels 6–10**
 - Capture session: `2bb6ac89-3da1-4641-b753-52c9f982f0d3`
@@ -10,6 +11,8 @@
 - Capture report:
   [`CAPTURE-MANIFEST-ZEN-2026-07-30.md`](CAPTURE-MANIFEST-ZEN-2026-07-30.md)
 - Reference packet: [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md)
+- Z3 taste decision:
+  [`TASTE-REVIEW-Z3-2026-07-31.md`](TASTE-REVIEW-Z3-2026-07-31.md)
 
 > Этот brief заменяет прежнее решение «clear-all only». Capture Levels 6–10
 > доказал две objective-модели. Exact reference layouts разрешены только в
@@ -22,6 +25,7 @@
 
 - `R-capture` — непосредственно наблюдаемое поведение immutable capture;
 - `O-production` — продуктово-инженерное решение для shipping baseline;
+- `T-operator` — обязательный taste disposition оператора;
 - `G-probe` — точное значение отсутствует или неоднозначно и требует
   короткого targeted probe. Такой пробел не разрешается выдуманным числом.
 
@@ -31,10 +35,12 @@
 
 ## Цель
 
-Сначала воспроизвести причинно-следственную картину Zen Match Levels 6–10 в
-пяти exact internal-only neutral fixtures, затем перенести доказанные
-rules/feel в пять собственных production levels того же difficulty/density
-band без reference layouts, assets, UI, meta и экономики.
+Сохранить причинно-следственную картину Zen Match Levels 6–10 в пяти exact
+internal-only neutral fixtures, затем запускать Twin и Original datasets через
+один canonical runtime. Текущий Twin experience является taste baseline.
+Новые shipping-safe Original R1 levels должны совпасть с ним не только по
+difficulty/density и общему effort, но и по измеримому level-feel signature,
+не копируя reference layouts, assets, UI, meta или экономику.
 
 ## Scope boundary
 
@@ -57,6 +63,18 @@ Reference Twin:
 - не используется фабрикой как production candidate;
 - хранит capture provenance и явный `referenceTwin: true`.
 
+### Canonical runtime
+
+- Twin и Original являются datasets, а не отдельными playable versions.
+- Renderer, input semantics, presentation projection, viewport mapping,
+  terminal flow, lifecycle и QA instrumentation общие.
+- Local calibration явно переключает `Twin / Original / Compare`.
+- Standalone neutral viewer допустим только как proof/debug utility.
+- Release build принудительно выбирает Original и fail-closed запрещает Twin
+  selector/namespace/provenance.
+- Local taste A/B проводится с одинаковым manual input; SWIPE autoplay не
+  может быть скрытым отличием сравниваемых surfaces.
+
 ### Production Original
 
 Входит:
@@ -65,6 +83,11 @@ Reference Twin:
 - пять собственных solver-verified levels в band Levels 6–10;
 - собственные geometry, type allocation, symbols, palette, UI и SkinSpec;
 - swipe autoplay/takeover и один короткий round на карточку.
+
+Текущие reverse-generated Garden Curios levels сохраняются как `Original R0`.
+Их solver, originality и aggregate-effort evidence остаётся валидным, но
+операторский review установил material taste delta относительно Twin.
+Следовательно, R0 не является accepted production baseline.
 
 Не входит:
 
@@ -203,11 +226,19 @@ remaining/tray. `unknown` при budget cutoff не считается отри�
 5. solver witness без boosters;
 6. observable-online и solver action counts внутри capture-derived effort
    band текущего reference archetype;
-7. fail-closed production build при любом импорте из Twin namespace.
+7. level-feel signature внутри утверждённого Twin-derived taste band;
+8. same-runtime manual A/B с явным `T-operator` disposition;
+9. fail-closed production build при любом импорте из Twin namespace или
+   dataset selector.
 
 Near-duplicate gate сравнивает normalized geometry graph, layer histogram,
 type-allocation signature и objective shape. Он не заменяет human visual
 review.
+
+Level-feel signature включает silhouette/occupancy, initial exposed count,
+exposed-type entropy, forced/choice ratio, unlock curve, blocker
+fan-in/fan-out, pair/triple availability, tray-pressure curve и target cadence.
+Aggregate action effort без этих рядов не закрывает taste parity.
 
 ## Swipe integration
 
@@ -221,6 +252,10 @@ review.
   presentation очереди.
 
 ## Acceptance
+
+Z2 evidence остаётся действительным доказательством capture integrity,
+rules/traces, solver/originality containment и platform lifecycle. Оно не
+закрывает Z3 single-runtime или taste parity.
 
 ### Authority
 
@@ -238,10 +273,21 @@ review.
 
 ### Production Original
 
-- [x] Пять собственных levels соответствуют target difficulty/density band.
-- [x] Каждый level solver-verified без boosters.
-- [x] Exact assets/layouts отсутствуют; provenance и near-duplicate gate
+- [x] R0: пять собственных levels соответствуют target
+  difficulty/density/aggregate-effort band.
+- [x] R0: каждый level solver-verified без boosters.
+- [x] R0: exact assets/layouts отсутствуют; provenance и near-duplicate gate
   зелёные.
+- [ ] R1: полный level-feel signature находится в Twin-derived taste band.
+- [ ] R1: same-runtime manual A/B получает положительный operator disposition.
+
+### Canonical runtime
+
+- [ ] Twin и Original используют один renderer/input/presentation/lifecycle.
+- [ ] Dataset switch local-only и не меняет viewport, clocks или controls.
+- [ ] Release build принудительно выбирает Original и не содержит Twin
+  selector/fixtures/provenance.
+- [ ] Standalone viewer больше не выдаётся как продуктовая «версия».
 
 ### Presentation and platform
 
@@ -250,8 +296,9 @@ review.
 - [x] Compact/tall/landscape, pause/resume, autoplay/takeover и single
   completion проверены.
 - [x] Visual proof, montage Levels 6–10 и delta list приложены.
-- [x] Final independent review приложен: `PASS`, без blocking/material
-  findings.
+- [x] Z2 independent review приложен: `PASS` для его прежнего technical
+  scope.
+- [ ] После Z3 operator taste disposition выполнен новый independent review.
 
 ## Explicit decision boundary
 
