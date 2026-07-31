@@ -5,8 +5,8 @@
 - Playables commit: `95b568e` (`codex/block-out-v1-prototype`)
 - Automated parity: **6/6 machine-pass**; browser receipt SHA-256
   `38042c1133fae0aeeacafdc278ad1ef65d911a52703d38390f30a539f6186d6d`
-- Review decisions: **4 complete + 2 pending** — every unique comparison has
-  one hidden repeat
+- Review decisions: **6 complete** — every unique comparison has one hidden
+  repeat
 - Operator budget: **≤10 minutes**
 
 ## Round-1 session 1 — Reference→Twin (superseded surface)
@@ -49,7 +49,7 @@ also replaces it with the guarded motion-energy channel. Only that two-choice
 repeat remains; Twin→Original is not repeated because the correction is shared
 by Twin and Original.
 
-## Correction-1 session — Reference→Twin (pending)
+## Correction-1 session — Reference→Twin (complete)
 
 This page contains one gate-consume comparison and one hidden repeat. Both
 channels are gate-centred adjacent-frame motion energy with static identity
@@ -62,6 +62,13 @@ suppressed, spatially aligned and matched to `500×500`, `1.966667 s` clips.
 | `reference-twin-correction-1.review.json` | `2ffded3747621d0855bb0b6befd7c9cc9fdaebe14bf6e0c530f6ad9692012d4f` |
 | `reference-twin-correction-1.html` | `6e336f945a59feff826e34e86242c8ab6dd0ae51159dc80314d78083292b7cc0` |
 
+Receipt SHA-256:
+`86adeae753763693d68e4bc1efdb583a6e49ea3bc1d3b9fd16718d9288b3aacc`.
+The operator selected Reference `2/2` despite the hidden A/B reversal. The
+repeat is consistent and the machine disposition is `correction-required`.
+Because the automatic correction budget is exhausted, this becomes an explicit
+operator disposition rather than another silent implementation round.
+
 ## Disposition rule
 
 - Corrected Reference→Twin: failure to identify Reference consistently supports
@@ -73,5 +80,5 @@ suppressed, spatially aligned and matched to `500×500`, `1.966667 s` clips.
 - A contradictory correction repeat does not fail the mechanic; it triggers
   one replay of the same two decisions.
 
-Export the correction receipt. No source label is shown before export.
-Rollout/publication remains outside this review.
+The correction receipt is exported and verified. Rollout/publication remains
+outside this review.

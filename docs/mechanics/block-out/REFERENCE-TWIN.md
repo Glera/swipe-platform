@@ -1,7 +1,7 @@
 # Block Out v1 — Falcon Reference Twin
 
 - Process: `reference-replication.v3`
-- Status: **machine-ready; correction-1 Reference→Twin repeat pending**
+- Status: **machine-ready; operator disposition required**
 - Primary source: Falcon/CYLINDER Android `1.0.177+177`
 - Playables implementation commit: `95b568e`
 - Native scenarios: `BO-FC-GS-01-L2-GATE`,
@@ -55,3 +55,7 @@ Round 1 preserved Twin→Original feel (`same / same`) but identified Reference
 `2/2`. The bounded fragment-propagation correction and identity-suppressed
 motion-energy repeat are recorded in
 [`CORRECTION-1-2026-07-31.md`](CORRECTION-1-2026-07-31.md).
+
+Correction 1 also identified Reference `2/2` after the hidden mapping reversal.
+The automatic correction budget is exhausted; causal parity remains open for
+explicit operator disposition.

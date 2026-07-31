@@ -3,7 +3,7 @@
 - Process: `reference-replication.v3`
 - Primary: Falcon/CYLINDER Android `1.0.177+177`
 - Playables commit: `95b568e`
-- Status: **machine-pass; one Reference→Twin repeat pending**
+- Status: **operator disposition required; automatic correction budget exhausted**
 
 ## Round-1 operator receipts
 
@@ -77,6 +77,23 @@ errors are empty.
   result SHA-256
   `ab920a435d3b3080585260ddf51a4d35020f7e05a27bc63f2ca53442012b89a5`.
 
-No further automatic correction round is authorized after this one. A
-repeat-consistent correction review closes parity or returns the remaining
-delta to explicit operator disposition.
+## Correction-1 operator receipt
+
+- Receipt SHA-256:
+  `86adeae753763693d68e4bc1efdb583a6e49ea3bc1d3b9fd16718d9288b3aacc`.
+- Immutable choices: `B`, then `A` after the hidden A/B mapping reversal.
+- Semantic selection: Reference `2/2`.
+- Hidden repeat: consistent.
+- Machine disposition: `correction-required`.
+
+The normalized channels still expose a front-loaded Reference envelope versus
+a staged Twin envelope. On the review clips, Reference peaks near `600 ms` and
+Twin near `833 ms`; Twin's strongest motion sits lower in the gate-centred crop
+and retains a late tail. The pre-takeover motion envelope also differs, so the
+receipt proves remaining distinguishability but does not by itself attribute
+all of it to shipping presentation rather than capture alignment.
+
+No further automatic correction round is authorized. The remaining gate is an
+explicit operator choice between accepting the known delta, authorizing a
+diagnostic-only re-alignment, or granting an exceptional additional correction
+round after diagnosis.
