@@ -6,6 +6,10 @@
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude (Review 1 и Review 3)**
+- Process version: `reference-replication.v3`
+- Process receipt: [`PROCESS-RECEIPT.md`](PROCESS-RECEIPT.md)
+- Golden scenarios: [`GOLDEN-SCENARIOS.md`](GOLDEN-SCENARIOS.md)
+- Probe matrix: [`PROBE-MATRIX.md`](PROBE-MATRIX.md)
 - Reference packet: [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md)
 - Review 1:
   [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md)

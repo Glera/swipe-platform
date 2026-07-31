@@ -1,0 +1,48 @@
+{
+  "schema": "p4g.gesture-traces.v1",
+  "processVersion": "reference-replication.v3",
+  "mechanic": "block-out-v1",
+  "coordinateSpace": "normalized-gameplay-board",
+  "timeUnit": "normalized-progress",
+  "status": "planned; device coordinates bind after doctor/display receipt",
+  "traces": [
+    {
+      "scenarioId": "BO-GS-01",
+      "traceId": "BO-GT-01-L-CARRY",
+      "samples": [[0, 0.35, 0.65], [0.25, 0.35, 0.45], [0.5, 0.5, 0.45], [0.75, 0.65, 0.45], [1, 0.65, 0.3]],
+      "terminal": "release"
+    },
+    {
+      "scenarioId": "BO-GS-02",
+      "traceId": "BO-GT-02-CORRIDOR",
+      "samples": [[0, 0.35, 0.75], [0.25, 0.42, 0.62], [0.5, 0.46, 0.48], [0.75, 0.46, 0.34], [1, 0.46, 0.2]],
+      "terminal": "release"
+    },
+    {
+      "scenarioId": "BO-GS-03",
+      "traceId": "BO-GT-03-CORNER",
+      "samples": [[0, 0.3, 0.7], [0.25, 0.42, 0.58], [0.5, 0.54, 0.46], [0.75, 0.62, 0.38], [1, 0.68, 0.32]],
+      "terminal": "release-at-last-valid-pose"
+    },
+    {
+      "scenarioId": "BO-GS-04",
+      "traceId": "BO-GT-04-GATE-THRESHOLD",
+      "samples": [[0, 0.5, 0.55], [0.25, 0.5, 0.42], [0.5, 0.5, 0.31], [0.75, 0.5, 0.22], [1, 0.5, 0.16]],
+      "semanticAnchors": {"feedbackStartDepthCells": 1.35, "captureDepthCells": 1},
+      "terminal": "gate-control-transfer"
+    },
+    {
+      "scenarioId": "BO-GS-05",
+      "traceId": "BO-GT-05-TWO-BLOCK-CONTACT",
+      "samples": [[0, 0.25, 0.7], [0.25, 0.36, 0.58], [0.5, 0.46, 0.46], [0.75, 0.5, 0.34], [1, 0.5, 0.2]],
+      "terminal": "release"
+    },
+    {
+      "scenarioId": "BO-GS-06",
+      "traceId": "BO-GT-06-OVERLAP-NEXT-INPUT",
+      "samples": [[0, 0.7, 0.7], [0.25, 0.62, 0.58], [0.5, 0.56, 0.46], [0.75, 0.5, 0.32], [1, 0.5, 0.18]],
+      "precondition": "prior consume presentation active; logical exit already committed",
+      "terminal": "second-gate-control-transfer"
+    }
+  ]
+}

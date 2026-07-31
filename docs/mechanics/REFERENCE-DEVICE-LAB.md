@@ -29,6 +29,7 @@ settings автоматически.
 ```text
 doctor
 scenario init
+scenario attach
 scenario verify
 ```
 
