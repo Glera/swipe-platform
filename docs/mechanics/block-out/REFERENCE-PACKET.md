@@ -75,6 +75,7 @@ versioned rules и отдельного operator approve после статич
 | ID | Источник | Что подтверждает | Ограничение |
 | --- | --- | --- | --- |
 | `BO-R-S1` | [App Store: Block Out! - Color Sort Puzzle](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568) | exact identity, Grand Games, slide-to-matching-doors, elevators/generators, timed pressure | store-copy не определяет release snap/collision и timing |
+| `BO-R-S1b` | [Google Play: Grand Games A.Ş. developer profile](https://play.google.com/store/apps/dev?id=6430038787206489041) | Android publisher identity; visible catalog contains Magic Sort and Car Match, not Block Out | catalog availability may vary by region and time; paired with on-device exact-title search |
 | `BO-R-S2` | [Block Out! levels 1–20 gameplay](https://www.youtube.com/watch?v=VU9mQ_gleN8) | grid, polyomino blocks, boundary gates, timer, ранний progression и поздние numbered/dynamic элементы | public montage, версия build неизвестна, touch/haptic не видны |
 | `BO-R-S3` | [Block Out! levels 1–15 walkthrough](https://www.youtube.com/watch?v=VwdvAFFBDiA) | второй independent public view ранних статических уровней, clear animation, timer | монтаж и переходы входят в duration |
 | `BO-R-S4` | [App Store: Color Block Jam](https://apps.apple.com/in/app/color-block-jam/id6504332779) | Rollic identity, free sliding, matching doors, clear-all, blockers, timer | не выбранный title; exact rules могут отличаться |
@@ -202,6 +203,19 @@ rollout/publication authority.
 
 Disposition и frame ledger:
 [`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md).
+
+## Capture-platform disposition — 31.07.2026
+
+- `R-web`: the approved Grand Games listing is an iPhone/iPad App Store build.
+- `R-web`: the official Grand Games A.Ş. Google Play developer profile exposes
+  Magic Sort and Car Match, but not Block Out.
+- `R-device`: exact-title search on the connected Android device returned only
+  unrelated publishers; a supplementary direct lookup using the observed iOS
+  bundle identifier returned `Item not found`.
+- `B`: a fresh clean/instrumented native pair cannot be captured on this
+  Android device. APK mirrors are not accepted as reference identity evidence.
+- Unblock requires an iPhone/iPad with the approved build, or a new operator
+  ruling that changes the Android primary reference.
 
 ## Review 3 technical disposition
 
