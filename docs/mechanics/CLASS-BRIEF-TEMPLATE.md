@@ -5,6 +5,8 @@
 - Владелец taste-решения:
 - Автор brief:
 - Независимый reviewer:
+- Process version: `reference-replication.v3`
+- Process receipt:
 
 > Шаблон описывает один класс механики до параллельной разработки. Он не
 > заменяет playable release brief и не даёт authority на публикацию.
@@ -19,9 +21,10 @@
 
 ## Цель
 
-Одно проверяемое предложение. Формулируется как различимость, не как
-функциональность (Fidelity contract в README): итог — оператор на устройстве
-не отличает 30-секундный side-by-side клип прототипа от референса по ощущению.
+Одно проверяемое предложение. Оно отдельно называет `Reference -> Twin`
+causal fidelity и `Twin -> Original` matched-scenario taste parity. Полный
+визуальный identification не требуется: Twin neutral-skinned, Original имеет
+собственную identity.
 
 > _Заполнить._
 
@@ -39,6 +42,30 @@
 - Ссылка:
 - Screen recording:
 - Диапазон уровней:
+- Immutable capture session:
+- Capture manifest SHA-256:
+- Capture report:
+
+### Operator must-match moments
+
+Первый такт provisional до evidence, второй такт freeze после предложения
+агента. MUST parity не заводится без parent ID из этой таблицы.
+
+| ID | Moment | Почему заметен | Golden scenario | Статус |
+| --- | --- | --- | --- | --- |
+| `[id]-MM-01` | | | | `provisional | frozen` |
+
+### Evidence acquisition boundary
+
+- Кто собирает evidence:
+- Clean/instrumented pair policy:
+- Initial-state fingerprint/crop/pHash threshold:
+- JSONL action log:
+- Screenshot/video inventory:
+- Hash-chain/manifest verification:
+- Declared recording gaps:
+- Разрешённые targeted probes:
+- Запрещённые device/economy actions:
 
 ### Secondary references
 
@@ -46,21 +73,46 @@
 | --- | --- | --- |
 | | | |
 
-### Числовой feel-разбор (обязателен до старта Engine)
+### Machine-readable fidelity authority
 
-Из покадрового анализа записи. Спорное или незаполненное значение — blocking.
+- `OBSERVATIONS.v1.json` + digest:
+- `FIDELITY-CONTRACT.v1.json` + digest:
+- `PRESENTATION-PROFILE.v1.json` + digest:
+- Profile-vs-contract receipt:
 
-| Параметр ощущения | Значение (число) | Источник (кадры/таймкод) |
-| --- | --- | --- |
-| | | |
+Implementation потребляет только presentation profile. Спорное или
+незаполненное MUST-значение — blocking.
+
+| Metric ID | Value/range | Uncertainty | Grade | PTS/action | Method/confidence |
+| --- | --- | --- | --- | --- | --- |
+| | | | | | |
 
 ### Reference parity checklist
 
-~20 наблюдаемых свойств; каждое проверяемо формулировкой вида «X происходит
-за ≤N мс / на N px / в N% случаев». Это приёмочный чек-лист Review 4.
+Каждая строка имеет parent must-match, salience и verification mode. Composite
+score не закрывает failed MUST.
 
-- [ ] _Заполнить._
-- [ ] _Заполнить._
+| ID | Parent must-match | Salience | Assertion | Verification | Status |
+| --- | --- | --- | --- | --- | --- |
+| | | `MUST | MAJOR | MINOR | INFO` | | `machine | operator` | |
+
+### Golden scenarios
+
+| Scenario ID | Initial state binding | Exact stimulus | Key events/keyframes | Required channels |
+| --- | --- | --- | --- | --- |
+| | | | | `clean + instrumented` |
+
+- `GOLDEN-SCENARIOS` path/digest:
+- `PROBE-MATRIX` path/digest:
+- `GESTURE-TRACES` path/digest:
+
+### Early vertical-slice gate
+
+- Выбранный golden scenario:
+- Reference -> Twin evidence:
+- Twin -> Original matched pair:
+- Operator choice-session disposition:
+- Downstream scale-out: `authorized | blocked`
 
 ### Rights boundary
 
@@ -185,6 +237,10 @@ interface LevelSpec {
 - Series assembly:
 - Provenance:
 - Human review point:
+- Production near-duplicate metric family:
+- Hard rejects:
+- Threshold и момент freeze:
+- Fail-closed behavior при Twin import:
 
 ## Difficulty ladder
 
@@ -267,6 +323,16 @@ interface LevelSpec {
 | --- | --- | --- | --- | --- |
 | | | | | |
 
+## Stop rule and attention budget
+
+- Automatic correction rounds: `≤2`
+- Operator sessions: `≤2`
+- Decisions per choice-session: `≤8` (`6` unique + `2` hidden repeats)
+- Operator minutes per session: `≤15`
+- Required: all MUST green
+- Allowed open MINOR: `≤2`, each explicitly disposed
+- Open MAJOR policy:
+
 ## Открытые решения
 
 | Вопрос | Почему блокирует | Кто решает | Deadline/trigger | Disposition |
@@ -307,9 +373,11 @@ interface LevelSpec {
 
 ### Fidelity
 
-- [ ] Feel-таблица была заполнена числами до старта Engine.
-- [ ] Parity checklist пройден (несоответствия — в reference delta list).
-- [ ] Side-by-side клип отсмотрен оператором на устройстве в реальном темпе.
+- [ ] Must-match таблица frozen вторым тактом и совпадает с MUST parity.
+- [ ] Three-file authority и profile-vs-contract receipt приложены.
+- [ ] Early vertical-slice taste gate пройден до scale-out.
+- [ ] Parity checklist пройден; failed MUST нет.
+- [ ] Matched-scenario choice-session содержит не более восьми решений.
 - [ ] Before/after GIF (AutoCursor) приложены к каждой feel-итерации.
 
 ### Evidence
@@ -318,6 +386,7 @@ interface LevelSpec {
 - [ ] Visual proof приложен.
 - [ ] Runtime checks приложены.
 - [ ] Reference delta list заполнен.
+- [ ] Process receipt заполнен.
 - [ ] Независимый reviewer дал dispositions.
 
 ## Kill criteria

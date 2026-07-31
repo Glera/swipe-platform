@@ -42,6 +42,12 @@
   короткого playable.
 - [`CLASS-BRIEF-TEMPLATE.md`](CLASS-BRIEF-TEMPLATE.md) — шаблон глубокого
   исследования и разработки одного класса.
+- [`REFERENCE-REPLICATION-PROCESS.md`](REFERENCE-REPLICATION-PROCESS.md) —
+  единственный authority процесса fidelity replication v3.
+- [`REFERENCE-DEVICE-LAB.md`](REFERENCE-DEVICE-LAB.md) — fail-closed Android
+  capture preflight и clean/instrumented scenario receipts.
+- [`PROCESS-RECEIPT-TEMPLATE.md`](PROCESS-RECEIPT-TEMPLATE.md) — метрики
+  внимания, переделок и эффективности процесса на класс.
 
 ## Контекст платформы, влияющий на выбор
 
@@ -924,20 +930,25 @@ runtime-документации feed/playables.
 ## Fidelity contract — как попадать в референс
 
 Точность к референсу решается подготовкой и критерием приёмки, а не объёмом
-разработки. Три обязательных правила для каждого класса:
+разработки. Обязательный процесс задан в
+[`REFERENCE-REPLICATION-PROCESS.md`](REFERENCE-REPLICATION-PROCESS.md); этот
+раздел оставляет краткий product-facing контракт:
 
 1. **Reference packet с числами, а не ссылками.** До старта Engine feel-таблица
    заполнена конкретными значениями (мс, px, доли экрана, easing); спорные
    значения — blocking-вопросы brief, как и спорные правила.
-2. **Цель формулируется как различимость, а не функциональность.** Итоговый
-   критерий: оператор смотрит 30-секундный side-by-side клип прототипа и
-   референса и не может назвать, чем прототип хуже по ощущению. Функциональная
-   цель («механика работает») достигается в первой итерации и даёт мёртвый
-   прототип; цель-различимость заставляет доводить feel. Parity checklist —
-   объективная половина критерия, side-by-side — вкусовая.
+2. **Два контура сравнения.** `Reference -> Twin` доказывает causal fidelity;
+   identification применяется только к identity-normalized каналам.
+   `Twin -> Original` использует matched-сценарии и bounded preference choice,
+   поскольку собственная visual identity видна по определению.
 3. **Приёмка — на устройстве, в темпе реального игрока.** Не в devtools и не
    ускоренным прогоном. Каждая feel-итерация сопровождается before/after GIF
    (AutoCursor), чтобы разница была видна в ревью без запуска.
+4. **Taste проверяется до scale-out.** Один vertical slice получает
+   operator disposition до реализации серии, factory и широкого polish.
+5. **Evidence, contract и shipping profile разделены.** Код потребляет
+   first-party presentation profile; измерения capture не становятся
+   shipping authority напрямую.
 
 Визуальная идентичность: референс воспроизводится по ощущению, арт — свой
 через SkinSpec-пайплайн (одновременно rights-гигиена и вход в фабрику
