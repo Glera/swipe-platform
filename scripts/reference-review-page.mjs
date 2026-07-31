@@ -36,10 +36,13 @@ export function normalizeReviewConfig(input) {
   if (!COMPARISONS.has(input.comparison)) fail('comparison must be reference-twin or twin-original');
   if (!input.sessionId || !input.seed) fail('sessionId and seed are required');
   if (input.comparison === 'reference-twin') {
-    if (input.normalization?.method !== 'motion-energy-v2'
+    if (input.normalization?.method !== 'causal-occupancy-v3'
       || input.normalization?.staticIdentitySuppressed !== true
-      || input.normalization?.spatiallyAligned !== true) {
-      fail('reference-twin requires motion-energy-v2 with static identity suppressed and spatial alignment');
+      || input.normalization?.spatiallyAligned !== true
+      || input.normalization?.causalWindowOnly !== true
+      || input.normalization?.backgroundSubtracted !== true
+      || input.normalization?.spatialAnchor !== 'gate-center-and-width') {
+      fail('reference-twin requires causal-occupancy-v3 with a causal-only, background-subtracted, static-identity-suppressed channel aligned by gate center and width');
     }
   }
   if (!Array.isArray(input.pairs) || input.pairs.length < 1 || input.pairs.length > 8) {

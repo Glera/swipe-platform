@@ -1,9 +1,9 @@
 # Block Out v1 — Falcon Reference Twin
 
 - Process: `reference-replication.v3`
-- Status: **machine-ready; operator disposition required**
+- Status: **machine-ready; final causal review pending**
 - Primary source: Falcon/CYLINDER Android `1.0.177+177`
-- Playables implementation commit: `95b568e`
+- Playables implementation commit: `63eca7617b662e0d5d82011afd6939f042b72083`
 - Native scenarios: `BO-FC-GS-01-L2-GATE`,
   `BO-FC-GS-02-L2-HOLD-GATE`
 
@@ -46,9 +46,9 @@ hidden repeat:
 2. Twin→Production Original uses full own-identity clips aligned to consume
    onset. It asks forced preference or `no meaningful difference`.
 
-Correction 1 asks only the first identification question again, using guarded
-motion-energy channels. Source labels stay hidden until the immutable choice
-receipt is exported. The exact operator packet is
+Correction 1 asked only the first identification question again, using guarded
+motion-energy channels. Source labels stayed hidden until the immutable choice
+receipt was exported. The exact operator packet is
 [`FINAL-REVIEW-PACKET-2026-07-31.md`](FINAL-REVIEW-PACKET-2026-07-31.md).
 
 Round 1 preserved Twin→Original feel (`same / same`) but identified Reference
@@ -57,5 +57,9 @@ motion-energy repeat are recorded in
 [`CORRECTION-1-2026-07-31.md`](CORRECTION-1-2026-07-31.md).
 
 Correction 1 also identified Reference `2/2` after the hidden mapping reversal.
-The automatic correction budget is exhausted; causal parity remains open for
-explicit operator disposition.
+Diagnosis showed that surface still mixed non-causal capture deltas into the
+question. Evidence correction 2 removes the late burst and non-native gate
+glow, progressively emits gate-facing fragments, and compares only causal
+background-subtracted occupancy aligned by gate center and width. Its final
+two-choice receipt is pending; see
+[`EVIDENCE-CORRECTION-2-2026-07-31.md`](EVIDENCE-CORRECTION-2-2026-07-31.md).

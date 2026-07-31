@@ -40,9 +40,12 @@ test('Reference to Twin surface limits identification to its declared channel', 
     ...config,
     comparison: 'reference-twin',
     normalization: {
-      method: 'motion-energy-v2',
+      method: 'causal-occupancy-v3',
       staticIdentitySuppressed: true,
       spatiallyAligned: true,
+      causalWindowOnly: true,
+      backgroundSubtracted: true,
+      spatialAnchor: 'gate-center-and-width',
     },
   });
   assert.match(html, /Which normalized channel is the reference\?/u);
@@ -52,7 +55,22 @@ test('Reference to Twin surface limits identification to its declared channel', 
 test('Reference to Twin rejects channels that retain static identity', () => {
   assert.throws(
     () => normalizeReviewConfig({ ...config, comparison: 'reference-twin' }),
-    /static identity suppressed/u,
+    /static-identity-suppressed/u,
+  );
+});
+
+test('Reference to Twin rejects the old channel that mixed input and static art', () => {
+  assert.throws(
+    () => normalizeReviewConfig({
+      ...config,
+      comparison: 'reference-twin',
+      normalization: {
+        method: 'motion-energy-v2',
+        staticIdentitySuppressed: true,
+        spatiallyAligned: true,
+      },
+    }),
+    /causal-occupancy-v3/u,
   );
 });
 

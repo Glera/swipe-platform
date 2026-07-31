@@ -18,8 +18,8 @@
 | Hidden repeat decisions | | |
 | Recaptures | | |
 | Targeted probes | | |
-| Automatic correction rounds | | |
-| Manual correction rounds | | |
+| Blind/unmeasured correction rounds | | |
+| Evidence-driven correction rounds | | |
 | Auto-verified parity rows / total | | |
 | Rework after first taste gate | | |
 
@@ -43,6 +43,7 @@
 - Open MAJOR rows and owners:
 - Open MINOR rows accepted:
 - Operator budget exceeded:
+- Invalid review surfaces rebuilt:
 - Why work stopped or continued:
 
 ## Process learning

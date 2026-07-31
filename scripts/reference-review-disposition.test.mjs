@@ -11,9 +11,12 @@ const configFor = (comparison) => ({
   seed: 'disposition-fixed-seed',
   ...(comparison === 'reference-twin' ? {
     normalization: {
-      method: 'motion-energy-v2',
+      method: 'causal-occupancy-v3',
       staticIdentitySuppressed: true,
       spatiallyAligned: true,
+      causalWindowOnly: true,
+      backgroundSubtracted: true,
+      spatialAnchor: 'gate-center-and-width',
     },
   } : {}),
   pairs: [

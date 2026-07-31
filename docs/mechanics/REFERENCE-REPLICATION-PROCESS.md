@@ -195,14 +195,24 @@ Factory включается только после parity fixed fixtures. Gene
 
 До старта класса фиксируются defaults:
 
-- не более двух automatic correction rounds;
+- не более двух blind/unmeasured correction rounds: это ограничение защищает
+  от бесконечного taste-тюнинга без новой причинной информации;
+- evidence-driven correction не расходует blind budget: если MUST/MAJOR не
+  закрыт и измерение локализует causal delta, агент диагностирует и исправляет
+  его в рамках исходной цели до parity или реального блокера;
 - не более двух operator sessions по 10–15 минут;
 - все MUST зелёные;
 - не более двух открытых MINOR с explicit disposition;
 - нерешённый MAJOR имеет owner и не закрывается общим score.
 
+Невалидный review surface (static identity, несовпадающий input path,
+масштаб/anchor или окно события) не считается taste-решением и пересобирается
+без запроса новой продуктовой authority. Работа останавливается только на
+реальном блокере, исчерпанной исходной authority или продуктовой развилке;
+произвольное число раундов само по себе не является stop condition.
+
 Каждый класс завершает `PROCESS-RECEIPT.md`: operator minutes, recaptures,
-correction rounds, auto-verified parity share, rework after first taste gate,
+blind и evidence-driven correction rounds, auto-verified parity share, rework after first taste gate,
 open deltas и process version.
 
 ## Gates

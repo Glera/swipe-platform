@@ -3,7 +3,7 @@
 - Process: `reference-replication.v3`
 - Primary: Falcon/CYLINDER Android `1.0.177+177`
 - Playables commit: `95b568e`
-- Status: **operator disposition required; automatic correction budget exhausted**
+- Status: **superseded by evidence correction 2**
 
 ## Round-1 operator receipts
 
@@ -93,7 +93,10 @@ and retains a late tail. The pre-takeover motion envelope also differs, so the
 receipt proves remaining distinguishability but does not by itself attribute
 all of it to shipping presentation rather than capture alignment.
 
-No further automatic correction round is authorized. The remaining gate is an
-explicit operator choice between accepting the known delta, authorizing a
-diagnostic-only re-alignment, or granting an exceptional additional correction
-round after diagnosis.
+The earlier stop here was an implementation of the old automatic-round cap,
+not an operator constraint. It was removed after the operator clarified that
+measured corrections belong inside the original replication goal. Diagnosis
+then showed that this surface mixed pre-takeover input, unmatched spatial scale
+and texture-dependent difference energy into the identification question.
+Evidence correction 2 and the causal-only replacement surface are recorded in
+[`EVIDENCE-CORRECTION-2-2026-07-31.md`](EVIDENCE-CORRECTION-2-2026-07-31.md).

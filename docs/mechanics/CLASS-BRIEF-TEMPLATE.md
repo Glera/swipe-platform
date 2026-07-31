@@ -363,13 +363,16 @@ interface LevelSpec {
 
 ## Stop rule and attention budget
 
-- Automatic correction rounds: `≤2`
+- Blind/unmeasured correction rounds: `≤2`
+- Evidence-driven correction policy: continue while a failed MUST/MAJOR has a
+  measured causal delta; stop only at parity or a real blocker
 - Operator sessions: `≤2`
 - Decisions per choice-session: `≤8` (`6` unique + `2` hidden repeats)
 - Operator minutes per session: `≤15`
 - Required: all MUST green
 - Allowed open MINOR: `≤2`, each explicitly disposed
 - Open MAJOR policy:
+- Invalid review-surface policy: rebuild without charging the taste budget
 
 ## Открытые решения
 

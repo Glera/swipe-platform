@@ -2,9 +2,10 @@
 
 - Process: `reference-replication.v3`
 - Primary: Falcon/CYLINDER Android `1.0.177+177`
-- Playables commit: `95b568e` (`codex/block-out-v1-prototype`)
+- Playables commit: `63eca7617b662e0d5d82011afd6939f042b72083`
+  (`codex/block-out-v1-prototype`)
 - Automated parity: **6/6 machine-pass**; browser receipt SHA-256
-  `38042c1133fae0aeeacafdc278ad1ef65d911a52703d38390f30a539f6186d6d`
+  `db17c3f583a3b7da637f142cccb723e50942f5bd8208aff712061351ea3b70da`
 - Review decisions: **6 complete** — every unique comparison has one hidden
   repeat
 - Operator budget: **≤10 minutes**
@@ -66,14 +67,37 @@ Receipt SHA-256:
 `86adeae753763693d68e4bc1efdb583a6e49ea3bc1d3b9fd16718d9288b3aacc`.
 The operator selected Reference `2/2` despite the hidden A/B reversal. The
 repeat is consistent and the machine disposition is `correction-required`.
-Because the automatic correction budget is exhausted, this becomes an explicit
-operator disposition rather than another silent implementation round.
+Subsequent diagnosis found that the surface still included non-causal capture
+and normalization differences, so its result triggers correction but is not
+the final causal-parity verdict.
+
+## Evidence-correction-2 session — Reference→Twin (pending operator receipt)
+
+The final page contains the exact post-takeover window only. Both channels are
+background-subtracted RGB-max occupancy at 16×16 analysis resolution, aligned
+by measured gate center and width, expanded to 500×500 at 20 fps, and given an
+identical 300 ms black pre-roll. It contains one comparison plus one hidden
+repeat. Static art, pre-takeover gesture path and unmatched cell scale cannot
+answer the question.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `reference-causal-occupancy-v3.mp4` | `7d917735accc184c112999e9f2a91a90e05d71f16f68965368c5a53989dd9fe0` |
+| `twin-final-causal-occupancy-v3.mp4` | `0af3132ff69b5f724772b25b00f8241962dfd025b4585970cb6618d168c00cba` |
+| `block-out-falcon-reference-twin-final-causal-v3.config.json` | `fc273bb194424305d47040ae866e42206d330829875c9fb34cd9866ac37f2d91` |
+| `block-out-falcon-reference-twin-final-causal-v3.html` | `27a819645470ae31d2a3548a65ed96f9cad31e88f873d7e5aff36dc7d16d5392` |
+
+Machine comparison after pre-roll: overall Pearson correlation `0.945`,
+normalized RMSE `0.106`, Twin/Reference occupancy-area ratio `0.875`;
+particle-only correlation `0.801`, normalized RMSE `0.218`, area ratio `0.841`.
+The operator receipt is the only remaining vertical-slice gate.
 
 ## Disposition rule
 
-- Corrected Reference→Twin: failure to identify Reference consistently supports
-  causal parity; consistent identification exhausts the automatic correction
-  budget and returns the remaining delta to explicit operator disposition.
+- Final causal Reference→Twin: failure to identify Reference consistently
+  supports causal parity. Consistent identification triggers diagnosis; a
+  measured MUST/MAJOR delta is fixed inside the goal, while a product tradeoff
+  or missing authority returns to the operator.
 - Twin→Original: `no meaningful difference` on a repeat-consistent pair closes
   feel preservation. A stable Twin or Original preference returns one bounded
   correction round.
