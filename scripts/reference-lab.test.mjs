@@ -11,6 +11,7 @@ import {
   parseAdbDevices,
   parseArgs,
   runDoctor,
+  scenarioAttachmentStatus,
 } from './reference-lab.mjs';
 
 test('unset Android animation override resolves to the platform 1x default', () => {
@@ -57,6 +58,20 @@ test('initial-state equivalence is structural and pHash-bounded, not exact-file 
   assert.equal(hammingHex('000f', '000e'), 1);
   assert.equal(compareInitialStates(clean, instrumented, 1).ok, true);
   assert.equal(compareInitialStates(clean, instrumented, 0).ok, false);
+});
+
+test('scenario attachment status distinguishes one channel from a complete pair', () => {
+  assert.equal(
+    scenarioAttachmentStatus({ clean: { video: 'clean.mp4' }, instrumented: null }),
+    'pair-incomplete',
+  );
+  assert.equal(
+    scenarioAttachmentStatus({
+      clean: { video: 'clean.mp4' },
+      instrumented: { video: 'instrumented.mp4' },
+    }),
+    'pair-attached',
+  );
 });
 
 test('doctor fails closed when dependencies and a device are unavailable', () => {

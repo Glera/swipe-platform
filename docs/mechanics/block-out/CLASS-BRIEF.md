@@ -8,6 +8,8 @@
 - Независимый reviewer: **Claude (Review 1 и Review 3)**
 - Process version: `reference-replication.v3`
 - Process receipt: [`PROCESS-RECEIPT.md`](PROCESS-RECEIPT.md)
+- Primary-reference amendment:
+  [`REFERENCE-AMENDMENT-FALCON-2026-07-31.md`](REFERENCE-AMENDMENT-FALCON-2026-07-31.md)
 - Golden scenarios: [`GOLDEN-SCENARIOS.md`](GOLDEN-SCENARIOS.md)
 - Probe matrix: [`PROBE-MATRIX.md`](PROBE-MATRIX.md)
 - Reference packet: [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md)
@@ -29,6 +31,11 @@
 > timing/haptic/taste acceptance остаётся открытым.
 > Operator отдельно разрешил prototype code 29.07.2026; rollout/publication не
 > разрешены.
+
+> **Current authority:** operator 31.07.2026 replaced Grand Games as primary
+> with the installed Falcon/CYLINDER Android build `1.0.177`. Grand Games
+> remains historical secondary evidence. Where this brief conflicts with the
+> linked amendment, the amendment wins.
 
 ## Evidence notation
 
@@ -123,7 +130,18 @@ clarity, при осознанно исключённом timer и собств�
 
 ## Точный эталон
 
-### Approved primary reference
+### Current approved primary reference
+
+- Title (`O`): **Block Out Color Puzzle Game**.
+- Publisher (`R-web`): **CYLINDER GLOBAL PTE. LTD. / Falcon Games**.
+- Package/build (`R-device`): `com.fc.block.out.wood.puzzle`,
+  `1.0.177+177`, installed by Google Play.
+- Initial slice (`O`): Level 2 gate-consume scenario
+  `BO-FC-GS-01-L2-GATE`.
+- Full authority and verified-pair receipt:
+  [`REFERENCE-AMENDMENT-FALCON-2026-07-31.md`](REFERENCE-AMENDMENT-FALCON-2026-07-31.md).
+
+### Historical primary reference — superseded 31.07.2026
 
 - Название (`O`): **Block Out! - Color Sort Puzzle**.
 - Developer (`R-web`): **Grand Games A.Ş.**

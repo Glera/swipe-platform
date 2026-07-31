@@ -5,9 +5,15 @@
 - Vertical slice: `BO-GS-04`
 - Gesture data: [`GESTURE-TRACES.v1.json`](GESTURE-TRACES.v1.json)
 - Gap acquisition: [`PROBE-MATRIX.md`](PROBE-MATRIX.md)
+- Primary-reference amendment:
+  [`REFERENCE-AMENDMENT-FALCON-2026-07-31.md`](REFERENCE-AMENDMENT-FALCON-2026-07-31.md)
 
 Golden scenarios — постоянный acceptance contract. Probe может закрыться;
 scenario остаётся в regression/review наборе.
+
+Falcon acquisition scenario `BO-FC-GS-01-L2-GATE` maps into `BO-GS-04` only
+after its PTS ledger is dispositioned. It does not preserve the historical
+Grand Games `1.50 → 0.90 cell` stimulus or one-cell threshold by assumption.
 
 ## Frozen scenario rules
 

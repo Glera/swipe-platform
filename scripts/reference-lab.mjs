@@ -211,6 +211,10 @@ export function compareInitialStates(clean, instrumented, threshold) {
   };
 }
 
+export function scenarioAttachmentStatus(channels) {
+  return channels?.clean && channels?.instrumented ? 'pair-attached' : 'pair-incomplete';
+}
+
 const scenarioPath = (scenarioDir) => path.join(scenarioDir, 'scenario.json');
 
 function initScenario(options) {
@@ -258,7 +262,7 @@ function attachScenario(options) {
     stateReceipt: path.relative(options['scenario-dir'], stateReceipt),
     stateReceiptSha256: sha256File(stateReceipt),
   };
-  receipt.status = 'pair-incomplete';
+  receipt.status = scenarioAttachmentStatus(receipt.channels);
   writeFileSync(receiptFile, `${JSON.stringify(receipt, null, 2)}\n`);
   return receipt;
 }

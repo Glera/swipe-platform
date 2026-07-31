@@ -3,9 +3,12 @@
 - Дата среза: **31.07.2026**
 - Статус: **Reference-fidelity implementation candidate + reproducible browser
   evidence / operator target-device acceptance pending**
-- Primary reference (`O`): **Block Out! - Color Sort Puzzle,
-  Grand Games A.Ş.**
-- Fidelity band (`O`): **ранние статические уровни 6–10**
+- Primary native reference (`O`, amended 31.07.2026): **Block Out Color Puzzle
+  Game, CYLINDER GLOBAL PTE. LTD. / Falcon Games**
+- Authority amendment:
+  [`REFERENCE-AMENDMENT-FALCON-2026-07-31.md`](REFERENCE-AMENDMENT-FALCON-2026-07-31.md)
+- Current fidelity slice (`O`): **Falcon Level 2 gate-consume vertical slice;
+  broader early-level band pending native acquisition**
 - Связанный brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Независимое Review 1:
   [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md)
@@ -20,6 +23,12 @@
 > invariant. Последующий `BO-R-N3` + operator amendment уточнили sliding и
 > заменили full-crossing exit на one-cell gate suction capture. Rollout и
 > publication этим packet не открываются.
+
+> **Supersession notice:** operator 31.07.2026 selected the installed Falcon
+> Android build as the new primary native reference. Earlier Grand Games `O`
+> selections below are retained as historical decisions and secondary taste
+> evidence; they no longer authorize Falcon feel values. The amendment above is
+> authoritative where the documents conflict.
 
 ## Обозначения evidence
 
@@ -100,7 +109,7 @@ ice/numbered/obstacle features и layouts появляются на разных
 но не exact current-build layout authority. Operator target `6–10` трактуется
 как taste/static feature band; own maps original, modifiers deferred.
 
-## Candidate matrix
+## Historical candidate matrix — pre-Falcon amendment
 
 | Candidate | Точное ядро | Управление | Win / fail | Наблюдаемая длительность | Модель сложности | Disposition |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -148,7 +157,7 @@ Arrow/Locked/Ice rules. Как baseline хуже A: visual identity теснее
 wood/studded trade dress, а modifier anthology повышает schema и solver scope до
 доказательства базового loop.
 
-## Recommendation
+## Historical recommendation — superseded 31.07.2026
 
 `O`: выбран **Block Out! - Color Sort Puzzle by Grand Games** и fidelity band
 **6–10**, но реализовывать не layouts, а пять собственных
@@ -169,7 +178,7 @@ Baseline:
 Quick flick (`O`) не продолжает движение после release: velocity игнорируется,
 gesture заканчивается обычным grid snap.
 
-## Operator ruling — 29.07.2026
+## Historical Grand Games operator ruling — 29.07.2026
 
 | Решение | Authority |
 | --- | --- |
@@ -192,7 +201,7 @@ gesture заканчивается обычным grid snap.
 «Максимально близко» не разрешает копировать layouts, assets или trade dress и
 не превращает ещё не измеренный feel в `R-native`.
 
-## Operator fidelity initiative — 31.07.2026
+## Historical Grand Games fidelity initiative — 31.07.2026
 
 Operator запустил отдельную цель на самостоятельное изучение и максимально
 точное воспроизведение reference game feel, включая level design и effects.
