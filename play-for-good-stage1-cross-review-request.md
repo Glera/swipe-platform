@@ -19,9 +19,32 @@
   migration_postgres,e2e_postgres}.py`; CI-wiring в
   `postgres-acceptance.yml`.
 
-**Часть B — клиент (появится обновлением этого файла):**
+**Часть B — клиент (ГОТОВА к ревью):**
 - Репо `feed-prototype`, ветка `claude/stage1-p4-mission-client`,
-  head — TBD (П4 в работе).
+  exact head **`525de9e7853f1f9adbcd107d2c6965ccfbb9a0ba`**.
+- Состав: `src/mission-core.mjs` (+`.d.mts`), `src/mission-ui.ts`,
+  `src/mission.ts`, `scripts/check-mission-core.mjs` (93 assertions,
+  включён в lint); правки `feed.ts` (+37), `api.ts`, `outbox.ts`
+  (перенос mission_contribution через durable-квитанцию), `styles.css`.
+- Клиентские проверки: двойной гейт `VITE_MISSION_ENABLED &&
+  session.mission_dogfood` на каждой точке входа (structural check);
+  без гейта — ни DOM, ни запросов, флаг реально сворачивается Vite
+  (проверено по бандлам); церемонии только из committed receipts;
+  watermark по eventSeq с коммитом до показа; island.ts = 0 строк.
+
+**Клиентские отклонения, одобренные внутренним ревью (оспорь при
+несогласии):**
+- «История вкладов» на экране кейса — локальные СОБСТВЕННЫЕ receipts
+  (user-scoped, дедуп по seq), честно подписано «Мои последние
+  вклады»: read API список вкладов не проецирует. Серверная проекция —
+  follow-up.
+- Имя кейса: в `mission.case-contract.v1` нет поля названия — fallback
+  `title`→`guaranteedDeliverable`→`caseId`. Follow-up backend: optional
+  `title` в схему контракта.
+- В списке дейликов строка награды остаётся в пазлах (реальные числа
+  старого ledger); лапки — в церемонии клейма из receipt (числа
+  различаются by design: вклад считается weights-документом).
+  Вкусовой проход — позже.
 
 ## Authority для сверки (в порядке старшинства)
 
