@@ -3,7 +3,7 @@
 - Process: `reference-replication.v3`
 - Status: **machine-ready; operator comparison pending**
 - Primary source: Falcon/CYLINDER Android `1.0.177+177`
-- Playables implementation commit: `6b78f8c`
+- Playables implementation commit: `9d7f203`
 - Native scenarios: `BO-FC-GS-01-L2-GATE`,
   `BO-FC-GS-02-L2-HOLD-GATE`
 
@@ -28,7 +28,8 @@ final rebuild.
 - shipping presentation profile is inside the Falcon contract bands;
 - Production Original browser receipt records `manualInputBlocked=false`,
   stable host-pause digest and `0` page errors;
-- browser cadence: median `16.7 ms`, p95 `16.8 ms`, `0/502` frames above
+- pickup raster changes on the first rAF (`20,773/39,600` sampled pixels);
+- browser cadence: median `16.7 ms`, p95 `16.8 ms`, `0/496` frames above
   `50 ms`.
 
 The internal rendered Twin artifact remains outside git. Its `twin.webm`

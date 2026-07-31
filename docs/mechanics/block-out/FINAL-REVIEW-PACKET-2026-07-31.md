@@ -2,7 +2,9 @@
 
 - Process: `reference-replication.v3`
 - Primary: Falcon/CYLINDER Android `1.0.177+177`
-- Playables commit: `6b78f8c` (`codex/block-out-v1-prototype`)
+- Playables commit: `9d7f203` (`codex/block-out-v1-prototype`)
+- Automated parity: **6/6 machine-pass**; browser receipt SHA-256
+  `939f10094859659de410f02bf3da6628e849a0b3f7606814b25446ea281be426`
 - Review decisions: **4 total** — two unique comparisons and two hidden repeats
 - Operator budget: **≤10 minutes**
 

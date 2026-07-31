@@ -27,7 +27,7 @@
 | Recaptures | `1` | short instrumented hold recording rejected and repeated; zero-life run rejected before evidence attachment |
 | Targeted probes | `2 pairs` | gate-consume and held-at-gate pairs verify at pHash distance `0/4` |
 | Automatic correction rounds | `1 / 2` | native cadence moved profile from `220/80/430/1250` to `515/75/705/1565 ms` |
-| Auto-verified parity rows | `5 / 6` | contract/profile, Twin replay, browser runtime and production-deny tests |
+| Auto-verified parity rows | `6 / 6` | contract/profile, first-rAF pickup raster, Twin replay, browser runtime and production-deny tests |
 | Rework after first taste gate | `0` | gate not yet held |
 
 ## Gate receipts
@@ -39,11 +39,12 @@
 | Twin ready | pass | exact internal Level 2 dataset validates/replays in the canonical runtime; production bundle deny passes |
 | Vertical slice | pending | matched `BO-GS-04` operator disposition |
 | Runtime unified | pass | Twin and Original use one rules/engine/validator/presentation profile |
-| Presentation parity | machine-pass/operator-pending | Falcon profile is inside contract; `26/26` tests and Review 4 browser receipt pass |
+| Presentation parity | machine-pass/operator-pending | Falcon profile is inside contract; `27/27` tests and Review 4 browser receipt `939f100…` pass |
 
 ## Stop-rule disposition
 
-- All MUST green: machine assertions green; operator matched-review pending.
+- All MUST machine assertions green: `6/6` parity rows carry machine evidence;
+  operator matched-review pending.
 - Open MAJOR owner: operator disposition for fragment preference; exact Falcon
   capture depth remains an explicit non-blocking follow-up probe.
 - Operator budget exceeded: no.
