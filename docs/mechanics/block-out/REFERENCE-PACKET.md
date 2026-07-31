@@ -1,8 +1,8 @@
 # BO-R: reference packet — Block Out!
 
-- Дата среза: **29.07.2026**
-- Статус: **Prototype + BO-P implementation authorized / exact fidelity
-  acceptance pending device comparison**
+- Дата среза: **31.07.2026**
+- Статус: **Reference-fidelity implementation candidate + reproducible browser
+  evidence / operator target-device acceptance pending**
 - Primary reference (`O`): **Block Out! - Color Sort Puzzle,
   Grand Games A.Ş.**
 - Fidelity band (`O`): **ранние статические уровни 6–10**
@@ -11,6 +11,8 @@
   [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md)
 - Независимое Review 3:
   [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md)
+- Fidelity calibration:
+  [`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md)
 
 > Документ разводит несколько разных core loop'ов, которые рынок называет
 > похожими именами. Operator ruling утвердил reference, target band, continuous
@@ -39,7 +41,9 @@ sub-frame timing.
 - qualitative gate feel теперь имеет `R-native/O`: highlight, sensitive capture,
   control transfer, suction, fragmentation и haptic priority;
 - точные timings и tactile envelope остаются `B/P`: clips не являются 60 fps
-  capture, а screen recording физически не измеряет haptic.
+  capture, а screen recording физически не измеряет haptic;
+- fidelity-итерация 31.07 фиксирует frame brackets, public build drift, typed
+  `BlockOutFeelSpecV1`, original feature ladder и reproducible Review 4 evidence.
 
 ## Taxonomy decision: что здесь называется Block Out!
 
@@ -88,6 +92,12 @@ packet; противоречащих кадров не найдено.
 
 Store metadata и live progression меняются. Поэтому operator recording после
 Review 1 становится fidelity authority, если он расходится с публичным видео.
+
+Покадровый пересмотр `BO-R-S2/S3` 31.07.2026 выявил реальный build drift:
+ice/numbered/obstacle features и layouts появляются на разных номерах внутри
+участка 6–10. Поэтому эти видео остаются `R-web` evidence feature progression,
+но не exact current-build layout authority. Operator target `6–10` трактуется
+как taste/static feature band; own maps original, modifiers deferred.
 
 ## Candidate matrix
 
@@ -180,6 +190,18 @@ gesture заканчивается обычным grid snap.
 
 «Максимально близко» не разрешает копировать layouts, assets или trade dress и
 не превращает ещё не измеренный feel в `R-native`.
+
+## Operator fidelity initiative — 31.07.2026
+
+Operator запустил отдельную цель на самостоятельное изучение и максимально
+точное воспроизведение reference game feel, включая level design и effects.
+Приоритет: чувствительность ворот, near-gate effect, момент control takeover,
+одноцветное дробление/частицы и качество деталей. Это `O` taste direction для
+prototype BO-P/BO-F/BO-Q; оно не расширяет IP boundary, rules modifiers или
+rollout/publication authority.
+
+Disposition и frame ledger:
+[`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md).
 
 ## Review 3 technical disposition
 
@@ -440,11 +462,17 @@ Own visual identity:
 | Gate capture depth/control | about one in-board cell; mid-drag control transfer | `O`, qualitative `R-native` | operator narration + `BO-R-N3`; exact sub-frame onset remains `B` |
 | Collision sliding | axis-decomposed progress along available corridor | `O` | resolves external prototype-review P2; no touch indicator for numeric R measurement |
 | Touch-down response | `B` | `B` | нужен native `60 fps` probe |
-| Carry easing / snap / release | nearest-grid behavior `O`; exact easing `B` | `O/B` | operator narration; 30 fps insufficient for exact curve |
-| Block exit/clear | sensitive suction + converging fragmentation | `R-native/O`; duration `B` | `BO-R-N3`; own timing remains `P` until device comparison |
+| Carry easing / snap / release | nearest-grid behavior `O`; own settle `120 ms` | `O/P`; exact reference easing `B` | operator narration; 30 fps insufficient for exact curve |
+| N1 next-input overlap | next carried outline at `~57.27 s` while prior particles remain | `R-native` | proves no full consume lock; not an exact input-latency measurement |
+| N1 empty-board -> win dim | `~61.23–61.73 s` | `R-native` approximate | 30 fps frame bracket |
+| N1 win mark -> full confetti | `~61.73–62.73 s` | `R-native` approximate | order/cadence only; reference logo excluded |
+| Own feedback/capture depth | `1.35 / 1.00 cells` | `P / O` | field begins before authoritative one-cell capture |
+| Own whole-body pull / fragment onset | `220 / 80 ms` | `P` | calibrated candidate; device comparison pending |
+| Own fragment throat / tail | `430 / 1,250 ms` | `P` | converge then exhaust; same-role colour only |
+| Own manual input lock after exit | `0 ms` | ordering `R-native/O`, projection `P` | stable exit commits immediately; visuals remain presentation-only |
+| Own win overlay / badge / confetti | `900 / 620 / 430 ms` | `P` | own success identity; target-device review pending |
 | Invalid drag feedback | `B` | `B` | нужен scripted error episode |
-| Win onset and settle | success observed; exact timing `B` | `R-native/B` | clips содержат success; own v1 не имеет fail (`O`) |
-| Haptic semantics/intensity | runs through gate consume | `O`; exact envelope `B` | operator tactile report; screen recording cannot measure waveform |
+| Haptic semantics/intensity | runs through gate consume; own stages `0/150/430/820 ms` | behavior `O`; envelope `P/B` | operator tactile report; screen recording cannot measure waveform |
 
 ## Preliminary parity checklist
 
@@ -481,6 +509,10 @@ Own visual identity:
   legal lattice anchor и не создаёт скрытого solver move.
 - [ ] Block exit/clear сохраняет shape identity до утверждённой exit phase;
   затем дробит shape в converging gate-bound fragments; gate остаётся reusable.
+- [ ] Logical exit не ждёт particle tail: manual input получает authority без
+  дополнительного lock, а несколько presentation tails могут перекрываться.
+- [ ] Candidate BO-P phases: pull `220 ms`, fragment onset `80 ms`, throat
+  `430 ms`, tail `1,250 ms` (`P` до device approval).
 - [ ] Последний gate некоторого role скрывается только после окончания consume,
   если live blocks этого role больше нет.
 - [ ] Supported host получает provisional multi-stage consume haptic; отсутствие
@@ -524,5 +556,8 @@ rules.
 - Primary: **Block Out! / Grand Games (`O`)**.
 - Target: **levels 6–10 static band (`O`)**.
 - Review 3: **conditional GO; A1′–A3′ dispositions applied**.
-- Workstreams: **BO-A/BO-E/BO-S/BO-P implementation authorized**.
+- Workstreams: **BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q prototype candidate
+  implemented in the isolated branch**.
+- Fidelity iteration: **typed candidate implemented; visual/browser evidence
+  reproducible; target-device operator acceptance pending**.
 - Implementation authority: **prototype only; no rollout/publication**.

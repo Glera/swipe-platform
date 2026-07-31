@@ -1,9 +1,8 @@
 # Class Brief: `block-out-v1`
 
-- Дата: **29.07.2026**
-- Статус: **Prototype authorized — BO-A/BO-E/BO-S implementation allowed;
-  BO-P implementation unblocked by native clip + operator ruling; fidelity
-  acceptance still requires device comparison**
+- Дата: **31.07.2026**
+- Статус: **Reference-fidelity implementation candidate; solver/browser/visual
+  evidence reproducible; operator target-device acceptance pending**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude (Review 1 и Review 3)**
@@ -12,6 +11,8 @@
   [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md)
 - Review 3:
   [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md)
+- Fidelity calibration:
+  [`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md)
 
 > Brief фиксирует исследовательскую декомпозицию и typed boundaries. Primary
 > reference, target band и core movement/no-timer/no-stuck decisions утверждены
@@ -19,7 +20,9 @@
 > workstream-ready disposition для `BO-A/BO-E/BO-S`. Measured presentation feel
 > дополнен третьим native clip и operator amendment, который заменяет
 > full-crossing exit на чувствительную one-cell gate suction zone и открывает
-> `BO-P` implementation. Exact timing/haptic acceptance остаётся открытым.
+> `BO-P` implementation. Fidelity iteration 31.07.2026 добавила typed feel
+> spec, original feature ladder и reproducible evidence; exact target-device
+> timing/haptic/taste acceptance остаётся открытым.
 > Operator отдельно разрешил prototype code 29.07.2026; rollout/publication не
 > разрешены.
 
@@ -100,6 +103,20 @@ clarity, при осознанно исключённом timer и собств�
 - Exact animation timing and haptic envelope remain `P/B` until side-by-side
   device review; qualitative behavior and priority are `O`.
 
+## Operator fidelity initiative receipt
+
+- Дата: **31.07.2026**.
+- Authority: **operator (`O`)**.
+- Direction: самостоятельно внимательно исследовать reference и максимально
+  точно повторить game feel, включая level design/effects и детали gate
+  sensitivity, proximity activation, control takeover и одноцветного распада.
+- Opens: новая `BO-R/BO-P/BO-F/BO-Q` calibration iteration, typed feel values,
+  original feature-matched ladder, before/after и side-by-side evidence.
+- Does not open: copied layouts/trade dress/assets/audio, dynamic modifiers,
+  rollout/publication или изменения Arrows.
+- Disposition: implementation candidate готовится к target-device operator
+  judgment; все точные candidate values остаются `P` до этого judgment.
+
 ## Точный эталон
 
 ### Approved primary reference
@@ -115,6 +132,9 @@ clarity, при осознанно исключённом timer и собств�
   probe получены и byte/frame verified. Последний клип остаётся 30 fps, поэтому
   sub-frame timing и haptic waveform остаются `B`.
 - Диапазон (`O`): **levels 6–10** static pre-modifier band.
+- Public-build caveat (`R-web/B`): два walkthrough показывают разные
+  feature ordering/layouts в этом диапазоне. Номера остаются taste anchor;
+  exact current layouts не считаются authority и не копируются.
 
 ### Secondary references
 
@@ -170,16 +190,23 @@ clarity, при осознанно исключённом timer и собств�
 | Autoplay demonstration | `min(2,max(1,floor(25% witness)))` | `P`; one-move exception if witness `<4` |
 | Carry/collision/grid-snap core | continuous 2D + collision clamp + release snap | `O` |
 | Gate capture depth | `1 cell` in-board, mid-drag control transfer | `O`; `BO-R-N3` qualitatively supports |
-| Pickup/snap/gate/win timing | provisional | `P/B`, 30 fps clip insufficient for exact acceptance |
+| Snap settle | `120 ms` | `P`; reference curve remains `B` |
+| Gate feedback start | `1.35 cells` in-board | `P` |
+| Pull / fragment onset | `220 / 80 ms` | `P` |
+| Fragment throat / tail end | `430 / 1,250 ms` | `P` |
+| Manual lock after logical exit | `0 ms` | native ordering `R-native`, candidate projection `P` |
+| Win overlay / badge / confetti delay | `900 / 620 / 430 ms` | `P` |
 | Timer/fail | absent | `O` |
-| Gate haptic | required during consume; exact envelope open | `O` behavior, `P/B` timing/intensity |
+| Gate haptic stages | `0/150/430/820 ms` | required behavior `O`; envelope `P/B` |
 
 ### Reference parity checklist
 
 Review 2 seed checklist находится в
 [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md#preliminary-parity-checklist).
-`BO-P` acceptance нельзя закрывать до числового
-`R-web/R-native/O/P/B` checklist; это не блокирует headless `BO-E/BO-S`.
+Числовой `R-web/R-native/O/P/B` checklist и frame brackets находятся в
+[`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md).
+Candidate реализован; `BO-P` acceptance нельзя закрывать до operator
+target-device judgment.
 
 ### Rights boundary
 
@@ -272,7 +299,7 @@ Gameplay rows имеют `O`; feedback timing/easing остаётся `R-native/
 | pointerdown block | manual/takeover, block live, input open | create gesture session, no stable-state mutation | pickup/carry response |
 | pointermove | active gesture | continuous pose uses shared positive-area-overlap collision authority; contact legal; residual axis projection slides along obstacle; no stable mutation | collision slide/clamp; no overlap |
 | release outside gate suction band | valid clamped pose | commit nearest legal anchor by squared distance, then `y`, then `x`; if snap target enters compatible suction band, commit exit | deterministic grid snap |
-| enter compatible gate suction band | whole footprint remains in-board, fits gate span and is within one cell of unlocked gate | immediate `exit(blockId,gateId)` mid-drag; control transfers to reusable gate | suction, converging fragments, haptic |
+| enter compatible gate suction band | whole footprint remains in-board, fits gate span and is within one cell of unlocked gate | immediate `exit(blockId,gateId)` mid-drag; control transfers to reusable gate; manual authority is available for another live block without waiting for tail | suction, converging fragments, haptic; presentation tail may overlap next gesture |
 | pointer crosses invalid pose | wall/block/out-of-bounds/wrong gate | carried pose clamps before invalid boundary; no solver action | collision cue |
 | pointerdown background | no active game gesture | no game state change | host swipe remains available |
 | first block pointerdown | autoplay, including auto-carry | cancel future auto actions; rollback uncommitted carry; start manual from last stable state | no restart/hidden move |
@@ -282,9 +309,10 @@ Gameplay rows имеют `O`; feedback timing/easing остаётся `R-native/
 Gesture translator never writes arbitrary pointer coordinates into solver state.
 It emits one stable typed action or no action.
 
-## Proposed state machine
+## Candidate state machine
 
-Status `P`; не implementation authority.
+Gameplay transitions follow approved authority; presentation scheduling is the
+implemented `P` candidate pending operator device acceptance.
 
 ```text
 boot
@@ -293,11 +321,13 @@ boot
   -> interactive_ready
   -> ready
        -> autoplay
-            -> dragging_auto -> settling | exiting -> autoplay
+            -> dragging_auto -> stable move -> autoplay
+            -> dragging_auto -> exit commit -> autoplay + consume_tail[*]
             -> manual
        -> manual
-            -> dragging_manual -> settling | exiting -> manual
-       --live empty and visuals drained--> win_feedback
+            -> dragging_manual -> stable move -> manual + snap_overlay
+            -> dragging_manual -> exit commit -> manual + consume_tail[*]
+       --live empty; final-exit delay--> win_feedback
   -> completed(success=true)
 
 host_pause(dragging_*) -> rollback(last stable) -> paused(stable snapshot)
@@ -318,6 +348,8 @@ Invariants (`P`):
 - accepted pack strong-solvable from every reachable stable state;
 - timer/fail state отсутствует;
 - completion exact-once;
+- consume tails are presentation-only, can overlap, and never block a new
+  manual gesture after logical exit;
 - restart восстанавливает exact initial digest;
 - no internal next-level transition.
 
@@ -529,20 +561,21 @@ version обязан предоставить отдельный exhaustive proo
   witness, features.
 - Human review: operator selects final candidates; factory cannot declare taste.
 
-## Provisional difficulty ladder
+## Implemented own difficulty ladder
 
-Numbers intentionally remain blocking until selected reference levels are
-annotated.
+Public layouts имеют build drift, поэтому это solver-derived `P` feature
+projection на approved taste band, не `R-native` measurements и не копия карт.
 
-| Level | Новое требование | Target features | Запрещённые скачки |
-| ---: | --- | --- | --- |
-| 1 | считать matching gate | obvious direct exit, large free area | special rule, timer cliff |
-| 2 | один reposition перед exit | short dependency | shape + density jump together |
-| 3 | выбрать порядок двух gates | two branches, one detour | new modifier |
-| 4 | освободить contested corridor | deeper dependency, more complex shape | unreadable cell scale |
-| 5 | upper approved band | longer witness, deeper reversible dependency | generator/elevator/shutter |
+| Level | Board | Blocks | Roles/gates | Occupied | Witness | Reposition | Design beat |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| 1 | `6×7` | 8 | `4/4` | `59.5%` | 8 | 0 | две фигуры на reusable gate |
+| 2 | `6×6` | 9 | `4/4` | `69.4%` | 9 | 0 | более плотные repeated-role routes |
+| 3 | `5×5` | 10 | `5/5` | `88.0%` | 10 | 0 | crowding + дополнительный role/gate |
+| 4 | `5×5` | 10 | `4/4` | `84.0%` | 10 | 0 | streak по три фигуры и gate cleanup |
+| 5 | `5×5` | 10 | `4/4` | `76.0%` | 11 | 1 | меньше initial branches, обязательный reposition |
 
-Exact target ranges получают `R-native/O` после Review 2.
+Exact layouts original; `ice/locks/counters/generator/elevator/shutter`
+запрещены. Operator target-device blind play остаётся taste gate.
 
 ## Presentation
 
@@ -551,11 +584,15 @@ Exact target ranges получают `R-native/O` после Review 2.
 - Layout (`P`): portrait-first board, gates on boundary, HUD secondary.
 - Essential animation: `R-native` clips подтверждают continuous highlighted
   carried pose, gate activation, converging particles/fragmentation and
-  role-counter updates; exact pickup/snap/exit timing остаётся `B`.
+  role-counter updates. Candidate `P`: feedback `1.35 cells`, pull `220 ms`,
+  fragments `80→430→1,250 ms`; exact reference curve остаётся `B`.
 - Sound: optional; sound-off experience complete.
-- Haptic: required during gate consume (`O`); provisional host-supported
-  envelope is `P`, exact tactile parity requires device review.
-- Success: exact onset/cadence provisional until device comparison.
+- Haptic: required during gate consume (`O`); provisional host-supported stages
+  `0/150/430/820 ms` (`P`), exact tactile parity requires device review.
+- Input overlap: stable exit immediately releases manual authority; visual
+  tail presentation-only, несколько tails могут overlap (`R-native/O/P`).
+- Success (`P`): final-exit → overlay `900 ms`, own badge entrance `620 ms`,
+  confetti begins `430 ms` after overlay; reference logo не копируется.
 - Collision feedback: axis-decomposed sliding is `O`; no color-only cue.
 - Accessibility: marker/pattern/glyph per role in both block and gate.
 - Low-tier: no heavy shadow/blur; same logical timing/trajectory.
@@ -568,7 +605,7 @@ Exact target ranges получают `R-native/O` после Review 2.
 | Board/block/gate primitives | generated/owned | Canvas/vector | no external baseline media | yes |
 | Role markers | generated/owned | vector | negligible | yes |
 | Optional SFX | owned/generated, rights logged | compressed audio | blocking until BO-P | yes |
-| Particles | code-generated | runtime | low-tier capped/off | yes |
+| Particles | code-generated | runtime | bounded deterministic count; low-tier browser-tested | yes |
 
 ## Runtime/platform integration
 
@@ -629,7 +666,7 @@ Telemetry не получает product authority; qualified outcome остаё�
 | `BO-E` | Engine | stable transitions, gesture commit, replay, pause | BO-G | `BlockOutActionV1`, `BlockOutStateV1`, headless tests | solver search/theme | independent |
 | `BO-S` | Solver | validator/search/trace/features | BO-G schema/rules | `BlockOutSolverResultV1`, `BlockOutTraceV1` | rendering/taste | independent |
 | `BO-F` | Factory | reverse/goal-pull candidates and series | BO-S API | typed pack + `BlockOutValidationReceiptV1` | taste declaration | operator |
-| `BO-P` | Presentation | layout/carry/snap/suction/fragmentation/audio/haptic/skin | BO-R native packet + operator amendment + BO-G projection | `BlockOutPresentationProjectionV1`, SkinSpec, visual harness | engine legality | operator |
+| `BO-P` | Presentation | layout/carry/snap/suction/fragmentation/audio/haptic/skin | BO-R native packet + operator amendments + BO-G projection | `BlockOutFeelSpecV1`, `BlockOutPresentationProjectionV1`, SkinSpec, visual harness | engine legality | operator |
 | `BO-I` | Integration | feed lifecycle, staged boot, takeover, completion | BO-E + runtime authority | `BlockOutRuntimeBridgeV1`, swipe evidence | solver internals | independent |
 | `BO-A` | Analytics | question/event mapping | BO-G milestones | `BlockOutMeasurementBriefV1` | success authority | operator |
 | `BO-Q` | QA | parity/runtime/device/perf/reference delta | integrated candidate | Review 4 evidence packet | product changes | independent |
@@ -673,6 +710,13 @@ budget/exhaustion and solver/rules versions.
 
 Ordered stable actions with before/after state digests and rule/solver version.
 It drives replay/autoplay but presentation chooses motion from projection.
+
+### `BlockOutFeelSpecV1`
+
+Immutable, versioned presentation candidate: snap, feedback/capture depths,
+pull/fragment/win timings, manual unlock and autoplay rest. Каждое поле имеет
+`R-native/O/P/B` provenance в calibration ledger. FeelSpec не меняет legality
+и требует version/review при изменении observable cadence.
 
 ### `BlockOutPresentationProjectionV1`
 
@@ -757,8 +801,8 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 
 | Вопрос | Почему блокирует | Кто решает | Trigger | Disposition |
 | --- | --- | --- | --- | --- |
-| Parallel exit animation/next drag | stable exit уже committed; влияет только на input/presentation cadence | BO-P | device comparison | before BO-P acceptance |
-| Pickup/snap/gate/win timings | задаёт measured parity | BO-R/P | 60 fps or device-side capture | before BO-P acceptance |
+| Parallel exit animation/next drag | closed: logical exit immediately unlocks manual input; tails presentation-only | `R-native/O/P` | N1 overlap + browser evidence | candidate implemented; device feel review remains |
+| Pickup/snap/gate/win timings | typed candidate `120`, `220`, `80→430→1,250`, `900/620/430 ms` | BO-R/P/operator | target-device side-by-side | approve or return concrete deltas |
 | Haptic envelope | screen recording не содержит tactile signal | BO-P/operator | target-device playtest | before BO-P acceptance |
 | Dynamic modifiers | schema explosion | operator | after static baseline | deferred |
 
@@ -787,7 +831,7 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 - [x] A1′ collision/contact authority закрыта.
 - [x] A2′ exit threshold/reusable gate закрыта.
 - [x] A3′ deterministic snap/tie-break закрыта.
-- [x] Typed fixture list приложен; executable form ждёт authorization.
+- [x] Typed fixture list и executable prototype fixtures приложены.
 - [x] Independent reviewer дал conditional GO.
 - [x] Отдельная prototype authorization получена 29.07.2026; exact ruling
   записан выше.
@@ -795,13 +839,16 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 - [x] `BO-R-N3` + operator amendment supersede full-crossing A2′ detail:
   one-cell suction capture и axis-decomposed sliding записаны в authority.
 
-### Future Review 4 — evidence
+### Review 4 — evidence candidate
 
-- [ ] Parity checklist и reference delta list.
-- [ ] Solver/validator receipts + deterministic replay.
-- [ ] Side-by-side на устройстве.
-- [ ] Before/after AutoCursor GIF каждой feel-итерации.
-- [ ] Runtime/aspect/perf evidence.
+- [x] Numeric parity checklist и reference delta list.
+- [x] Solver/validator receipts + deterministic replay.
+- [x] Reproducible browser receipt for all five boards, consume/input overlap,
+  exact-once win, portrait frame cadence и landscape low-tier mount.
+- [x] Pinned before/after AutoCursor videos + GIF and side-by-side composite
+  generated outside the repository.
+- [ ] Operator target-device side-by-side verdict.
+- [ ] Operator haptic and five-level taste verdict.
 
 ## Kill criteria
 
@@ -818,7 +865,8 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 
 | Evidence | Path/URL | Version/digest | Disposition |
 | --- | --- | --- | --- |
-| Reference packet | [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md) | snapshot 29.07.2026 | Review 1 complete |
+| Reference packet | [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md) | snapshot 31.07.2026 | research + native evidence current |
+| Fidelity calibration | [`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md) | 31.07.2026 | typed candidate + remaining device gate |
 | Independent Review 1 | [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md) | 29.07.2026 | accept as research; F1–F5 disposition |
 | Independent Review 3 | [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md) | reviewed `093f175` | conditional GO; A1′–A3′ applied |
 | Grand Games listing | [App Store](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568) | live snapshot | primary `O` |
@@ -826,18 +874,21 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 | Color Block Jam listing | [App Store](https://apps.apple.com/in/app/color-block-jam/id6504332779) | live snapshot | secondary |
 | Native success clips L11–13 | operator delivery | full SHA-256 in reference packet | byte/frame verified `R-native` |
 | Native Level 15 gate-feel clip | operator delivery | SHA-256 `1f3ccd3751281532b497adf92543f6a06f7391b89ca49f54b86aefb5f39423de` | 30 fps `R-native` + operator narration |
-| Solver / visual / runtime evidence | future BO-Q index | — | not started |
+| Solver / visual / runtime evidence | `playables/block-out-v1/REVIEW-4-PACKET.md` | reproducible commands + ignored artifacts | browser candidate complete; device verdict pending |
 
 ## Final decision
 
-- Decision: **Review 3 conditional GO; A1′–A3′ closed**.
+- Decision: **Review 3 closed; reference-fidelity implementation candidate
+  ready for independent/code + operator device review**.
 - Primary/target (`O`): Grand Games Block Out, static levels `6–10`.
 - Gameplay: positive-area-overlap/contact-allowed collision, unit-step anchor
   BFS, deterministic axis-decomposed sliding/snap, one-cell suction-band
   reusable gates, no timer and monotone strong-solvability contract.
-- Workstreams: `BO-A/BO-E/BO-S/BO-P` implementation authorized; exact `BO-P`
-  fidelity acceptance requires target-device comparison.
+- Workstreams: `BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q` prototype candidate and
+  reproducible evidence implemented; exact `BO-P` fidelity acceptance requires
+  target-device comparison.
 - Implementation: **prototype authorized 29.07.2026**.
-- Explicitly deferred: `BO-P` fidelity acceptance, locked/countdown and other
-  dynamic modifiers, rollout и publication. Haptic implementation is open, but
-  its exact envelope remains provisional until device review.
+- Explicitly deferred: operator `BO-P` fidelity/taste acceptance,
+  locked/countdown and other dynamic modifiers, rollout и publication. Haptic
+  implementation candidate exists, but its envelope remains provisional until
+  device review.

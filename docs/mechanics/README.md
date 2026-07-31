@@ -277,9 +277,12 @@ Review 3 утвердил polyline baseline, пять собственных у�
   — independent **accept as research**, findings F1–F5 и их disposition.
 - [`block-out/REVIEW-3-INDEPENDENT-2026-07-29.md`](block-out/REVIEW-3-INDEPENDENT-2026-07-29.md)
   — independent conditional GO и blockers A1′–A3′.
+- [`block-out/FIDELITY-CALIBRATION-2026-07-31.md`](block-out/FIDELITY-CALIBRATION-2026-07-31.md)
+  — frame ledger, build-drift disposition, typed feel candidate, original
+  level-feature ladder и Review 4 evidence contract.
 
-Статус: **Prototype + BO-P implementation authorized 29.07.2026; exact
-fidelity/device Review 4 pending**.
+Статус: **Reference-fidelity implementation candidate + reproducible
+solver/browser/visual evidence; operator target-device Review 4 pending**.
 Primary (`O`) —
 [Block Out! — Color Sort Puzzle, Grand Games](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568);
 fidelity band (`O`) — levels `6–10`. Operator утвердил continuous two-axis
@@ -291,8 +294,10 @@ positive-area collision, unit-step anchor BFS, deterministic nearest snap и
 monotonicity proof. Последующий operator amendment добавил axis-decomposed
 sliding, one-cell mid-drag gate suction, control transfer,
 highlight/fragmentation и haptic priority, superseding full-crossing exit.
-`BO-A/BO-E/BO-S/BO-P` получили operator authorization на prototype
-implementation; exact timing/haptic parity ждёт device comparison.
+`BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q` prototype candidate реализован в
+isolated branch. Candidate использует `BlockOutFeelSpecV1`, не блокирует новый
+input particle tail'ом и имеет пять original feature-matched levels; exact
+timing/haptic/level-taste parity ждёт operator device comparison.
 Locked/countdown gates, rollout и publication не разрешены.
 
 ### Core loop
