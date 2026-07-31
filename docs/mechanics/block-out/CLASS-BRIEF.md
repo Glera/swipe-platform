@@ -183,6 +183,9 @@ clarity, при осознанно исключённом timer и собств�
 - Compatible unlocked gate захватывает carried block mid-drag, когда footprint
   входит в one-cell in-board suction band внутри gate span; control сразу
   передаётся gate, full boundary crossing/release не требуются (`O`).
+- Falcon verified pairs confirm pre-release takeover but do not resolve exact
+  spatial depth. `1 cell` therefore remains the current first-party gameplay
+  candidate inherited from the historical ruling, not Falcon `R-native`.
 - Gates are reusable/non-consuming (`O`).
 - Gate скрывается presentation-слоем, когда live blocks его role закончились;
   это не consuming gameplay state (`O`).
@@ -211,11 +214,11 @@ clarity, при осознанно исключённом timer и собств�
 | Scene visible -> first completed gate exit | `≤1,500 ms` | `P` |
 | Autoplay demonstration | `min(2,max(1,floor(25% witness)))` | `P`; one-move exception if witness `<4` |
 | Carry/collision/grid-snap core | continuous 2D + collision clamp + release snap | `O` |
-| Gate capture depth | `1 cell` in-board, mid-drag control transfer | `O`; `BO-R-N3` qualitatively supports |
+| Gate capture depth | current candidate `1 cell`; mid-drag control transfer verified | depth `P`/historical `O`; takeover `R-native-paired` Falcon |
 | Snap settle | `120 ms` | `P`; reference curve remains `B` |
 | Gate feedback start | `1.35 cells` in-board | `P` |
-| Pull / fragment onset | `220 / 80 ms` | `P` |
-| Fragment throat / tail end | `430 / 1,250 ms` | `P` |
+| Pull / fragment onset | `515 / 75 ms` | Falcon profile projection from `R-native-paired` bands |
+| Fragment throat / tail end | `705 / 1,565 ms` | throat `R-derived/P`; tail `R-native-paired` |
 | Manual lock after logical exit | `0 ms` | native ordering `R-native`, candidate projection `P` |
 | Win overlay / badge / confetti delay | `900 / 620 / 430 ms` | `P` |
 | Timer/fail | absent | `O` |
@@ -606,8 +609,9 @@ Exact layouts original; `ice/locks/counters/generator/elevator/shutter`
 - Layout (`P`): portrait-first board, gates on boundary, HUD secondary.
 - Essential animation: `R-native` clips подтверждают continuous highlighted
   carried pose, gate activation, converging particles/fragmentation and
-  role-counter updates. Candidate `P`: feedback `1.35 cells`, pull `220 ms`,
-  fragments `80→430→1,250 ms`; exact reference curve остаётся `B`.
+  role-counter updates. Current Falcon-calibrated candidate: feedback `1.35
+  cells`, pull `515 ms`, fragments `75→705→1,565 ms`; exact proximity depth,
+  curve and haptic envelope остаются `B/P`.
 - Sound: optional; sound-off experience complete.
 - Haptic: required during gate consume (`O`); provisional host-supported stages
   `0/150/430/820 ms` (`P`), exact tactile parity requires device review.
@@ -824,7 +828,7 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 | Вопрос | Почему блокирует | Кто решает | Trigger | Disposition |
 | --- | --- | --- | --- | --- |
 | Parallel exit animation/next drag | closed: logical exit immediately unlocks manual input; tails presentation-only | `R-native/O/P` | N1 overlap + browser evidence | candidate implemented; device feel review remains |
-| Pickup/snap/gate/win timings | typed candidate `120`, `220`, `80→430→1,250`, `900/620/430 ms` | BO-R/P/operator | target-device side-by-side | approve or return concrete deltas |
+| Pickup/snap/gate/win timings | typed candidate `120`, `515`, `75→705→1,565`, `900/620/430 ms` | Falcon BO-R/P/operator | final matched review | approve or return one concrete preference delta |
 | Haptic envelope | screen recording не содержит tactile signal | BO-P/operator | target-device playtest | before BO-P acceptance |
 | Dynamic modifiers | schema explosion | operator | after static baseline | deferred |
 

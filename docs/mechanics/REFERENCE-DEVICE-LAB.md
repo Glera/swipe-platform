@@ -7,6 +7,8 @@ recorder.
 
 - Process: `reference-replication.v3`.
 - CLI: [`../../scripts/reference-lab.mjs`](../../scripts/reference-lab.mjs).
+- Declarative gesture runner:
+  [`../../scripts/reference-gesture-replay.mjs`](../../scripts/reference-gesture-replay.mjs).
 - Artifact root задаётся явно; capture bytes не коммитятся в git.
 
 ## Preflight
@@ -76,6 +78,14 @@ Receipt фиксирует:
 - Нельзя измерять continuous interval через fragment boundary.
 - Android `screenrecord` bounded; recorder обязан закончить fragment до hard
   deadline. Авто-ротация не должна создавать недекларированный gap.
+- Device gestures задаются как versioned trace с абсолютными offsets и
+  исполняются одинаково для clean/instrumented channel. Receipt сохраняет как
+  planned offset, так и фактические invoke/complete timestamps для каждого
+  события.
+- `adb shell input touchscreen motionevent` не считается real-time transport:
+  длительность каждого subprocess и schedule drift входят в uncertainty. Если
+  drift меняет смысл probe, такой прогон отклоняется либо переводится в
+  event-bracket evidence; запланированные offsets не выдаются за ground truth.
 
 ## Initial-state binding
 

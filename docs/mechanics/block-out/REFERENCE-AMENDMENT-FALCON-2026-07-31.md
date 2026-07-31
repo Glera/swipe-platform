@@ -2,7 +2,7 @@
 
 - Date: **31.07.2026**
 - Process: `reference-replication.v3`
-- Status: **primary native reference approved; first pair verified**
+- Status: **primary native reference approved; two vertical-slice pairs verified**
 - Supersedes for new capture: Grand Games as primary reference
 - Does not erase: historical Grand Games observations and implementation ledger
 
@@ -59,10 +59,13 @@ slice without claiming equivalence to the old Grand Games threshold contract.
 | Initial-state comparison | perceptual distance `0`, allowed threshold `4`; no mismatches |
 | Pair verification | **pass** |
 
+PTS-level event extraction and confidence are recorded in
+[`FALCON-FRAME-LEDGER-2026-07-31.md`](FALCON-FRAME-LEDGER-2026-07-31.md).
+
 Artifacts live outside git under
 `.artifacts/reference-lab/block-out-falcon/2026-07-31/scenarios/BO-FC-GS-01-L2-GATE/`.
 
-Observed in the first pair (`R-native`, qualitative until frame ledger):
+Observed in the first pair (`R-native`, quantified in the frame ledger):
 
 - continuous two-axis carried movement with visible selected-block outline;
 - the top red block follows the slow diagonal gesture without inertia;
@@ -72,8 +75,9 @@ Observed in the first pair (`R-native`, qualitative until frame ledger):
   gate, followed by a visible particle tail;
 - the remaining board becomes interactive while the tail settles.
 
-Exact pickup latency, gate threshold, control-transfer frame, pull curve and
-fragment duration remain `B` until PTS-based extraction is committed.
+Exact pickup latency, gate threshold and pull curve remain `B`. The first
+verified pair now bounds control transfer and fragmentation duration; those
+values remain profile candidates until Twin calibration.
 
 ## Product boundary
 
@@ -88,11 +92,11 @@ real-money action was performed.
 
 ## Next acquisition order
 
-1. Extract the frame ledger from `BO-FC-GS-01-L2-GATE` and bind Falcon values to
-   the typed feel profile.
+1. Keep exact capture depth open; the verified hold pair proves only the
+   mid-drag rule.
 2. Capture pickup/release and collision/corner probes on the earliest stable
    reachable levels.
 3. Use YouTube only to locate later candidate states, then recapture them
    natively when progression reaches them.
-4. Run the early taste gate on one matched Falcon→Twin micro-scenario before
-   scaling the level pack.
+4. Run the prepared final matched Reference→Twin and Twin→Original review;
+   do not scale the level pack before operator disposition.
