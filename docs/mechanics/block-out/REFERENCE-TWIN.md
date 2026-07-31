@@ -1,9 +1,9 @@
 # Block Out v1 — Falcon Reference Twin
 
 - Process: `reference-replication.v3`
-- Status: **machine-ready; operator comparison pending**
+- Status: **machine-ready; correction-1 Reference→Twin repeat pending**
 - Primary source: Falcon/CYLINDER Android `1.0.177+177`
-- Playables implementation commit: `9d7f203`
+- Playables implementation commit: `95b568e`
 - Native scenarios: `BO-FC-GS-01-L2-GATE`,
   `BO-FC-GS-02-L2-HOLD-GATE`
 
@@ -38,14 +38,20 @@ SHA-256 is
 
 ## Review surface
 
-The final review contains two short sessions, each with one unique comparison
-and one hidden repeat:
+Round 1 contained two short sessions, each with one unique comparison and one
+hidden repeat:
 
-1. Reference→Twin uses blurred edge/silhouette channels aligned to gate
-   takeover. It asks identification, not visual preference.
+1. Reference→Twin used blurred edge/silhouette channels aligned to gate
+   takeover. That surface was later superseded because static identity remained.
 2. Twin→Production Original uses full own-identity clips aligned to consume
    onset. It asks forced preference or `no meaningful difference`.
 
-Source labels stay hidden until the immutable choice receipt is exported.
-The exact operator packet is
+Correction 1 asks only the first identification question again, using guarded
+motion-energy channels. Source labels stay hidden until the immutable choice
+receipt is exported. The exact operator packet is
 [`FINAL-REVIEW-PACKET-2026-07-31.md`](FINAL-REVIEW-PACKET-2026-07-31.md).
+
+Round 1 preserved Twin→Original feel (`same / same`) but identified Reference
+`2/2`. The bounded fragment-propagation correction and identity-suppressed
+motion-energy repeat are recorded in
+[`CORRECTION-1-2026-07-31.md`](CORRECTION-1-2026-07-31.md).

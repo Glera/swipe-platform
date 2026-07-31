@@ -35,6 +35,13 @@ export function normalizeReviewConfig(input) {
   if (input.processVersion !== PROCESS_VERSION) fail(`processVersion must be ${PROCESS_VERSION}`);
   if (!COMPARISONS.has(input.comparison)) fail('comparison must be reference-twin or twin-original');
   if (!input.sessionId || !input.seed) fail('sessionId and seed are required');
+  if (input.comparison === 'reference-twin') {
+    if (input.normalization?.method !== 'motion-energy-v2'
+      || input.normalization?.staticIdentitySuppressed !== true
+      || input.normalization?.spatiallyAligned !== true) {
+      fail('reference-twin requires motion-energy-v2 with static identity suppressed and spatial alignment');
+    }
+  }
   if (!Array.isArray(input.pairs) || input.pairs.length < 1 || input.pairs.length > 8) {
     fail('pairs must contain 1..8 decisions');
   }
@@ -67,6 +74,7 @@ export function normalizeReviewConfig(input) {
     sessionId: input.sessionId,
     comparison: input.comparison,
     seed: input.seed,
+    normalization: input.normalization ?? null,
     pairs: normalizedPairs,
   };
 }

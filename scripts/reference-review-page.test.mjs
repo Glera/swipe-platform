@@ -36,9 +36,24 @@ test('Twin to Original surface asks preference, not reference identification', (
 });
 
 test('Reference to Twin surface limits identification to its declared channel', () => {
-  const html = buildReviewHtml({ ...config, comparison: 'reference-twin' });
+  const html = buildReviewHtml({
+    ...config,
+    comparison: 'reference-twin',
+    normalization: {
+      method: 'motion-energy-v2',
+      staticIdentitySuppressed: true,
+      spatiallyAligned: true,
+    },
+  });
   assert.match(html, /Which normalized channel is the reference\?/u);
   assert.match(html, /A is reference/u);
+});
+
+test('Reference to Twin rejects channels that retain static identity', () => {
+  assert.throws(
+    () => normalizeReviewConfig({ ...config, comparison: 'reference-twin' }),
+    /static identity suppressed/u,
+  );
 });
 
 test('review session rejects more than eight decisions and unknown repeats', () => {
