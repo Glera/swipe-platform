@@ -15,6 +15,8 @@ node platform-scheme/build.mjs
 open platform-scheme/dist/platform-scheme.html
 ```
 
-Публикация: Claude публикует dist как приватный Artifact (постоянный URL,
-шарится из его share-меню). После любой правки `VISION.md` — пересобрать и
-переопубликовать.
+Публикация: Claude создаёт dist как Artifact в приватном чате; authority URL —
+постоянная authenticated chat-ссылка. Не использовать `Publish artifact`, если
+его диалог предупреждает, что ссылка станет публичной и индексируемой: это уже
+другая, не разрешённая Stage 0 поверхность. После любой правки `VISION.md` —
+пересобрать и заново создать приватный Artifact.

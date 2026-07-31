@@ -156,17 +156,25 @@
   durable invariant is that committed results stay exact-replayable and late
   attempts receive exactly one invalidation with the same action id. Operator
   UI and production E2E remain enable gates.
+- VISION v3.0.1 supersedes the legacy Island product direction. The durable
+  Stage 0 boundary is: fresh clients do not mount Island; legacy product,
+  social, economy, rewards, bots, notifications and bake/theme generation stay
+  off; existing `island_*` data and append-only evidence are retained, not
+  migrated into mission truth. Closed delivery, report, block, moderation and
+  recall remain available as the protective envelope for already-created UGC.
+  Future shelter/mission meta is a new server-owned contour: public mission
+  facts are human-true, historical puzzle balances are not contributions, and
+  Stage 1 may derive contributions only from new qualified-series/daily
+  receipts under its own default-off gates. Creator District / `?metaworld=1`
+  remains a removable mock, not product authority. The production proof and
+  mutable rollout status live in backend receipts and
+  `docs/specs/IMPLEMENTATION-STATUS.md`, not in this ledger.
 - Island Social Core is a separate `island_*` namespace, outside the
-  catalog/feed contours; Creator District is untouched. P1/P3/P4 and the global
-  Island audience were explicitly approved and enabled 25.07.2026 under VISION
-  v2.6: post-moderation/report/takedown is the protective envelope for the empty,
-  zero-traffic bootstrap. P2 safety remove/block belongs to that live envelope;
-  P2 visit-card/holdout and consent-bound outbound Telegram notifications were
-  independently approved and enabled by the operator on 25.07.2026. Their code
-  defaults and rollback controls remain separate: cards use versioned
-  30%/10%-holdout/cap-5 settings; delivery uses 21:00–08:00 UTC quiet hours and
-  max 3 physical attempts, with consent/block re-check before I/O. Moderation
-  automation still requires a new fraud/abuse evidence decision.
+  catalog/feed contours. Its 25.07.2026 global rollout under VISION v2.6 is
+  retained below as historical contract context, not current enablement.
+  Post-moderation/report/takedown was its protective envelope; P2 visit-card,
+  holdout and consent-bound notifications had separate rollback controls.
+  Moderation automation still requires a new fraud/abuse evidence decision.
 - The island measurement unit is a **client-asserted completion claim**
   (never "win": there is no ticket/oracle path for UGC), gated server-side by
   visit/min-time/per-day cooldowns/caps. Claims never enter qualified-play,
@@ -231,29 +239,30 @@
   `artifact_rel`; a mismatched revision is 409. The single-operator auth is an
   allowlist enforced by the server on every request (`?diag=1`/a hidden page
   is navigation, not an authorization boundary); the full scoped-grant
-  contract is gated on "moderators > 1". Audience was expanded to ALL users
-  by explicit operator decision 25.07.2026 (global Island enablement,
-  swipe-backend PR #11; the live post-moderation contour is the protective
-  envelope; VISION patch recording this is tracked separately). Moderation
-  automation remains a new explicit operator decision with fraud/abuse and
-  safety evidence.
+  contract is gated on "moderators > 1". Audience was expanded to ALL users in
+  the historical 25.07.2026 rollout (swipe-backend PR #11). Stage 0 later
+  removed the product surface while retaining this protective contract for
+  existing artifacts. Moderation automation remains a new explicit operator
+  decision with fraud/abuse and safety evidence.
 - Island migrations `0050_a11` (cohort-watch base), `0051`–`0052` (island
   core), `0053` (async `/island/theme` jobs), `0054` (moderation-action
   seq) and `0055_island_p2` (visit-award response/config-digest +
   notification outbox/attempt-receipts) are merged to master (unified
   island, backend `c21d40f`→`36a7d2a`, client `d560076`→`dd9efbd`); P2
-  (visit-card + consent-bound notifications + remove/block UI) is enabled
-  in production by operator decision 25.07.2026 with versioned config
+  (visit-card + consent-bound notifications + remove/block UI) was enabled in
+  the historical 25.07.2026 rollout with versioned config
   (card 30%/holdout 10%/cap 5/day; notifications only after native
   requestWriteAccess consent, quiet hours 21:00–08:00 UTC, ≤3 attempts,
   consent+block re-checked before I/O); the legacy client visit simulator
   is removed (server facts only); P1/P3/P4 passed internal adversarial review (author ≠
-  reviewer) AND independent Codex review (GO). Island is **globally enabled
-  in production** by explicit operator decision 25.07.2026 (backend
+  reviewer) AND independent Codex review (GO). Island was globally enabled by
+  the 25.07.2026 operator decision (backend
   `a3dcdf7`/PR #11: `ENABLE_ISLAND_SOCIAL`/`ENABLE_ISLAND_BOTS` on,
   moderator allowlist `42692410`; client `19aece3`; rationale: empty
-  platform, zero traffic, post-moderation contour live before real
-  traffic). Known accepted deviations: bot seed runs `--apply`
+  platform, zero traffic, post-moderation contour live before real traffic);
+  Stage 0 later disabled those product/social/generation gates while retaining
+  protective delivery and moderation. Known accepted deviations of the
+  historical rollout: bot seed runs `--apply`
   idempotently on service startup (ТЗ §3.1 said CLI dry-run-first; no
   advisory lock — single-instance assumption, multi-instance scaling
   requires a lock first). P4 reached its final async-only production contract
