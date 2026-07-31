@@ -152,6 +152,12 @@ V3-сессия содержит не более восьми решений: ш
 эквивалентности. MUST проходит, если нет устойчивого предпочтения Twin и
 повторы не противоречат друг другу.
 
+V0 review surface собирается
+[`scripts/reference-review-page.mjs`](../../scripts/reference-review-page.mjs):
+статическая HTML-страница, event-offset sync, side-by-side/blend, hidden source
+labels и export immutable-choice receipt. Difference/CV/auto-alignment не
+входят в v0.
+
 ## 7. Must-match and parity salience
 
 Must-match moments Gate 0 и MUST parity — одна таблица, не две таксономии.
