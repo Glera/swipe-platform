@@ -92,6 +92,21 @@ const parseBattery = (text) => {
   };
 };
 
+export function interpretAnimationScale(value) {
+  if (value === 'null') {
+    return { ok: true, effective: 1, detail: 'unset (Android default 1.0)' };
+  }
+  if (value === null) {
+    return { ok: false, effective: null, detail: 'unavailable' };
+  }
+  const effective = Number(value);
+  return {
+    ok: Number.isFinite(effective) && effective === 1,
+    effective: Number.isFinite(effective) ? effective : null,
+    detail: value,
+  };
+}
+
 export function runDoctor({ artifactRoot, spawn = spawnSync, access = accessSync }) {
   if (!artifactRoot || !path.isAbsolute(artifactRoot)) {
     fail('--artifact-root must be an absolute existing directory');
@@ -128,10 +143,10 @@ export function runDoctor({ artifactRoot, spawn = spawnSync, access = accessSync
         window: adbShell(serial, ['settings', 'get', 'global', 'window_animation_scale'], spawn),
       };
       for (const [name, value] of Object.entries(scales)) {
+        const interpreted = interpretAnimationScale(value);
         checks.push({
           id: `animation-scale-${name}`,
-          ok: Number(value) === 1,
-          detail: value ?? 'unavailable',
+          ...interpreted,
         });
       }
       device = {

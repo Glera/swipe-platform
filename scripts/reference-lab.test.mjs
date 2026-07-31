@@ -7,10 +7,20 @@ import test from 'node:test';
 import {
   compareInitialStates,
   hammingHex,
+  interpretAnimationScale,
   parseAdbDevices,
   parseArgs,
   runDoctor,
 } from './reference-lab.mjs';
+
+test('unset Android animation override resolves to the platform 1x default', () => {
+  assert.deepEqual(
+    interpretAnimationScale('null'),
+    { ok: true, effective: 1, detail: 'unset (Android default 1.0)' },
+  );
+  assert.equal(interpretAnimationScale('0').ok, false);
+  assert.equal(interpretAnimationScale(null).ok, false);
+});
 
 test('argument parser separates commands, values and json flag', () => {
   assert.deepEqual(
