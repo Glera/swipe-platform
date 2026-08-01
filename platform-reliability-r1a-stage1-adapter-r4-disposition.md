@@ -15,9 +15,18 @@ unchanged.
 | P3 extra malformed-shape/CLI tests | Existing required mutants plus independent adversarial reproduction are sufficient for this package. |
 | P3 dynamic imports | Pre-existing static-analysis boundary; no Stage 1 mission module uses it. |
 
-Fresh PR CI runs `30698637146` (image) and `30698637190` (PostgreSQL) were
-started for the accepted head. Their results remain CI authority and are not
-claimed by this disposition until they complete.
+Fresh PR CI completed successfully for the accepted head:
+
+- Platform release image run
+  [`30698637146`](https://github.com/Glera/swipe-backend/actions/runs/30698637146),
+  `2026-08-01T11:55:10Z`–`11:56:40Z`;
+- PostgreSQL acceptance run
+  [`30698637190`](https://github.com/Glera/swipe-backend/actions/runs/30698637190),
+  `2026-08-01T11:55:10Z`–`12:02:43Z`.
+
+Both runs pin head
+`4bfc1d6868d3a41c5439972375292305e13a50c0`. No rerun or duplicate dispatch
+was used.
 
 R4 itself authorizes no merge, workflow dispatch, rehearsal, provider mutation
 or production action.
