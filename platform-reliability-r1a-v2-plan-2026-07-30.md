@@ -259,7 +259,7 @@ checkout. При Stage 0 final flags:
 Если защитный endpoint зависит от исключённого toolchain, image получает
 NO-GO; toolchain не возвращается «временно» без отдельного review причины.
 
-## 7. Mission architecture guard — proposal, пока non-enforcing
+## 7. Mission architecture guard — enforcing после принятого Stage 1 review
 
 ### 7.1 Правило
 
