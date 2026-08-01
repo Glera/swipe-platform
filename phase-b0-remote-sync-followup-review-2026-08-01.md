@@ -37,6 +37,9 @@ The prior holder cannot renew or delete a replacement.
   `tests/acceptance/backup-commit-race.test.ts` at its 30-second suite limit.
   The same exact-head file then passed alone 2/2 in 8.11 seconds. The full run
   is not described as all-green; repository CI is authoritative.
+- Exact implementation head CI
+  [run 30712293762](https://github.com/Glera/swipe-agents/actions/runs/30712293762)
+  passed, including typecheck and the complete repository test suite.
 - Node syntax, zsh syntax, `plutil -lint` and `git diff --check`: green.
 - No credential value, bucket identifier or provider response was read or
   added to source/evidence.
