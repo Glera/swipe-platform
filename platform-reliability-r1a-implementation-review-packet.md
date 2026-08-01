@@ -1,8 +1,8 @@
 # Platform Reliability R1-A — implementation review packet
 
-Status: **POST-STAGE-0 REBASE; fresh exact-head implementation CI PASS; final
-closure review R5 GO; reviewed fix commits ready for disposable-rehearsal
-integration; rehearsal pending**. This packet grants no production authority.
+Status: **POST-STAGE-0 REBASE; implementation closure review R5 GO; first
+rehearsal draft R6 NO-GO corrected locally; follow-up delta review pending**.
+This packet grants no production authority.
 
 Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 `p4g-workspace-meta@ea89f97` after the Stage 1 reviewer GO on PR #39.
@@ -453,3 +453,34 @@ is an authenticated GET-only capture against disposable services to prove the
 live response shape, and the provider UI is checked to say Auto Deploy **Off**
 (not After CI Checks Pass). No R4/R5 verdict authorizes merge, image
 publication, Render production mutation, database mutation or cutover.
+
+## 17. Later-master rebase and rehearsal review R6
+
+Backend `master` advanced to
+`058c772ed5e0d46cf0e7ec4fcddf4f217b3f9ab2` and client `master` advanced to
+`96780f55a28e2fdf98d33290a87e1865431826c8`. The reviewed ranges were rebased
+onto those exact bases without patch drift (`/usr/bin/git range-diff` reports
+every pair as `=`):
+
+- candidate backend: `c7c62ad893c361b78ddaba687e22254045525512`;
+- predecessor/baseline backend: `1aee3e0bf596121d8d326951519d1f897e46ced1`;
+- client guard: `e804c73d41f5e94401caa3bb5acb92f691866101`.
+
+Post-rebase local checks remain 29/29 candidate release tests, 22/22 baseline
+release tests, and PASS for the client guard mutants and production build.
+These rebased identities have not yet acquired rehearsal authority; the
+required independent delta review remains pending.
+
+R6 reviewed the first executable rehearsal draft and returned **NO-GO**: one
+P1 default-branch workflow-registration cycle plus six P2 evidence/resource
+gaps. The exact retained finding set and dispositions are recorded in:
+
+- `platform-reliability-r1a-review-r6-raw.md`;
+- `platform-reliability-r1a-review-r6-disposition.md`.
+
+The correction introduces a registration-only sentinel branch, fully explicit
+image inputs, container-level source-SHA proof, a real reviewed GET-only first
+provider gate, a temporary registry credential and state-appropriate
+post-switch evidence. Nothing in the correction authorizes the sentinel merge,
+workflow dispatch, paid resource creation, image publication or production
+mutation.

@@ -4,7 +4,7 @@ previews:
   generation: "off"
 
 databases:
-  - name: swipe-r1a-rehearsal-db-20260801
+  - name: swipe-db
     plan: free
     databaseName: swipe_r1a_rehearsal
     postgresMajorVersion: "16"
@@ -12,7 +12,7 @@ databases:
 
 services:
   - type: web
-    name: swipe-r1a-rehearsal-web-20260801
+    name: swipe-backend
     runtime: docker
     repo: https://github.com/Glera/swipe-backend
     branch: codex/r1a-rehearsal-baseline
@@ -26,7 +26,7 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: swipe-r1a-rehearsal-db-20260801
+          name: swipe-db
           property: connectionString
       - key: PLATFORM_DATABASE_IDENTITY
         value: r1a-rehearsal-20260801
@@ -50,7 +50,21 @@ services:
         value: "false"
 
   - type: cron
-    name: swipe-r1a-rehearsal-cron-20260801
+    name: swipe-seq-shadow-run
+    runtime: docker
+    repo: https://github.com/Glera/swipe-backend
+    branch: codex/r1a-rehearsal-baseline
+    autoDeployTrigger: "off"
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: frankfurt
+    schedule: "0 0 1 1 *"
+    dockerCommand: >-
+      python -c "from pathlib import Path;
+      print(Path('/app/platform-backend-sha').read_text().strip())"
+
+  - type: cron
+    name: swipe-c1-materialize
     runtime: docker
     repo: https://github.com/Glera/swipe-backend
     branch: codex/r1a-rehearsal-baseline
