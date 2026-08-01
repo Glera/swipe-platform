@@ -13,7 +13,7 @@ import {
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const PROCESS_VERSION = 'reference-replication.v3';
+export const PROCESS_VERSION = 'reference-replication.v3.1';
 
 const fail = (message) => {
   throw new Error(message);

@@ -32,6 +32,9 @@ export function dispositionReview(configInput, receipt) {
   for (const field of ['processVersion', 'sessionId', 'comparison']) {
     if (receipt[field] !== session[field]) fail(`${field} does not match review session`);
   }
+  if (JSON.stringify(receipt.acceptanceCoverage) !== JSON.stringify(session.acceptanceCoverage)) {
+    fail('acceptance coverage binding does not match review session');
+  }
   if (!Array.isArray(receipt.answers) || receipt.answers.length !== session.pairs.length) {
     fail('receipt answer count does not match review session');
   }

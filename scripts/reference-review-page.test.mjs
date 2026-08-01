@@ -12,10 +12,17 @@ const pair = (id, repeatOf) => ({
 });
 
 const config = {
-  processVersion: 'reference-replication.v3',
+  processVersion: 'reference-replication.v3.1',
   sessionId: 'block-out-v0',
   comparison: 'twin-original',
   seed: 'fixed-seed',
+  acceptanceCoverage: {
+    model: 'pass',
+    browserInput: 'pass',
+    rawCleanRaster: 'pass',
+    diagnosticSoleAuthority: false,
+    receiptSha256: 'a'.repeat(64),
+  },
   pairs: [pair('p1'), pair('p2', 'p1')],
 };
 
@@ -56,6 +63,20 @@ test('Reference to Twin rejects channels that retain static identity', () => {
   assert.throws(
     () => normalizeReviewConfig({ ...config, comparison: 'reference-twin' }),
     /static-identity-suppressed/u,
+  );
+});
+
+test('review rejects diagnostic-only acceptance without the three-surface quorum', () => {
+  assert.throws(
+    () => normalizeReviewConfig({ ...config, acceptanceCoverage: undefined }),
+    /model\/browser-input\/raw-clean-raster/u,
+  );
+  assert.throws(
+    () => normalizeReviewConfig({
+      ...config,
+      acceptanceCoverage: { ...config.acceptanceCoverage, diagnosticSoleAuthority: true },
+    }),
+    /diagnostic cannot be sole authority/u,
   );
 });
 

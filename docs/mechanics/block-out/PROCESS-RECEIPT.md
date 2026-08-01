@@ -1,7 +1,7 @@
 # Replication process receipt: `block-out-v1`
 
-- Process version: `reference-replication.v3`
-- Status: `closed`
+- Process version: `reference-replication.v3.1` (reopened from v3)
+- Status: `rejected-after-field-play; gates reopened`
 - Playables commit: `4e130fd2c8b09f34b045ab8e795c940c13b6b8d1`
 - Class authority: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Golden scenarios: [`GOLDEN-SCENARIOS.md`](GOLDEN-SCENARIOS.md)
@@ -19,8 +19,19 @@
   [`CORRECTION-1-2026-07-31.md`](CORRECTION-1-2026-07-31.md)
 - Evidence correction 2:
   [`EVIDENCE-CORRECTION-2-2026-07-31.md`](EVIDENCE-CORRECTION-2-2026-07-31.md)
-- Closed: `2026-08-01`
-- Final disposition: `accepted`
+- v3.1 remediation:
+  [`REMEDIATION-2026-08-01.md`](REMEDIATION-2026-08-01.md)
+- Historical close: `2026-08-01`
+- Field-play rejection: `2026-08-01`
+- Current disposition: `superseded/false-positive; remediation active`
+- Rejection receipt:
+  [`FIELD-PLAY-REJECTION-2026-08-01.md`](FIELD-PLAY-REJECTION-2026-08-01.md)
+
+> The v3 choice receipts and hashes remain immutable evidence of what the old
+> surface showed. They are not evidence that the class matched the reference:
+> the surface downsampled causal occupancy and covered only one positive gate
+> scenario, so it could not reveal scale, foreground occlusion, blocked-mouth,
+> wrong-role or reverse-corridor defects.
 
 ## Efficiency
 
@@ -35,10 +46,23 @@
 | Blind/unmeasured correction rounds | `0 / 2` | every change is tied to a native frame ledger or measured causal delta |
 | Evidence-driven correction rounds | `2` | fragment propagation, then front-loaded progressive gate-plane emission plus causal normalization |
 | Invalid review surfaces rebuilt | `2` | static identity in round 1; input/scale/texture confounds in correction 1 |
-| Auto-verified parity rows | `6 / 6` | contract/profile, first-rAF pickup raster, Twin replay, browser runtime and production-deny tests |
-| Automated tests | `34/34` Block Out; `20/20` meta | final full runs on 01.08.2026 |
+| Auto-verified parity rows | historical `6 / 6`; current `0 / 8` pending v3.1 quorum | old rows lacked raw/browser/negative coverage |
+| Automated tests | historical `34/34`; current regression baseline intentionally red | blocked throat, reversible corridor, role mismatch and constant scale reproduce field defects |
 | Near-duplicate checks | pass | receipt `5a9f3eb…`; max Falcon score `0.308`, max internal score `0.676`, reject threshold `0.900` |
 | Rework after first taste gate | `2 evidence corrections` | both retain immutable receipts and explicit diagnoses |
+
+## v3.1 remediation progress
+
+| Metric | Current value | Evidence |
+| --- | ---: | --- |
+| Reproduced defects before fixes | `5 / 5` | throat teleport, role mismatch, overlapping visible gates, reverse-corridor asymmetry, consume shrink |
+| New fixed regression IDs | `4 model families` | `BO-FX-CORRIDOR-REVERSIBLE`, `BO-FX-GATE-THROAT-BLOCKED`, `BO-FX-WRONG-ROLE-GATE`, `BO-FX-VISIBLE-GATE-ROLE-UNAMBIGUOUS` |
+| Model/fidelity tests | `41 / 41` | includes 1/2/8 gesture segmentation, reopened contract and immutable machine-receipt assertions |
+| Browser pointer negatives | `4 / 4` | static tap, blocked throat, reverse anchor, foreign-role gate |
+| Raw raster gates | pass | no carried growth; gate foreground changes `0 px`; outside intact-body leak `0 px` |
+| Runtime checks | `39 pass / 1 expected warning / 0 fail` | portrait/landscape, offline, lifecycle, low-tier FPS |
+| Blind correction rounds | `0` | every change maps to operator defect and a red-before-green regression |
+| Operator status | pending | full multi-scenario field play, not a single corrected clip |
 
 ## Gate receipts
 
@@ -47,12 +71,12 @@
 | Authority ready | pass | Falcon/CYLINDER build is primary; must-match projection and stop rule are frozen |
 | Evidence ready | pass for v1 scope | doctor passes; both Level 2 pairs verify with perceptual distance `0`; exact tactile waveform remains explicit `B` |
 | Twin ready | pass | exact internal Level 2 dataset validates/replays in the canonical runtime; production bundle deny passes |
-| Vertical slice | pass | final causal Reference→Twin is `same / same`, repeat consistent, `parity-supported`; Twin→Original feel is preserved |
+| Vertical slice | reopened | old single positive gate scenario is insufficient |
 | Runtime unified | pass | Twin and Original use one rules/engine/validator/presentation profile |
-| Presentation parity | pass | all MUST/MAJOR rows close; final causal receipt `b474e603…`; one MINOR win-taste row has explicit non-publication disposition |
+| Presentation parity | reopened | raw clean scale/occlusion/boundary evidence required |
 | Level-feel parity | pass | Twin→Original `same / same`; five-level solver/signature ladder is frozen and machine-verified |
 | Original ready | pass for prototype | own specs/provenance, strong-solvability receipts and near-duplicate receipt pass; publication remains unauthorized |
-| Platform ready | pass for prototype | AppLovin/SWIPE builds, production deny, lifecycle/offline/performance runtime receipts pass |
+| Platform ready | reopened | real pointer negative probes and full field-play required |
 
 ## Stop-rule disposition
 

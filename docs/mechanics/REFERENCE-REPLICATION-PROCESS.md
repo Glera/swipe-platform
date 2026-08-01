@@ -1,9 +1,10 @@
-# Fidelity replication process v3
+# Fidelity replication process v3.1
 
 Статус: authority процесса для механик, восстанавливаемых по внешнему
 референсу.
 
-- Process ID: `reference-replication.v3`
+- Process ID: `reference-replication.v3.1`
+- Revision trigger: `2026-08-01 Block Out field-play false positive`.
 - Human authority: оператор утверждает must-match moments, taste disposition
   и rollout.
 - Machine authority: capture integrity, deterministic replay, измеримые
@@ -172,6 +173,44 @@ salience:
 MUST без parent must-match запрещён: сначала дополняется исходная таблица.
 Composite score не может скрыть красный MUST.
 
+### Acceptance-surface quorum
+
+Нормализованный diagnostic-канал помогает локализовать причинную дельту, но
+никогда не является единственным доказательством parity. Каждая MUST-строка
+закрывается одним coverage receipt, в котором присутствуют все применимые
+поверхности:
+
+1. `model` — positive и negative rule/invariant probes;
+2. `browser-input` — тот же сценарий доставлен реальными pointer events в
+   production bundle, а не вызовом engine/debug API;
+3. `raw-clean-raster` — исходный clean кадр/клип и production raster без
+   silhouette/occupancy downsample как единственного verdict;
+4. `diagnostic` — motion/edge/occupancy канал только как дополнительное
+   причинное измерение.
+
+Machine pass на одной поверхности не переносится на остальные. В частности,
+solver/model не доказывает browser event semantics, а совпадение `16×16`
+occupancy не доказывает scale, draw order, occlusion, colour-role mapping или
+particle-boundary emission.
+
+Review config обязан byte-bind SHA-256 coverage receipt. Review tooling
+fail-closed отклоняет сессию без `model/browser-input/raw-clean-raster=pass`
+или с `diagnosticSoleAuthority=true`; тот же binding входит в экспортируемый
+operator receipt и проверяется disposition tool.
+
+Для каждого interaction MUST coverage matrix содержит минимум один успешный и
+один запрещённый сценарий. Для drag/collision/gate классов обязательны:
+
+- blocked path рядом с destination/gate;
+- foreign-role/colour destination;
+- forward + reversed gesture trace с разной event segmentation;
+- pointerdown без движения и release вне фактического capture crossing;
+- model state ↔ browser trace ↔ rendered silhouette congruence.
+
+Render semantics являются проверяемыми инвариантами: неизменный scale, если
+scale change не измерен в reference; объявленный foreground/occlusion order;
+fragment onset на пространственной boundary, а не внутри ещё видимого body.
+
 ## 8. Golden scenarios, probes and gesture traces
 
 - `GOLDEN-SCENARIOS` — постоянный acceptance contract runtime.
@@ -180,6 +219,11 @@ Composite score не может скрыть красный MUST.
 
 Artifacts используют общие scenario IDs, но не подменяют друг друга. Закрытый
 probe не удаляет golden acceptance scenario.
+
+Один позитивный vertical-slice scenario не закрывает класс. Перед Close
+coverage matrix обязана включать все MUST и их negative controls. Raw clean
+ключевые кадры хранятся рядом с diagnostic projection; review surface явно
+показывает, какой канал является authority, а какой — локализатором.
 
 ## 9. Production Original and Factory
 
@@ -215,6 +259,22 @@ Factory включается только после parity fixed fixtures. Gene
 blind и evidence-driven correction rounds, auto-verified parity share, rework after first taste gate,
 open deltas и process version.
 
+### Field-play rejection
+
+Любое воспроизводимое operator-наблюдение после формального Close, которое
+нарушает MUST/MAJOR reference behavior, автоматически:
+
+- переводит receipt в `rejected-after-field-play`;
+- сохраняет, но помечает прежние receipts как `superseded/false-positive`;
+- создаёт regression scenario до исправления implementation;
+- переоткрывает все downstream gates, доказательства которых зависели от
+  неполного scenario/surface coverage;
+- требует нового полного field-play, а не review только исправленного клипа.
+
+Лимит blind correction rounds не ограничивает исправление воспроизведённого
+дефекта в рамках исходной цели. Он ограничивает только настройку без новой
+причинной информации.
+
 ## Gates
 
 | Gate | Required proof |
@@ -224,10 +284,10 @@ open deltas и process version.
 | Twin ready | exact fixtures + deterministic trace replay + production deny |
 | Vertical slice | one matched scenario + operator disposition before scale-out |
 | Runtime unified | one renderer/input/presentation/viewport/lifecycle |
-| Presentation parity | profile-vs-contract receipt; no failed MUST |
+| Presentation parity | profile-vs-contract + raw-clean raster receipt; no failed MUST |
 | Level-feel parity | matched-scenario choice-session + signature bands |
 | Original ready | taste parity + solver + provenance + near-duplicate pass |
 | Platform ready | lifecycle/autoplay/takeover/single completion proof |
-| Close | montage + delta + independent review + process receipt |
+| Close | multi-scenario coverage quorum + montage + delta + full field-play + process receipt |
 
 Merge, production publish and rollout остаются отдельными explicit decisions.

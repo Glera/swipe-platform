@@ -9,6 +9,10 @@ named golden-scenario gap and produces a clean/instrumented pair.
 | `BO-PR-02` | `BO-GS-02/03/05` | corridor/corner/two-block contact pose progression | three deterministic slow traces; `≤10 s` each | poses at `0/25/50/75/100%`; overlap/classification receipt | planned; locate Falcon states |
 | `BO-PR-03` | `BO-GS-04` | feedback/capture/control-transfer/fragment cadence | aligned compatible gate plus held-at-gate trace | pre-release takeover, body/fragment keyframes, tail end; exact depth may remain open | closed for vertical-slice cadence by two verified Falcon Level 2 pairs; exact depth dispositioned open |
 | `BO-PR-04` | `BO-GS-06` | next-input latency during active tail | exit first block, pointerdown second before tail ends; `≤10 s` | logical exit anchor, second pickup response, overlapping tails | planned; locate reachable Falcon state |
+| `BO-PR-05` | `BO-GS-07` | exact reference behavior with a figure directly in the gate throat | place/locate two aligned figures; drag rear figure toward gate | rear figure never exits through front figure; contact keyframes | operator behavior is authority; targeted native clip only if implementation boundary remains ambiguous |
+| `BO-PR-06` | `BO-GS-08` | foreign-role gate negative behavior | drag each visible role into one mismatched gate | zero exit; role/gate visual ledger | operator bug report establishes required negative; native replay optional for timing only |
+| `BO-PR-07` | `BO-GS-09` | reverse corridor pose progression | forward/reverse slow gesture in same corridor | keyframes and event-segmentation receipt | operator behavior is authority; exact curve may require targeted native clip |
+| `BO-PR-08` | `BO-GS-10` | intact scale, occlusion order and grinding boundary | slow clear-gate consume | raw clean body bounds, gate foreground pixels and particle onset plane | operator description + existing Falcon clean clips; recapture only if raw frames cannot resolve boundary |
 
 ## Falcon amendment status — 31.07.2026
 

@@ -5,10 +5,17 @@ import { dispositionReview } from './reference-review-disposition.mjs';
 import { normalizeReviewConfig } from './reference-review-page.mjs';
 
 const configFor = (comparison) => ({
-  processVersion: 'reference-replication.v3',
+  processVersion: 'reference-replication.v3.1',
   sessionId: `session-${comparison}`,
   comparison,
   seed: 'disposition-fixed-seed',
+  acceptanceCoverage: {
+    model: 'pass',
+    browserInput: 'pass',
+    rawCleanRaster: 'pass',
+    diagnosticSoleAuthority: false,
+    receiptSha256: 'b'.repeat(64),
+  },
   ...(comparison === 'reference-twin' ? {
     normalization: {
       method: 'causal-occupancy-v3',
@@ -44,6 +51,7 @@ function receiptFor(config, selectedSources) {
     sessionId: session.sessionId,
     comparison: session.comparison,
     completedAt: '2026-07-31T00:00:00.000Z',
+    acceptanceCoverage: session.acceptanceCoverage,
     answers: session.pairs.map((pair, index) => ({
       pairId: pair.id,
       scenarioId: pair.scenarioId,

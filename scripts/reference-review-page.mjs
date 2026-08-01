@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const PROCESS_VERSION = 'reference-replication.v3';
+const PROCESS_VERSION = 'reference-replication.v3.1';
 const COMPARISONS = new Set(['reference-twin', 'twin-original']);
 
 const fail = (message) => {
@@ -35,6 +35,16 @@ export function normalizeReviewConfig(input) {
   if (input.processVersion !== PROCESS_VERSION) fail(`processVersion must be ${PROCESS_VERSION}`);
   if (!COMPARISONS.has(input.comparison)) fail('comparison must be reference-twin or twin-original');
   if (!input.sessionId || !input.seed) fail('sessionId and seed are required');
+  const coverage = input.acceptanceCoverage;
+  if (!coverage
+    || coverage.model !== 'pass'
+    || coverage.browserInput !== 'pass'
+    || coverage.rawCleanRaster !== 'pass'
+    || coverage.diagnosticSoleAuthority !== false
+    || typeof coverage.receiptSha256 !== 'string'
+    || !/^[0-9a-f]{64}$/.test(coverage.receiptSha256)) {
+    fail('v3.1 review requires a SHA-256-bound model/browser-input/raw-clean-raster coverage receipt; diagnostic cannot be sole authority');
+  }
   if (input.comparison === 'reference-twin') {
     if (input.normalization?.method !== 'causal-occupancy-v3'
       || input.normalization?.staticIdentitySuppressed !== true
@@ -77,6 +87,7 @@ export function normalizeReviewConfig(input) {
     sessionId: input.sessionId,
     comparison: input.comparison,
     seed: input.seed,
+    acceptanceCoverage: structuredClone(coverage),
     normalization: input.normalization ?? null,
     pairs: normalizedPairs,
   };
@@ -115,7 +126,7 @@ export function buildReviewHtml(config) {
   </style>
 </head>
 <body>
-  <header><strong>Fidelity review · <span id="progress"></span></strong><span>Sources hidden until export</span></header>
+  <header><strong>Fidelity review · <span id="progress"></span></strong><span>Sources hidden · coverage quorum bound</span></header>
   <div class="toolbar">
     <button id="play">Play synchronized</button>
     <button id="rewind">Align to event</button>
@@ -203,6 +214,7 @@ export function buildReviewHtml(config) {
         sessionId: session.sessionId,
         comparison: session.comparison,
         completedAt: new Date().toISOString(),
+        acceptanceCoverage: session.acceptanceCoverage,
         answers,
         sourceMapping: session.pairs.map(({ id, a, b }) => ({ pairId: id, a: a.source, b: b.source })),
       };

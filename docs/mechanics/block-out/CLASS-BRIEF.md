@@ -1,12 +1,12 @@
 # Class Brief: `block-out-v1`
 
 - Дата: **31.07.2026**
-- Статус: **Reference-fidelity v1 accepted; machine parity and matched
-  Reference→Twin / Twin→Original operator gates closed**
+- Статус: **Rejected after field play; reference replication v3.1 remediation
+  active; all fidelity gates reopened**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude (Review 1 и Review 3)**
-- Process version: `reference-replication.v3`
+- Process version: `reference-replication.v3.1`
 - Process receipt: [`PROCESS-RECEIPT.md`](PROCESS-RECEIPT.md)
 - Primary-reference amendment:
   [`REFERENCE-AMENDMENT-FALCON-2026-07-31.md`](REFERENCE-AMENDMENT-FALCON-2026-07-31.md)
@@ -19,6 +19,10 @@
   [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md)
 - Fidelity calibration:
   [`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md)
+- Field-play rejection:
+  [`FIELD-PLAY-REJECTION-2026-08-01.md`](FIELD-PLAY-REJECTION-2026-08-01.md)
+- v3.1 remediation:
+  [`REMEDIATION-2026-08-01.md`](REMEDIATION-2026-08-01.md)
 
 > Brief фиксирует исследовательскую декомпозицию и typed boundaries. Primary
 > reference, target band и core movement/no-timer/no-stuck decisions утверждены
@@ -36,6 +40,11 @@
 > with the installed Falcon/CYLINDER Android build `1.0.177`. Grand Games
 > remains historical secondary evidence. Where this brief conflicts with the
 > linked amendment, the amendment wins.
+
+> **Current acceptance state:** operator field play on 01.08.2026 supersedes
+> the earlier `accepted` disposition. Historical review receipts remain
+> immutable but are classified false-positive because their scenario/surface
+> coverage could not expose the observed gameplay and render defects.
 
 ## Evidence notation
 
@@ -876,7 +885,7 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 - [x] `BO-R-N3` + operator amendment supersede full-crossing A2′ detail:
   one-cell suction capture и axis-decomposed sliding записаны в authority.
 
-### Review 4 — evidence candidate
+### Historical Review 4 — superseded evidence candidate
 
 - [x] Numeric parity checklist и reference delta list.
 - [x] Solver/validator receipts + deterministic replay.
@@ -884,8 +893,9 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
   exact-once win, portrait frame cadence и landscape low-tier mount.
 - [x] Pinned before/after AutoCursor videos + GIF and side-by-side composite
   generated outside the repository.
-- [x] Operator matched Reference→Twin verdict: `same / same`, causal parity
-  supported; Twin→Original: `same / same`, feel preserved.
+- [x] Historical operator matched Reference→Twin verdict: `same / same` and
+  Twin→Original: `same / same`; both are now superseded because the review
+  surface/scenario coverage produced a field-play false positive.
 - [x] Exact haptic waveform disposition is explicit `B`; five-level mechanics
   close through matched feel, frozen signature bands, solver/provenance and
   near-duplicate receipts. Publication taste remains outside prototype scope.
@@ -914,19 +924,22 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 | Color Block Jam listing | [App Store](https://apps.apple.com/in/app/color-block-jam/id6504332779) | live snapshot | secondary |
 | Native success clips L11–13 | operator delivery | full SHA-256 in reference packet | byte/frame verified `R-native` |
 | Native Level 15 gate-feel clip | operator delivery | SHA-256 `1f3ccd3751281532b497adf92543f6a06f7391b89ca49f54b86aefb5f39423de` | 30 fps `R-native` + operator narration |
-| Solver / visual / runtime evidence | `playables/block-out-v1/REVIEW-4-PACKET.md` | reproducible commands + ignored artifacts | prototype gates closed; rollout unauthorized |
+| Solver / visual / runtime evidence | `playables/block-out-v1/REVIEW-4-PACKET.md` | historical v3 evidence | superseded for fidelity acceptance; rollout unauthorized |
+| Field-play rejection | [`FIELD-PLAY-REJECTION-2026-08-01.md`](FIELD-PLAY-REJECTION-2026-08-01.md) | operator 01.08.2026 | reopens all fidelity gates |
+| v3.1 remediation | [`REMEDIATION-2026-08-01.md`](REMEDIATION-2026-08-01.md) | model/browser/raw-raster quorum | machine pass; final full field play pending |
 
-## Final decision
+## Current decision
 
-- Decision: **reference-replication.v3 prototype accepted; final causal
-  Reference→Twin and Twin→Original receipts are repeat-consistent `same / same`**.
+- Decision: **historical v3 acceptance is superseded/false-positive;
+  reference-replication.v3.1 remediation is machine-green and awaits a full
+  operator field play**.
 - Primary/target (`O`): Falcon/CYLINDER Android `1.0.177+177` Level 2 native
   feel authority; static levels `6–10` remain the Original feature band.
 - Gameplay: positive-area-overlap/contact-allowed collision, unit-step anchor
   BFS, deterministic axis-decomposed sliding/snap, one-cell suction-band
   reusable gates, no timer and monotone strong-solvability contract.
-- Workstreams: `BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q` prototype and reproducible
-  evidence implemented; all MUST/MAJOR rows closed.
+- Workstreams: `BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q` remediation implemented;
+  model/browser/raw-raster rows are green, operator feel rows remain open.
 - Implementation: **prototype authorized 29.07.2026**.
 - Explicitly deferred: locked/countdown and other dynamic modifiers, rollout
   and publication-level taste. Supported-host haptic exists; exact Falcon
