@@ -1,6 +1,9 @@
 # Platform Reliability R1-A — disposable rehearsal evidence packet
 
-Status: **R12 GO + operator authority recorded; rehearsal not started**. Every `PENDING` value
+Status: **paused before paid provisioning; USD 0 spent**. R12 GO and operator
+authority are recorded, but Render requires a payment method on the isolated
+workspace. See `platform-reliability-r1a-rehearsal-start-receipt-20260801.md`.
+Every `PENDING` value
 must be replaced by bounded evidence from the attended run. This document is
 not provider, publication, merge, deploy or production authority.
 
