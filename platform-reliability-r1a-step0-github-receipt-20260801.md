@@ -70,5 +70,19 @@ inventory.
 At capture time backend `master` remained
 `058c772ed5e0d46cf0e7ec4fcddf4f217b3f9ab2`, exactly the parent of sentinel
 commit `5ef857f493016501a0eaa733d174eb39ba221d2a`. Its complete diff is two new
-inert workflow files, 118 added lines and no deletion. No sentinel PR existed
-at capture time.
+inert workflow files, 118 added lines and no deletion.
+
+The operator subsequently authorized creation of sentinel PR #45:
+
+- URL: `https://github.com/Glera/swipe-backend/pull/45`;
+- base: `058c772ed5e0d46cf0e7ec4fcddf4f217b3f9ab2`;
+- head: `5ef857f493016501a0eaa733d174eb39ba221d2a`;
+- merge state after CI: `CLEAN`;
+- PostgreSQL acceptance run: `30697890290`;
+- run result: `success`;
+- started: `2026-08-01T11:32:32Z`;
+- completed: `2026-08-01T11:42:39Z`.
+
+The PR remains open and unmerged. Its successful CI grants no merge authority;
+fresh single-use production provider capture and separate operator GO remain
+mandatory.
