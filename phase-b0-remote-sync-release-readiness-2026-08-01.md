@@ -1,7 +1,10 @@
 # Phase-B0 remote-sync — review and activation packet
 
-Date: 2026-08-01. Status: review input; **not merged, installed, activated or
-enabled by this packet**.
+Date: 2026-08-01. Status: R1 NO-GO remediation submitted for diff-only review;
+**not merged, installed, activated or enabled by this packet**. The prior
+independent verdict found 1 P1, 3 P2 and 9 P3. This document records the
+author's dispositions; it does not promote them to independently verified
+closures.
 
 ## Decision and scope
 
@@ -22,9 +25,10 @@ deploy, publish, payment, product flags or other mutating authority.
 | --- | --- |
 | prerequisite physical-preflight fix | swipe-agents PR #12, merged as `d1a2d29`; reviewed source head `3a7f2a1f18c629f9e165f3ea70e46845af0ba9e6` |
 | remote-sync implementation | [swipe-agents PR #13](https://github.com/Glera/swipe-agents/pull/13) |
-| exact review head | `bfab9294913c2f9052bbfbf862a61588aa999e1a` |
-| frozen host policy digest | `45c8bcbe602a580a99d9c1be3a88fc1421c92a8f412b4f0908d65f21efa1a1b7` |
-| remote attestation schema | `agents.phase-b0-remote-sync-attestation.v1` |
+| R1 NO-GO head | `bfab9294913c2f9052bbfbf862a61588aa999e1a` |
+| remediation head for diff-only review | `6ffa3d0273aace9d4af412a6f0f8d49e70a8e1f2` |
+| frozen host policy digest | `ae2ec821c33b06cb288fd92b603b094b8abb6f3fa85dbd157b4390fb8bb0f0cf` |
+| remote attestation schema | `agents.phase-b0-remote-sync-attestation.v2` |
 | host policy schema | `agents.phase-b0-host-policy.v2` |
 
 PR #13 is based on merged `main`, not stacked on an unmerged branch.
@@ -40,45 +44,83 @@ PR #13 is based on merged `main`, not stacked on an unmerged branch.
 3. The binary is exactly restic 0.19.1 and its physical bytes are bound into
    both the root-owned remote attestation and the Phase-B0 activation path.
 4. A public remote attestation is publishable only after a remote seed backup
-   and a later restore of the same snapshot with identical relative paths,
-   bytes and modes.
+   and a later restore of that exact snapshot with identical relative paths,
+   bytes and modes. Restore compares against the backup-time tree digest,
+   counts and bytes, not a mutable live source tree.
 5. The attestation fixes a no-card Backblaze profile with a `$0.00` charge
    boundary: 10 GB storage, 1 GB/day download, 2,500/day Class B and
    2,500/day Class C operations, with 75% and 100% alerts. It also binds
-   secret-free evidence that the profile is visible and that the restic
-   password is escrowed outside the reserve Mac.
-6. The bucket boundary is private, SSE-B2 enabled, Object Lock disabled and
-   lifecycle `keep only the last version`. Any payment method, non-zero spend
-   ceiling, larger quota, weaker alert, public access, weaker encryption,
-   Object Lock or version-retaining lifecycle makes the attestation invalid.
+   two fresh secret-free root-owned evidence artifacts: the attended account
+   observation and proof that the restic password is escrowed outside the
+   reserve Mac. Runner-supplied digest strings are no longer accepted.
+6. Account payment/cap/alert state is not exposed by the B2 Native API and is
+   honestly retained as attended root evidence. Bucket privacy, SSE-B2,
+   Object Lock and lifecycle are read live through B2 v4 before every material
+   remote operation. The key must bind exactly one bucket, no prefix and the
+   exact seven least-privilege capabilities; any live widening or bucket drift
+   fails closed.
 7. Remote backup is a third launchd job: `RunAtLoad`, six-hour interval, no
-   `KeepAlive`, no Telegram/LLM/provider-configuration authority, output to
-   `/dev/null`, durable private receipts under the runner state root.
-8. Retention is 14 daily, 8 weekly and 6 monthly snapshots. A 48-hour verifier
-   requires at least eight distributed successes, no interval above 6h15m,
-   exact repository/binary binding, and an online match between local last
-   evidence and the provider's current snapshot.
-9. Upgrading the already installed disabled host bundle requires explicit
+   `KeepAlive`, no Telegram/LLM/provider-configuration authority, typed
+   low-volume stdout/stderr under its private state root, and durable private
+   receipts. Generic refusal logs contain no provider response or credential.
+8. One atomic writer lease fences init, backup and restore. Seed and scheduled
+   snapshots have separate tags. Pruning occurs at most daily, preserves the
+   last 72 hours, then applies 14 daily, 8 weekly and 6 monthly retention.
+   Every scheduled snapshot records a backup-time tree digest and accepts
+   restic RFC3339 timestamps with a local offset only after normalizing them to
+   UTC-Z.
+9. The 48-hour verifier considers scheduled receipts only, anchors every one
+   to a distinct row in the complete remote restic ledger, derives gaps from
+   external snapshot times and requires remote-latest to match local-latest.
+   Separately, every five-minute dead-man preflight refuses to ping once the
+   latest receipt is older than 6h15m, turning a silent backup failure into an
+   external absence alert.
+10. Upgrading the already installed disabled host bundle requires explicit
    `--replace-files` and refuses while any of the three jobs is loaded. Host
-   install, remote attestation, activation receipt and bootstrap remain four
-   distinct authority acts.
+   install, root evidence publication, remote attestation, activation receipt,
+   one attended scheduled-path backup and bootstrap remain distinct authority
+   acts.
+
+## R1 NO-GO dispositions
+
+| Finding | Remediation at `6ffa3d0` |
+| --- | --- |
+| P1: restic emits a local-offset timestamp but receipt validation required literal `Z` after upload | Snapshot parsing accepts RFC3339 `Z` or offset, converts the instant to canonical UTC-Z, and validates only the normalized receipt. The executing fake-restic regression supplies `+03:00`. |
+| P2: the runner could manufacture eight local receipts | Acceptance lists the complete tagged remote snapshot ledger and requires every scheduled receipt to match one distinct remote id+time in monotonic order. Seed/manual receipts never count. Handwritten, duplicate, missing, gapped and latest-mismatch cases are negative tests. |
+| P2: provider state and evidence digests were self-asserted | `b2_authorize_account` and bucket-scoped `b2_list_buckets` now prove the exact bucket, exact key scope, privacy, encryption, Object Lock and lifecycle live. Payment/caps/alerts become fresh root-owned structured evidence files, bound byte-for-byte by attestation v2; arbitrary CLI digest input was removed. |
+| P2: failure was silent and no freshness boundary existed | Remote stdout/stderr go to low-volume state-root logs with generic refusal codes. Every dead-man preflight checks a 22,500-second maximum age for the latest bound receipt; stale backup evidence suppresses the external heartbeat. |
+| P3: prune ran every six hours | A bound prune receipt limits prune to once per 24 hours, and `--keep-within 72h` protects the acceptance window before daily/weekly/monthly retention. |
+| P3: concurrent writers had no lock | Atomic directory lease fences init, backup and restore; a live lease refuses and only an expired lease is quarantined and reclaimed. |
+| P3: remote tests could skip while being counted green | The fake-restic suite executes unconditionally; no restic-installed conditional remains in the changed suite. Native macOS syntax tests remain explicitly platform-specific and are reported separately. |
+| P3: restore compared against the later live source tree | Backup receipts now persist source tree digest/file count/byte count; restore compares the remote snapshot to that frozen backup-time identity. |
+| P3: packet overstated test counts | Counts below report literal runner output and preserve the one full-suite timeout instead of converting it to green. |
+| P3: tracked fixture exposed the global B2 bucket identity | No real bucket name, id or endpoint is present in code, fixtures or this packet; fixtures use a non-production synthetic name. |
+| P3: superseded v1 policy/schema artifacts remained live | Orphan `phase-b0.v1`, `golden.v1`, policy-v1 and remote-attestation-v1 artifacts are removed; v2 is the sole source-controlled host contract. |
+| P3: digest-then-exec left a restic identity window | Every invocation opens and hashes the executable and captures device/inode/size/mtime/ctime immediately before execution, executes the resolved physical path, then verifies the same identity after. The production path additionally requires a root-owned non-symlink regular file at exact mode `0555`. |
+| P3: scheduled remote backup lacked its own activation gate | The scheduled command requires the root-owned enabled Phase-B0 activation and exact attestation digest before any provider or restic write; seed remains a separately named attended path. |
 
 ## Verification evidence
 
-- Targeted host/security suite: 31/31 green after the free-only revision.
+- Targeted host/security suite: 34/34 green. The 13 remote-sync tests execute
+  an actual fake-restic binary, including the `+03:00` timestamp path; none is
+  conditionally skipped.
 - Native syntax gates: Node checks green; zsh checks green; all three plists
   pass `plutil -lint`.
-- Full local suite: 448/449 green. One pre-existing
-  `backup-commit-race` case exceeded its 30-second per-test timeout only under
-  full-suite contention; the exact case then passed alone 2/2 in 7.98 seconds.
+- Build and typecheck: green.
+- Full local suite: 451 passed and one `backup-commit-race` case timed out at
+  the shared 30-second limit under full-suite contention. The entire affected
+  file then passed alone 2/2 in 7.35 seconds. This is not reported as an
+  all-green full-suite run; exact-head CI is authoritative for the merge gate.
 - Two clean installer dry-runs at the exact head were byte-identical and made
   no host changes; the complete rendered manifest output hashes to
-  `4a793e41a5b0f8636a6d2234111a237f41579dfd47984d31cd7147b2cb964474`.
-- Exact-head repository CI [run 30700425085](https://github.com/Glera/swipe-agents/actions/runs/30700425085)
-  is green at `bfab9294913c2f9052bbfbf862a61588aa999e1a`.
-- No blind `auto-review` capability was available in this Codex session. This
-  packet therefore does not claim independent review; merge remains gated on
-  an external exact-head review with no open P1-P3.
+  `2576343001411bdf556d3b444c223487e788f6f9f0c48d3d844b9816988671e0`.
+- Exact-head repository CI [run 30706702436](https://github.com/Glera/swipe-agents/actions/runs/30706702436)
+  completed successfully at
+  `6ffa3d0273aace9d4af412a6f0f8d49e70a8e1f2`.
+- The real scheduled-path cycle on this non-UTC Mac remains intentionally
+  unproved because restic, the scoped key, root evidence and activation have
+  not been installed or issued. It is a post-review, installed-but-unloaded
+  physical gate, not an assertion of this code packet.
 
 ## Required adversarial review axes
 
@@ -127,28 +169,32 @@ explicitly bootstrapped.
 
 ## Human gates to real base-A1 work
 
-After exact-head review and CI:
+After exact-head diff-only re-review and terminal CI success:
 
 1. operator merge decision for PR #13;
 2. build an immutable merged release and replace host files while all jobs are
    still disabled;
 3. operator re-verifies the already-created private bucket and no-card
-   free-only profile, then creates a bucket-scoped key without sharing it in
-   chat;
+   free-only profile, then creates a bucket-scoped, no-prefix key with exactly
+   the seven reviewed capabilities, without sharing it in chat;
 4. operator saves the independently generated restic password outside this
    Mac and inserts the four B2/restic values into `agents.env` without sharing
    them in chat;
-5. attended `init -> seed-backup -> restore-drill`, then publish the public
-   remote attestation;
-6. operator signs in to the external dead-man provider and inserts only its
+5. attended `init -> seed-backup -> restore-drill`;
+6. publish the fresh provider-boundary and escrow evidence as two separate
+   root-owned artifacts, then generate and publish remote attestation v2;
+7. operator signs in to the external dead-man provider and inserts only its
    secret URL into `agents.env`;
-7. publish an exact activation receipt for the merged immutable release and
+8. publish an exact activation receipt for the merged immutable release and
    the already approved `filevault_disabled_headless_boot` decision;
-8. separate explicit operator approval for `launchctl bootstrap`;
-9. immediately start the 48-hour acceptance window and close it with the
+9. while all launchd labels remain unloaded, run one real attended `backup`
+   through the exact scheduled path and confirm its offset time normalized to
+   UTC-Z, its remote snapshot and its durable v2 receipt;
+10. separate explicit operator approval for `launchctl bootstrap`;
+11. immediately start the 48-hour acceptance window and close it with the
    deterministic remote verifier plus the base-A1 health/lease/Telegram audit.
 
-Base A1 performs real work immediately after step 8; the 48 hours are proof of
+Base A1 performs real work immediately after step 10; the 48 hours are proof of
 unattended stability, not an additional delay before the first probes.
 
 ## Cost boundary and Finance follow-up
