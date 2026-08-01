@@ -2,8 +2,8 @@
 
 - Process: `reference-replication.v3`
 - Primary: Falcon/CYLINDER Android `1.0.177+177`
-- Playables commit: `63eca7617b662e0d5d82011afd6939f042b72083`
-- Status: **machine-pass; final causal operator review pending**
+- Playables commit: `4e130fd2c8b09f34b045ab8e795c940c13b6b8d1`
+- Status: **accepted; causal operator parity supported**
 
 ## Why work continued
 
@@ -74,7 +74,7 @@ Reference/Twin start peaks are effectively matched (`31.12` versus `30.86`).
 
 ## Verification
 
-- Block Out tests: `30/30` pass.
+- Block Out tests: final count recorded in the process receipt; all pass.
 - TypeScript: pass.
 - AppLovin and SWIPE production builds rebuilt from the restored production
   entrypoint; production deny passes.
@@ -86,6 +86,16 @@ Reference/Twin start peaks are effectively matched (`31.12` versus `30.86`).
   playback drift is below `1 ms`; two decisions enable receipt export; no page
   warnings or errors.
 
-The only remaining action is the repeat-consistent two-choice operator receipt
-on the final causal Reference→Twin surface. Twin→Original is not repeated:
-round 1 already returned `same / same`, and both paths share this profile.
+## Final operator receipt
+
+- Choice: `same / same`.
+- Hidden repeat: consistent.
+- Contradictions: `0`.
+- Disposition: `parity-supported`.
+- Receipt SHA-256:
+  `b474e603e4e2c2b9e1b2be70d85c2008d07e33520af8213570e5f5bac2c0cb71`.
+- Disposition SHA-256:
+  `dd1dda8c37bfdd40236ef660bf9c7f9be8b34e894a7cf64ea233291a173c479f`.
+
+Twin→Original is not repeated: round 1 already returned `same / same`, and
+both paths share this presentation profile.

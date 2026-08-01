@@ -1,8 +1,8 @@
 # Class Brief: `block-out-v1`
 
 - Дата: **31.07.2026**
-- Статус: **Reference-fidelity implementation candidate; solver/browser/visual
-  evidence reproducible; operator target-device acceptance pending**
+- Статус: **Reference-fidelity v1 accepted; machine parity and matched
+  Reference→Twin / Twin→Original operator gates closed**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude (Review 1 и Review 3)**
@@ -337,7 +337,8 @@ It emits one stable typed action or no action.
 ## Candidate state machine
 
 Gameplay transitions follow approved authority; presentation scheduling is the
-implemented `P` candidate pending operator device acceptance.
+accepted evidence-correction-2 profile; exact tactile waveform remains an
+explicit `B` rather than an asserted parity claim.
 
 ```text
 boot
@@ -578,6 +579,16 @@ version обязан предоставить отдельный exhaustive proo
 - Fallback: bounded forward search from authored goal shells if approved move
   is not cleanly reversible.
 - Candidate budget: blocking until solver benchmark.
+
+### Near-duplicate metric
+
+Before Original acceptance the class freezes
+`normalized-layout-composite-v1`: normalized occupancy IoU (`0.60`), multiset
+shape Jaccard (`0.25`) and normalized gate-layout Jaccard (`0.15`), sampled on
+a 60×60 identity-independent grid. Scores `≥0.900` reject a candidate. The
+metric returns `1.0` for a role/id-renamed clone. Final pack maximum versus the
+Falcon Twin is `0.308`; maximum internal pair is `0.676`. The executable
+receipt is versioned with the Production Original profile.
 - Dedup: canonical gameplay graph/geometry under only approved symmetries.
 - Difficulty targeting: hard schema/readability filters + soft reference-band
   score; density never sole metric.
@@ -829,7 +840,7 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 | --- | --- | --- | --- | --- |
 | Parallel exit animation/next drag | closed: logical exit immediately unlocks manual input; tails presentation-only | `R-native/O/P` | N1 overlap + browser evidence | candidate implemented; device feel review remains |
 | Pickup/snap/gate/win timings | typed candidate `120`, `515`, `75→705→1,565`, `900/620/430 ms` | Falcon BO-R/P/operator | final matched review | approve or return one concrete preference delta |
-| Haptic envelope | screen recording не содержит tactile signal | BO-P/operator | target-device playtest | before BO-P acceptance |
+| Haptic envelope | screen recording не содержит tactile signal | BO-P/operator | target-device playtest | supported-host candidate retained; exact waveform explicit `B`, no exact parity claim |
 | Dynamic modifiers | schema explosion | operator | after static baseline | deferred |
 
 ## Acceptance gate status
@@ -873,8 +884,11 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
   exact-once win, portrait frame cadence и landscape low-tier mount.
 - [x] Pinned before/after AutoCursor videos + GIF and side-by-side composite
   generated outside the repository.
-- [ ] Operator target-device side-by-side verdict.
-- [ ] Operator haptic and five-level taste verdict.
+- [x] Operator matched Reference→Twin verdict: `same / same`, causal parity
+  supported; Twin→Original: `same / same`, feel preserved.
+- [x] Exact haptic waveform disposition is explicit `B`; five-level mechanics
+  close through matched feel, frozen signature bands, solver/provenance and
+  near-duplicate receipts. Publication taste remains outside prototype scope.
 
 ## Kill criteria
 
@@ -892,7 +906,7 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 | Evidence | Path/URL | Version/digest | Disposition |
 | --- | --- | --- | --- |
 | Reference packet | [`REFERENCE-PACKET.md`](REFERENCE-PACKET.md) | snapshot 31.07.2026 | research + native evidence current |
-| Fidelity calibration | [`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md) | 31.07.2026 | typed candidate + remaining device gate |
+| Fidelity calibration | [`FIDELITY-CALIBRATION-2026-07-31.md`](FIDELITY-CALIBRATION-2026-07-31.md) | 31.07–01.08.2026 | causal parity supported; tactile gap explicit |
 | Independent Review 1 | [`REVIEW-1-INDEPENDENT-2026-07-29.md`](REVIEW-1-INDEPENDENT-2026-07-29.md) | 29.07.2026 | accept as research; F1–F5 disposition |
 | Independent Review 3 | [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md) | reviewed `093f175` | conditional GO; A1′–A3′ applied |
 | Grand Games listing | [App Store](https://apps.apple.com/us/app/block-out-color-sort-puzzle/id6752672568) | live snapshot | primary `O` |
@@ -900,21 +914,20 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 | Color Block Jam listing | [App Store](https://apps.apple.com/in/app/color-block-jam/id6504332779) | live snapshot | secondary |
 | Native success clips L11–13 | operator delivery | full SHA-256 in reference packet | byte/frame verified `R-native` |
 | Native Level 15 gate-feel clip | operator delivery | SHA-256 `1f3ccd3751281532b497adf92543f6a06f7391b89ca49f54b86aefb5f39423de` | 30 fps `R-native` + operator narration |
-| Solver / visual / runtime evidence | `playables/block-out-v1/REVIEW-4-PACKET.md` | reproducible commands + ignored artifacts | browser candidate complete; device verdict pending |
+| Solver / visual / runtime evidence | `playables/block-out-v1/REVIEW-4-PACKET.md` | reproducible commands + ignored artifacts | prototype gates closed; rollout unauthorized |
 
 ## Final decision
 
-- Decision: **Review 3 closed; reference-fidelity implementation candidate
-  ready for independent/code + operator device review**.
-- Primary/target (`O`): Grand Games Block Out, static levels `6–10`.
+- Decision: **reference-replication.v3 prototype accepted; final causal
+  Reference→Twin and Twin→Original receipts are repeat-consistent `same / same`**.
+- Primary/target (`O`): Falcon/CYLINDER Android `1.0.177+177` Level 2 native
+  feel authority; static levels `6–10` remain the Original feature band.
 - Gameplay: positive-area-overlap/contact-allowed collision, unit-step anchor
   BFS, deterministic axis-decomposed sliding/snap, one-cell suction-band
   reusable gates, no timer and monotone strong-solvability contract.
-- Workstreams: `BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q` prototype candidate and
-  reproducible evidence implemented; exact `BO-P` fidelity acceptance requires
-  target-device comparison.
+- Workstreams: `BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q` prototype and reproducible
+  evidence implemented; all MUST/MAJOR rows closed.
 - Implementation: **prototype authorized 29.07.2026**.
-- Explicitly deferred: operator `BO-P` fidelity/taste acceptance,
-  locked/countdown and other dynamic modifiers, rollout и publication. Haptic
-  implementation candidate exists, but its envelope remains provisional until
-  device review.
+- Explicitly deferred: locked/countdown and other dynamic modifiers, rollout
+  and publication-level taste. Supported-host haptic exists; exact Falcon
+  waveform remains an explicit unmeasured `B`.

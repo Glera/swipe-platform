@@ -2,16 +2,16 @@
 
 - Process: `reference-replication.v3`
 - Primary: Falcon/CYLINDER Android `1.0.177+177`
-- Playables commit: `63eca7617b662e0d5d82011afd6939f042b72083`
+- Playables commit: `4e130fd2c8b09f34b045ab8e795c940c13b6b8d1`
   (`codex/block-out-v1-prototype`)
 - Automated parity: **6/6 machine-pass**; browser receipt SHA-256
   `db17c3f583a3b7da637f142cccb723e50942f5bd8208aff712061351ea3b70da`
 - Historical review decisions: **6 complete** — every unique comparison has
   one hidden repeat; the two confounded Reference→Twin pairs are retained as
   diagnostic evidence, not final parity proof
-- Remaining final decisions: **2** — one causal Reference→Twin pair plus one
-  hidden repeat
-- Remaining operator budget: **≤2 minutes**
+- Final causal decisions: **2 complete** — `same / same`, hidden repeat
+  consistent, `parity-supported`
+- Additional operator time required: **0 minutes**
 
 ## Round-1 session 1 — Reference→Twin (superseded surface)
 
@@ -74,7 +74,7 @@ Subsequent diagnosis found that the surface still included non-causal capture
 and normalization differences, so its result triggers correction but is not
 the final causal-parity verdict.
 
-## Evidence-correction-2 session — Reference→Twin (pending operator receipt)
+## Evidence-correction-2 session — Reference→Twin (complete)
 
 The final page contains the exact post-takeover window only. Both channels are
 background-subtracted RGB-max occupancy at 16×16 analysis resolution, aligned
@@ -89,11 +89,15 @@ answer the question.
 | `twin-final-causal-occupancy-v3.mp4` | `0af3132ff69b5f724772b25b00f8241962dfd025b4585970cb6618d168c00cba` |
 | `block-out-falcon-reference-twin-final-causal-v3.config.json` | `fc273bb194424305d47040ae866e42206d330829875c9fb34cd9866ac37f2d91` |
 | `block-out-falcon-reference-twin-final-causal-v3.html` | `27a819645470ae31d2a3548a65ed96f9cad31e88f873d7e5aff36dc7d16d5392` |
+| final operator receipt | `b474e603e4e2c2b9e1b2be70d85c2008d07e33520af8213570e5f5bac2c0cb71` |
+| machine disposition | `dd1dda8c37bfdd40236ef660bf9c7f9be8b34e894a7cf64ea233291a173c479f` |
 
 Machine comparison after pre-roll: overall Pearson correlation `0.945`,
 normalized RMSE `0.106`, Twin/Reference occupancy-area ratio `0.875`;
 particle-only correlation `0.801`, normalized RMSE `0.218`, area ratio `0.841`.
-The operator receipt is the only remaining vertical-slice gate.
+The operator chose `same / same`; the repeat is consistent, contradictions are
+empty and the verifier returns `parity-supported`. The vertical-slice gate is
+closed.
 
 ## Disposition rule
 
@@ -107,5 +111,5 @@ The operator receipt is the only remaining vertical-slice gate.
 - A contradictory correction repeat does not fail the mechanic; it triggers
   one replay of the same two decisions.
 
-The correction receipt is exported and verified. Rollout/publication remains
-outside this review.
+The final receipt is exported, byte-preserved and verified. Rollout/publication
+remains outside this review.

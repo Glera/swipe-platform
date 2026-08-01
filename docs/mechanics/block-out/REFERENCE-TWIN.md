@@ -1,9 +1,9 @@
 # Block Out v1 — Falcon Reference Twin
 
 - Process: `reference-replication.v3`
-- Status: **machine-ready; final causal review pending**
+- Status: **accepted; causal parity supported**
 - Primary source: Falcon/CYLINDER Android `1.0.177+177`
-- Playables implementation commit: `63eca7617b662e0d5d82011afd6939f042b72083`
+- Playables implementation commit: `4e130fd2c8b09f34b045ab8e795c940c13b6b8d1`
 - Native scenarios: `BO-FC-GS-01-L2-GATE`,
   `BO-FC-GS-02-L2-HOLD-GATE`
 
@@ -28,8 +28,8 @@ final rebuild.
 - shipping presentation profile is inside the Falcon contract bands;
 - Production Original browser receipt records `manualInputBlocked=false`,
   stable host-pause digest and `0` page errors;
-- pickup raster changes on the first rAF (`20,773/39,600` sampled pixels);
-- browser cadence: median `16.7 ms`, p95 `16.8 ms`, `0/496` frames above
+- pickup raster changes on the first rAF (`18,203` sampled pixels);
+- browser cadence: median/p95 `16.7/16.7 ms`, `0/497` frames above
   `50 ms`.
 
 The internal rendered Twin artifact remains outside git. Its `twin.webm`
@@ -61,5 +61,5 @@ Diagnosis showed that surface still mixed non-causal capture deltas into the
 question. Evidence correction 2 removes the late burst and non-native gate
 glow, progressively emits gate-facing fragments, and compares only causal
 background-subtracted occupancy aligned by gate center and width. Its final
-two-choice receipt is pending; see
+receipt returns repeat-consistent `same / same` and `parity-supported`; see
 [`EVIDENCE-CORRECTION-2-2026-07-31.md`](EVIDENCE-CORRECTION-2-2026-07-31.md).

@@ -1,8 +1,8 @@
 # BO-R: reference packet — Block Out!
 
 - Дата среза: **31.07.2026**
-- Статус: **Reference-fidelity implementation candidate + reproducible browser
-  evidence / operator target-device acceptance pending**
+- Статус: **Reference-fidelity v1 accepted; reproducible machine and matched
+  operator receipts closed**
 - Primary native reference (`O`, amended 31.07.2026): **Block Out Color Puzzle
   Game, CYLINDER GLOBAL PTE. LTD. / Falcon Games**
 - Authority amendment:
@@ -490,18 +490,18 @@ Own visual identity:
 | N1 empty-board -> win dim | `~61.23–61.73 s` | `R-native` approximate | 30 fps frame bracket |
 | N1 win mark -> full confetti | `~61.73–62.73 s` | `R-native` approximate | order/cadence only; reference logo excluded |
 | Own feedback/capture depth | `1.35 / 1.00 cells` | `P / O` | field begins before authoritative one-cell capture |
-| Own whole-body pull / fragment onset | `220 / 80 ms` | `P` | calibrated candidate; device comparison pending |
-| Own fragment throat / tail | `430 / 1,250 ms` | `P` | converge then exhaust; same-role colour only |
+| Own whole-body pull / fragment onset | `515 / 75 ms` | Falcon projection | accepted front-loaded candidate |
+| Own fragment throat / tail | `705 / 1,565 ms` | Falcon projection | converge then exhaust; causal parity supported |
 | Own manual input lock after exit | `0 ms` | ordering `R-native/O`, projection `P` | stable exit commits immediately; visuals remain presentation-only |
-| Own win overlay / badge / confetti | `900 / 620 / 430 ms` | `P` | own success identity; target-device review pending |
+| Own win overlay / badge / confetti | `900 / 620 / 430 ms` | `P` | machine-pass; publication-level taste explicitly deferred |
 | Invalid drag feedback | `B` | `B` | нужен scripted error episode |
 | Haptic semantics/intensity | runs through gate consume; own stages `0/150/430/820 ms` | behavior `O`; envelope `P/B` | operator tactile report; screen recording cannot measure waveform |
 
-## Preliminary parity checklist
+## Preliminary parity checklist (historical pre-implementation form)
 
-Пункты с числами `P` не становятся acceptance автоматически после Review 2/3:
-нужны explicit approve либо `R-native`. Остальные сохраняют
-`R-native/O/B` authority.
+Unchecked boxes below preserve the pre-implementation Review-2 form; they are
+not the live closure status. Executable closure and final dispositions live in
+`PROCESS-RECEIPT.md` and `EVIDENCE-CORRECTION-2-2026-07-31.md`.
 
 ### Rule/state
 
@@ -576,11 +576,22 @@ rules.
 
 - Taxonomy: **split complete** — class не смешивается с placement, target-exit
   или Tap Away.
-- Primary: **Block Out! / Grand Games (`O`)**.
+- Primary: **Falcon/CYLINDER Android `1.0.177+177` (`O`)**; Grand Games is
+  historical secondary.
 - Target: **levels 6–10 static band (`O`)**.
 - Review 3: **conditional GO; A1′–A3′ dispositions applied**.
 - Workstreams: **BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q prototype candidate
   implemented in the isolated branch**.
 - Fidelity iteration: **typed candidate implemented; visual/browser evidence
-  reproducible; target-device operator acceptance pending**.
+  reproducible; causal Reference→Twin and Twin→Original both return
+  repeat-consistent `same / same`**.
 - Implementation authority: **prototype only; no rollout/publication**.
+
+## Final scope disposition
+
+- matched visual/feel parity: accepted;
+- exact haptic waveform: explicit `B`, with provisional supported-host stages
+  retained and no exact waveform claim;
+- five own levels: solver/signature/provenance/near-duplicate pass; broader
+  publication taste is outside prototype authority;
+- deferred: locked/countdown gates and all other modifiers.

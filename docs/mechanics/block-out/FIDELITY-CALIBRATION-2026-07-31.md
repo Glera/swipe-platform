@@ -1,10 +1,9 @@
 # Block Out! v1 — fidelity calibration ledger
 
 - Дата среза: **31.07.2026**
-- Primary (`O`): **Grand Games Block Out!**
+- Primary (`O`): **Falcon/CYLINDER Android `1.0.177+177`**
 - Target (`O`): **levels 6–10 как taste/feature band**
-- Статус: **implementation candidate + reproducible browser evidence; operator
-  target-device approval pending**
+- Статус: **evidence-correction-2 accepted; causal parity supported**
 - Runtime source: `playables/block-out-v1/src/presentation.ts`
 - Prototype ledger: `playables/block-out-v1/REFERENCE-CALIBRATION.md`
 
@@ -51,10 +50,10 @@ Typed source identifies itself as schema `p4g.block-out.feel`, version `1`.
 | Snap settle | `120 ms` | `P` |
 | Feedback-field start | `1.35 cells` in-board | `P` |
 | Capture depth | `1.00 cell` in-board | `O` |
-| Whole-body pull | `220 ms` | `P` |
-| Fragment onset | `80 ms` | `P` |
-| Throat convergence | `430 ms` | `P` |
-| Fragment/exhaust tail | `1,250 ms` | `P` |
+| Whole-body pull | `515 ms` | Falcon `R-native-paired` projection |
+| Fragment onset | `75 ms` | Falcon `R-native-paired` projection |
+| Throat convergence | `705 ms` | `R-derived/P` |
+| Fragment/exhaust tail | `1,565 ms` | Falcon `R-native-paired` projection |
 | Extra manual input lock after logical exit | `0 ms` | ordering `R-native/O`, exact projection `P` |
 | Autoplay rest before next route | `120 ms` | `P` |
 | Final-exit → own win overlay | `900 ms` | `P` |
@@ -62,9 +61,10 @@ Typed source identifies itself as schema `p4g.block-out.feel`, version `1`.
 | Own confetti delay/duration | `430 / 1,850 ms` | `P` |
 | Haptic | soft @ `0`, rigid @ `150`, soft @ `430`, medium @ `820 ms` | behavior `O`; envelope `P/B` |
 
-Числа выше не становятся `R-native`: 30 fps evidence фиксирует ordering и
-approximate windows. Operator device review либо поднимает их в `O`, либо
-возвращает конкретные поправки.
+Falcon paired capture provides the timing bands above; derived throat remains
+labelled `R-derived/P`. Final causal review returned repeat-consistent
+`same / same`. Exact tactile waveform remains `B` because no captured haptic
+signal exists.
 
 ## Own level-design feature ladder
 
@@ -95,7 +95,7 @@ block-out-v1/src/main.ts,block-out-v1/src/presentation.ts`.
 Final receipts:
 
 - Review 4 browser receipt SHA-256:
-  `69e5d4e0c4bae410a4377c93ec60a3e0b3371cbe15ad61d1fe82082110f233ca`;
+  `db17c3f583a3b7da637f142cccb723e50942f5bd8208aff712061351ea3b70da`;
   five boards, trace length `8`, host-pause digest/consume preserved, no page
   errors, frame median/p95 `16.7/16.8 ms`, `0/497` samples over `50 ms`;
 - visual-proof base `2add4d037da1`, exact two-file patch SHA-256
@@ -105,9 +105,12 @@ Final receipts:
   `playables/block-out-v1/REVIEW-4-PACKET.md`; artifacts/reference media stay
   outside git.
 
-## Remaining blocking acceptance
+## Final disposition
 
-- `B`: target-device feel verdict against N1/N3 at real speed;
-- `B`: exact haptic envelope approval;
-- `B`: operator taste verdict over the five own levels;
-- deferred: locked/countdown gates and all other modifiers.
+- causal Reference→Twin: `same / same`, `parity-supported`;
+- Twin→Original: `same / same`, feel preserved;
+- exact haptic waveform: explicit `B`; provisional supported-host stages stay
+  without an exact Falcon parity claim;
+- five own levels: solver/signature/provenance/near-duplicate pass;
+- deferred outside prototype: publication taste, locked/countdown gates and
+  all other modifiers.
