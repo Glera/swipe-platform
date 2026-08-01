@@ -1,8 +1,8 @@
 # Platform Reliability R1-A — implementation review packet
 
-Status: **POST-STAGE-0 REBASE; local conditions closed, fresh exact-head CI,
-review and disposable rehearsal pending**. This packet grants no production
-authority.
+Status: **POST-STAGE-0 REBASE; local conditions and exact-head CI closed;
+independent review and disposable rehearsal pending**. This packet grants no
+production authority.
 
 Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 `p4g-workspace-meta@ea89f97` after the Stage 1 reviewer GO on PR #39.
@@ -165,7 +165,7 @@ No Stage 1 product code is included.
 ## 8. Package G — evidence and local acceptance
 
 - backend release/coordinator/guard: 24 tests PASS;
-- physical local migration 0071 roundtrip: pending fresh PG16 CI after rebase;
+- physical migration 0071 roundtrip on fresh exact-head PG16 CI: PASS;
 - append-only mutation refusal: PASS;
 - nonempty downgrade refusal: PASS;
 - image route/runners smoke from runtime dependency set: PASS;
@@ -177,7 +177,33 @@ Local PostgreSQL is not version 16, and the schema-capability gate correctly
 refused to treat it as release evidence. PG16 evidence is accepted only from
 the exact-head CI service container.
 
-## 9. Pre-rebase CI evidence
+## 9. Exact-head CI evidence
+
+Exact backend head `9ec641a5c1bfdbf2241cc7974142aa0b680a300b`:
+
+- compact-image build, Python 3.13 hashed dependency install, release-tooling
+  tests, Mission architecture guard, ephemeral PG16 capability capture,
+  compact runtime inventory, clean startup contract and Stage 0 protective
+  smoke: **PASS**
+  ([run 30686769413](https://github.com/Glera/swipe-backend/actions/runs/30686769413));
+- full PostgreSQL acceptance, exact-byte regeneration of both Python 3.13
+  locks, required Mission guard, base-to-single-head upgrade, device-flow,
+  durable-authorization, reverse drift and every migration roundtrip including
+  `0071_platform_release_receipts`: **all jobs PASS**
+  ([run 30686769415](https://github.com/Glera/swipe-backend/actions/runs/30686769415)).
+
+Exact client head `b7ea23b578cf5b141987f51180a2ba3e36260f82`:
+
+- TypeScript, all contract/browser checks including the required Mission
+  guard, and Vite production build: **PASS**
+  ([run 30686770674](https://github.com/Glera/feed-prototype/actions/runs/30686770674)).
+
+Exact meta packet head is the PR head containing this paragraph. Its local
+root suite is **130/130 PASS**, `docs-boundary-lint` is clean and
+`git diff --check` is clean. The PR's required `verify` result is checked
+again on that exact head before independent review.
+
+### Retained pre-rebase evidence
 
 Exact backend head `bfccf83`:
 
@@ -212,14 +238,12 @@ Earlier red runs are retained, not hidden:
    destructive roundtrip now creates and uses its own disposable database;
    neither the receipt guard nor its trigger was weakened.
 
-The final post-rebase exact-head run is required to be green rather than waiving any of
-these failures. Findings 1, 2, and 4 produced code/harness changes; the
-unrelated timing flake in finding 3 passed on the unchanged exact-head repeat.
-
-The post-Stage-0 heads in §1 require fresh CI. The existing required Full
-PostgreSQL acceptance job now byte-regenerates both Python 3.13 locks and runs
-the Mission guard before the database suite; release-image CI retains its own
-guard and compact-image checks.
+The final post-rebase exact-head runs above are green; none of these failures
+was waived. Findings 1, 2, and 4 produced code/harness changes; the unrelated
+timing flake in finding 3 passed on the unchanged exact-head repeat. Required
+Full PostgreSQL acceptance now byte-regenerates both Python 3.13 locks and
+runs the Mission guard before the database suite; release-image CI retains its
+own guard and compact-image checks.
 
 ## 10. Production prerequisites
 
@@ -229,7 +253,7 @@ R1-A cutover remains NO-GO until all are true:
 2. ≥24 clean freeze after Stage 0;
 3. implementation branches rebased onto the exact accepted post-Stage-0
    heads, with a bounded integration diff and fresh exact-head CI/review;
-4. exact-head CI in §9 PASS now and again after that rebase;
+4. exact-head CI in §9 PASS on those rebased heads;
 5. independent implementation review accepts packages A–G and the final
    post-Stage-0 delta;
 6. GHCR registry credential and protected GitHub `production` environment
@@ -291,9 +315,9 @@ Return one of:
 | Review condition | Post-Stage-0 disposition |
 | --- | --- |
 | 1. Merge safety for `render.yaml` | Accepted as option (a): §10 item 9 is an explicit attended merge-precondition with a fresh provider receipt; backend spec repeats the fail-closed rule. |
-| 2. Regenerate locks under Python 3.13 | Closed locally at backend `9ec641a`: both hashed locks identify Python 3.13 and were generated with `pip-tools==7.6.0`. |
-| 3. CI lock/input synchronization | Closed locally at backend `9ec641a`: required Full PostgreSQL acceptance recreates both locks from copied inputs + existing pins and exact-byte compares them. |
-| 4. Guard in required checks | Closed locally at backend `9ec641a`: the same required acceptance job runs the Mission guard; release-image and client full lint guards remain. |
+| 2. Regenerate locks under Python 3.13 | Closed at backend `9ec641a`: both hashed locks identify Python 3.13 and were generated with `pip-tools==7.6.0`; exact-head CI installs them successfully. |
+| 3. CI lock/input synchronization | Closed at backend `9ec641a`: required Full PostgreSQL acceptance recreates both locks from copied inputs + existing pins and exact-byte compares them; run 30686769415 PASS. |
+| 4. Guard in required checks | Closed at backend `9ec641a`: required acceptance and release-image jobs run the Mission guard, while client full lint runs its guard; exact-head runs 30686769415, 30686769413 and 30686770674 PASS. |
 
 These dispositions authorize only fresh CI/review and rehearsal. They do not
 authorize merge, image publication, Render mutation or production cutover.
