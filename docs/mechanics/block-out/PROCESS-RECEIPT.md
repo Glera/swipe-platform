@@ -3,7 +3,7 @@
 - Process version: `reference-replication.v3.1` (reopened from v3)
 - Status: `dual-surface machine pass; final Twin + Original field play pending`
 - Playables clean-pair runtime candidate commit: `bfdb351f83ebe3c11c5ab98f1666cb79f31b867f`
-- Calibration binding commit: `726d955d98a3dd1f07600ac67415d12229d1a205`
+- Calibration binding commit: `2a1ea71219263f0b0af67f9f6055e0c7a5d2a073`
 - Class authority: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Golden scenarios: [`GOLDEN-SCENARIOS.md`](GOLDEN-SCENARIOS.md)
 - Gesture traces: [`GESTURE-TRACES.v1.json`](GESTURE-TRACES.v1.json)

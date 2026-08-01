@@ -6,12 +6,12 @@
 - Status: dual-surface machine quorum pass; final Twin + Original field play pending
 - Final runtime implementation commit: `a3efaa71c5c9daef8f7be4ccdcc726e374762a47`
 - Clean-pair capture/tooling candidate commit: `bfdb351f83ebe3c11c5ab98f1666cb79f31b867f`
-- Final calibration-binding commit: `726d955d98a3dd1f07600ac67415d12229d1a205`
+- Final calibration-binding commit: `2a1ea71219263f0b0af67f9f6055e0c7a5d2a073`
 - Production HTML SHA-256: `f634fe3a6b49823a574d119052adc8956447e0d7394c2522501a1ae821c59fa6`
 - Reference Twin review HTML SHA-256: `721791fb404a86cea472bb322c1d058f1053a1b4ddb80b996f151369b6fafc20`
 - Review4 receipt SHA-256: `46343b1c40d43095a2108e0c18845877f230b0e0b7fe51c45213f739eac5ce7f`
 - Fresh clean-pair receipt SHA-256: `f8a91d39531b5c11b9bf4d1c407032572befd34b2a8c748bee8f155808b9381f`
-- Twin/Original calibration receipt SHA-256: `258b44cd2032a3b8acba7b9fee7ed794e344018b82c80b5d5e4b923f60093c65`
+- Twin/Original calibration receipt SHA-256: `77ce4dbad9f0db0e189f3307eefab0032382c9c08b0bcaa7b66a8110a25f07ea`
 
 ## Red-before-green reproduction
 
