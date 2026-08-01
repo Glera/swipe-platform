@@ -28,5 +28,16 @@ Both runs pin head
 `4bfc1d6868d3a41c5439972375292305e13a50c0`. No rerun or duplicate dispatch
 was used.
 
+The exact Stage 1 backend branch was fetched again without modification and
+still resolved locally and remotely to
+`2029867495578310dda92c170a2e07c71203eefa`. A fresh read-only guard replay
+using the accepted R1-A policy returned
+`mission-architecture-guard-receipt.v1 / PASS` with policy SHA-256
+`b2c7995914744674ed96bb42d0e8fbfd2931e14035af6f77b1077ebd05c50d92`.
+Codex R4 GO was published on the author-owned draft PR as
+[comment `5151450107`](https://github.com/Glera/swipe-backend/pull/41#issuecomment-5151450107).
+The PR remains draft **DO NOT MERGE**; this closes implementation/spec review,
+not the post-R1-A merge or rollout gate.
+
 R4 itself authorizes no merge, workflow dispatch, rehearsal, provider mutation
 or production action.
