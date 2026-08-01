@@ -22,7 +22,7 @@ deploy, publish, payment, product flags or other mutating authority.
 | --- | --- |
 | prerequisite physical-preflight fix | swipe-agents PR #12, merged as `d1a2d29`; reviewed source head `3a7f2a1f18c629f9e165f3ea70e46845af0ba9e6` |
 | remote-sync implementation | [swipe-agents PR #13](https://github.com/Glera/swipe-agents/pull/13) |
-| exact review head | `144deddc8c15df433b176458768cbd2466ed062f` |
+| exact review head | `bfab9294913c2f9052bbfbf862a61588aa999e1a` |
 | frozen host policy digest | `45c8bcbe602a580a99d9c1be3a88fc1421c92a8f412b4f0908d65f21efa1a1b7` |
 | remote attestation schema | `agents.phase-b0-remote-sync-attestation.v1` |
 | host policy schema | `agents.phase-b0-host-policy.v2` |
@@ -42,32 +42,40 @@ PR #13 is based on merged `main`, not stacked on an unmerged branch.
 4. A public remote attestation is publishable only after a remote seed backup
    and a later restore of the same snapshot with identical relative paths,
    bytes and modes.
-5. The attestation fixes Backblaze hard caps at `$0.10/day` each for storage,
-   downloads and transactions. It also binds secret-free evidence that those
-   settings are visible and that the restic password is escrowed outside the
-   reserve Mac.
-6. Remote backup is a third launchd job: `RunAtLoad`, six-hour interval, no
+5. The attestation fixes a no-card Backblaze profile with a `$0.00` charge
+   boundary: 10 GB storage, 1 GB/day download, 2,500/day Class B and
+   2,500/day Class C operations, with 75% and 100% alerts. It also binds
+   secret-free evidence that the profile is visible and that the restic
+   password is escrowed outside the reserve Mac.
+6. The bucket boundary is private, SSE-B2 enabled, Object Lock disabled and
+   lifecycle `keep only the last version`. Any payment method, non-zero spend
+   ceiling, larger quota, weaker alert, public access, weaker encryption,
+   Object Lock or version-retaining lifecycle makes the attestation invalid.
+7. Remote backup is a third launchd job: `RunAtLoad`, six-hour interval, no
    `KeepAlive`, no Telegram/LLM/provider-configuration authority, output to
    `/dev/null`, durable private receipts under the runner state root.
-7. Retention is 14 daily, 8 weekly and 6 monthly snapshots. A 48-hour verifier
+8. Retention is 14 daily, 8 weekly and 6 monthly snapshots. A 48-hour verifier
    requires at least eight distributed successes, no interval above 6h15m,
    exact repository/binary binding, and an online match between local last
    evidence and the provider's current snapshot.
-8. Upgrading the already installed disabled host bundle requires explicit
+9. Upgrading the already installed disabled host bundle requires explicit
    `--replace-files` and refuses while any of the three jobs is loaded. Host
    install, remote attestation, activation receipt and bootstrap remain four
    distinct authority acts.
 
 ## Verification evidence
 
-- Targeted host/security suite: 30/30 green after the final rebase.
+- Targeted host/security suite: 31/31 green after the free-only revision.
 - Native syntax gates: Node checks green; zsh checks green; all three plists
   pass `plutil -lint`.
-- Full local suite: all changed and new tests green. One pre-existing
+- Full local suite: 448/449 green. One pre-existing
   `backup-commit-race` case exceeded its 30-second per-test timeout only under
-  full-suite contention; the exact case then passed alone 2/2 in 8.76 seconds.
-- Exact-head repository CI [run 30699101722](https://github.com/Glera/swipe-agents/actions/runs/30699101722)
-  is green: 72 files, 447 passed and 2 platform-skipped tests.
+  full-suite contention; the exact case then passed alone 2/2 in 7.98 seconds.
+- Two clean installer dry-runs at the exact head were byte-identical and made
+  no host changes; the complete rendered manifest output hashes to
+  `4a793e41a5b0f8636a6d2234111a237f41579dfd47984d31cd7147b2cb964474`.
+- Exact-head repository CI [run 30700425085](https://github.com/Glera/swipe-agents/actions/runs/30700425085)
+  is green at `bfab9294913c2f9052bbfbf862a61588aa999e1a`.
 - No blind `auto-review` capability was available in this Codex session. This
   packet therefore does not claim independent review; merge remains gated on
   an external exact-head review with no open P1-P3.
@@ -82,7 +90,8 @@ The reviewer should attack at least:
    owner/mode/symlink/TOCTOU boundaries;
 3. forged, stale, reordered or cross-repository backup/restore receipts;
 4. restore of a different snapshot, missing files, changed bytes or modes;
-5. cap weakening, missing off-host password escrow, and activation digest
+5. payment-method reappearance, quota/alert/privacy/encryption/lifecycle
+   weakening, missing off-host password escrow, and activation digest
    substitution;
 6. concurrent/manual backup versus scheduled backup and acceptance-receipt
    inflation;
@@ -104,6 +113,14 @@ Read-only inspection found:
 - no remote-sync attestation;
 - restic not installed.
 
+By explicit operator authorization, one empty Backblaze bucket now exists. A
+read-only attended check established: private access, SSE-B2, Object Lock
+disabled, `keep only the last version`, no payment method, `$0.00` visible
+charge caps, the four free quotas above, and 75%/100% alerts. The packet does
+not publish the bucket identifier, account identifier or endpoint. No
+application key was created or read, and the bucket had zero objects/bytes at
+creation.
+
 The quiet week already passed separately and is not restarted by this backup
 decision. The new 48-hour window begins only after the three Phase-B0 jobs are
 explicitly bootstrapped.
@@ -115,9 +132,9 @@ After exact-head review and CI:
 1. operator merge decision for PR #13;
 2. build an immutable merged release and replace host files while all jobs are
    still disabled;
-3. operator signs in to Backblaze, creates/enables B2, a private bucket and a
-   bucket-scoped key, applies all three `$0.10/day` hard caps, and waits for
-   propagation;
+3. operator re-verifies the already-created private bucket and no-card
+   free-only profile, then creates a bucket-scoped key without sharing it in
+   chat;
 4. operator saves the independently generated restic password outside this
    Mac and inserts the four B2/restic values into `agents.env` without sharing
    them in chat;
@@ -136,18 +153,20 @@ unattended stability, not an additional delay before the first probes.
 
 ## Cost boundary and Finance follow-up
 
-Backblaze documents the first 10 GB as free, storage above that at its current
-pay-as-you-go rate, and daily caps/alerts for storage, downloads and
-transactions. The frozen caps represent a combined worst-case provider ceiling
-of `$0.30/day` (`$9.30` in a 31-day month), while expected usage is lower.
+Backblaze documents no-card signup, the first 10 GB as free, free daily
+download and transaction allowances, and caps/alerts. This deployment freezes
+the provider profile at no payment method and `$0.00`; it does not accept a
+paid fallback. Exceeding a free quota must stop or defer provider work rather
+than authorize spend.
 Official sources:
 
+- [B2 product page](https://www.backblaze.com/cloud-storage)
 - [B2 pricing](https://www.backblaze.com/cloud-storage/pricing)
 - [B2 caps and alerts](https://www.backblaze.com/docs/cloud-storage-create-and-manage-caps-and-alerts)
 - [restic 0.19.1 repository initialization](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html)
 
 Until the Finance role receives a typed B2 collector, its reports must describe
-B2 as `hard-capped, provider-alerted, not-collected`; they must not claim full
+B2 as `free-only, provider-alerted, not-collected`; they must not claim full
 provider coverage. That collector is a separate read-only finance source
 revision and is not authority of the backup job.
 
