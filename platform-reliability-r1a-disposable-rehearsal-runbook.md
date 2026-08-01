@@ -14,6 +14,7 @@ namespace in rehearsal is the explicitly declared immutable GHCR package.
 | rebased candidate backend | `c7c62ad893c361b78ddaba687e22254045525512` on frozen new ref `codex/r1a-rehearsal-candidate-20260801` (`0071_platform_release_receipts`) |
 | rebased client guard | `e804c73d41f5e94401caa3bb5acb92f691866101` on durable new ref `codex/r1a-client-guard-20260801` |
 | registration sentinel | `5ef857f493016501a0eaa733d174eb39ba221d2a` on new ref `codex/r1a-workflow-registration` |
+| rehearsal Blueprint source | `183336a1765933e8707a26747b7baf60d5212c1e` on frozen new ref `codex/r1a-rehearsal-blueprint-20260801`; custom path `render.r1a-rehearsal.yaml` |
 | public release feed identity | `61110cdd506f5364b015f8e2b0cd81c12fda46a1` |
 | playables identity | `0960952a9fc7d2d7e6f3ae23b1dffe039d97ebb9` |
 | release archive | `a3a78562d6c71808e19d84bd1c23ab0cfaa0fc27` |
@@ -92,7 +93,8 @@ record the remote value after each push:
    `5ef857f493016501a0eaa733d174eb39ba221d2a`;
 5. meta evidence branch fast-forward → its accepted exact head, then create
    the immutable Blueprint source ref
-   `codex/r1a-rehearsal-blueprint-20260801` at that same commit.
+   `codex/r1a-rehearsal-blueprint-20260801` at
+   `183336a1765933e8707a26747b7baf60d5212c1e`.
 
 Every new rehearsal ref is immutable after publication. A mismatch or later
 movement requires a new review identity and a new ref name; no force-push is
