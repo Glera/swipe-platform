@@ -10,7 +10,7 @@ process-kill, reboot, rollback or runtime authority.
 | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `27791e0f1c23457f5746160ca752a3537149265b` |
 | reproducible release pipeline | stacked swipe-agents PR #15 at `437cbde242f348dd72abe9386291707ea9a6f3fa` |
-| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `0f1b39d3248ff3ac08bf4f4e1bc1618ec5ccf50d` |
+| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `a64b1b8057c01c71fea7172146fa910e95ab37d6` |
 | completion contract | `phase-b0-bounded-acceptance-matrix-2026-08-01.md` |
 
 ## Closure model
@@ -25,10 +25,12 @@ The source-controlled contour provides:
 
 1. bootstrap-integrated anchor publication. All three labels and a fresh
    runner preflight must pass. The launchd PID is the Node runtime PID and its
-   exact process-scoped `caffeinate -is` child is also required. Anchor failure
-   remains inside the bootstrap rollback trap;
+   exact process-scoped `caffeinate -i -s` child is also required; the parsed
+   child command must name the same immutable release as preflight. Anchor
+   failure remains inside the bootstrap rollback trap;
 2. a read-only base-A1 SQLite interval audit whose end is already past: every
-   run scheduled in-window is currently terminal `succeeded`; there is no
+   run scheduled in-window or still overlapping the start boundary is
+   currently terminal `succeeded`; there is no
    failed/missed event, queued/unsettled/failed delivery, duplicate provider
    identity or SQLite error; and the live lease PID equals the launchd PID;
 3. a destructive restart drill that kills only the anchored supervised PID,
@@ -47,14 +49,17 @@ The source-controlled contour provides:
    heartbeat coverage, a bounded observation count and no gap over fifteen
    minutes. Every incident must close inside the window; `false_incident` fails,
    host-idle tolerance is limited to stored `network`/`network_down` evidence,
-   and every disposition is time-bounded;
+   every disposition is time-bounded, and incident signals already active at
+   bootstrap cannot disappear from the interval;
 6. emergency-safe disable. It always makes the runtime inert; when an anchor
    and end audit exist it additionally publishes a rollback receipt proving
    `enabled:false`, all labels unloaded, zero matching processes, no effective
    runtime lease holder and no remote deletion. An unexpired SQLite claim is
    effective only while its exact `supervised-runtime:<pid>` holder is alive;
    malformed or inconclusive identity fails closed, while an already-dead
-   holder does not force a five-minute rollback delay;
+   holder does not force a five-minute rollback delay. The publisher then
+   re-runs the online B2 verifier and binds its exact accepted-window digest;
+   rollback/completion timestamps must be contemporaneous with the live host;
 7. a root-owned final aggregate that requires the anchor, A1 audit, online B2
    window, restart, reboot, dead-man, incident and rollback receipts to agree
    byte-for-byte on all shared identities. Restart and reboot evidence must be
@@ -71,13 +76,13 @@ and rollback remain future explicit physical authority acts.
 
 ## Verification
 
-- Targeted host, acceptance, remote-sync and finance-isolation tests: 65/65.
-- Full local repository suite: 482/482 across 74 files.
+- Targeted host, acceptance, remote-sync and finance-isolation tests: 67/67.
+- Full local repository suite: 484/484 across 74 files.
 - The full run includes the executable two-build immutable-release and
   install/current-separation regression inherited from PR #15.
 - Node syntax, zsh syntax and `git diff --check`: pass.
-- Exact-head CI: swipe-agents run `30718929653`, `SUCCESS`, on
-  `0f1b39d3248ff3ac08bf4f4e1bc1618ec5ccf50d`.
+- Exact-head CI: swipe-agents run `30719603029`, `SUCCESS`, on
+  `a64b1b8057c01c71fea7172146fa910e95ab37d6`.
 - Meta evidence suite: 134/134 locally; the exact PR #52 CI identity is recorded
   after this packet commit is pushed.
 - No reserve-host path, `current`, secret, launchd label, process or OS state
@@ -91,22 +96,26 @@ The independent reviewer should attempt at least:
 
 1. backdate, overwrite or cross-bind an anchor; substitute a different
    activation, policy, tree, attestation, boot or launchd snapshot;
-2. confuse the launchd Node PID with its `caffeinate` child, add a second child,
-   or bind the runtime lease to either the wrong PID or wrong epoch;
+2. confuse the launchd Node PID with its `caffeinate` child, use the combined
+   `-is` spelling instead of the production `-i -s` argv, substitute another
+   release in the helper command, add a second child, or bind the runtime lease
+   to either the wrong PID or wrong epoch;
 3. make a pre-expiry restart look like a valid takeover, hide overlap, reuse
    the old PID, invoke two destructive captures, handwrite the receipt, or leave
    queued/failed/unsettled delivery state or duplicate provider identities;
 4. forge a reboot without changing native boot identity, reuse a pre-boot B2
    receipt, substitute an attended or later six-hour backup, or satisfy recovery
    with a local heartbeat instead of the external dead-man;
-5. choose a future or unrelated end, hide nonterminal `run_state`, mismatch the
-   lease PID, omit an incident disposition, leave an incident open, apply the
+5. choose a future or unrelated end, hide a nonterminal run or incident that
+   overlaps the start boundary, mismatch the lease PID, omit an incident
+   disposition, leave an incident open, apply the
    host-idle exception to another detector/class, or reuse another release;
 6. satisfy dead-man coverage with only endpoint observations, sparse pings or
    one late success; place a restart/reboot receipt after the audited end or an
    incident decision outside its bounded review period;
 7. disable only part of the contour, leave a matching process/live lease,
-   claim deletion of remote data, or let emergency disable depend on the
+   delete an accepted B2 snapshot after the pre-rollback verifier, launder a
+   future rollback/completion time, or let emergency disable depend on the
    presence of acceptance evidence;
 8. exploit symlink, owner/mode, parent-path, partial-write, concurrent
    publication or stale-candidate races in the root evidence set;
