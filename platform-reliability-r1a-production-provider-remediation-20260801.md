@@ -52,5 +52,28 @@ boolean/top-level form. Independent adapter review R1 found two surviving
 mutants; both were fixed. R2 then returned **GO** with no P1/P2. A new
 temporary key and capture still require fresh action-time operator authority.
 
-This remediation receipt does **not** authorize sentinel merge, backend merge,
-rehearsal or production cutover.
+The initial remediation window did **not** authorize sentinel merge, backend
+merge, rehearsal or production cutover. The sentinel merge later occurred
+outside the Codex execution path and has its own durable receipt.
+
+## Reviewed repeat capture
+
+After explicit `да, capture`, a second temporary API key named
+`codex-r1a-capture-r2-20260801` was created. Accepted backend successor
+`4f4be2e3badfd9084e92bfe731e231f66ff92729` performed the exact Blueprint plus
+three-service GET capture and published
+`platform-reliability-r1a-production-provider-capture-20260801.json`.
+
+Result:
+
+- schema: `platform-release-provider-capture.v1`;
+- observed at: `2026-08-01T12:38:45.625934Z`;
+- status: `PASS`;
+- merge safe: `true`;
+- receipt SHA-256:
+  `2522351f7774605d0032b959824adce5e28fb767ddc970e4c4170c41ef13a79f`;
+- RFC 8785/JCS byte reproduction: `PASS`.
+
+The second mode-`0600` local key file was deleted, its in-memory value cleared,
+and the Render key revoked. The account page again showed **No provisioned API
+keys**. No temporary key bytes are present in the repository.
