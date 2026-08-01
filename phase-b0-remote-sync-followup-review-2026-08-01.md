@@ -141,6 +141,13 @@ The independent reviewer should specifically try to:
 
 ## Remaining human and physical gates
 
+The complete closure contract is frozen in
+`phase-b0-bounded-acceptance-matrix-2026-08-01.md`. In particular, the remote
+`verify-window` receipt is necessary but does not by itself prove the complete
+Phase-B0 goal. Bootstrap anchoring, base-A1 interval audit, exact-release
+restart/takeover, cold boot, provider-side dead-man continuity and rollback
+must also close before a final PASS can be claimed.
+
 Even after independent GO, the order is strict:
 
 1. independent GO for exact heads of PR #14, stacked PR #15 and this evidence
