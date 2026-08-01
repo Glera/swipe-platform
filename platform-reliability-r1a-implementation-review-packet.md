@@ -1,8 +1,8 @@
 # Platform Reliability R1-A — implementation review packet
 
-Status: **POST-STAGE-0 REBASE; R2 conditions implemented; fresh exact-head
-implementation CI PASS; final independent review and disposable rehearsal
-pending**. This packet grants no production authority.
+Status: **POST-STAGE-0 REBASE; fresh exact-head implementation CI PASS; final
+closure review R5 GO; reviewed fix commits ready for disposable-rehearsal
+integration; rehearsal pending**. This packet grants no production authority.
 
 Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 `p4g-workspace-meta@ea89f97` after the Stage 1 reviewer GO on PR #39.
@@ -14,6 +14,12 @@ Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 | `swipe-backend` | `codex/platform-reliability-r1a-implementation` | `6ee95ca49183b966c8ae93615f7f6522b9767b3f` | [#33](https://github.com/Glera/swipe-backend/pull/33) |
 | `feed-prototype` | `codex/platform-reliability-r1a-client-guard` | `747cef674a1cfb052bb112debfc111794052d02e` | [#15](https://github.com/Glera/feed-prototype/pull/15) |
 | `p4g-workspace-meta` | `codex/platform-reliability-r1a-evidence` | exact PR head containing this packet | [#40](https://github.com/Glera/p4g-workspace-meta/pull/40) |
+
+R3–R5 closure commits, reviewed as additive integration commits on top of the
+heads above:
+
+- `swipe-backend@301504aeaf0ecc92e5bcdceefcbcb64b1f495216`;
+- `feed-prototype@dd3d021bc135bd7da2bcbb04c6b694d6d33f089a`.
 
 Both implementation branches are rebased on the accepted post-Stage-0 master
 heads. Base production branches are unchanged by the implementation PRs. No
@@ -310,9 +316,10 @@ R1-A cutover remains NO-GO until all are true:
 7. disposable Render-compatible source-switch/deploy/rollback rehearsal PASS;
 8. fresh production source/deploy/consumer inventory;
 9. immediately before backend PR #33 merge, a read-only provider capture
-   proves Blueprint Auto Sync and production web-service Auto Deploy are both
-   OFF and records exact observation time + receipt SHA-256; unreadable or
-   enabled means no merge;
+   proves Blueprint Auto Sync plus Auto Deploy for the production web service
+   and both surviving cron services are all OFF, records their exact stored
+   branch and Dockerfile path, and binds observation time + receipt SHA-256;
+   unreadable or enabled means no merge;
 10. separate operator GO for the cutover window.
 
 Merging backend PR #33 is part of the cutover preparation because it changes
@@ -419,3 +426,30 @@ R3 adds these mandatory boundaries to the remaining work:
 
 No finding authorizes Stage 1 merge or changes the sequence R1-A cutover →
 Stage 1 rebase/renumber → separate Stage 1 GO.
+
+## 16. Closure reviews R4–R5
+
+R4 reviewed backend `301504a` and client `0a8ca16`, reproduced the local
+release/guard evidence and returned **GO WITH CONDITIONS**: no P1 and explicit
+permission to integrate only for disposable rehearsal. It found two real
+client-guard bypasses: capitalized Mission paths and net-negative edits to a
+baseline integration file. Both were fixed with non-vacuous mutants in amended
+client commit `dd3d021`.
+
+R5 reviewed backend `301504a` and amended client `dd3d021` and returned
+**GO** with no remaining P1/P2. It independently exercised additional
+capitalization/import and baseline mutants, and reconciled the provider
+capture with Render's current primary retrieve-service and Blueprint
+contracts. The exact raw transcripts and dispositions are:
+
+- `platform-reliability-r1a-review-r4-raw.md`;
+- `platform-reliability-r1a-review-r4-disposition.md`;
+- `platform-reliability-r1a-review-r5-raw.md`;
+- `platform-reliability-r1a-review-r5-disposition.md`.
+
+R5 authorizes only integration into the disposable rehearsal. Its two
+provider residuals become explicit rehearsal checks: the first attended action
+is an authenticated GET-only capture against disposable services to prove the
+live response shape, and the provider UI is checked to say Auto Deploy **Off**
+(not After CI Checks Pass). No R4/R5 verdict authorizes merge, image
+publication, Render production mutation, database mutation or cutover.
