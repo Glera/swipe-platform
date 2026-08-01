@@ -283,6 +283,12 @@ NO-GO; toolchain не возвращается «временно» без от�
 service/contract API. Mission domain не импортирует endpoint modules,
 Island, Catalog, Lab, agents или presentation code. Он может зависеть только
 от shared DB/auth-safe primitives и собственных models/contracts/services.
+Два узких shared-исключения зафиксированы после двух cross-review Stage 1:
+`app.mission_models` может импортировать `app.models` только для регистрации
+общей SQLAlchemy metadata и FK на `users`, не для размещения Mission-моделей;
+Mission contracts/ops могут импортировать `app.content_identity` только как
+единственную реализацию JCS. Эти исключения не разрешают импорт endpoint,
+reward, Island или иной product authority.
 
 Единственный authority для `mission_contribution.amount` — активный immutable
 `mission_contribution_weights.document`, прочитанный и pinned парой
