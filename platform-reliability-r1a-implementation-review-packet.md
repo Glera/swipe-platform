@@ -1,8 +1,9 @@
 # Platform Reliability R1-A — implementation review packet
 
-Status: **POST-STAGE-0 REBASE; implementation closure review R5 GO; first
-rehearsal draft R6 NO-GO corrected locally; follow-up delta review pending**.
-This packet grants no production authority.
+Status: **POST-STAGE-0 REBASE; implementation closure review R5 GO; rehearsal
+reviews R6/R7 NO-GO corrected locally; final local delta review pending;
+GitHub Pro remains an unperformed operator prerequisite**. This packet grants
+no production authority.
 
 Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 `p4g-workspace-meta@ea89f97` after the Stage 1 reviewer GO on PR #39.
@@ -311,15 +312,19 @@ R1-A cutover remains NO-GO until all are true:
 4. exact-head CI in §9 PASS on those rebased heads;
 5. independent implementation review accepts packages A–G and the final
    post-Stage-0 delta;
-6. GHCR registry credential and protected GitHub `production` environment
-   configured;
+6. GitHub Pro (or an approved Team organization) active for this private
+   repository, plus a least-privilege GHCR registry credential and selected-
+   branch GitHub `production` environment configured; repository-scoped
+   Render authority is not equivalent;
 7. disposable Render-compatible source-switch/deploy/rollback rehearsal PASS;
 8. fresh production source/deploy/consumer inventory;
-9. immediately before backend PR #33 merge, a read-only provider capture
+9. immediately before either the registration-sentinel merge or backend PR #33
+   merge, a new read-only provider capture
    proves Blueprint Auto Sync plus Auto Deploy for the production web service
    and both surviving cron services are all OFF, records their exact stored
    branch and Dockerfile path, and binds observation time + receipt SHA-256;
-   unreadable or enabled means no merge;
+   unreadable or enabled means no merge; each receipt authorizes at most its
+   one attended merge and is never reused;
 10. separate operator GO for the cutover window.
 
 Merging backend PR #33 is part of the cutover preparation because it changes
@@ -484,3 +489,33 @@ provider gate, a temporary registry credential and state-appropriate
 post-switch evidence. Nothing in the correction authorizes the sentinel merge,
 workflow dispatch, paid resource creation, image publication or production
 mutation.
+
+## 18. Rehearsal review R7
+
+R7 reproduced all three range-diffs with every patch pair equal and preserved
+R5's implementation GO. It returned **NO-GO** only for the executable rehearsal
+contract: two P1 and three P2. The captured report and exact dispositions are:
+
+- `platform-reliability-r1a-review-r7-raw.md`;
+- `platform-reliability-r1a-review-r7-disposition.md`.
+
+The local correction now:
+
+- makes GitHub Pro/Team a literal prerequisite for private environment
+  secrets/variables and selected deployment branches; repository-scoped
+  Render authority is rejected as weaker;
+- preserves old reviewed refs and publishes accepted rebases only under new
+  immutable dated ref names;
+- pins the Blueprint source to the meta repository, frozen branch and custom
+  path, with mutation-free provider validation before creation;
+- declares exactly two immutable GHCR versions as retained rehearsed
+  LKG/candidate artifacts and constrains the temporary pull credential to a
+  classic `read:packages` PAT;
+- applies the fresh single-use production provider capture to the sentinel
+  merge as well as the later PR #33 merge;
+- pins every dispatch by exact workflow path/ref and forbids blind release
+  reruns.
+
+The GitHub plan has not been upgraded, no new ref has been published and no
+provider/resource state has changed. Those remain outside local correction and
+wait for follow-up review plus explicit operator authority.

@@ -15,7 +15,7 @@ services:
     name: swipe-backend
     runtime: docker
     repo: https://github.com/Glera/swipe-backend
-    branch: codex/r1a-rehearsal-baseline
+    branch: codex/r1a-rehearsal-baseline-20260801
     autoDeployTrigger: "off"
     dockerfilePath: ./Dockerfile
     plan: starter
@@ -53,7 +53,7 @@ services:
     name: swipe-seq-shadow-run
     runtime: docker
     repo: https://github.com/Glera/swipe-backend
-    branch: codex/r1a-rehearsal-baseline
+    branch: codex/r1a-rehearsal-baseline-20260801
     autoDeployTrigger: "off"
     dockerfilePath: ./Dockerfile
     plan: starter
@@ -67,7 +67,7 @@ services:
     name: swipe-c1-materialize
     runtime: docker
     repo: https://github.com/Glera/swipe-backend
-    branch: codex/r1a-rehearsal-baseline
+    branch: codex/r1a-rehearsal-baseline-20260801
     autoDeployTrigger: "off"
     dockerfilePath: ./Dockerfile
     plan: starter

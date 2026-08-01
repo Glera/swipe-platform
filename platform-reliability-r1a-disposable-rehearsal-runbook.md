@@ -3,15 +3,16 @@
 Status: prepared execution contract; **no external authority**. Creating a
 Render/GitHub resource, publishing an image, dispatching a workflow or changing
 provider state requires the operator's action-time confirmation. Production
-resources are never in scope.
+Render resources are never mutation targets; the only shared production
+namespace in rehearsal is the explicitly declared immutable GHCR package.
 
 ## Exact source set
 
 | Role | Exact identity |
 | --- | --- |
-| rebased baseline backend | `1aee3e0bf596121d8d326951519d1f897e46ced1` (`0070_published_test_delivery`) |
-| rebased candidate backend | `c7c62ad893c361b78ddaba687e22254045525512` (`0071_platform_release_receipts`) |
-| rebased client guard | `e804c73d41f5e94401caa3bb5acb92f691866101` |
+| rebased baseline backend | `1aee3e0bf596121d8d326951519d1f897e46ced1` on frozen new ref `codex/r1a-rehearsal-baseline-20260801` (`0070_published_test_delivery`) |
+| rebased candidate backend | `c7c62ad893c361b78ddaba687e22254045525512` on frozen new ref `codex/r1a-rehearsal-candidate-20260801` (`0071_platform_release_receipts`) |
+| rebased client guard | `e804c73d41f5e94401caa3bb5acb92f691866101` on durable new ref `codex/r1a-client-guard-20260801` |
 | public release feed identity | `61110cdd506f5364b015f8e2b0cd81c12fda46a1` |
 | playables identity | `0960952a9fc7d2d7e6f3ae23b1dffe039d97ebb9` |
 | release archive | `a3a78562d6c71808e19d84bd1c23ab0cfaa0fc27` |
@@ -46,17 +47,77 @@ workflows are not yet on backend `master`. A separate registration-only PR from
 receive explicit operator merge GO before any workflow dispatch. Its two
 sentinels reproduce the input schemas but have no checkout, secrets,
 environment, package write or provider authority and always exit 2 when their
-default-branch versions execute. GitHub uses the full workflow version from
-the explicitly selected reviewed ref. This sentinel merge is not backend PR
-#33 and grants no cutover authority.
+default-branch versions execute. The attended run selects the full workflow by
+exact path and reviewed ref; the baseline run below is the fail-closed proof of
+which version GitHub executes. This sentinel merge is not backend PR #33 and
+grants no cutover authority.
+
+The repository is private and presently on GitHub Free. Before the sentinel
+merge or rehearsal, the operator must activate GitHub Pro (or move the exact
+release contour to an approved Team organization). A read-only receipt must
+then prove that private-repository environment secrets/variables and selected
+deployment branches are available. Repository-scoped Render credentials are
+not an accepted substitute: they would give every branch a strictly broader
+authority than the production workflow contract.
+
+The sentinel merge is itself a push to the production branch. Immediately
+before it, run the same reviewed production provider capture required before
+backend PR #33: Blueprint Auto Sync and Auto Deploy for the web plus both
+surviving crons must be OFF, with exact stored branch/Dockerfile paths,
+observation time and receipt SHA-256. Any unreadable/enabled state means no
+merge. The receipt is fresh for one attended merge only and cannot be reused
+for PR #33 later.
+
+The baseline dispatch is the executable ref-semantics probe. Invoke the
+workflow by exact path with `--ref codex/r1a-rehearsal-baseline-20260801`; the
+path is `.github/workflows/platform-release-image.yml`. The run must report
+that exact `head_sha` and execute the full image job. If the default-branch
+refusal sentinel runs instead, or the selected SHA differs, rehearsal stops
+before publication.
+
+## Frozen ref publication
+
+Do not rewrite the R4/R5-reviewed remote refs. After the follow-up delta review
+accepts the local package, publish these new refs in this exact order and
+record the remote value after each push:
+
+1. backend baseline `codex/r1a-rehearsal-baseline-20260801` →
+   `1aee3e0bf596121d8d326951519d1f897e46ced1`;
+2. backend candidate `codex/r1a-rehearsal-candidate-20260801` →
+   `c7c62ad893c361b78ddaba687e22254045525512`;
+3. client evidence `codex/r1a-client-guard-20260801` →
+   `e804c73d41f5e94401caa3bb5acb92f691866101`;
+4. backend sentinel `codex/r1a-workflow-registration` → its accepted exact
+   head;
+5. meta evidence branch fast-forward → its accepted exact head, then create
+   the immutable Blueprint source ref
+   `codex/r1a-rehearsal-blueprint-20260801` at that same commit.
+
+Every new rehearsal ref is immutable after publication. A mismatch or later
+movement requires a new review identity and a new ref name; no force-push is
+permitted.
 
 ## Disposable provider set
 
-Create a new temporary Render workspace first. This isolation permits the
-reviewed production-name-bound capture to verify exact service names without
-ever accepting a production resource ID. Use the reviewed
-`render.r1a-rehearsal.yaml` in that workspace and record every resulting opaque
-ID before continuing:
+Create a new temporary Render workspace first. The Blueprint source triple is
+exact and non-default:
+
+- repository: `Glera/p4g-workspace-meta`;
+- frozen branch: `codex/r1a-rehearsal-blueprint-20260801`;
+- custom Blueprint path: `render.r1a-rehearsal.yaml`.
+
+Before clicking Deploy Blueprint, submit that exact file to Render's
+mutation-free `POST /v1/blueprints/validate` for the new workspace owner ID.
+The returned plan must contain only one free PostgreSQL database named
+`swipe-db`, one Starter web named `swipe-backend`, and two Starter crons named
+`swipe-seq-shadow-run` / `swipe-c1-materialize`, all in Frankfurt. A default
+root `render.yaml`, another repo/branch/path, another plan or another resource
+is a stop-the-line failure.
+
+This isolation permits the reviewed production-name-bound capture to verify
+exact service names without accepting a production resource ID. Use the
+validated file in that workspace and record every resulting opaque ID before
+continuing:
 
 - one temporary Blueprint with Auto Sync manually set to **No** immediately
   after creation;
@@ -68,31 +129,47 @@ ID before continuing:
   `./Dockerfile`, Auto Deploy **Off**, with a far-future schedule and inert
   exact-SHA print command; suspend/delete immediately after the source-build
   receipt;
-- one temporary GHCR registry credential in that workspace, bound by exact ID
-  in the GitHub rehearsal environment and deleted during cleanup;
+- one temporary GHCR registry credential in that workspace using an
+  operator-owned classic PAT with exactly `read:packages` (no `write:packages`,
+  `delete:packages` or `repo`), bound by exact ID in the GitHub rehearsal
+  environment; delete the credential and revoke the PAT during cleanup;
 - one short-lived Render API key, revoked during cleanup;
-- one temporary GitHub `production` environment whose deployment branch is
-  restricted to `codex/r1a-review-r3-backend-fixes`, containing only disposable
+- one temporary GitHub `production` environment, available only after the
+  GitHub-plan prerequisite above, whose selected deployment branch is exactly
+  `codex/r1a-rehearsal-candidate-20260801`, containing only disposable
   service/Blueprint/database/registry identities and the temporary Render key.
 
-No production service, Blueprint, database, credential, environment variable
-or deployment is read as a mutation target. Reusing a production resource ID
-is a stop-the-line failure.
+No production Render service, Blueprint, database, credential, environment
+variable or deployment is a mutation target. Reusing a production provider ID
+is a stop-the-line failure. The shared private package
+`ghcr.io/glera/swipe-backend` is explicitly in scope for exactly two immutable
+release versions tagged by the exact baseline/candidate backend SHA. Those
+digests, provenance/SBOM attestations and 90-day sidecars are deliberately
+retained as the rehearsed LKG/candidate for production cutover; they are not
+disposable resources and are listed in the final evidence packet. Container
+registry storage is currently free, but publication still requires the
+operator's action-time confirmation.
 
 ## Attended sequence
 
 1. **Provision only.** Create the disposable database, source-backed web and
-   both crons only after `refs/heads/codex/r1a-rehearsal-baseline` on origin
+   both crons only after
+   `refs/heads/codex/r1a-rehearsal-baseline-20260801` on origin
    resolves to `1aee3e0bf596121d8d326951519d1f897e46ced1`. Save the temporary
    workspace/Blueprint/resource IDs and initial deploy IDs. No R1-A
-   coordinator action yet.
+   coordinator action yet. The Blueprint source ref is frozen before creation,
+   so the brief initial Auto Sync window cannot observe changing bytes; set
+   Auto Sync to **No** immediately after provisioning and require no unexpected
+   sync/deploy in the sync history.
 2. **Live API-shape and provider-state gate.** The first post-provision check
    runs the reviewed production-name-bound GET-only capture against the
    temporary workspace's exact Blueprint, web and two cron IDs. It must prove
    boolean top-level `autoDeploy`, string top-level `branch`/`dockerfilePath`,
    exact expected names/types, Blueprint Auto Sync false and every disposable
    service Auto Deploy **Off** (not After CI Checks Pass). A hard-fail is
-   evidence, not permission to weaken parsing during the window.
+   evidence, not permission to weaken parsing during the window. Save an
+   attended dashboard screenshot bound to service IDs and observation time for
+   the UI-only distinction between **Off** and **After CI Checks Pass**.
 3. **Provider exact-SHA proof.** Let both disposable crons build the reviewed
    `./Dockerfile` from the exact baseline ref without a caller-supplied Docker
    build arg. Manually run the inert cron command, which prints only
@@ -102,7 +179,8 @@ is a stop-the-line failure.
    bounded receipts.
 4. **Publish immutable baseline.** After confirming the remote branch still
    equals the exact rebased SHA and no run exists for it, dispatch `Platform
-   release image` on `codex/r1a-rehearsal-baseline` exactly once with:
+   release image` by exact workflow path on
+   `codex/r1a-rehearsal-baseline-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -122,8 +200,8 @@ is a stop-the-line failure.
    Record run ID, image digest and manifest SHA-256.
 5. **Publish immutable candidate.** After confirming the remote candidate
    branch is still `c7c62ad893c361b78ddaba687e22254045525512` and no run exists
-   for it, dispatch the workflow on
-   `codex/r1a-review-r3-backend-fixes` exactly once with:
+   for it, dispatch the workflow by exact path on
+   `codex/r1a-rehearsal-candidate-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -140,42 +218,59 @@ is a stop-the-line failure.
    | `lkg_image_digest` | exact baseline `sha256:…` digest |
    | `lkg_manifest_sha256` | exact baseline manifest SHA-256 |
 
-   Record the candidate run ID, digest and manifest SHA-256. Never repeat
-   either dispatch for the same SHA; an infrastructure/flaky failure uses
-   `gh run rerun --failed`, while a deterministic failure requires a new
-   reviewed commit.
-6. **Prepare source.** Through the reviewed cutover workflow and temporary
-   GitHub environment, run `prepare-source` against the exact current
-   disposable deploy CAS. Confirm it changes only the disposable web source,
-   preDeploy/liveness settings and no application release variables.
+   Record the candidate run ID, digest and manifest SHA-256. Never repeat or
+   rerun a publishing workflow for the same SHA by default: a retry can collide
+   with immutable artifact names or rewrite the SHA tag to another digest. If
+   and only if the failed run proves that neither a package version nor an
+   Actions artifact was created, a new independent recovery review may
+   authorize `gh run rerun --failed`; otherwise a deterministic fix needs a
+   new reviewed commit/ref. The general cheap-CI rerun rule does not override
+   this release exception.
+6. **Prepare source.** Dispatch the reviewed cutover workflow by exact path and
+   `--ref codex/r1a-rehearsal-candidate-20260801` through the temporary GitHub
+   environment; the path is
+   `.github/workflows/platform-release-cutover.yml`. Run `prepare-source`
+   against the exact current disposable deploy CAS. Confirm it changes only
+   the disposable web source, preDeploy/liveness settings and no application
+   release variables.
 7. **Candidate deploy.** Run `deploy` with the new exact current deploy CAS.
    Require predecessor→target migration, committed immutable DB receipt,
    one-off `verify-applied-db`, `/api/health` with `ok=true` and
-   `island.bake_runtime.state=local`, and protective compact-image smoke.
-8. **Replay and refusal proofs.** Re-run the exact preDeploy binding as a
-   disposable one-off job and compare its printed receipt identity/SHA-256;
-   exercise a stale source-CAS refusal through the reviewed workflow. Build a
+   `island.bake_runtime.state=local`, and protective compact-image smoke. Save
+   the exact bounded health JSON with its SHA-256 because the coordinator's
+   internal health check proves only `ok`/`service`.
+8. **Replay and refusal proofs.** Continue dispatching the exact candidate ref.
+   Re-run the exact preDeploy binding as a disposable one-off job and compare
+   its printed receipt identity/SHA-256; exercise a stale source-CAS refusal
+   through the reviewed workflow. Build a
    second locally verified manifest for the same candidate image/target but a
    distinct non-authoritative source identity, then run it only as an isolated
    one-off job under the already committed deploy identity; require typed
    `deploy_identity_conflict` and no changed DB/provider state.
-9. **Forward-only rollback.** Run `rollback` through the same workflow and
-   concurrency domain. Require the pinned baseline image to serve the newer
-   `0071_platform_release_receipts` schema without downgrade, then rerun health
-   and DB verification.
+9. **Forward-only rollback.** Run `rollback` through the same exact candidate
+   workflow ref and concurrency domain. Require the pinned baseline image to
+   serve the newer `0071_platform_release_receipts` schema without downgrade,
+   then rerun health and DB verification.
 10. **Cleanup.** Suspend/delete disposable web, both crons and database;
     disconnect the temporary Blueprint; delete the temporary registry
-    credential; revoke the Render key; delete temporary GitHub environment
-    secrets/variables and the temporary environment itself; then delete the
-    temporary Render workspace. Record cleanup timestamps and confirm every
-    disposable resource ID is absent or terminally suspended/deleted.
+    credential and revoke its `read:packages` PAT; revoke the Render key;
+    delete temporary GitHub environment secrets/variables and the temporary
+    environment itself; then delete the temporary Render workspace. Record
+    cleanup timestamps and confirm every
+    disposable resource ID is absent or terminally suspended/deleted. Do not
+    delete the two rehearsed GHCR versions or their sidecars after PASS: they
+    remain pinned to the later production cutover. If rehearsal is rejected,
+    deletion is a separate operator decision recorded against the exact
+    package version IDs.
 
 ## Required evidence packet
 
 - exact IDs/SHA/digests for both image builds and their sidecars;
+- exact GHCR package version IDs/tags/digests, visibility/access state and the
+  explicit retained-for-cutover decision;
 - provider capture before mutation; after the source switch, the coordinator
-  receipt plus a bounded image-backed service snapshot (`env`/`imagePath`)
-  replaces capture because Git-backed branch/Dockerfile fields no longer exist;
+  receipt's fresh GET proof of exact image-backed `env`/`imagePath` replaces
+  capture because Git-backed branch/Dockerfile fields no longer exist;
 - cron provider-build receipt proving exact source identity;
 - prepare-source, deploy, replay/refusal and rollback receipts;
 - database revision before candidate, after candidate and after rollback;
