@@ -33,8 +33,9 @@ Compatibility inputs:
 The backend/client ranges were rebased without patch drift onto backend
 `058c772ed5e0d46cf0e7ec4fcddf4f217b3f9ab2` and client
 `96780f55a28e2fdf98d33290a87e1865431826c8`; local release tests are 29/29
-(candidate), 22/22 (baseline), and the client guard mutants/build pass. An
-independent delta review remains required before execution.
+(candidate), 22/22 (baseline), and the client guard mutants/build pass.
+Independent review R9 returned GO for this exact local source set; external
+execution remains separately gated below.
 
 The feed input is the exact `feedCommit` in the public release archive at the
 listed `swipe-platform` SHA. It is not mislabeled as the client-guard review
@@ -55,9 +56,9 @@ which version GitHub executes. This sentinel merge is not backend PR #33 and
 grants no cutover authority.
 
 The repository is private and presently on GitHub Free. Before the sentinel
-merge or rehearsal, the operator must activate GitHub Pro (or move the exact
-release contour to an approved Team organization). A read-only receipt must
-then prove that private-repository environment secrets/variables and selected
+merge or rehearsal, the operator must activate GitHub Pro for this personal
+account. A read-only receipt must then prove that private-repository
+environment secrets/variables and selected
 deployment branches are available. Repository-scoped Render credentials are
 not an accepted substitute: they would give every branch a strictly broader
 authority than the production workflow contract.
@@ -139,7 +140,14 @@ continuing:
   operator-owned classic PAT with exactly `read:packages` (no `write:packages`,
   `delete:packages` or `repo`), bound by exact ID in the GitHub rehearsal
   environment; delete the credential and revoke the PAT during cleanup;
-- one short-lived Render API key, revoked during cleanup;
+- one short-lived Render API key, revoked during cleanup. The key is
+  user/account authority across every Render workspace visible to that
+  account, not a credential scoped to the disposable workspace. Immediately
+  before use, list and record every visible owner/workspace; none of the known
+  production resource IDs may appear in the GitHub environment values or any
+  mutation target. Exact disposable IDs, the selected-branch environment and
+  provider CAS checks are compensating controls, not least privilege. The
+  operator must explicitly accept this blast radius for the attended window;
 - one temporary GitHub `production` environment, available only after the
   GitHub-plan prerequisite above, whose selected deployment branch is exactly
   `codex/r1a-rehearsal-candidate-20260801`, containing only disposable
@@ -172,11 +180,19 @@ operator's action-time confirmation.
    an existing authorized repository. Record before/after state. If the App is
    already authorized for all repositories, record that no access mutation is
    needed. This shared GitHub authorization change is part of the action-time
-   operator GO and happens only after the production provider gate.
+   operator GO and happens only after the production provider gate. Record the
+   expected GitHub Actions cost: the sentinel PR runs PostgreSQL acceptance,
+   and its master merge runs PostgreSQL acceptance plus browser E2E; neither
+   workflow has provider authority.
+   Before creating the Render API key, record its account-wide blast radius
+   and the complete owner/workspace inventory. The action-time GO must name
+   that scope explicitly; a generic "temporary key" approval is insufficient.
 1. **Provision only.** Create the disposable database, source-backed web and
    both crons only after
    `refs/heads/codex/r1a-rehearsal-baseline-20260801` on origin
-   resolves to `1aee3e0bf596121d8d326951519d1f897e46ced1`. Save the temporary
+   resolves to `1aee3e0bf596121d8d326951519d1f897e46ced1`, and the origin
+   `refs/heads/codex/r1a-rehearsal-blueprint-20260801` resolves to
+   `183336a1765933e8707a26747b7baf60d5212c1e`. Save the temporary
    workspace/Blueprint/resource IDs and initial deploy IDs. No R1-A
    coordinator action yet. The Blueprint source ref is frozen before creation,
    so the brief initial Auto Sync window cannot observe changing bytes; set
@@ -189,7 +205,10 @@ operator's action-time confirmation.
    `{RENDER_API_KEY}`, and its variable-name set is exactly
    `{RENDER_SERVICE_ID, RENDER_BLUEPRINT_ID, RENDER_OWNER_ID,
    RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY}`. Repeat the
-   repository-level no-`RENDER_*` assertion after environment creation.
+   repository-level no-`RENDER_*` assertion after environment creation. Read
+   each environment variable value and require it to equal the recorded
+   disposable service/Blueprint/workspace/registry IDs and exact database
+   identity `r1a-rehearsal-20260801`; names alone are insufficient.
 2. **Live API-shape and provider-state gate.** The first post-provision check
    runs the reviewed production-name-bound GET-only capture against the
    temporary workspace's exact Blueprint, web and two cron IDs. It must prove
@@ -210,8 +229,10 @@ operator's action-time confirmation.
    `swipe_r1a_rehearsal`. In addition, run a deterministic `jq -e` assertion
    over the canonical provider-capture receipt for those exact branch/path
    values. An absent/unreadable/different field is a hard failure. These values
-   distinguish the rehearsal source from production `render.yaml`, whose
-   services use `master`, legacy `./Dockerfile.bake` and live schedules.
+   distinguish the rehearsal source from production sources: production
+   `master` uses `./Dockerfile.bake` with live schedules, while the later R1-A
+   candidate uses `./Dockerfile` but retains different schedules/database plan;
+   neither pins the dated rehearsal branch.
 3. **Provider exact-SHA proof.** Let both disposable crons build the reviewed
    `./Dockerfile` from the exact baseline ref without a caller-supplied Docker
    build arg. Manually run the inert cron command, which prints only

@@ -1,9 +1,8 @@
 # Platform Reliability R1-A — implementation review packet
 
-Status: **POST-STAGE-0 REBASE; implementation closure review R5 GO; rehearsal
-reviews R6/R7 NO-GO corrected locally; final local delta review pending;
-GitHub Pro remains an unperformed operator prerequisite**. This packet grants
-no production authority.
+Status: **POST-STAGE-0 REBASE; implementation closure review R5 GO; final
+rehearsal review R9 GO; GitHub Pro remains an unperformed operator
+prerequisite**. This packet grants no production authority.
 
 Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 `p4g-workspace-meta@ea89f97` after the Stage 1 reviewer GO on PR #39.
@@ -312,8 +311,8 @@ R1-A cutover remains NO-GO until all are true:
 4. exact-head CI in §9 PASS on those rebased heads;
 5. independent implementation review accepts packages A–G and the final
    post-Stage-0 delta;
-6. GitHub Pro (or an approved Team organization) active for this private
-   repository, plus a least-privilege GHCR registry credential and selected-
+6. GitHub Pro active for the personal account owning this private repository,
+   plus a least-privilege GHCR registry credential and selected-
    branch GitHub `production` environment configured; repository-scoped
    Render authority is not equivalent;
 7. disposable Render-compatible source-switch/deploy/rollback rehearsal PASS;
@@ -473,8 +472,8 @@ every pair as `=`):
 
 Post-rebase local checks remain 29/29 candidate release tests, 22/22 baseline
 release tests, and PASS for the client guard mutants and production build.
-These rebased identities have not yet acquired rehearsal authority; the
-required independent delta review remains pending.
+These rebased identities acquired local rehearsal-contract authority in R9;
+all remote publication and operator actions remain separately gated.
 
 R6 reviewed the first executable rehearsal draft and returned **NO-GO**: one
 P1 default-branch workflow-registration cycle plus six P2 evidence/resource
@@ -501,7 +500,7 @@ contract: two P1 and three P2. The captured report and exact dispositions are:
 
 The local correction now:
 
-- makes GitHub Pro/Team a literal prerequisite for private environment
+- made GitHub Pro/Team a literal prerequisite for private environment
   secrets/variables and selected deployment branches; repository-scoped
   Render authority is rejected as weaker;
 - preserves old reviewed refs and publishes accepted rebases only under new
@@ -537,3 +536,25 @@ also pins sentinel identity, makes the registration capture numbered step 0,
 bounds package transfer, proves first-version visibility/linkage and declares
 a 60-day cutover deadline before Actions sidecar expiry. No external state or
 R1-A implementation code changed.
+
+## 20. Final local rehearsal review R9
+
+R9 returned **GO** with no P1/P2. It preserved R5's implementation GO and
+verified the exact local identities: meta `0eff5c8` (plus prompt-only tip
+`14ab862`), frozen Blueprint source `183336a`, sentinel `5ef857f`, backend
+candidate `c7c62ad`, backend baseline `1aee3e0` and client guard `e804c73`.
+The raw report and disposition are:
+
+- `platform-reliability-r1a-review-r9-raw.md`;
+- `platform-reliability-r1a-review-r9-disposition.md`.
+
+Its non-blocking accuracy observations are incorporated without reopening
+review: source discrimination now describes both production master and the
+candidate correctly; origin resolution of the frozen Blueprint ref and exact
+environment-variable values are mandatory receipts; GitHub Pro is the sole
+personal-account plan path; sentinel CI cost is enumerated; and the Render API
+key's account-wide workspace blast radius requires explicit action-time
+acceptance. R9 authorizes only advancement to publishing the new immutable
+refs and requesting separately gated operator prerequisites. It authorizes no
+purchase, PR/merge, provider mutation, workflow dispatch, image publication,
+rehearsal or production cutover.
