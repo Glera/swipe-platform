@@ -366,7 +366,7 @@ Return one of:
 | 1. Merge safety for `render.yaml` | Accepted as option (a): §10 item 9 is an explicit attended merge-precondition with a fresh provider receipt; backend spec repeats the fail-closed rule. |
 | 2. Regenerate locks under Python 3.13 | Closed at backend `9ec641a`: both hashed locks identify Python 3.13 and were generated with `pip-tools==7.6.0`; exact-head CI installs them successfully. |
 | 3. CI lock/input synchronization | Closed at backend `9ec641a`: Full PostgreSQL acceptance recreates both locks from copied inputs + existing pins and exact-byte compares them; run 30686769415 PASS. |
-| 4. Guard in required checks | Closed substantively at backend `9ec641a` and client `b7ea23b`: acceptance/release-image and full client lint run the Mission guard unconditionally on every PR; exact-head runs 30686769415, 30686769413 and 30686770674 PASS. Repository ruleset enforcement is unavailable on the current GitHub plan, so merge remains attended under §10.9. |
+| 4. Guard in required checks | Closed substantively at backend `9ec641a` and client `b7ea23b`: unfiltered PostgreSQL acceptance and full client lint run the Mission guard on every PR; the path-filtered release-image workflow also runs it whenever that contour is touched. Exact-head runs 30686769415, 30686769413 and 30686770674 PASS. Repository ruleset enforcement is unavailable on the current GitHub plan, so merge remains attended under §10.9. |
 
 These dispositions authorize only fresh CI/review and rehearsal. They do not
 authorize merge, image publication, Render mutation or production cutover.
@@ -395,3 +395,27 @@ both expanded guards PASS; the full client lint/browser/build suite PASS; and
 the fresh exact-head CI in §9 is green. Final independent review remains
 mandatory before the disposable rehearsal. R2 does not authorize merge,
 publication, production mutation or cutover.
+
+## 15. Final independent review R3
+
+Independent read-only review of meta `ed4c290`, backend `6ee95ca` and client
+`747cef6` returned **GO WITH CONDITIONS**: no P1 and explicit permission to
+advance only to the disposable Render-compatible rehearsal. The raw transcript
+and exact disposition are in
+`platform-reliability-r1a-final-review-r3-raw.md` and
+`platform-reliability-r1a-final-review-r3-disposition.md`.
+
+The prior R2 closures and exact CI identities were independently reproduced.
+R3 adds these mandatory boundaries to the remaining work:
+
+- the disposable rehearsal includes a real Render cron source-build using
+  `./Dockerfile`, not only a caller-supplied Docker build arg;
+- the attended pre-merge provider capture covers Auto Deploy and stored
+  Dockerfile paths for both surviving cron services as well as the web service;
+- the client guard is extended for extensioned bare Mission modules,
+  re-exports and dynamic imports before it is relied on for Stage 1 merge;
+- the compact-image health-payload change and disabled runtime-release
+  bootstrap dependency are documented before final cutover readiness.
+
+No finding authorizes Stage 1 merge or changes the sequence R1-A cutover →
+Stage 1 rebase/renumber → separate Stage 1 GO.
