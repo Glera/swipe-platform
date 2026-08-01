@@ -1,5 +1,9 @@
 # Platform Reliability R1-A — Step 0 GitHub receipt
 
+Status: historical v1 source preflight. Its source identities are superseded
+by the post-sentinel v2 rebase/publication receipts; its observations remain an
+accurate record of the earlier read-only boundary.
+
 Observation time: `2026-08-01T11:27:21Z`.
 
 This receipt records read-only GitHub state and immutable-ref publication. It
@@ -83,6 +87,7 @@ The operator subsequently authorized creation of sentinel PR #45:
 - started: `2026-08-01T11:32:32Z`;
 - completed: `2026-08-01T11:42:39Z`.
 
-The PR remains open and unmerged. Its successful CI grants no merge authority;
-fresh single-use production provider capture and separate operator GO remain
-mandatory.
+At this receipt's observation boundary the PR remained open and unmerged. It
+was later merged outside the Codex execution path; the exact merge identity,
+post-merge CI and provider chronology are recorded in
+`platform-reliability-r1a-sentinel-merge-receipt-20260801.md`.

@@ -10,11 +10,11 @@ namespace in rehearsal is the explicitly declared immutable GHCR package.
 
 | Role | Exact identity |
 | --- | --- |
-| rebased baseline backend | `1aee3e0bf596121d8d326951519d1f897e46ced1` on frozen new ref `codex/r1a-rehearsal-baseline-20260801` (`0070_published_test_delivery`) |
-| rebased candidate backend | `c7c62ad893c361b78ddaba687e22254045525512` on frozen new ref `codex/r1a-rehearsal-candidate-20260801` (`0071_platform_release_receipts`) |
+| rebased baseline backend | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` on frozen successor ref `codex/r1a-rehearsal-baseline-v2-20260801` (`0070_published_test_delivery`) |
+| rebased candidate backend | `d0a9fa11cd88e3ae4202f7cafa631a319b622492` on frozen successor ref `codex/r1a-rehearsal-candidate-v2-20260801` (`0071_platform_release_receipts`) |
 | rebased client guard | `e804c73d41f5e94401caa3bb5acb92f691866101` on durable new ref `codex/r1a-client-guard-20260801` |
 | registration sentinel | `5ef857f493016501a0eaa733d174eb39ba221d2a` on new ref `codex/r1a-workflow-registration` |
-| rehearsal Blueprint source | `183336a1765933e8707a26747b7baf60d5212c1e` on frozen new ref `codex/r1a-rehearsal-blueprint-20260801`; custom path `render.r1a-rehearsal.yaml` |
+| rehearsal Blueprint source | frozen successor ref `codex/r1a-rehearsal-blueprint-v2-20260801`; exact ref SHA is bound by `platform-reliability-r1a-blueprint-v2-publication-receipt-20260801.md`; reviewed `render.r1a-rehearsal.yaml` blob `809aa531176f44890f72dfa4953ee36148113629`, SHA-256 `4361c8c826f6868de1d9bd34b2050fc0af1d05e2fa1974f2c832e8790b2c6710` |
 | public release feed identity | `61110cdd506f5364b015f8e2b0cd81c12fda46a1` |
 | playables identity | `0960952a9fc7d2d7e6f3ae23b1dffe039d97ebb9` |
 | release archive | `a3a78562d6c71808e19d84bd1c23ab0cfaa0fc27` |
@@ -30,12 +30,16 @@ Compatibility inputs:
 
 ## Rebase evidence
 
-The backend/client ranges were rebased without patch drift onto backend
-`058c772ed5e0d46cf0e7ec4fcddf4f217b3f9ab2` and client
-`96780f55a28e2fdf98d33290a87e1865431826c8`; local release tests are 29/29
-(candidate), 22/22 (baseline), and the client guard mutants/build pass.
-Independent review R9 returned GO for this exact local source set; external
-execution remains separately gated below.
+The successor backend ranges were rebased onto backend
+`9277047852c0d73f4d3b9a081e1b0b586f48ae3c`; the client default branch remains
+`96780f55a28e2fdf98d33290a87e1865431826c8`, so the accepted client guard ref
+did not move. Local focused acceptance is `74 passed, 3 skipped` for the
+candidate and `39 passed, 3 skipped` for the baseline; the client guard
+mutants/build remain accepted. Independent post-sentinel review returned GO
+for this exact successor source set. Its one P3 forbids opening the baseline as
+a PR or dispatching full PostgreSQL acceptance against it; the authorized
+baseline image workflow does not contain that orphaned migration-test leg.
+External execution remains separately gated below.
 
 The feed input is the exact `feedCommit` in the public release archive at the
 listed `swipe-platform` SHA. It is not mislabeled as the client-guard review
@@ -43,36 +47,26 @@ head; those are separate identities in the manifest.
 
 ## Default-branch registration prerequisite
 
-GitHub requires a `workflow_dispatch` workflow file to exist on the default
-branch, even when the selected run ref is another branch. The two full R1-A
-workflows are not yet on backend `master`. A separate registration-only PR from
-`codex/r1a-workflow-registration` must therefore be independently reviewed and
-receive explicit operator merge GO before any workflow dispatch. Its two
-sentinels reproduce the input schemas but have no checkout, secrets,
-environment, package write or provider authority and always exit 2 when their
-default-branch versions execute. The attended run selects the full workflow by
-exact path and reviewed ref; the baseline run below is the fail-closed proof of
-which version GitHub executes. This sentinel merge is not backend PR #33 and
-grants no cutover authority.
+GitHub requires a `workflow_dispatch` workflow file on the default branch even
+when another exact ref is selected. Registration PR #45 has been merged as
+`9277047852c0d73f4d3b9a081e1b0b586f48ae3c`; its default-branch sentinels have
+no checkout, secrets, environment, package write or provider authority and
+always refuse execution. The attended run selects the full workflow from the
+reviewed successor ref. The baseline run below is the fail-closed proof of
+which version GitHub executes.
 
-The repository is private and presently on GitHub Free. Before the sentinel
-merge or rehearsal, the operator must activate GitHub Pro for this personal
-account. A read-only receipt must then prove that private-repository
-environment secrets/variables and selected
-deployment branches are available. Repository-scoped Render credentials are
-not an accepted substitute: they would give every branch a strictly broader
-authority than the production workflow contract.
-
-The sentinel merge is itself a push to the production branch. Immediately
-before it, run the same reviewed production provider capture required before
-backend PR #33: Blueprint Auto Sync and Auto Deploy for the web plus both
-surviving crons must be OFF, with exact stored branch/Dockerfile paths,
-observation time and receipt SHA-256. Any unreadable/enabled state means no
-merge. The receipt is fresh for one attended merge only and cannot be reused
-for PR #33 later.
+The private-repository plan prerequisite is satisfied. The pre-merge provider
+window is recorded by
+`platform-reliability-r1a-sentinel-merge-receipt-20260801.md`; the accepted
+post-merge capture is
+`platform-reliability-r1a-production-provider-capture-20260801.json` with
+receipt SHA-256
+`2522351f7774605d0032b959824adce5e28fb767ddc970e4c4170c41ef13a79f`.
+That receipt is historical evidence for the sentinel merge only and is not a
+substitute for the fresh production gate required before PR #33 cutover.
 
 The baseline dispatch is the executable ref-semantics probe. Invoke the
-workflow by exact path with `--ref codex/r1a-rehearsal-baseline-20260801`; the
+workflow by exact path with `--ref codex/r1a-rehearsal-baseline-v2-20260801`; the
 path is `.github/workflows/platform-release-image.yml`. The run must report
 that exact `head_sha` and execute the full image job. If the default-branch
 refusal sentinel runs instead, or the selected SHA differs, rehearsal stops
@@ -80,22 +74,25 @@ before publication.
 
 ## Frozen ref publication
 
-Do not rewrite the R4/R5-reviewed remote refs. After the follow-up delta review
-accepts the local package, publish these new refs in this exact order and
-record the remote value after each push:
+Do not rewrite any reviewed remote ref. The two backend successors, unchanged
+client evidence and sentinel are already published and were resolved back from
+origin. The Blueprint successor is published only after the final contract
+delta is committed. The publication ledger is:
 
-1. backend baseline `codex/r1a-rehearsal-baseline-20260801` →
-   `1aee3e0bf596121d8d326951519d1f897e46ced1`;
-2. backend candidate `codex/r1a-rehearsal-candidate-20260801` →
-   `c7c62ad893c361b78ddaba687e22254045525512`;
+1. backend baseline `codex/r1a-rehearsal-baseline-v2-20260801` →
+   `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`;
+2. backend candidate `codex/r1a-rehearsal-candidate-v2-20260801` →
+   `d0a9fa11cd88e3ae4202f7cafa631a319b622492`;
 3. client evidence `codex/r1a-client-guard-20260801` →
    `e804c73d41f5e94401caa3bb5acb92f691866101`;
 4. backend sentinel `codex/r1a-workflow-registration` →
    `5ef857f493016501a0eaa733d174eb39ba221d2a`;
 5. meta evidence branch fast-forward → its accepted exact head, then create
    the immutable Blueprint source ref
-   `codex/r1a-rehearsal-blueprint-20260801` at
-   `183336a1765933e8707a26747b7baf60d5212c1e`.
+   `codex/r1a-rehearsal-blueprint-v2-20260801`; its exact SHA and
+   `render.r1a-rehearsal.yaml` SHA-256 are recorded in the v2 publication
+   receipt named in the source table. The receipt must also reproduce the
+   reviewed YAML blob and SHA-256 in that table.
 
 Every new rehearsal ref is immutable after publication. A mismatch or later
 movement requires a new review identity and a new ref name; no force-push is
@@ -107,19 +104,30 @@ Create a new temporary Render workspace first. The Blueprint source triple is
 exact and non-default:
 
 - repository: `Glera/p4g-workspace-meta`;
-- frozen branch: `codex/r1a-rehearsal-blueprint-20260801`;
+- frozen branch: `codex/r1a-rehearsal-blueprint-v2-20260801`;
 - custom Blueprint path: `render.r1a-rehearsal.yaml`.
 
-Before clicking Deploy Blueprint, submit that exact file to Render's
+Before clicking Deploy Blueprint, first prove that the selected destination is
+the newly created temporary workspace: record its exact owner ID; use
+authenticated read-only inventory calls to require zero existing services and
+zero databases in that owner; and save the bounded response bytes plus
+SHA-256. The dashboard destination shown at click time must display that same
+owner/workspace. A non-empty inventory, unreadable owner, mismatched owner ID
+or production owner is a stop-the-line failure before Blueprint validation or
+deployment.
+
+Then submit that exact file to Render's
 mutation-free `POST /v1/blueprints/validate` for the new workspace owner ID.
 The documented validation response must have `valid=true`, exact service names
 `swipe-backend` / `swipe-seq-shadow-run` / `swipe-c1-materialize`, exact
-database name `swipe-db`, empty key-value/environment-group sets and the exact
-expected action count. This validates the uploaded bytes only; it does not
+database name `swipe-db`, empty key-value/environment-group sets and exactly
+four create actions (one database plus three services). This validates the
+uploaded bytes only; it does not
 prove which Git repository/branch/path the Dashboard later binds or expose all
 plan/region fields. Save the response bytes and SHA-256, then visually bind the
-creation form to the exact source triple above. Another source or name/action
-set is a stop-the-line failure.
+creation form to both the exact source triple above and the already proven
+empty destination owner. Another source, owner or name/action set is a
+stop-the-line failure.
 
 This isolation permits the reviewed production-name-bound capture to verify
 exact service names without accepting a production resource ID. Use the
@@ -150,7 +158,7 @@ continuing:
   operator must explicitly accept this blast radius for the attended window;
 - one temporary GitHub `production` environment, available only after the
   GitHub-plan prerequisite above, whose selected deployment branch is exactly
-  `codex/r1a-rehearsal-candidate-20260801`, containing only disposable
+  `codex/r1a-rehearsal-candidate-v2-20260801`, containing only disposable
   service/Blueprint/database/registry identities and the temporary Render key.
 
 No production Render service, Blueprint, database, credential, environment
@@ -166,33 +174,33 @@ operator's action-time confirmation.
 
 ## Attended sequence
 
-0. **Authorize prerequisites and register the workflows.** Require the final
-   local review GO, activate and verify GitHub Pro, then publish only the new
-   immutable refs in the preceding order. Before any environment is created,
-   save read-only GitHub API receipts proving the backend repository has no
-   repository secret or variable whose name starts with `RENDER_`, and no
-   pre-existing `production` environment. Open the inert sentinel PR. Run the
-   fresh single-use production provider capture described above; only after it
-   passes and the operator gives merge GO may the sentinel PR merge. Then
-   record the Render GitHub App's repository access list. Confirm
+0. **Reconfirm prerequisites and provider boundaries.** The successor backend
+   refs have independent GO and are published immutably; the Blueprint ref is
+   published only after this final contract delta is committed. The GitHub plan
+   and default-branch registration prerequisites are satisfied. Before any
+   disposable environment is created, save fresh read-only GitHub API receipts
+   proving the backend repository has no repository secret or variable whose
+   name starts with `RENDER_`, and no pre-existing `production` environment.
+   Record the Render GitHub App's repository access list. Confirm
    `Glera/swipe-backend` is already readable and grant additive read access to
    exactly `Glera/p4g-workspace-meta` if it is absent; never remove or replace
    an existing authorized repository. Record before/after state. If the App is
    already authorized for all repositories, record that no access mutation is
    needed. This shared GitHub authorization change is part of the action-time
    operator GO and happens only after the production provider gate. Record the
-   expected GitHub Actions cost: the sentinel PR runs PostgreSQL acceptance,
-   and its master merge runs PostgreSQL acceptance plus browser E2E; neither
-   workflow has provider authority.
+   expected remaining GitHub Actions and package-transfer cost before starting
+   the two-build sequence.
    Before creating the Render API key, record its account-wide blast radius
    and the complete owner/workspace inventory. The action-time GO must name
    that scope explicitly; a generic "temporary key" approval is insufficient.
 1. **Provision only.** Create the disposable database, source-backed web and
    both crons only after
-   `refs/heads/codex/r1a-rehearsal-baseline-20260801` on origin
-   resolves to `1aee3e0bf596121d8d326951519d1f897e46ced1`, and the origin
-   `refs/heads/codex/r1a-rehearsal-blueprint-20260801` resolves to
-   `183336a1765933e8707a26747b7baf60d5212c1e`. Save the temporary
+   `refs/heads/codex/r1a-rehearsal-baseline-v2-20260801` on origin
+   resolves to `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`, and the origin
+   `refs/heads/codex/r1a-rehearsal-blueprint-v2-20260801` resolves to the exact
+   SHA, YAML blob and SHA-256 in
+   `platform-reliability-r1a-blueprint-v2-publication-receipt-20260801.md`.
+   Save the temporary
    workspace/Blueprint/resource IDs and initial deploy IDs. No R1-A
    coordinator action yet. The Blueprint source ref is frozen before creation,
    so the brief initial Auto Sync window cannot observe changing bytes; set
@@ -201,7 +209,7 @@ operator's action-time confirmation.
    in the production backend repository only after the disposable IDs/key are
    known; it must not pre-exist. Read-only GitHub API receipts must prove the
    selected-branch policy is exactly
-   `codex/r1a-rehearsal-candidate-20260801`, its secret-name set is exactly
+   `codex/r1a-rehearsal-candidate-v2-20260801`, its secret-name set is exactly
    `{RENDER_API_KEY}`, and its variable-name set is exactly
    `{RENDER_SERVICE_ID, RENDER_BLUEPRINT_ID, RENDER_OWNER_ID,
    RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY}`. Repeat the
@@ -212,17 +220,28 @@ operator's action-time confirmation.
 2. **Live API-shape and provider-state gate.** The first post-provision check
    runs the reviewed production-name-bound GET-only capture against the
    temporary workspace's exact Blueprint, web and two cron IDs. It must prove
-   boolean top-level `autoDeploy`, string top-level `branch`/`dockerfilePath`,
-   exact expected names/types, Blueprint Auto Sync false and every disposable
-   service Auto Deploy **Off** (not After CI Checks Pass). A hard-fail is
+   one of the two accepted strict Render response shapes: boolean top-level
+   `autoDeploy` with top-level `dockerfilePath`, or the observed string enum
+   `autoDeploy="no"` plus `autoDeployTrigger="off"` with Dockerfile path under
+   `serviceDetails.envSpecificDetails`. It must also prove exact expected
+   names/types, Blueprint Auto Sync false and every disposable service Auto
+   Deploy **Off** (not After CI Checks Pass). In the observed nested/string
+   provider shape the parser checks `autoDeployTrigger="off"` live but the
+   canonical receipt intentionally normalizes it to `autoDeploy:false`; the
+   attended screenshot retains the provider-label evidence. A hard-fail is
    evidence, not permission to weaken parsing during the window. Save an
    attended dashboard screenshot bound to service IDs and observation time for
    the UI-only distinction between **Off** and **After CI Checks Pass**.
    Deterministically query the same three `GET /v1/services/{id}` resources and
    `GET /v1/postgres/{id}` into no-clobber JSON receipts, recording exact bytes
-   and SHA-256. Require every owner ID to equal the new temporary workspace;
+   and SHA-256. A deterministic `jq -e` assertion over every raw service
+   receipt must require the expected branch and either the accepted boolean
+   top-level shape (`autoDeploy == false`, top-level Dockerfile path) or the
+   observed string/nested shape (`autoDeploy == "no"`,
+   `autoDeployTrigger == "off"`, nested Dockerfile path). Require every owner
+   ID to equal the new temporary workspace;
    every service branch to equal
-   `codex/r1a-rehearsal-baseline-20260801`, every Dockerfile path to equal
+   `codex/r1a-rehearsal-baseline-v2-20260801`, every Dockerfile path to equal
    `./Dockerfile`, every service plan to equal `starter`, every region to equal
    `frankfurt`, both cron schedules to equal `0 0 1 1 *`, and the database to
    have name `swipe-db`, plan `free`, region `frankfurt` and database name
@@ -246,7 +265,7 @@ operator's action-time confirmation.
    or to contain no version/tag/digest outside an explicitly reviewed prior
    receipt; an unexplained existing version stops publication. Then dispatch
    `Platform release image` by exact workflow path on
-   `codex/r1a-rehearsal-baseline-20260801` exactly once with:
+   `codex/r1a-rehearsal-baseline-v2-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -272,9 +291,9 @@ operator's action-time confirmation.
    and stop if the projected external transfer exceeds the remaining GitHub
    Pro Packages allowance. Record the calculation and plan headroom.
 5. **Publish immutable candidate.** After confirming the remote candidate
-   branch is still `c7c62ad893c361b78ddaba687e22254045525512` and no run exists
+   branch is still `d0a9fa11cd88e3ae4202f7cafa631a319b622492` and no run exists
    for it, dispatch the workflow by exact path on
-   `codex/r1a-rehearsal-candidate-20260801` exactly once with:
+   `codex/r1a-rehearsal-candidate-v2-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -304,7 +323,7 @@ operator's action-time confirmation.
    margin. Missing that deadline requires a new reviewed image pair/rehearsal,
    even though the GHCR digests themselves remain available.
 6. **Prepare source.** Dispatch the reviewed cutover workflow by exact path and
-   `--ref codex/r1a-rehearsal-candidate-20260801` through the temporary GitHub
+   `--ref codex/r1a-rehearsal-candidate-v2-20260801` through the temporary GitHub
    environment; the path is
    `.github/workflows/platform-release-cutover.yml`. Run `prepare-source`
    against the exact current disposable deploy CAS. Confirm it changes only

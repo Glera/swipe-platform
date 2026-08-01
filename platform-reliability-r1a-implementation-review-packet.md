@@ -558,3 +558,31 @@ acceptance. R9 authorizes only advancement to publishing the new immutable
 refs and requesting separately gated operator prerequisites. It authorizes no
 purchase, PR/merge, provider mutation, workflow dispatch, image publication,
 rehearsal or production cutover.
+
+## 21. Post-sentinel successor set
+
+The R9 identities above remain historical review inputs. After the registration
+sentinels reached backend `master`
+`9277047852c0d73f4d3b9a081e1b0b586f48ae3c`, the accepted R1-A ranges were
+replayed onto that base without patch drift under new immutable refs:
+
+- candidate backend:
+  `d0a9fa11cd88e3ae4202f7cafa631a319b622492`;
+- predecessor/baseline backend:
+  `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`;
+- client guard remains:
+  `e804c73d41f5e94401caa3bb5acb92f691866101`.
+
+Independent post-sentinel review returned GO with no P1/P2 and confirmed the
+real workflow blobs replace the inert sentinels byte-for-byte with the earlier
+reviewed versions. Its exact evidence and the baseline-only P3 disposition are
+in `platform-reliability-r1a-post-sentinel-rebase-review-20260801.md`.
+
+The rehearsal Blueprint successor pins the v2 baseline branch. Its reviewed
+YAML identity is Git blob `809aa531176f44890f72dfa4953ee36148113629`,
+SHA-256
+`4361c8c826f6868de1d9bd34b2050fc0af1d05e2fa1974f2c832e8790b2c6710`;
+the frozen ref's exact commit is recorded only after publication in
+`platform-reliability-r1a-blueprint-v2-publication-receipt-20260801.md`.
+None of these successor identities authorizes image publication, disposable
+provider creation or production cutover.
