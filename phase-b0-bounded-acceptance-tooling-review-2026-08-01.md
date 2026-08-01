@@ -10,7 +10,7 @@ process-kill, reboot, rollback or runtime authority.
 | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `27791e0f1c23457f5746160ca752a3537149265b` |
 | reproducible release pipeline | stacked swipe-agents PR #15 at `437cbde242f348dd72abe9386291707ea9a6f3fa` |
-| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `00301a735ddab01b543d8fc3bef374a6e392f4bf` |
+| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `0154edaa48c4a7789021e77aa01e79f80a699086` |
 | completion contract | `phase-b0-bounded-acceptance-matrix-2026-08-01.md` |
 
 ## Closure model
@@ -27,21 +27,27 @@ The source-controlled contour provides:
    runner preflight must pass. The launchd PID is the Node runtime PID and its
    exact process-scoped `caffeinate -is` child is also required. Anchor failure
    remains inside the bootstrap rollback trap;
-2. a read-only base-A1 SQLite interval audit: no failed or missed run, no
-   unresolved delivery, no duplicate provider message identity, SQLite
-   integrity `ok`, and one live supervised runtime lease;
+2. a read-only base-A1 SQLite interval audit whose end is already past: every
+   run scheduled in-window is currently terminal `succeeded`; there is no
+   failed/missed event, queued/unsettled/failed delivery, duplicate provider
+   identity or SQLite error; and the live lease PID equals the launchd PID;
 3. a destructive restart drill that kills only the anchored supervised PID,
    observes a launchd retry while the old lease remains fenced, then accepts a
-   replacement only after expiry and lease-epoch advance;
-4. cold-boot verification requiring a changed native boot identity, a new
-   scheduled+launchd remote backup after the boot time, one matching runtime
-   lease and a real external dead-man ping;
+   replacement only after expiry and lease-epoch advance. Root reserves and
+   directly captures the helper output before mutation, so a duplicate or
+   concurrent capture cannot cause another kill and a handwritten physical
+   receipt is not accepted;
+4. cold-boot verification requiring a changed native boot identity, both the
+   launchd backup invocation and remote snapshot after boot, invocation within
+   thirty minutes rather than a later six-hour slot, one matching runtime lease
+   and a real external dead-man ping;
 5. exact validators for provider-side dead-man interval evidence and complete
    operator incident dispositions. A local ping alone cannot substitute for
    the provider observation digest. The provider receipt proves first and last
    heartbeat coverage, a bounded observation count and no gap over fifteen
-   minutes; `false_incident` fails closure and every disposition decision must
-   fall within twenty-four hours after the audited interval;
+   minutes. Every incident must close inside the window; `false_incident` fails,
+   host-idle tolerance is limited to stored `network`/`network_down` evidence,
+   and every disposition is time-bounded;
 6. emergency-safe disable. It always makes the runtime inert; when an anchor
    and end audit exist it additionally publishes a rollback receipt proving
    `enabled:false`, all labels unloaded, zero matching processes, no live
@@ -51,19 +57,24 @@ The source-controlled contour provides:
    byte-for-byte on all shared identities. Restart and reboot evidence must be
    produced no later than the selected A1 audit end, so a later healthy host
    state cannot repair a failed interval retrospectively.
+8. one root-only publisher for every pre-rollback artifact. It accepts only a
+   private single-link candidate under the runner home, re-runs the A1 audit and
+   online B2 verifier, validates human evidence, and atomically publishes with
+   hard-link no-replace plus file/directory fsync. Concurrent replacement and
+   ordinary `install` overwrite are no longer evidence paths.
 
 No command in this PR is executed by merge or install. `restart-drill`, reboot
 and rollback remain future explicit physical authority acts.
 
 ## Verification
 
-- Targeted host, acceptance and finance-isolation tests: 41/41.
-- Full local repository suite: 477/477 across 74 files.
+- Targeted host, acceptance, remote-sync and finance-isolation tests: 64/64.
+- Full local repository suite: 481/481 across 74 files.
 - The full run includes the executable two-build immutable-release and
   install/current-separation regression inherited from PR #15.
 - Node syntax, zsh syntax and `git diff --check`: pass.
-- Exact-head CI: swipe-agents run `30717456716`, `SUCCESS`, on
-  `00301a735ddab01b543d8fc3bef374a6e392f4bf`.
+- Exact-head CI: swipe-agents run `30718600581`, `SUCCESS`, on
+  `0154edaa48c4a7789021e77aa01e79f80a699086`.
 - Meta evidence suite: 134/134 locally; the exact PR #52 CI identity is recorded
   after this packet commit is pushed.
 - No reserve-host path, `current`, secret, launchd label, process or OS state
@@ -80,14 +91,14 @@ The independent reviewer should attempt at least:
 2. confuse the launchd Node PID with its `caffeinate` child, add a second child,
    or bind the runtime lease to either the wrong PID or wrong epoch;
 3. make a pre-expiry restart look like a valid takeover, hide overlap, reuse
-   the old PID, or leave `send_started`/`outcome_unknown` or duplicate provider
-   identities;
+   the old PID, invoke two destructive captures, handwrite the receipt, or leave
+   queued/failed/unsettled delivery state or duplicate provider identities;
 4. forge a reboot without changing native boot identity, reuse a pre-boot B2
-   receipt, substitute an attended backup, or satisfy recovery with a local
-   heartbeat instead of the external dead-man;
-5. choose unrelated start/end timestamps for the B2 and A1 receipts, omit an
-   incident disposition, classify a false incident as acceptable, or reuse a
-   receipt from another release;
+   receipt, substitute an attended or later six-hour backup, or satisfy recovery
+   with a local heartbeat instead of the external dead-man;
+5. choose a future or unrelated end, hide nonterminal `run_state`, mismatch the
+   lease PID, omit an incident disposition, leave an incident open, apply the
+   host-idle exception to another detector/class, or reuse another release;
 6. satisfy dead-man coverage with only endpoint observations, sparse pings or
    one late success; place a restart/reboot receipt after the audited end or an
    incident decision outside its bounded review period;
