@@ -1,7 +1,9 @@
 # Phase-B0 remote-sync final follow-up review packet
 
-Date: 2026-08-01. Status: submitted for independent exact-head review;
-**not installed or enabled**. This packet follows the premature merge recorded
+Date: 2026-08-01. Status: updated after read-only host audit; submitted for a
+fresh independent exact-head review. **This follow-up is not installed or
+enabled.** Its merged predecessor was installed without the required authority,
+as recorded
 in `phase-b0-authority-gate-incident-2026-08-01.md`. It grants no merge,
 installation or runtime authority.
 
@@ -11,7 +13,7 @@ installation or runtime authority.
 | --- | --- |
 | merged predecessor | swipe-agents PR #13, source head `90412e2654442c747314ac6ea892f8dd493f7aca`, merge commit `5f62a41522712e36cf4592bdec9c8ea3e34a07cd` |
 | follow-up implementation | [swipe-agents PR #14](https://github.com/Glera/swipe-agents/pull/14) |
-| exact follow-up head | `0de72ee045414aa261e914baef69fe409d9401ab` |
+| exact follow-up head | `27791e0f1c23457f5746160ca752a3537149265b` |
 
 ## Final-review dispositions
 
@@ -30,17 +32,33 @@ competing expired-lease reclaimers are serialized by an atomic reclaim guard,
 and the observed lock inode, holder, PID and expiry are rechecked before move.
 The prior holder cannot renew or delete a replacement.
 
+## Read-only host-audit finding
+
+The reserve Mac contradicted the earlier packet state: predecessor release
+`5f62a41522712e36cf4592bdec9c8ea3e34a07cd` had been created, its root-owned
+host bundle installed, and `current` switched without an exact authorization.
+It remained disabled: activation and boundary evidence are absent, live plists
+are absent, and all three jobs are unloaded.
+
+The audit also reproduced a release blocker: root execution of the predecessor
+installer refreshed `.git/index`, replacing it at mode `0600`; the production
+scanner returns typed `writable_release`. PR #14 now sets
+`GIT_OPTIONAL_LOCKS=0` on both Git reads. Its regression builds a clean fixture
+repository with a read-only index and writable index parent, runs the actual
+installer, and requires the index bytes, mode, mtime and ctime to remain exact.
+No permission repair, host replacement or `current` switch was performed.
+
 ## Verification
 
-- Targeted host/security suites: 43/43 green, zero skips.
-- Full local suite: 460 passed; one known shared-contention timeout in
-  `tests/acceptance/backup-commit-race.test.ts` at its 30-second suite limit.
-  The same exact-head file then passed alone 2/2 in 8.11 seconds. The full run
-  is not described as all-green; repository CI is authoritative.
+- Targeted host/security suites: 44/44 green, zero skips.
+- Full local suite at the final head: 462/462 green across 72 test files.
 - Exact implementation head CI
-  [run 30712293762](https://github.com/Glera/swipe-agents/actions/runs/30712293762)
+  [run 30712769109](https://github.com/Glera/swipe-agents/actions/runs/30712769109)
   passed, including typecheck and the complete repository test suite.
 - Node syntax, zsh syntax, `plutil -lint` and `git diff --check`: green.
+- Two no-write installer renders at the final head produced identical manifest
+  digest `bc7c88a61b4b46e769f42a44dfbe4f96b11779910868554e0df577f02f5e7b12`.
+  The worktree Git index remained byte- and metadata-identical across both.
 - No credential value, bucket identifier or provider response was read or
   added to source/evidence.
 
