@@ -429,11 +429,25 @@ interface LevelSpec {
       engine/presentation/profile/dataset и byte-bound к candidate commit.
 - [ ] Clean/instrumented event onset измерен отдельно в каждой media timeline;
       общий cross-channel timestamp не использован.
+- [ ] Runtime keyframes выбраны по nearest rendered frame с обеих сторон
+      target; `targetMs/actualMs/error` записаны и входят в frozen tolerance.
 - [ ] Class/event-specific semantic raw comparison прошёл frozen thresholds;
       raw pair, измерения и все failed checks приложены к receipt.
+- [ ] Touching body/gate элементы не измерялись единым connected-component
+      bbox; cross-axis и axial trajectory имеют отдельные ряды/checks.
 - [ ] Candidate raster invariants проверены отдельно; они не засчитаны как
       доказательство Reference parity.
+- [ ] Held-state raster проверен на первом frame и после stationary hold;
+      outline/feedback не исчезает без pointermove.
+- [ ] Sticky destination takeover доказан до pointerup с соседним negative;
+      post-takeover cross-axis drift проверен отдельно.
+- [ ] Exact-clearance corridor пройден noisy/coalesced real-pointer trace в
+      обоих направлениях и при всех визуальных feedback состояниях.
+- [ ] Active-input performance имеет отдельные frame/pointer-to-rAF метрики;
+      screenshot/getImageData/restart не входят в измерительное окно.
 - [ ] Exact Reference Twin trace replay приложен.
+- [ ] Packaged witness/autoplay достигает terminal; solver tie-break equality
+      не подменяет исполнимость опубликованного witness.
 - [ ] Dataset-only switch одного canonical runtime доказан.
 - [ ] Production deny и near-duplicate gates приложены.
 - [ ] Visual proof приложен.

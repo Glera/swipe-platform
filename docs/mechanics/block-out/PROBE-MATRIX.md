@@ -13,6 +13,9 @@ named golden-scenario gap and produces a clean/instrumented pair.
 | `BO-PR-06` | `BO-GS-08` | foreign-role gate negative behavior | drag each visible role into one mismatched gate | zero exit; role/gate visual ledger | operator bug report establishes required negative; native replay optional for timing only |
 | `BO-PR-07` | `BO-GS-09` | reverse corridor pose progression | forward/reverse slow gesture in same corridor | keyframes and event-segmentation receipt | operator behavior is authority; exact curve may require targeted native clip |
 | `BO-PR-08` | `BO-GS-10` | intact scale, occlusion order and grinding boundary | slow clear-gate consume | raw clean body bounds, gate foreground pixels and particle onset plane | operator description + existing Falcon clean clips; recapture only if raw frames cannot resolve boundary |
+| `BO-PR-09` | `BO-GS-11` | held highlight persistence without pointermove | first-rAF plus `450 ms` stationary hold crop | white-outline occupancy stable; role-colour bounds exact | closed by Review4 raw Canvas samples |
+| `BO-PR-10` | `BO-GS-12` | sticky offset takeover and axial-only post-capture path | lateral offset then one outward pointer sample; keep pressed | exit before pointerup; candidate cross centroid drift `≤3 px`; source per-pixel drift measured without merged bbox | closed in candidate; refreshed Falcon clean semantic receipt required after implementation freeze |
+| `BO-PR-11` | `BO-GS-13` | noisy exact-clearance input and active-drag latency | five sparse/wiggled real pointer samples through Level 2 centre corridor | anchor `[2,2]`; p95 frame/pointer latency frozen; no `>50 ms` long frames in measurement window | closed by Twin browser input; low-tier Android field confirmation remains operator gate |
 
 ## Falcon amendment status — 31.07.2026
 

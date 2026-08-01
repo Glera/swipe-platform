@@ -38,6 +38,9 @@ historical Grand Games one-cell threshold by assumption.
 | `BO-MM-05` | gate exit is physically and role constrained | `BO-GS-07/08` |
 | `BO-MM-06` | legal corridors remain reversible under continuous drag | `BO-GS-09` |
 | `BO-MM-07` | intact body keeps scale and disappears behind gate art while particles emerge at the boundary | `BO-GS-10` |
+| `BO-MM-08` | carried outline persists without pointer movement and never changes collision geometry | `BO-GS-11` |
+| `BO-MM-09` | compatible gate is sticky before release and preserves cross-axis pose during axial consume | `BO-GS-12` |
+| `BO-MM-10` | exact-clearance corridor accepts noisy input and active feedback stays within the frame budget | `BO-GS-13` |
 
 ## Scenarios
 
@@ -53,6 +56,9 @@ historical Grand Games one-cell threshold by assumption.
 | `BO-GS-08` | block aligned with a foreign-role gate; own gate elsewhere | drag into foreign gate, tap in capture-adjacent pose and release | no foreign-role exit in model/browser; role and rendered gate marker agree | clean + instrumented |
 | `BO-GS-09` | narrow corridor/shoulder contact with a legal outward route | replay path forward, exact reverse and two alternative event segmentations | returns to initial pose within tolerance; no carried-silhouette enlargement beyond collision geometry | clean + instrumented |
 | `BO-GS-10` | compatible clear gate with intact multi-cell block | slow gate consume sampled at `0/25/50/75/100%` pull | body scale constant; body progressively occluded behind foreground gate art; no intact pixels over foreground; fragments appear only at/outside gate plane | clean + instrumented |
+| `BO-GS-11` | multi-cell block away from capture | pointerdown, no pointermove for `≥450 ms`, then release | thick carried outline present on first rAF and stationary sample; pixel occupancy stable; role-colour body bounds unchanged | clean + instrumented |
+| `BO-GS-12` | compatible block offset so its centre enters the aperture but full footprint is not centred | drag laterally in-board, then one outward sample; keep pointer held | takeover commits before pointerup; pre-takeover boundary still needs full footprint; consume preserves cross-axis centroid and moves axially only | clean + instrumented |
+| `BO-GS-13` | two-cell-high exact-clearance corridor between stationary figures | five-sample forward trace with alternating `±0.35–0.46 cell` cross-axis error, sparse delivery, then reverse | expected anchor in both directions; outline/collision cue does not alter geometry; active-input p95 and pointer→rAF stay inside frozen thresholds | clean + instrumented |
 
 ## Initial-state binding
 

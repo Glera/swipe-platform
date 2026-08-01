@@ -4,16 +4,14 @@
 - Process: `reference-replication.v3.1`
 - Reference: Falcon/CYLINDER Android `1.0.177+177`
 - Status: dual-surface machine quorum pass; final Twin + Original field play pending
-- Implementation commit: `534955d6fb37394ab995b207b65d9b95ff94d4ce`
-- Machine-receipt commit: `c987b4d`
-- Dual-surface implementation commit: `9259e28477a1085864d64b67cba524fb8649b67a`
-- Clean-pair runtime candidate commit: `400a64c52cb027f48f5345027ef79389f4fd1d01`
-- Calibration-binding commit: `3f46db5fba2cd608fc6e64b4967a761d5a0a54eb`
-- Production HTML SHA-256: `7b4f9338687aea2b96f29db43d4e5670e258a745d1baa6b363eb412da425752d`
-- Reference Twin review HTML SHA-256: `dc0f46616fadd0985bfec3ccff739e4fa6346794d3d12e090a64d5b630070746`
-- Review4 receipt SHA-256: `10811878bf85fa5cac4cc004d4ce78b4cc504e5dcc8b11b6c8badf5327d881da`
-- Fresh clean-pair receipt SHA-256: `2f63c3e7d716f56e23a83648cad0ae5e1d11c0ab7a1825387db0197d6605a2ef`
-- Twin/Original calibration receipt SHA-256: `3fa8a421cc027ccbae6f2c9b168602ce85801c5ebf1da0f411a458652520496c`
+- Final runtime implementation commit: `a3efaa71c5c9daef8f7be4ccdcc726e374762a47`
+- Clean-pair capture/tooling candidate commit: `bfdb351f83ebe3c11c5ab98f1666cb79f31b867f`
+- Final calibration-binding commit: `726d955d98a3dd1f07600ac67415d12229d1a205`
+- Production HTML SHA-256: `f634fe3a6b49823a574d119052adc8956447e0d7394c2522501a1ae821c59fa6`
+- Reference Twin review HTML SHA-256: `721791fb404a86cea472bb322c1d058f1053a1b4ddb80b996f151369b6fafc20`
+- Review4 receipt SHA-256: `46343b1c40d43095a2108e0c18845877f230b0e0b7fe51c45213f739eac5ce7f`
+- Fresh clean-pair receipt SHA-256: `f8a91d39531b5c11b9bf4d1c407032572befd34b2a8c748bee8f155808b9381f`
+- Twin/Original calibration receipt SHA-256: `258b44cd2032a3b8acba7b9fee7ed794e344018b82c80b5d5e4b923f60093c65`
 
 ## Red-before-green reproduction
 
@@ -43,8 +41,9 @@ caused by immediate pointerdown exit as proof of pickup response.
 - Collision response evaluates both axis projection orders and selects the
   pose closest to the pointer. Forward/reverse traces are invariant for
   `1/2/8` event segmentations.
-- Carried scale is exactly `1`; highlight is drawn inside the collision
-  silhouette.
+- Carried scale is exactly `1`; a cheap layered white silhouette is drawn
+  outside the role-colour body without changing collision geometry. It remains
+  constant through a stationary hold and uses no live `shadowBlur`.
 - Consume body scale/opacity stay intact through pull. An axis-aligned Canvas
   clip at the gate plane progressively hides the body; this is a scissor-like
   draw operation, not a bitmap/resource mask or offscreen buffer. Fragments
@@ -63,6 +62,40 @@ caused by immediate pointerdown exit as proof of pickup response.
 
 Diagnostic occupancy remains supplemental; it is not used as the sole verdict.
 
+## Fourth acceptance correction: temporal input and trajectory invariants
+
+The subsequent field play exposed checks that were still point-sampled rather
+than causal: the outline was only checked on the first rAF, gate capture was
+tested only as eventual exit, the centre corridor used ideal model input, and
+performance came from autoplay. A connected-component measurement also merged
+the touching gate and body and falsely implied a lateral centring snap.
+
+The corrected authority is:
+
+- carried outline sampled at `50/450 ms` with no pointermove; white occupancy
+  persists while role-colour bounds remain byte-equivalent;
+- compatible offset gate captures before pointerup when the body centre enters
+  the in-board suction aperture, while pre-takeover out-of-board traversal
+  still requires the full footprint;
+- consume preserves the captured cross-axis coordinate and moves strictly
+  axially; raw measurement uses per-pixel inward centroid, never a merged bbox;
+- the exact Level 2 corridor receives a five-sample `±0.35–0.46 cell` noisy
+  browser trace and its expected stable anchor is asserted;
+- active-input frame and pointer→rAF metrics are collected in an isolated
+  window that excludes screenshots, raster reads and restarts;
+- Review4 surface and autoplay run in independent browser processes and bind
+  one aggregate receipt, so accumulated browser state cannot erase evidence.
+- Stable scenes are invalidation-driven rather than repainted on every rAF;
+  drag, snap, gate consume and celebration remain frame-driven. The production
+  runtime benchmark improved from `28 fps` fail to `59 fps` pass without
+  lowering any threshold.
+
+This correction also found a rules boundary: the sticky centre criterion is
+valid only for in-board takeover. Before takeover, crossing the board boundary
+requires full footprint containment in the aperture. The packaged autoplay
+witness is verified independently from the solver's arbitrary equal-cost
+tie-break order.
+
 ## Third acceptance correction: fresh Reference↔Twin raw pair
 
 The first dual-surface quorum still overloaded `raw clean raster`: its samples
@@ -74,8 +107,8 @@ field-rejected implementation and could not be promoted again.
 micro-scenario through a continuous real pointer gesture. It binds the native
 clean source, current Twin video, candidate commit, trace/digests and seven
 event-relative unmodified keyframes. The current source video hashes are
-`3cb021d2…` (Falcon) and `ae3c55ca…` (Twin); contact sheet `b721a9f5…` and
-receipt `2f63c3e7…`. Candidate-only Canvas assertions remain a separate
+`3cb021d2…` (Falcon) and `40195f43…` (Twin); contact sheet `c98fc325…` and
+receipt `f8a91d39…`. Candidate-only Canvas assertions remain a separate
 surface, and normalized occupancy remains supplemental-only.
 
 The first fresh pair was still not a semantic pass. It reused the instrumented
@@ -85,19 +118,26 @@ fast cubic body collapse and particle area only `0.437×` Falcon. The final
 candidate replaces the body curve with the measured mild ease and calibrates
 emission density, depth and sparse late survivors from raw clean frames.
 
-The current receipt now fail-closes on 16 class-specific checks rather than
-merely attaching a contact sheet: body correlation `0.9983` / NRMSE `0.0329`,
-particle correlation `0.9877` / NRMSE `0.0776`, total area ratio `1.1243`,
-tail ratio `1.4424`, centroid-depth RMSE `0.0321`, and component count/size
-ratios inside frozen bands. Clean and instrumented offsets are stored
-separately.
+The current receipt now fail-closes on 19 class-specific checks rather than
+merely attaching a contact sheet: body correlation `0.9983` / NRMSE `0.0340`,
+particle correlation `0.9819` / NRMSE `0.1018`, total area ratio `1.0018`,
+tail ratio `1.1606`, centroid-depth RMSE `0.0079`, component count/size ratios
+inside frozen bands, and post-takeover cross-axis drift `0` versus native
+`0.0054` gate widths. Clean and instrumented offsets are stored separately.
+
+Candidate samples are selected from the nearest rendered rAF on both sides of
+each target, with a fail-closed sampling-error bound. This replaced the old
+"first frame after target" rule, which could label a `266 ms` frame as
+`250 ms` and flip a frozen particle-area check without any runtime change.
 
 ## Automated results
 
-- Block Out model/fidelity/reference/originality: `47/47` pass.
+- Block Out model/fidelity/reference/originality: `49/49` pass.
 - Review4 production bundle: all positive and negative pointer/raster assertions
   pass; raw samples cover approximately `60/120/250/380/515 ms`.
 - Platform runtime: `39 pass`, `1` expected production-debug warning, `0 fail`.
+- Active manual drag: p95 `16.7 ms`, `0` frames over `50 ms`; held outline
+  occupancy is identical at `50/450 ms` (`8361 px`).
 - Reference Twin is now an executable review-only build, completes its exact
   four-action board by real pointer delivery, and retains `0 px` foreground
   overwrite / outside-body leak at the five raw samples. Both production

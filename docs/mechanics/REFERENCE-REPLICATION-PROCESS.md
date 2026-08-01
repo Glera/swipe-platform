@@ -211,11 +211,25 @@ component count/size; один полноэкранный RGB score или aggre
 не закрывает MUST. Raw pair всегда остаётся доступной под каждым
 semantic/normalized выводом.
 
+Если body касается gate art, connected-component bbox запрещён как authority
+для траектории: два объекта сливаются и создают ложный поперечный скачок.
+Измеритель обязан разделять их пространственной полуплоскостью/маской либо
+считать per-pixel centroid только в body ROI. Для capture/consume отдельно
+проверяются cross-axis coordinate до/после takeover и axial progression после
+takeover; суммарная площадь body не доказывает направление движения.
+
 State-paired clean и instrumented recordings не считаются timestamp-paired.
 Даже при одном scenario ID и одинаковом gesture trace event onset/bracket
 измеряется независимо в каждом media timeline; запрещено переносить PTS или
 offset instrumented channel на clean channel. Receipt хранит оба offsets,
 source-frame brackets и прямо объявляет `independent-event-offsets`.
+
+Для runtime с rAF каждый target keyframe выбирается как ближайший реально
+отрисованный кадр из samples до и после target, а не как первый кадр после
+него. Receipt хранит `targetMs`, `actualMs` и sampling error; допустимый error
+замораживается до финального capture и не может быть шире одного source frame.
+Если ближайший кадр не попал в tolerance, parity run падает, а измерительный
+порог не расширяется.
 
 Machine pass на одной поверхности не переносится на остальные. В частности,
 solver/model не доказывает browser event semantics, а совпадение `16×16`
@@ -243,12 +257,30 @@ Reference↔Twin clean-pair receipt. Review tooling fail-closed отклоняе
 - pointerdown без движения и release вне фактического capture crossing;
 - model state ↔ browser trace ↔ rendered silhouette congruence.
 
+Interaction MUST проверяется как временной инвариант, а не одним кадром.
+Held-state эффект снимается сразу после pointerdown и после неподвижного hold,
+длина которого превышает полный предполагаемый pulse/decay period. Gate
+takeover проверяется до `pointerup`; отдельно фиксируются positive capture
+envelope, соседний negative и post-takeover cross/axial trajectory.
+
+Exact-clearance corridor получает не только идеальный model trace, но и
+реальный pointer trace с контролируемыми поперечными возмущениями, редкой
+event delivery и обратным проходом. Визуальный флаг (outline/glow/collision
+cue) не может менять collision geometry; один trace повторяется при каждом
+визуальном состоянии.
+
 Для каждого уровня, входящего в operator field play или release candidate,
 solver witness полностью переигрывается реальными pointer events в браузере.
 Каждый stable action обязан дать тот же digest, что модель; terminal state,
 trace length и live-set сравниваются отдельно. Replay проходит связный путь
 anchor-by-anchor, включая повороты и reposition actions. Успешный solver плюс
 один прямой autoplay prefix не является browser proof.
+
+Packaged autoplay/witness также исполняется до terminal. Solver witness может
+иметь несколько равных tie-break решений, поэтому acceptance требует
+валидность и минимальную длину packaged witness, а не побайтовое равенство
+произвольному поисковому порядку. Остановка planner на legal routed action —
+fail, даже если real-pointer harness умеет пройти тот же уровень.
 
 Pointer harness берёт grab point внутри объявленной occupied cell. Центр
 bounding box запрещён как универсальный grab point: для concave figures он
@@ -258,6 +290,12 @@ bounding box запрещён как универсальный grab point: дл
 Render semantics являются проверяемыми инвариантами: неизменный scale, если
 scale change не измерен в reference; объявленный foreground/occlusion order;
 fragment onset на пространственной boundary, а не внутри ещё видимого body.
+
+Performance receipt разделяет idle/autoplay и active manual input. Для drag
+обязательны frame deltas и pointer-event→next-rAF latency только внутри
+измерительного окна реального удержания/движения; screenshot, video encode,
+restart и getImageData исключаются из окна. Full-canvas filters/shadows
+считаются WebView-risk и требуют low-tier evidence либо дешёвой замены.
 
 ## 8. Golden scenarios, probes and gesture traces
 
