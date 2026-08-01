@@ -1,6 +1,6 @@
 # Platform Reliability R1-A — disposable rehearsal evidence packet
 
-Status: **execution template; rehearsal not started**. Every `PENDING` value
+Status: **R12 GO + operator authority recorded; rehearsal not started**. Every `PENDING` value
 must be replaced by bounded evidence from the attended run. This document is
 not provider, publication, merge, deploy or production authority.
 
@@ -17,7 +17,7 @@ account-wide Render API-key blast radius.
 | Role | Frozen ref | Exact SHA |
 | --- | --- | --- |
 | baseline backend | `codex/r1a-rehearsal-baseline-v2-20260801` | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` |
-| candidate backend | `codex/r1a-rehearsal-candidate-v2-20260801` | `d0a9fa11cd88e3ae4202f7cafa631a319b622492` |
+| candidate backend | `codex/r1a-rehearsal-candidate-v4-20260801` | `9ca101ad63627a98faa00a0fb4a03b1bccc352fa` |
 | client guard | `codex/r1a-client-guard-20260801` | `e804c73d41f5e94401caa3bb5acb92f691866101` |
 | registration sentinel | `codex/r1a-workflow-registration` | `5ef857f493016501a0eaa733d174eb39ba221d2a` |
 | rehearsal Blueprint | `codex/r1a-rehearsal-blueprint-v2-20260801` | `ccf690d106d7dd1f1d06279972a1851117287053` |
@@ -37,11 +37,13 @@ mismatch requires a new reviewed identity; never move a frozen ref.
 
 ## 2. Action-time authority and stop gates
 
-- Operator GO text/time: `PENDING`.
+- Operator GO text/time: “Да, запускай rehearsal до $3; принимаю временный
+  account-wide scope Render API key только для disposable workspace” — recorded
+  into the execution packet at `2026-08-01T14:35:03Z` after R12 GO.
 - Accepted Render-key scope: account-wide read/write authority across every
   workspace visible to the operator account, constrained operationally to the
-  recorded disposable IDs: `PENDING`.
-- Maximum approved spend: `PENDING` (must be `<= USD 3.00`).
+  recorded disposable IDs: **accepted for this attended disposable rehearsal**.
+- Maximum approved spend: **USD 3.00**.
 - GitHub Actions headroom and expected charge rechecked at: `PENDING`.
 - Render creation estimate shown before mutation: `PENDING`.
 - Production owner ID excluded from every target:
@@ -67,6 +69,8 @@ ambiguity or provider estimate above the approved cap.
 | empty disposable owner databases | `PENDING` | `PENDING` | `PENDING` |
 | Render GitHub App repository access before | `PENDING` | `PENDING` | `PENDING` |
 | GHCR package inventory before | `PENDING` | `PENDING` | `PENDING` |
+| production provider capture before | `PENDING` | `PENDING` | `PENDING` |
+| production database projection before | `PENDING` | `PENDING` | `PENDING` |
 
 Disposable Render workspace/owner ID: `PENDING`.
 
@@ -115,12 +119,14 @@ Both disposable cron source builds must print exact container identity
 Environment creation time: `PENDING`.
 
 - selected branch:
-  `codex/r1a-rehearsal-candidate-v2-20260801`;
+  `codex/r1a-rehearsal-candidate-v4-20260801`;
 - environment secret names: exactly `{RENDER_API_KEY}`;
 - environment variable names: exactly
   `{RENDER_SERVICE_ID, RENDER_BLUEPRINT_ID, RENDER_OWNER_ID,
-  RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY}`;
+  RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY,
+  PLATFORM_RELEASE_AUTHORITY_SCOPE}`;
 - `PLATFORM_DATABASE_IDENTITY`: exactly `r1a-rehearsal-20260801`;
+- `PLATFORM_RELEASE_AUTHORITY_SCOPE`: exactly `rehearsal`;
 - every ID value equals the disposable inventory above: `PENDING`;
 - repository-level `RENDER_*` names remain absent: `PENDING`.
 
@@ -157,18 +163,44 @@ redispatched or rerun. The two successful immutable package versions and their
 
 ## 7. Coordinator execution matrix
 
-Every row uses `.github/workflows/platform-release-cutover.yml` from exact
-candidate ref `codex/r1a-rehearsal-candidate-v2-20260801`, the same remote
-concurrency domain and a fresh provider CAS.
+The coordinator rows below use
+`.github/workflows/platform-release-cutover.yml` from exact candidate ref
+`codex/r1a-rehearsal-candidate-v4-20260801`, the same remote concurrency
+domain and a fresh provider CAS.
+
+Residual authority note: the concurrency domain serializes coordinator runs,
+but Render has no atomic CAS-and-deploy API. During the documented second-CAS
+to deploy-POST interval, attended no-concurrent Render UI/API access is the
+compensating control. A `release_env_restore_failed` receipt requires manual
+restoration from the saved seven-key snapshot and exact independent reread; an
+unproved restoration is rehearsal failure, never PASS.
 
 | Step | Run / attempt | Input CAS / identity | Receipt / SHA-256 | Required result |
 | --- | --- | --- | --- | --- |
 | prepare-source | `PENDING` | `PENDING` | `PENDING` | only disposable web switches to exact candidate digest; no deploy |
 | candidate deploy | `PENDING` | `PENDING` | `PENDING` | predecessor→target; exact DB receipt; health + protective smoke |
-| exact replay | `PENDING` | `PENDING` | `PENDING` | identical committed receipt identity/bytes |
 | stale source-CAS | `PENDING` | deliberately stale | `PENDING` | typed refusal; no provider/DB change |
-| conflicting binding | `PENDING` | distinct non-authoritative source | `PENDING` | `deploy_identity_conflict`; no provider/DB change |
 | rollback | `PENDING` | pinned baseline digest | `PENDING` | baseline serves newer schema; no downgrade |
+
+Replay and conflicting-binding proofs are **not** new coordinator deploys.
+Each coordinator workflow derives a new deploy identity from its own run and
+attempt, so it cannot prove exact replay of the already committed DB identity.
+Run these as bounded Render one-off jobs from the candidate service's latest
+successful image artifact:
+
+| Proof | Render job ID | Snapshotted deploy identity / manifest | Log receipt / SHA-256 | Required result |
+| --- | --- | --- | --- | --- |
+| exact preDeploy replay | `PENDING` | exact candidate deploy values | `PENDING` | `predeploy-env` returns the committed receipt with identical bytes/SHA-256 |
+| conflicting binding | `PENDING` | same deploy identity; separately verified manifest with distinct non-authoritative source identity | `PENDING` | typed `deploy_identity_conflict`; DB/provider deploy unchanged |
+
+Render one-off jobs inherit an immutable snapshot of the base service's build
+artifact and environment; the create-job API does not provide per-job env
+overrides. Therefore the conflict proof uses attended, exact-key `PUT`s while
+Auto Deploy is Off: snapshot the candidate env values; replace only the two
+manifest bytes/digest keys; create the one-off job; then restore the original
+two exact values immediately. Before and after receipts must prove every other
+env key, the current deploy ID, source binding and DB revision are unchanged.
+Failure to restore is a cleanup failure and blocks PASS.
 
 Database revision evidence:
 
@@ -188,7 +220,9 @@ Protective compact-image smoke receipt: `PENDING`.
 ## 8. Cleanup and revocation
 
 Cleanup starts even after a failed rehearsal. Retained GHCR baseline/candidate
-versions are the only intentional residue after PASS.
+versions are the only intentional residue after PASS. The account-wide Render
+key is revoked last, after it proves all disposable resources absent and takes
+the post-window production snapshots.
 
 | Action | Completed at | Verification receipt |
 | --- | --- | --- |
@@ -197,12 +231,15 @@ versions are the only intentional residue after PASS.
 | disconnect/delete disposable Blueprint | `PENDING` | `PENDING` |
 | delete registry credential | `PENDING` | `PENDING` |
 | revoke `read:packages` PAT | `PENDING` | `PENDING` |
-| revoke temporary Render API key | `PENDING` | `PENDING` |
 | delete GitHub environment secret/variables/environment | `PENDING` | `PENDING` |
+| restore candidate manifest env after conflict proof | `PENDING` | `PENDING` |
 | restore Render GitHub App repository access | `PENDING` | `PENDING` |
 | delete disposable Render workspace | `PENDING` | `PENDING` |
 | prove repo-level `RENDER_*` names absent | `PENDING` | `PENDING` |
-| prove known production IDs never mutated | `PENDING` | `PENDING` |
+| production provider capture after; normalized projection equals before | `PENDING` | `PENDING` |
+| production database projection after equals before | `PENDING` | `PENDING` |
+| executable rehearsal scope rejects every known production target class | `PENDING` | `PENDING` |
+| revoke temporary Render API key last and verify rejection | `PENDING` | `PENDING` |
 
 Actual Render charge/estimate after cleanup: `PENDING`; must be within the
 approved ceiling.
@@ -236,6 +273,11 @@ unchanged frozen candidate SHA (or a new independently reviewed successor if
 master moved). Never force-push a reviewed rehearsal ref or substitute an
 unrehearsed merge head. Fresh exact-head CI and independent delta review are
 required before the production packet can name that PR.
+
+The rehearsal successor intentionally rejects `authority_scope=production`
+because no production registry credential ID is pinned in its code. The
+production cutover successor must add that exact reviewed pin and its negative
+test; this is a deliberate fail-closed handoff, not a runtime parameter.
 
 The operator must then give a new explicit GO for that exact production
 packet. Stage 1 rebase/renumber/merge remains after successful R1-A cutover and

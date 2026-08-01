@@ -11,7 +11,7 @@ namespace in rehearsal is the explicitly declared immutable GHCR package.
 | Role | Exact identity |
 | --- | --- |
 | rebased baseline backend | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` on frozen successor ref `codex/r1a-rehearsal-baseline-v2-20260801` (`0070_published_test_delivery`) |
-| rebased candidate backend | `d0a9fa11cd88e3ae4202f7cafa631a319b622492` on frozen successor ref `codex/r1a-rehearsal-candidate-v2-20260801` (`0071_platform_release_receipts`) |
+| rebased candidate backend | `9ca101ad63627a98faa00a0fb4a03b1bccc352fa` on successor ref `codex/r1a-rehearsal-candidate-v4-20260801` (`0071_platform_release_receipts` + executable authority separation, compensating env CAS/retry and bounded live-command failures) |
 | rebased client guard | `e804c73d41f5e94401caa3bb5acb92f691866101` on durable new ref `codex/r1a-client-guard-20260801` |
 | registration sentinel | `5ef857f493016501a0eaa733d174eb39ba221d2a` on new ref `codex/r1a-workflow-registration` |
 | rehearsal Blueprint source | frozen successor ref `codex/r1a-rehearsal-blueprint-v2-20260801`; exact ref SHA is bound by `platform-reliability-r1a-blueprint-v2-publication-receipt-20260801.md`; reviewed `render.r1a-rehearsal.yaml` blob `809aa531176f44890f72dfa4953ee36148113629`, SHA-256 `4361c8c826f6868de1d9bd34b2050fc0af1d05e2fa1974f2c832e8790b2c6710` |
@@ -33,8 +33,11 @@ Compatibility inputs:
 The successor backend ranges were rebased onto backend
 `9277047852c0d73f4d3b9a081e1b0b586f48ae3c`; the client default branch remains
 `96780f55a28e2fdf98d33290a87e1865431826c8`, so the accepted client guard ref
-did not move. Local focused acceptance is `74 passed, 3 skipped` for the
-candidate and `39 passed, 3 skipped` for the baseline; the client guard
+did not move. Candidate v3 adds no migration or product behavior; its focused
+release/guard acceptance is `75 passed`, including exact authority-scope,
+second-CAS compensation and bounded unexpected-failure receipts. The accepted
+v2 source-range acceptance remains `74 passed, 3 skipped` for the candidate
+and `39 passed, 3 skipped` for the baseline; the client guard
 mutants/build remain accepted. Independent post-sentinel review returned GO
 for this exact successor source set. Its one P3 forbids opening the baseline as
 a PR or dispatching full PostgreSQL acceptance against it; the authorized
@@ -81,8 +84,8 @@ delta is committed. The publication ledger is:
 
 1. backend baseline `codex/r1a-rehearsal-baseline-v2-20260801` →
    `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`;
-2. backend candidate `codex/r1a-rehearsal-candidate-v2-20260801` →
-   `d0a9fa11cd88e3ae4202f7cafa631a319b622492`;
+2. backend candidate `codex/r1a-rehearsal-candidate-v4-20260801` →
+   `9ca101ad63627a98faa00a0fb4a03b1bccc352fa` after independent acceptance;
 3. client evidence `codex/r1a-client-guard-20260801` →
    `e804c73d41f5e94401caa3bb5acb92f691866101`;
 4. backend sentinel `codex/r1a-workflow-registration` →
@@ -158,8 +161,20 @@ continuing:
   operator must explicitly accept this blast radius for the attended window;
 - one temporary GitHub `production` environment, available only after the
   GitHub-plan prerequisite above, whose selected deployment branch is exactly
-  `codex/r1a-rehearsal-candidate-v2-20260801`, containing only disposable
+  `codex/r1a-rehearsal-candidate-v4-20260801`, containing only disposable
   service/Blueprint/database/registry identities and the temporary Render key.
+
+The reviewed coordinator requires an environment-owned
+`PLATFORM_RELEASE_AUTHORITY_SCOPE`. For rehearsal it must be exactly
+`rehearsal`: the executable gate rejects the known production owner,
+Blueprint and web-service IDs and requires database identity
+`r1a-rehearsal-20260801` before constructing the Render client. Production
+scope is deliberately unavailable in this rehearsal successor until a later,
+separately reviewed cutover-only change pins the exact production registry
+credential ID in addition to the captured production owner/Blueprint/web/
+database tuple. An arbitrary registry credential cannot pass production
+scope. The exact reviewed code SHA, not this prose alone, is the authority
+boundary.
 
 No production Render service, Blueprint, database, credential, environment
 variable or deployment is a mutation target. Reusing a production provider ID
@@ -193,6 +208,12 @@ operator's action-time confirmation.
    Before creating the Render API key, record its account-wide blast radius
    and the complete owner/workspace inventory. The action-time GO must name
    that scope explicitly; a generic "temporary key" approval is insufficient.
+   Immediately after key creation and before its first mutating call, run the
+   GET-only provider capture against the known production Blueprint/web/crons
+   and a bounded GET/projection for the known production database. Save the
+   canonical receipts and SHA-256. This is the pre-window half of the
+   production non-target proof; it never substitutes for the executable deny
+   gate.
 1. **Provision only.** Create the disposable database, source-backed web and
    both crons only after
    `refs/heads/codex/r1a-rehearsal-baseline-v2-20260801` on origin
@@ -209,14 +230,16 @@ operator's action-time confirmation.
    in the production backend repository only after the disposable IDs/key are
    known; it must not pre-exist. Read-only GitHub API receipts must prove the
    selected-branch policy is exactly
-   `codex/r1a-rehearsal-candidate-v2-20260801`, its secret-name set is exactly
+   `codex/r1a-rehearsal-candidate-v4-20260801`, its secret-name set is exactly
    `{RENDER_API_KEY}`, and its variable-name set is exactly
    `{RENDER_SERVICE_ID, RENDER_BLUEPRINT_ID, RENDER_OWNER_ID,
-   RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY}`. Repeat the
+   RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY,
+   PLATFORM_RELEASE_AUTHORITY_SCOPE}`. Repeat the
    repository-level no-`RENDER_*` assertion after environment creation. Read
    each environment variable value and require it to equal the recorded
    disposable service/Blueprint/workspace/registry IDs and exact database
-   identity `r1a-rehearsal-20260801`; names alone are insufficient.
+   identity `r1a-rehearsal-20260801`; authority scope must equal `rehearsal`;
+   names alone are insufficient.
 2. **Live API-shape and provider-state gate.** The first post-provision check
    runs the reviewed production-name-bound GET-only capture against the
    temporary workspace's exact Blueprint, web and two cron IDs. It must prove
@@ -291,9 +314,9 @@ operator's action-time confirmation.
    and stop if the projected external transfer exceeds the remaining GitHub
    Pro Packages allowance. Record the calculation and plan headroom.
 5. **Publish immutable candidate.** After confirming the remote candidate
-   branch is still `d0a9fa11cd88e3ae4202f7cafa631a319b622492` and no run exists
+   branch is still `9ca101ad63627a98faa00a0fb4a03b1bccc352fa` and no run exists
    for it, dispatch the workflow by exact path on
-   `codex/r1a-rehearsal-candidate-v2-20260801` exactly once with:
+   `codex/r1a-rehearsal-candidate-v4-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -323,13 +346,20 @@ operator's action-time confirmation.
    margin. Missing that deadline requires a new reviewed image pair/rehearsal,
    even though the GHCR digests themselves remain available.
 6. **Prepare source.** Dispatch the reviewed cutover workflow by exact path and
-   `--ref codex/r1a-rehearsal-candidate-v2-20260801` through the temporary GitHub
+   `--ref codex/r1a-rehearsal-candidate-v4-20260801` through the temporary GitHub
    environment; the path is
    `.github/workflows/platform-release-cutover.yml`. Run `prepare-source`
    against the exact current disposable deploy CAS. Confirm it changes only
    the disposable web source, preDeploy/liveness settings and no application
    release variables.
 7. **Candidate deploy.** Run `deploy` with the new exact current deploy CAS.
+   From the second source-CAS read until the deploy POST returns, no operator,
+   automation or other credential may use the Render UI/API to deploy or alter
+   the disposable service. The GitHub concurrency group serializes coordinator
+   runs, but Render offers no atomic `deploy-if-current` endpoint: this is an
+   explicit residual CAS-to-POST race, not a claim of complete atomicity. Any
+   unexpected latest-deploy change stops the rehearsal and triggers provider/
+   env reconciliation before another attempt.
    Require predecessor→target migration, committed immutable DB receipt,
    one-off `verify-applied-db`, `/api/health` with `ok=true` and
    `island.bake_runtime.state=local`, and protective compact-image smoke. Save
@@ -343,17 +373,67 @@ operator's action-time confirmation.
    distinct non-authoritative source identity, then run it only as an isolated
    one-off job under the already committed deploy identity; require typed
    `deploy_identity_conflict` and no changed DB/provider state.
+
+   These two one-off proofs are not additional coordinator runs. A coordinator
+   run derives a new deploy identity from its GitHub run/attempt, whereas
+   exact replay and conflicting reuse must exercise the already committed
+   identity. Render's documented create-job contract snapshots the base
+   service's latest successful build and all configured environment variables;
+   it does not accept per-job environment overrides
+   (<https://render.com/docs/one-off-jobs>). Execute the proofs as follows:
+
+   1. save the current candidate release env values in a permission-restricted
+      temporary file outside the repository; publish only their key set and
+      SHA-256 bindings, never manifest base64 or credentials;
+   2. create a one-off job whose only command is
+      `python -m app.platform_release predeploy-env`; require success and the
+      exact receipt SHA-256 printed by the original candidate preDeploy;
+   3. build a canonical conflict manifest with the frozen candidate CLI and
+      exact candidate/LKG sidecars, changing only `sources.feed.sha` to a
+      declared non-authoritative 40-hex identity; compare parsed objects after
+      deleting that one path and require equality, then record both manifest
+      SHA-256 values;
+   4. while Auto Deploy remains Off, update only
+      `PLATFORM_RELEASE_MANIFEST_B64` and
+      `PLATFORM_RELEASE_MANIFEST_SHA256` on the disposable web service. Do not
+      change `PLATFORM_DEPLOY_IDENTITY`, database identity, operation, image or
+      rollback authorization. Create the conflict one-off job, then restore
+      both original manifest values immediately after Render returns the job
+      ID; the job has already captured its immutable environment snapshot;
+   5. require the conflict job to terminate with the exact bounded log token
+      `platform-release: deploy_identity_conflict`. A timeout, success or any
+      earlier identity/manifest error is a failed proof;
+   6. after restoration, prove the service env key/value digests, latest deploy
+      ID, image binding and database revision equal the pre-proof snapshot, and
+      run `verify-applied-db` once more as a disposable one-off job.
+
+   The temporary file containing restorable env values is deleted only after
+   restoration is independently re-read. Failure to restore is a cleanup
+   failure and blocks rehearsal PASS.
+
+   The coordinator independently snapshots all seven application release env
+   keys and retries each compensating PUT/DELETE up to three times. If it emits
+   `release_env_restore_failed`, stop immediately: do not deploy, preserve the
+   pre-run snapshot, keep Auto Deploy Off, restore every key to its exact prior
+   presence/value manually, and re-read all seven values plus the latest deploy
+   ID. If exact restoration cannot be proved, suspend/delete the disposable web
+   service, record typed rehearsal failure, and do not claim PASS. This recovery
+   path never authorizes a production mutation.
 9. **Forward-only rollback.** Run `rollback` through the same exact candidate
    workflow ref and concurrency domain. Require the pinned baseline image to
    serve the newer `0071_platform_release_receipts` schema without downgrade,
    then rerun health and DB verification.
-10. **Cleanup.** Suspend/delete disposable web, both crons and database;
-    disconnect the temporary Blueprint; delete the temporary registry
-    credential and revoke its `read:packages` PAT; revoke the Render key;
-    delete temporary GitHub environment secrets/variables and the temporary
-    environment itself; then delete the temporary Render workspace. Record
-    cleanup timestamps and confirm every
-    disposable resource ID is absent or terminally suspended/deleted. Do not
+10. **Cleanup.** Delete the temporary GitHub environment
+    secret/variables/environment; suspend/delete disposable web, both crons
+    and database; disconnect/delete the temporary Blueprint; delete the
+    temporary registry credential and revoke its `read:packages` PAT; then
+    delete the disposable Render workspace. While the Render key is still
+    valid, require every disposable ID to be absent or terminally deleted and
+    repeat the same GET-only production provider/database projections used
+    before the window. Compare canonical production projections after removing
+    only observation timestamps and require byte equality. Revoke the
+    account-wide Render API key **last**, then verify revocation. Record
+    cleanup timestamps. Do not
     delete the two rehearsed GHCR versions or their sidecars after PASS: they
     remain pinned to the later production cutover. If rehearsal is rejected,
     deletion is a separate operator decision recorded against the exact
@@ -361,7 +441,11 @@ operator's action-time confirmation.
     GitHub App, remove exactly that one additive grant and prove the original
     access list is restored; never alter the pre-existing backend grant. Repeat
     the repository-level secret/variable inventory and require no `RENDER_*`
-    name, plus prove the temporary `production` environment is absent.
+    name, plus prove the temporary `production` environment is absent. The
+    evidence claim is precise: the reviewed rehearsal coordinator could not
+    target the captured production identities, and their normalized boundary
+    state is unchanged; before/after equality alone is not described as a
+    complete provider audit log.
 
 ## Required evidence packet
 
@@ -380,6 +464,9 @@ operator's action-time confirmation.
 - database revision before candidate, after candidate and after rollback;
 - bounded health payloads and protective smoke;
 - cleanup/revocation receipt;
+- executable rehearsal-authority rejection tests plus byte-equal normalized
+  production provider/database projections from immediately before and after
+  the attended window;
 - independent acceptance of the exact packet;
 - an explicit separate operator GO before any backend/client/meta PR merge or
   production cutover action.
