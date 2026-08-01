@@ -10,8 +10,9 @@ namespace in rehearsal is the explicitly declared immutable GHCR package.
 
 | Role | Exact identity |
 | --- | --- |
-| rebased baseline backend | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` on frozen successor ref `codex/r1a-rehearsal-baseline-v2-20260801` (`0070_published_test_delivery`) |
-| rebased candidate backend | `9ca101ad63627a98faa00a0fb4a03b1bccc352fa` on successor ref `codex/r1a-rehearsal-candidate-v4-20260801` (`0071_platform_release_receipts` + executable authority separation, compensating env CAS/retry and bounded live-command failures) |
+| provider source-build baseline | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` on frozen successor ref `codex/r1a-rehearsal-baseline-v2-20260801` (`0070_published_test_delivery`); this remains the already-proved Blueprint/web/cron source identity |
+| immutable image baseline | `5cfe17896d90c639dbfcbca996fd4731dff52097` on frozen recovery ref `codex/r1a-rehearsal-baseline-v3-20260801` (`0070_published_test_delivery` + Buildx attestation-driver fix) |
+| immutable image candidate | `1e285238f33283047eb8c3b3c52d352ea3b587fa` on frozen recovery ref `codex/r1a-rehearsal-candidate-v5-20260801` (`0071_platform_release_receipts` + executable authority separation, compensating env CAS/retry, bounded live-command failures and the same Buildx fix) |
 | rebased client guard | `e804c73d41f5e94401caa3bb5acb92f691866101` on durable new ref `codex/r1a-client-guard-20260801` |
 | registration sentinel | `5ef857f493016501a0eaa733d174eb39ba221d2a` on new ref `codex/r1a-workflow-registration` |
 | rehearsal Blueprint source | frozen successor ref `codex/r1a-rehearsal-blueprint-v2-20260801`; exact ref SHA is bound by `platform-reliability-r1a-blueprint-v2-publication-receipt-20260801.md`; reviewed `render.r1a-rehearsal.yaml` blob `809aa531176f44890f72dfa4953ee36148113629`, SHA-256 `4361c8c826f6868de1d9bd34b2050fc0af1d05e2fa1974f2c832e8790b2c6710` |
@@ -33,16 +34,28 @@ Compatibility inputs:
 The successor backend ranges were rebased onto backend
 `9277047852c0d73f4d3b9a081e1b0b586f48ae3c`; the client default branch remains
 `96780f55a28e2fdf98d33290a87e1865431826c8`, so the accepted client guard ref
-did not move. Candidate v3 adds no migration or product behavior; its focused
-release/guard acceptance is `75 passed`, including exact authority-scope,
-second-CAS compensation and bounded unexpected-failure receipts. The accepted
-v2 source-range acceptance remains `74 passed, 3 skipped` for the candidate
-and `39 passed, 3 skipped` for the baseline; the client guard
+did not move. Candidate v5 adds no migration or product behavior beyond the
+accepted candidate v4; its publication-only delta selects the Buildx
+`docker-container` driver required for SBOM/provenance attestations. Candidate
+focused release/guard acceptance is `80 passed`; baseline v3 focused
+acceptance is `32 passed`; both Mission guards and workflow YAML checks pass.
+The accepted v2 source-range acceptance remains `74 passed, 3 skipped` for the
+candidate and `39 passed, 3 skipped` for the baseline; the client guard
 mutants/build remain accepted. Independent post-sentinel review returned GO
 for this exact successor source set. Its one P3 forbids opening the baseline as
 a PR or dispatching full PostgreSQL acceptance against it; the authorized
 baseline image workflow does not contain that orphaned migration-test leg.
 External execution remains separately gated below.
+
+The first authorized baseline publication, run `30707737253` at source SHA
+`0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`, failed before producing any
+package version or Actions artifact because the workflow requested
+attestations while still using Docker's unsupported default driver. It is
+never rerun. The exact failure, absence proofs, 11-line Buildx recovery delta
+and independent Claude GO are recorded in
+`platform-reliability-r1a-buildx-recovery-receipt-20260801.md`. The new image
+refs above are immutable successors; the already-proved provider source-build
+ref remains v2 and is not rewritten.
 
 The feed input is the exact `feedCommit` in the public release archive at the
 listed `swipe-platform` SHA. It is not mislabeled as the client-guard review
@@ -68,8 +81,8 @@ receipt SHA-256
 That receipt is historical evidence for the sentinel merge only and is not a
 substitute for the fresh production gate required before PR #33 cutover.
 
-The baseline dispatch is the executable ref-semantics probe. Invoke the
-workflow by exact path with `--ref codex/r1a-rehearsal-baseline-v2-20260801`; the
+The successful baseline dispatch is the executable ref-semantics probe. Invoke
+the workflow by exact path with `--ref codex/r1a-rehearsal-baseline-v3-20260801`; the
 path is `.github/workflows/platform-release-image.yml`. The run must report
 that exact `head_sha` and execute the full image job. If the default-branch
 refusal sentinel runs instead, or the selected SHA differs, rehearsal stops
@@ -82,15 +95,17 @@ client evidence and sentinel are already published and were resolved back from
 origin. The Blueprint successor is published only after the final contract
 delta is committed. The publication ledger is:
 
-1. backend baseline `codex/r1a-rehearsal-baseline-v2-20260801` →
+1. provider source baseline `codex/r1a-rehearsal-baseline-v2-20260801` →
    `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`;
-2. backend candidate `codex/r1a-rehearsal-candidate-v4-20260801` →
-   `9ca101ad63627a98faa00a0fb4a03b1bccc352fa` after independent acceptance;
-3. client evidence `codex/r1a-client-guard-20260801` →
+2. immutable image baseline `codex/r1a-rehearsal-baseline-v3-20260801` →
+   `5cfe17896d90c639dbfcbca996fd4731dff52097`;
+3. immutable image candidate `codex/r1a-rehearsal-candidate-v5-20260801` →
+   `1e285238f33283047eb8c3b3c52d352ea3b587fa` after independent recovery acceptance;
+4. client evidence `codex/r1a-client-guard-20260801` →
    `e804c73d41f5e94401caa3bb5acb92f691866101`;
-4. backend sentinel `codex/r1a-workflow-registration` →
+5. backend sentinel `codex/r1a-workflow-registration` →
    `5ef857f493016501a0eaa733d174eb39ba221d2a`;
-5. meta evidence branch fast-forward → its accepted exact head, then create
+6. meta evidence branch fast-forward → its accepted exact head, then create
    the immutable Blueprint source ref
    `codex/r1a-rehearsal-blueprint-v2-20260801`; its exact SHA and
    `render.r1a-rehearsal.yaml` SHA-256 are recorded in the v2 publication
@@ -161,7 +176,7 @@ continuing:
   operator must explicitly accept this blast radius for the attended window;
 - one temporary GitHub `production` environment, available only after the
   GitHub-plan prerequisite above, whose selected deployment branch is exactly
-  `codex/r1a-rehearsal-candidate-v4-20260801`, containing only disposable
+  `codex/r1a-rehearsal-candidate-v5-20260801`, containing only disposable
   service/Blueprint/database/registry identities and the temporary Render key.
 
 The reviewed coordinator requires an environment-owned
@@ -230,7 +245,7 @@ operator's action-time confirmation.
    in the production backend repository only after the disposable IDs/key are
    known; it must not pre-exist. Read-only GitHub API receipts must prove the
    selected-branch policy is exactly
-   `codex/r1a-rehearsal-candidate-v4-20260801`, its secret-name set is exactly
+   `codex/r1a-rehearsal-candidate-v5-20260801`, its secret-name set is exactly
    `{RENDER_API_KEY}`, and its variable-name set is exactly
    `{RENDER_SERVICE_ID, RENDER_BLUEPRINT_ID, RENDER_OWNER_ID,
    RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY,
@@ -288,7 +303,7 @@ operator's action-time confirmation.
    or to contain no version/tag/digest outside an explicitly reviewed prior
    receipt; an unexplained existing version stops publication. Then dispatch
    `Platform release image` by exact workflow path on
-   `codex/r1a-rehearsal-baseline-v2-20260801` exactly once with:
+   `codex/r1a-rehearsal-baseline-v3-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -314,9 +329,9 @@ operator's action-time confirmation.
    and stop if the projected external transfer exceeds the remaining GitHub
    Pro Packages allowance. Record the calculation and plan headroom.
 5. **Publish immutable candidate.** After confirming the remote candidate
-   branch is still `9ca101ad63627a98faa00a0fb4a03b1bccc352fa` and no run exists
+   branch is still `1e285238f33283047eb8c3b3c52d352ea3b587fa` and no run exists
    for it, dispatch the workflow by exact path on
-   `codex/r1a-rehearsal-candidate-v4-20260801` exactly once with:
+   `codex/r1a-rehearsal-candidate-v5-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -346,7 +361,7 @@ operator's action-time confirmation.
    margin. Missing that deadline requires a new reviewed image pair/rehearsal,
    even though the GHCR digests themselves remain available.
 6. **Prepare source.** Dispatch the reviewed cutover workflow by exact path and
-   `--ref codex/r1a-rehearsal-candidate-v4-20260801` through the temporary GitHub
+   `--ref codex/r1a-rehearsal-candidate-v5-20260801` through the temporary GitHub
    environment; the path is
    `.github/workflows/platform-release-cutover.yml`. Run `prepare-source`
    against the exact current disposable deploy CAS. Confirm it changes only

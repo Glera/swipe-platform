@@ -1,9 +1,11 @@
 # Platform Reliability R1-A — disposable rehearsal evidence packet
 
-Status: **paused before paid provisioning; USD 0 spent**. R12 GO and operator
-authority are recorded, but Render requires a payment method on the isolated
-workspace. See `platform-reliability-r1a-rehearsal-start-receipt-20260801.md`.
-Every `PENDING` value
+Status: **attended disposable rehearsal in progress**. R12 GO and operator
+authority are recorded; provider provisioning/exact-source proof are complete,
+the first cleanly failed image attempt and reviewed Buildx recovery are bound
+by `platform-reliability-r1a-buildx-recovery-receipt-20260801.md`. See also
+`platform-reliability-r1a-rehearsal-provider-checkpoint-20260801.md` and
+`platform-reliability-r1a-rehearsal-start-receipt-20260801.md`. Every `PENDING` value
 must be replaced by bounded evidence from the attended run. This document is
 not provider, publication, merge, deploy or production authority.
 
@@ -19,8 +21,9 @@ account-wide Render API-key blast radius.
 
 | Role | Frozen ref | Exact SHA |
 | --- | --- | --- |
-| baseline backend | `codex/r1a-rehearsal-baseline-v2-20260801` | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` |
-| candidate backend | `codex/r1a-rehearsal-candidate-v4-20260801` | `9ca101ad63627a98faa00a0fb4a03b1bccc352fa` |
+| provider source baseline | `codex/r1a-rehearsal-baseline-v2-20260801` | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` |
+| immutable image baseline | `codex/r1a-rehearsal-baseline-v3-20260801` | `5cfe17896d90c639dbfcbca996fd4731dff52097` |
+| immutable image candidate | `codex/r1a-rehearsal-candidate-v5-20260801` | `1e285238f33283047eb8c3b3c52d352ea3b587fa` |
 | client guard | `codex/r1a-client-guard-20260801` | `e804c73d41f5e94401caa3bb5acb92f691866101` |
 | registration sentinel | `codex/r1a-workflow-registration` | `5ef857f493016501a0eaa733d174eb39ba221d2a` |
 | rehearsal Blueprint | `codex/r1a-rehearsal-blueprint-v2-20260801` | `ccf690d106d7dd1f1d06279972a1851117287053` |
@@ -75,27 +78,28 @@ ambiguity or provider estimate above the approved cap.
 | production provider capture before | `PENDING` | `PENDING` | `PENDING` |
 | production database projection before | `PENDING` | `PENDING` | `PENDING` |
 
-Disposable Render workspace/owner ID: `PENDING`.
+Disposable Render workspace/owner ID: `tea-d9mu8grm8hqs73d5tnbg`.
 
 Blueprint validation must return `valid=true`, names
 `swipe-backend`, `swipe-seq-shadow-run`, `swipe-c1-materialize`, `swipe-db`,
 and exactly four create actions with no KV/environment-group action.
 
-- validation response: `PENDING`;
-- validation SHA-256: `PENDING`;
+- validation response: `valid=true`, exact four actions;
+- validation SHA-256:
+  `a0b4f057313e0b32efffef86aa497cf9bed316b78ab0321ba2df731efbe268ab`;
 - dashboard source/destination screenshot: `PENDING`.
 
 ## 4. Disposable identities and provider controls
 
 | Resource | Exact ID | Initial deploy ID | Required control |
 | --- | --- | --- | --- |
-| Blueprint | `PENDING` | n/a | Auto Sync No |
-| web | `PENDING` | `PENDING` | Auto Deploy Off |
-| seq cron | `PENDING` | `PENDING` | Auto Deploy Off; far-future schedule |
-| materialize cron | `PENDING` | `PENDING` | Auto Deploy Off; far-future schedule |
-| PostgreSQL 16 | `PENDING` | n/a | free; `swipe_r1a_rehearsal` |
-| registry credential | `PENDING` | n/a | classic PAT, exact `read:packages` only |
-| temporary Render API key | identity only: `PENDING` | n/a | revoke during cleanup |
+| Blueprint | `exs-d9n0cttaeets73av0i4g` | n/a | Auto Sync No |
+| web | `srv-d9n0s1vlk1mc73dhrvm0` | `dep-d9n0s2flk1mc73dhs0fg` | Auto Deploy Off; suspended between attended steps |
+| seq cron | `crn-d9n0rnflk1mc73dhre6g` | `dep-d9n0rnvlk1mc73dhreq0` | Auto Deploy Off; suspended; far-future schedule |
+| materialize cron | `crn-d9n0rnflk1mc73dhre5g` | `dep-d9n0ro7lk1mc73dhrf4g` | Auto Deploy Off; suspended; far-future schedule |
+| PostgreSQL 16 | `dpg-d9n0rnflk1mc73dhre60-a` | n/a | free; `swipe_r1a_rehearsal` |
+| registry credential | `rgc-d9n1m6m1egvs73f76ok0` | n/a | classic PAT, exact `read:packages` only |
+| temporary Render API key | identity only: `r1a-rehearsal-20260801-runtime3` | n/a | revoke during cleanup |
 | GitHub environment | `production` | n/a | selected candidate branch only |
 
 The raw GET receipts and canonical provider capture must prove the disposable
@@ -119,10 +123,10 @@ Both disposable cron source builds must print exact container identity
 
 ## 5. GitHub environment authority
 
-Environment creation time: `PENDING`.
+Environment creation time: `2026-08-01T16:13:35Z`.
 
 - selected branch:
-  `codex/r1a-rehearsal-candidate-v4-20260801`;
+  `codex/r1a-rehearsal-candidate-v5-20260801`;
 - environment secret names: exactly `{RENDER_API_KEY}`;
 - environment variable names: exactly
   `{RENDER_SERVICE_ID, RENDER_BLUEPRINT_ID, RENDER_OWNER_ID,
@@ -130,8 +134,8 @@ Environment creation time: `PENDING`.
   PLATFORM_RELEASE_AUTHORITY_SCOPE}`;
 - `PLATFORM_DATABASE_IDENTITY`: exactly `r1a-rehearsal-20260801`;
 - `PLATFORM_RELEASE_AUTHORITY_SCOPE`: exactly `rehearsal`;
-- every ID value equals the disposable inventory above: `PENDING`;
-- repository-level `RENDER_*` names remain absent: `PENDING`.
+- every ID value equals the disposable inventory above: PASS;
+- repository-level `RENDER_*` names remain absent: PASS.
 
 No secret value is written into this packet.
 
@@ -140,6 +144,8 @@ No secret value is written into this packet.
 ### Baseline
 
 - workflow: `.github/workflows/platform-release-image.yml`;
+- superseded clean failure: run `30707737253` at
+  `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`; package absent, artifacts `0`;
 - exact workflow head SHA: `PENDING`;
 - run / attempt: `PENDING`;
 - conclusion: `PENDING`;
@@ -168,7 +174,7 @@ redispatched or rerun. The two successful immutable package versions and their
 
 The coordinator rows below use
 `.github/workflows/platform-release-cutover.yml` from exact candidate ref
-`codex/r1a-rehearsal-candidate-v4-20260801`, the same remote concurrency
+`codex/r1a-rehearsal-candidate-v5-20260801`, the same remote concurrency
 domain and a fresh provider CAS.
 
 Residual authority note: the concurrency domain serializes coordinator runs,
