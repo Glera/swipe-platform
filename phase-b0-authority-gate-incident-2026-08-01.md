@@ -52,10 +52,14 @@ executing regression that proves dry-run leaves an immutable source index
 byte- and metadata-identical.
 
 No rollback, permission repair or symlink change was attempted: each is a
-separate mutating authority act. Runtime containment is already fail-closed
+separate mutating authority act. A later audit also proved that ordinary
+clone/build copies are not reproducible full releases because their mutable
+Git administration bytes diverge. That separate technical blocker is handled
+by stacked follow-up PR #15; it does not alter the incident attribution.
+Runtime containment is already fail-closed
 because activation/evidence are absent, all jobs are unloaded, and the current
 release fails its immutable-tree gate. The remaining review and installer
-findings are handled only in new follow-up PRs. Those PRs must remain unmerged
+findings are handled only in new follow-up PRs #14 and #15. Those PRs must remain unmerged
 until an independent exact-head GO and a subsequent explicit operator command.
 
 ## Permanent control
