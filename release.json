@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "builtAt": "2026-08-01 17:58 UTC",
-  "feedCommit": "450807fb23e556a6f9d716a76d9734c11f416054",
+  "builtAt": "2026-08-01 18:12 UTC",
+  "feedCommit": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
   "exportedPlayablesCommit": null,
   "deployToolingCommit": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
   "profileName": "cohort-operator",
