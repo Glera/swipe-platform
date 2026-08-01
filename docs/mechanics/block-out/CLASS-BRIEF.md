@@ -1,8 +1,8 @@
 # Class Brief: `block-out-v1`
 
 - Дата: **31.07.2026**
-- Статус: **Rejected after field play; reference replication v3.1 remediation
-  active; all fidelity gates reopened**
+- Статус: **v3.1 dual-surface machine pass; final live Reference Twin +
+  Production Original field play pending**
 - Владелец taste-решения: **оператор**
 - Автор brief: **Codex**
 - Независимый reviewer: **Claude (Review 1 и Review 3)**

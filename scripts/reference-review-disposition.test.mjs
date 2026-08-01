@@ -15,6 +15,22 @@ const configFor = (comparison) => ({
     rawCleanRaster: 'pass',
     diagnosticSoleAuthority: false,
     receiptSha256: 'b'.repeat(64),
+    surfaces: {
+      referenceTwin: {
+        model: 'pass',
+        browserInput: 'pass',
+        rawCleanRaster: 'pass',
+        fullPointerReplay: 'pass',
+        productionBundleDeny: 'pass',
+      },
+      productionOriginal: {
+        model: 'pass',
+        browserInput: 'pass',
+        rawCleanRaster: 'pass',
+        fullPointerReplay: 'pass',
+        nearDuplicate: 'pass',
+      },
+    },
   },
   ...(comparison === 'reference-twin' ? {
     normalization: {

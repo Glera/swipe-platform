@@ -45,6 +45,20 @@ export function normalizeReviewConfig(input) {
     || !/^[0-9a-f]{64}$/.test(coverage.receiptSha256)) {
     fail('v3.1 review requires a SHA-256-bound model/browser-input/raw-clean-raster coverage receipt; diagnostic cannot be sole authority');
   }
+  if (input.comparison === 'twin-original') {
+    const twin = coverage.surfaces?.referenceTwin;
+    const original = coverage.surfaces?.productionOriginal;
+    const hasQuorum = (surface) => surface?.model === 'pass'
+      && surface?.browserInput === 'pass'
+      && surface?.rawCleanRaster === 'pass'
+      && surface?.fullPointerReplay === 'pass';
+    if (!hasQuorum(twin)
+      || twin.productionBundleDeny !== 'pass'
+      || !hasQuorum(original)
+      || original.nearDuplicate !== 'pass') {
+      fail('twin-original review requires independent Reference Twin and Production Original model/browser/raw/full-pointer quorums, Twin production deny, and Original near-duplicate pass');
+    }
+  }
   if (input.comparison === 'reference-twin') {
     if (input.normalization?.method !== 'causal-occupancy-v3'
       || input.normalization?.staticIdentitySuppressed !== true

@@ -3,11 +3,15 @@
 - Trigger: [`FIELD-PLAY-REJECTION-2026-08-01.md`](FIELD-PLAY-REJECTION-2026-08-01.md)
 - Process: `reference-replication.v3.1`
 - Reference: Falcon/CYLINDER Android `1.0.177+177`
-- Status: machine quorum pass; final full field play pending
+- Status: dual-surface machine quorum pass; final Twin + Original field play pending
 - Implementation commit: `534955d6fb37394ab995b207b65d9b95ff94d4ce`
 - Machine-receipt commit: `c987b4d`
-- Production HTML SHA-256: `c51bcaf7ba973943ffc5a2ebdca5538c3c76bab71de5cc7c389ddf19fdd0ba5d`
-- Review4 receipt SHA-256: `d2caaf6eb6f5482ea96e5a59370e8300ea6af08d076e0d5b2f7ff67da86ad5f7`
+- Dual-surface implementation commit: `9259e28477a1085864d64b67cba524fb8649b67a`
+- Calibration-receipt commit: `d1d623d`
+- Production HTML SHA-256: `2820bfb0459011c34357469ab8271fc125936cb15ea7a98ea8a703314a43de54`
+- Reference Twin review HTML SHA-256: `cb512789b9c8f8abc56bedd5932f8644074177afa2f8132cda9ceecce9f75fe4`
+- Review4 receipt SHA-256: `5746632fd65085a0046ffce805c25b2f7dfb6db0757a6440b7b14e71e5e99ab2`
+- Twin/Original calibration receipt SHA-256: `b40801383e3db4aaae7a41d8992669c5c13939a005be1743c7b39672fbc7e4d0`
 
 ## Red-before-green reproduction
 
@@ -59,17 +63,35 @@ Diagnostic occupancy remains supplemental; it is not used as the sole verdict.
 
 ## Automated results
 
-- Block Out model/fidelity/reference/originality: `41/41` pass after binding
-  the immutable machine receipt (`40/40` on the candidate implementation
-  before the receipt assertion was added).
+- Block Out model/fidelity/reference/originality: `45/45` pass.
 - Review4 production bundle: all positive and negative pointer/raster assertions
   pass; raw samples cover approximately `60/120/250/380/515 ms`.
 - Platform runtime: `39 pass`, `1` expected production-debug warning, `0 fail`.
-- Five levels remain solver-valid and below the frozen near-duplicate threshold.
+- Reference Twin is now an executable review-only build, completes its exact
+  four-action board by real pointer delivery, and retains `0 px` foreground
+  overwrite / outside-body leak at the five raw samples. Both production
+  bundles remain byte-clean of Twin/reference identifiers.
+- All five Original levels remain solver-valid, below the frozen near-duplicate
+  threshold and complete by real pointer replay with trace lengths
+  `8/9/10/11/11`. Every stable browser digest equals the model digest.
+
+## Second acceptance correction: dataset-to-browser proof
+
+The first v3.1 remediation still had two process gaps: the Twin existed only as
+an imported test dataset, and Original browser evidence completed only one
+level while the other four were model-only. A broad autoplay check then exposed
+that the demo planner handled direct exits but not arbitrary turning paths.
+
+Acceptance no longer uses autoplay completion as a proxy. Review4 computes a
+connected model path for each witness action, delivers that path through real
+pointer events and checks the browser digest after every action. The same
+harness runs the exact Twin and every Original level. Grab points are sampled
+inside an occupied cell, not from a concave bounding-box centre.
 
 ## Open gate
 
 Machine evidence does not restore the historical acceptance. The remaining
-gate is one full operator field play covering ordinary carry/collision plus the
+gate is one full operator field play of both executable surfaces: Reference
+Twin first, then Production Original. It covers ordinary carry/collision, the
 four reported failures and the complete gate-consume feel. Only that session
 may change the receipt from `rejected-after-field-play` to accepted.

@@ -117,6 +117,14 @@ Twin и Original выбираются dependency/data injection одного run
 viewport mapping или lifecycle. Release build fail-closed выбирает Original и
 запрещает Twin selector, fixture namespace и capture provenance.
 
+Если Twin входит в финальное сравнение, одного импортируемого dataset/test
+fixture недостаточно. Обязателен отдельный executable review-only build,
+который проходит полный browser-input witness и raw-clean-raster probes. Он
+собирается в отдельный output и никогда не подменяет production output.
+Production deny проверяется после сборки обоих shipping targets: exact Twin ID,
+reference package/scenario IDs и capture provenance не должны присутствовать
+в их module graph или bytes.
+
 ## 5. Early vertical-slice taste gate
 
 До разработки серии, factory и широкого polish реализуется один golden
@@ -193,6 +201,11 @@ solver/model не доказывает browser event semantics, а совпад�
 occupancy не доказывает scale, draw order, occlusion, colour-role mapping или
 particle-boundary emission.
 
+Если класс использует Twin и Production Original, coverage receipt содержит
+два независимых `surfaceQuorum`: `referenceTwin` и `productionOriginal`.
+Общий engine/profile уменьшает implementation drift, но не переносит browser
+или raster pass одного dataset на другой.
+
 Review config обязан byte-bind SHA-256 coverage receipt. Review tooling
 fail-closed отклоняет сессию без `model/browser-input/raw-clean-raster=pass`
 или с `diagnosticSoleAuthority=true`; тот же binding входит в экспортируемый
@@ -206,6 +219,18 @@ operator receipt и проверяется disposition tool.
 - forward + reversed gesture trace с разной event segmentation;
 - pointerdown без движения и release вне фактического capture crossing;
 - model state ↔ browser trace ↔ rendered silhouette congruence.
+
+Для каждого уровня, входящего в operator field play или release candidate,
+solver witness полностью переигрывается реальными pointer events в браузере.
+Каждый stable action обязан дать тот же digest, что модель; terminal state,
+trace length и live-set сравниваются отдельно. Replay проходит связный путь
+anchor-by-anchor, включая повороты и reposition actions. Успешный solver плюс
+один прямой autoplay prefix не является browser proof.
+
+Pointer harness берёт grab point внутри объявленной occupied cell. Центр
+bounding box запрещён как универсальный grab point: для concave figures он
+может попадать в пустую область или на общую boundary и выбирать соседний
+объект, создавая ложный browser verdict.
 
 Render semantics являются проверяемыми инвариантами: неизменный scale, если
 scale change не измерен в reference; объявленный foreground/occlusion order;
@@ -229,7 +254,8 @@ coverage matrix обязана включать все MUST и их negative con
 
 Production создаёт собственные layouts, allocation, assets, palette, UI и
 SkinSpec. Каждый candidate проходит solver/validator, declared near-duplicate
-metric и human visual review против Twin. Similarity metric family, hard
+metric, полный real-pointer witness replay и human visual review против Twin.
+Similarity metric family, hard
 rejects и threshold замораживаются до candidate generation.
 
 Factory включается только после parity fixed fixtures. Generator не маскирует
@@ -281,13 +307,13 @@ open deltas и process version.
 | --- | --- |
 | Authority ready | reference/build/rights/must-match/golden scenarios/stop rule frozen |
 | Evidence ready | verified clean+instrumented receipts or explicit gap dispositions |
-| Twin ready | exact fixtures + deterministic trace replay + production deny |
+| Twin ready | exact fixtures + separate review build + full real-pointer witness + raw raster + production deny |
 | Vertical slice | one matched scenario + operator disposition before scale-out |
 | Runtime unified | one renderer/input/presentation/viewport/lifecycle |
 | Presentation parity | profile-vs-contract + raw-clean raster receipt; no failed MUST |
 | Level-feel parity | matched-scenario choice-session + signature bands |
-| Original ready | taste parity + solver + provenance + near-duplicate pass |
+| Original ready | taste parity + solver + full per-level pointer witness + provenance + near-duplicate pass |
 | Platform ready | lifecycle/autoplay/takeover/single completion proof |
-| Close | multi-scenario coverage quorum + montage + delta + full field-play + process receipt |
+| Close | separate Twin/Original coverage quorums + montage + delta + full two-surface field-play + process receipt |
 
 Merge, production publish and rollout остаются отдельными explicit decisions.

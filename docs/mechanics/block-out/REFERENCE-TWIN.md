@@ -1,9 +1,10 @@
 # Block Out v1 — Falcon Reference Twin
 
-- Process: `reference-replication.v3`
-- Status: **accepted; causal parity supported**
+- Process: `reference-replication.v3.1`
+- Status: **dual-surface machine pass; final operator field play pending**
 - Primary source: Falcon/CYLINDER Android `1.0.177+177`
-- Playables implementation commit: `4e130fd2c8b09f34b045ab8e795c940c13b6b8d1`
+- Playables implementation commit: `9259e28477a1085864d64b67cba524fb8649b67a`
+- Calibration receipt commit: `d1d623d`
 - Native scenarios: `BO-FC-GS-01-L2-GATE`,
   `BO-FC-GS-02-L2-HOLD-GATE`
 
@@ -15,16 +16,27 @@ layout. It injects through `src/reference-twin.ts` into the canonical Block Out
 rules, engine, validator and presentation sampler. Production Original keeps
 its own layouts, roles, palette and UI.
 
-The Twin is not imported by the production entry graph. An executable deny
+The Twin has a separate executable review-only build selected by compile-time
+module resolution. It is not imported by the production entry graph. An executable deny
 test scans both AppLovin and SWIPE bundles for the Twin ID, Falcon package ID,
 scenario ID and capture provenance. All forbidden tokens are absent after the
 final rebuild.
+
+The review HTML SHA-256 is
+`cb512789b9c8f8abc56bedd5932f8644074177afa2f8132cda9ceecce9f75fe4`.
+It is regenerated locally and excluded from git; it cannot replace `dist/` or
+`dist-swipe/`.
 
 ## Deterministic receipt
 
 - exact Twin layout validates under the canonical runtime digest;
 - matched top-gate micro-scenario replays byte-equivalent;
 - exactly one logical exit is committed;
+- the full exact four-action board completes through real pointer events with
+  model/browser digest equality after every action;
+- static tap preserves the Twin digest;
+- five raw consume samples report `0 px` gate-foreground overwrite and `0 px`
+  intact-body leak outside the gate plane;
 - shipping presentation profile is inside the Falcon contract bands;
 - Production Original browser receipt records `manualInputBlocked=false`,
   stable host-pause digest and `0` page errors;
@@ -32,11 +44,18 @@ final rebuild.
 - browser cadence: median/p95 `16.7/16.7 ms`, `0/497` frames above
   `50 ms`.
 
-The internal rendered Twin artifact remains outside git. Its `twin.webm`
+The historical rendered Twin artifact remains outside git. Its `twin.webm`
 SHA-256 is
 `ee38f9d7b0f0a3b285ab6aabd84c6d5aeef0b17b9b3fc8ca462cc6497ad7a52a`.
 
 ## Review surface
+
+All v3 choice receipts below are historical and remain immutable, but the
+01.08.2026 field-play rejection classifies their acceptance disposition as
+`superseded-false-positive`. They are diagnostic evidence only. The current
+gate is a full live play of the new executable Twin followed by Production
+Original; its machine calibration receipt SHA-256 is
+`b40801383e3db4aaae7a41d8992669c5c13939a005be1743c7b39672fbc7e4d0`.
 
 Round 1 contained two short sessions, each with one unique comparison and one
 hidden repeat:

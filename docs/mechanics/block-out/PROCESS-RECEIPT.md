@@ -1,8 +1,9 @@
 # Replication process receipt: `block-out-v1`
 
 - Process version: `reference-replication.v3.1` (reopened from v3)
-- Status: `rejected-after-field-play; gates reopened`
-- Playables commit: `4e130fd2c8b09f34b045ab8e795c940c13b6b8d1`
+- Status: `dual-surface machine pass; final Twin + Original field play pending`
+- Playables candidate commit: `9259e28477a1085864d64b67cba524fb8649b67a`
+- Calibration receipt commit: `d1d623d`
 - Class authority: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Golden scenarios: [`GOLDEN-SCENARIOS.md`](GOLDEN-SCENARIOS.md)
 - Gesture traces: [`GESTURE-TRACES.v1.json`](GESTURE-TRACES.v1.json)
@@ -46,7 +47,7 @@
 | Blind/unmeasured correction rounds | `0 / 2` | every change is tied to a native frame ledger or measured causal delta |
 | Evidence-driven correction rounds | `2` | fragment propagation, then front-loaded progressive gate-plane emission plus causal normalization |
 | Invalid review surfaces rebuilt | `2` | static identity in round 1; input/scale/texture confounds in correction 1 |
-| Auto-verified parity rows | historical `6 / 6`; current `0 / 8` pending v3.1 quorum | old rows lacked raw/browser/negative coverage |
+| Auto-verified must-match rows | current `7 / 7` dual-surface quorum | model + browser-input + raw clean raster; diagnostic supplemental |
 | Automated tests | historical `34/34`; current regression baseline intentionally red | blocked throat, reversible corridor, role mismatch and constant scale reproduce field defects |
 | Near-duplicate checks | pass | receipt `5a9f3eb…`; max Falcon score `0.308`, max internal score `0.676`, reject threshold `0.900` |
 | Rework after first taste gate | `2 evidence corrections` | both retain immutable receipts and explicit diagnoses |
@@ -57,12 +58,15 @@
 | --- | ---: | --- |
 | Reproduced defects before fixes | `5 / 5` | throat teleport, role mismatch, overlapping visible gates, reverse-corridor asymmetry, consume shrink |
 | New fixed regression IDs | `4 model families` | `BO-FX-CORRIDOR-REVERSIBLE`, `BO-FX-GATE-THROAT-BLOCKED`, `BO-FX-WRONG-ROLE-GATE`, `BO-FX-VISIBLE-GATE-ROLE-UNAMBIGUOUS` |
-| Model/fidelity tests | `41 / 41` | includes 1/2/8 gesture segmentation, reopened contract and immutable machine-receipt assertions |
+| Model/fidelity tests | `45 / 45` | includes 1/2/8 gesture segmentation, dual-surface quorum and immutable calibration receipt |
 | Browser pointer negatives | `4 / 4` | static tap, blocked throat, reverse anchor, foreign-role gate |
 | Raw raster gates | pass | no carried growth; gate foreground changes `0 px`; outside intact-body leak `0 px` |
+| Reference Twin full pointer replay | `4 / 4` actions | separate review build; exact board terminal; per-action model/browser digest equality |
+| Production Original full pointer replay | `5 / 5` levels | terminal trace lengths `8/9/10/11/11`; includes turning paths and reposition actions |
+| Production Twin deny | pass | AppLovin + SWIPE module graphs contain no Twin/reference IDs or provenance |
 | Runtime checks | `39 pass / 1 expected warning / 0 fail` | portrait/landscape, offline, lifecycle, low-tier FPS |
 | Blind correction rounds | `0` | every change maps to operator defect and a red-before-green regression |
-| Operator status | pending | full multi-scenario field play, not a single corrected clip |
+| Operator status | pending | one full live Reference Twin + Production Original field play |
 
 ## Gate receipts
 
@@ -70,13 +74,13 @@
 | --- | --- | --- |
 | Authority ready | pass | Falcon/CYLINDER build is primary; must-match projection and stop rule are frozen |
 | Evidence ready | pass for v1 scope | doctor passes; both Level 2 pairs verify with perceptual distance `0`; exact tactile waveform remains explicit `B` |
-| Twin ready | pass | exact internal Level 2 dataset validates/replays in the canonical runtime; production bundle deny passes |
+| Twin ready | machine pass | exact Level 2 dataset, separate executable review build, full real-pointer witness, raw raster and production deny |
 | Vertical slice | reopened | old single positive gate scenario is insufficient |
 | Runtime unified | pass | Twin and Original use one rules/engine/validator/presentation profile |
 | Presentation parity | reopened | raw clean scale/occlusion/boundary evidence required |
-| Level-feel parity | pass | Twin→Original `same / same`; five-level solver/signature ladder is frozen and machine-verified |
-| Original ready | pass for prototype | own specs/provenance, strong-solvability receipts and near-duplicate receipt pass; publication remains unauthorized |
-| Platform ready | reopened | real pointer negative probes and full field-play required |
+| Level-feel parity | operator reopened | historical `same / same` is superseded; new dual-surface live play pending |
+| Original ready | machine pass for prototype | own specs/provenance, solvability, near-duplicate and full five-level real-pointer replay pass |
+| Platform ready | machine pass; operator pending | lifecycle/runtime and pointer probes pass; final two-surface field play required |
 
 ## Stop-rule disposition
 

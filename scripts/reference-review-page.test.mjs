@@ -22,6 +22,22 @@ const config = {
     rawCleanRaster: 'pass',
     diagnosticSoleAuthority: false,
     receiptSha256: 'a'.repeat(64),
+    surfaces: {
+      referenceTwin: {
+        model: 'pass',
+        browserInput: 'pass',
+        rawCleanRaster: 'pass',
+        fullPointerReplay: 'pass',
+        productionBundleDeny: 'pass',
+      },
+      productionOriginal: {
+        model: 'pass',
+        browserInput: 'pass',
+        rawCleanRaster: 'pass',
+        fullPointerReplay: 'pass',
+        nearDuplicate: 'pass',
+      },
+    },
   },
   pairs: [pair('p1'), pair('p2', 'p1')],
 };
@@ -77,6 +93,30 @@ test('review rejects diagnostic-only acceptance without the three-surface quorum
       acceptanceCoverage: { ...config.acceptanceCoverage, diagnosticSoleAuthority: true },
     }),
     /diagnostic cannot be sole authority/u,
+  );
+});
+
+test('Twin to Original rejects a combined pass without independent executable surface quorums', () => {
+  const { surfaces: _surfaces, ...combinedOnly } = config.acceptanceCoverage;
+  assert.throws(
+    () => normalizeReviewConfig({ ...config, acceptanceCoverage: combinedOnly }),
+    /independent Reference Twin and Production Original/u,
+  );
+  assert.throws(
+    () => normalizeReviewConfig({
+      ...config,
+      acceptanceCoverage: {
+        ...config.acceptanceCoverage,
+        surfaces: {
+          ...config.acceptanceCoverage.surfaces,
+          productionOriginal: {
+            ...config.acceptanceCoverage.surfaces.productionOriginal,
+            fullPointerReplay: 'missing',
+          },
+        },
+      },
+    }),
+    /full-pointer quorums/u,
   );
 });
 
