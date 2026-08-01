@@ -50,7 +50,7 @@ merge. No pre-review digest may be reused as post-merge authority.
 | Runtime continuity | Exactly one effective A1 lease holder across launchd restart/takeover | Root reserves the destructive capture before any kill. On the exact release, the helper records old PID/lease epoch, termination, pre-expiry refusal, takeover after expiry, and no overlapping holder or delivery drift; root validates and no-replace publishes the direct output. A handwritten or concurrent capture fails. | exact Phase-B0 physical receipt pending and requires permission |
 | Cold boot | FileVault-off headless boundary actually restores all three jobs | An approved reboot records changed boot identity; launchd invocation and remote snapshot both after boot, with invocation within 30 minutes so a later six-hour slot cannot substitute; source-controlled launchd retry remains five minutes; one supervised holder and external dead-man recovery are required. | pending; reboot requires a separate operator act |
 | External dead-man | The independent monitor observed the complete window | Provider-side evidence binds the same start/end interval, first and last heartbeat coverage, bounded observation count, no gap over fifteen minutes, alert destination and zero unexplained absence alerts. A local ping or local file alone is insufficient. Intentional test absences, if any, are separately identified and reconciled. | validator proposed in PR #16; endpoint/configuration and provider receipt pending |
-| Rollback | One reviewed action makes all Phase-B0 authority inert | With explicit approval, `p4g-agent-phase-b0-control disable` boots out all labels, persistently disables them, removes live plists and publishes `enabled:false`; a receipt then proves no matching processes, no runtime lease holder and unchanged remote data. Re-enablement, if wanted, is a new activation/bootstrap authority act. | code/tests ready; physical execution is disruptive and separately gated |
+| Rollback | One reviewed action makes all Phase-B0 authority inert | With explicit approval, `p4g-agent-phase-b0-control disable` boots out all labels, persistently disables them, removes live plists and publishes `enabled:false`; a receipt then proves no matching processes, no effective runtime lease holder and unchanged remote data. An unexpired claim held by the exact dead supervised PID is inert; malformed or inconclusive holder identity fails closed. Re-enablement, if wanted, is a new activation/bootstrap authority act. | code/tests ready; physical execution is disruptive and separately gated |
 | Final closure | All evidence is byte-bound and mutually consistent | Final packet hashes the bootstrap anchor, remote verification, A1 audit, restart/takeover, boot, dead-man and rollback receipts; exact release/tree/policy/activation identities agree; no P1-P3 or undisposed incident remains. | pending |
 
 ## Window rules
@@ -74,7 +74,7 @@ merge. No pre-review digest may be reused as post-merge authority.
 ## Evidence tooling proposed before bootstrap
 
 Stacked swipe-agents PR #16 at
-`0154edaa48c4a7789021e77aa01e79f80a699086` proposes all five source-controlled
+`0f1b39d3248ff3ac08bf4f4e1bc1618ec5ccf50d` proposes all five source-controlled
 closure surfaces identified by this matrix:
 
 1. a root-owned typed bootstrap/window anchor bound to exact activation,

@@ -10,7 +10,7 @@ process-kill, reboot, rollback or runtime authority.
 | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `27791e0f1c23457f5746160ca752a3537149265b` |
 | reproducible release pipeline | stacked swipe-agents PR #15 at `437cbde242f348dd72abe9386291707ea9a6f3fa` |
-| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `0154edaa48c4a7789021e77aa01e79f80a699086` |
+| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `0f1b39d3248ff3ac08bf4f4e1bc1618ec5ccf50d` |
 | completion contract | `phase-b0-bounded-acceptance-matrix-2026-08-01.md` |
 
 ## Closure model
@@ -50,8 +50,11 @@ The source-controlled contour provides:
    and every disposition is time-bounded;
 6. emergency-safe disable. It always makes the runtime inert; when an anchor
    and end audit exist it additionally publishes a rollback receipt proving
-   `enabled:false`, all labels unloaded, zero matching processes, no live
-   runtime lease and no remote deletion;
+   `enabled:false`, all labels unloaded, zero matching processes, no effective
+   runtime lease holder and no remote deletion. An unexpired SQLite claim is
+   effective only while its exact `supervised-runtime:<pid>` holder is alive;
+   malformed or inconclusive identity fails closed, while an already-dead
+   holder does not force a five-minute rollback delay;
 7. a root-owned final aggregate that requires the anchor, A1 audit, online B2
    window, restart, reboot, dead-man, incident and rollback receipts to agree
    byte-for-byte on all shared identities. Restart and reboot evidence must be
@@ -68,13 +71,13 @@ and rollback remain future explicit physical authority acts.
 
 ## Verification
 
-- Targeted host, acceptance, remote-sync and finance-isolation tests: 64/64.
-- Full local repository suite: 481/481 across 74 files.
+- Targeted host, acceptance, remote-sync and finance-isolation tests: 65/65.
+- Full local repository suite: 482/482 across 74 files.
 - The full run includes the executable two-build immutable-release and
   install/current-separation regression inherited from PR #15.
 - Node syntax, zsh syntax and `git diff --check`: pass.
-- Exact-head CI: swipe-agents run `30718600581`, `SUCCESS`, on
-  `0154edaa48c4a7789021e77aa01e79f80a699086`.
+- Exact-head CI: swipe-agents run `30718929653`, `SUCCESS`, on
+  `0f1b39d3248ff3ac08bf4f4e1bc1618ec5ccf50d`.
 - Meta evidence suite: 134/134 locally; the exact PR #52 CI identity is recorded
   after this packet commit is pushed.
 - No reserve-host path, `current`, secret, launchd label, process or OS state
