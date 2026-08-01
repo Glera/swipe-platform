@@ -74,7 +74,7 @@ merge. No pre-review digest may be reused as post-merge authority.
 ## Evidence tooling proposed before bootstrap
 
 Stacked swipe-agents PR #16 at
-`a64b1b8057c01c71fea7172146fa910e95ab37d6` proposes all five source-controlled
+`5ea044accdc0e75a426a8ffd1e79d74eda89ebf5` proposes all five source-controlled
 closure surfaces identified by this matrix:
 
 1. a root-owned typed bootstrap/window anchor bound to exact activation,
