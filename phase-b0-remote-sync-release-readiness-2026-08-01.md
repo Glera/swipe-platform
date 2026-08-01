@@ -213,14 +213,18 @@ After exact-head diff-only re-review and terminal CI success:
    secret URL into `agents.env`;
 8. publish an exact activation receipt for the merged immutable release and
    the already approved `filevault_disabled_headless_boot` decision;
-9. while all launchd labels remain unloaded, run one real attended `backup`
-   through the exact scheduled path and confirm its offset time normalized to
-   UTC-Z, its remote snapshot and its durable v2 receipt;
-10. separate explicit operator approval for `launchctl bootstrap`;
-11. immediately start the 48-hour acceptance window and close it with the
+9. while all launchd labels remain unloaded, run one attended `backup` as a
+   freshness top-up; confirm UTC-Z normalization and `runOrigin=attended`, and
+   do not count it toward unattended acceptance;
+10. temporarily bootstrap only the staged remote-sync plist as a system
+    LaunchDaemon, require a new `runOrigin=launchd` receipt on this non-UTC
+    host, then boot it out, disable the label and remove the live plist while
+    supervised and dead-man remain unloaded;
+11. separate explicit operator approval for the full `launchctl bootstrap`;
+12. immediately start the 48-hour acceptance window and close it with the
    deterministic remote verifier plus the base-A1 health/lease/Telegram audit.
 
-Base A1 performs real work immediately after step 10; the 48 hours are proof of
+Base A1 performs real work immediately after step 11; the 48 hours are proof of
 unattended stability, not an additional delay before the first probes.
 
 ## Cost boundary and Finance follow-up
