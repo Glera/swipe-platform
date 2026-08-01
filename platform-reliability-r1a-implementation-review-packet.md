@@ -1,8 +1,8 @@
 # Platform Reliability R1-A — implementation review packet
 
-Status: **POST-STAGE-0 REBASE; R2 conditions implemented locally; fresh
-exact-head CI/review and disposable rehearsal pending**. This packet grants no
-production authority.
+Status: **POST-STAGE-0 REBASE; R2 conditions implemented; fresh exact-head
+implementation CI PASS; final independent review and disposable rehearsal
+pending**. This packet grants no production authority.
 
 Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 `p4g-workspace-meta@ea89f97` after the Stage 1 reviewer GO on PR #39.
@@ -11,8 +11,8 @@ Plan authority: `platform-reliability-r1a-v2-plan-2026-07-30.md` merged in
 
 | Repository | Branch | Exact head | PR |
 | --- | --- | --- | --- |
-| `swipe-backend` | `codex/platform-reliability-r1a-implementation` | `4b84fa7` | [#33](https://github.com/Glera/swipe-backend/pull/33) |
-| `feed-prototype` | `codex/platform-reliability-r1a-client-guard` | `747cef6` | [#15](https://github.com/Glera/feed-prototype/pull/15) |
+| `swipe-backend` | `codex/platform-reliability-r1a-implementation` | `6ee95ca49183b966c8ae93615f7f6522b9767b3f` | [#33](https://github.com/Glera/swipe-backend/pull/33) |
+| `feed-prototype` | `codex/platform-reliability-r1a-client-guard` | `747cef674a1cfb052bb112debfc111794052d02e` | [#15](https://github.com/Glera/feed-prototype/pull/15) |
 | `p4g-workspace-meta` | `codex/platform-reliability-r1a-evidence` | exact PR head containing this packet | [#40](https://github.com/Glera/p4g-workspace-meta/pull/40) |
 
 Both implementation branches are rebased on the accepted post-Stage-0 master
@@ -172,7 +172,7 @@ No Stage 1 product code is included.
 
 ## 8. Package G — evidence and local acceptance
 
-- backend release/coordinator/guard: 31 tests PASS locally after R2 fixes;
+- backend release/coordinator/guard: 32 tests PASS locally after R2 fixes;
 - physical migration 0071 roundtrip on fresh exact-head PG16 CI: PASS;
 - append-only mutation refusal: PASS;
 - nonempty downgrade refusal: PASS;
@@ -187,9 +187,44 @@ the exact-head CI service container.
 
 ## 9. Exact-head CI evidence
 
-Fresh CI for the R2 fix heads in §1 is pending. The evidence below is retained
-for the immediately preceding post-Stage-0 heads and is not substituted for
-the required new run.
+### R2 closure evidence
+
+Exact backend head `6ee95ca49183b966c8ae93615f7f6522b9767b3f`:
+
+- compact-image build through both the explicit release SHA and Render's
+  `RENDER_GIT_COMMIT` build-arg fallback, Python 3.13 hashed dependency
+  install, release tooling, expanded Mission guard, runtime inventory and
+  Stage 0 protective smoke: **PASS**
+  ([run 30688574743](https://github.com/Glera/swipe-backend/actions/runs/30688574743));
+- full PostgreSQL acceptance, exact-byte lock regeneration, expanded Mission
+  guard, base-to-single-head upgrade, all migration roundtrips including
+  `0071_platform_release_receipts`, and the disposable two-graph platform
+  release exercise: **all jobs PASS**
+  ([run 30688574761](https://github.com/Glera/swipe-backend/actions/runs/30688574761));
+- inside that run the main suite is **528 passed / 41 skipped**, device flow is
+  **18 passed**, durable-authorization roundtrip is **1 passed**, and the final
+  database head is exactly `0071_platform_release_receipts`.
+
+The immediately preceding acceptance on backend `4b84fa7` was **red**, not
+waived: its new disposable-PG test invoked the `alembic` console script, which
+was absent from the clean test runner's `PATH`, after **527 passed / 41
+skipped**. Backend `6ee95ca` changed the helper to the active interpreter's
+`python -m alembic`, added an exact invocation unit test, and the full fresh
+run above passed. The image run on the preceding head was already green
+([run 30688336218](https://github.com/Glera/swipe-backend/actions/runs/30688336218));
+the failed acceptance remains linked as
+[run 30688336208](https://github.com/Glera/swipe-backend/actions/runs/30688336208).
+
+Exact client head `747cef674a1cfb052bb112debfc111794052d02e`:
+
+- TypeScript, every contract/browser check including the recursive Mission
+  guard and its bare/nested/inbound mutants, and Vite production build:
+  **PASS**
+  ([run 30688335662](https://github.com/Glera/feed-prototype/actions/runs/30688335662)).
+
+The exact meta packet head is the PR head containing the final independent
+review receipt. Its local root suite, `docs-boundary-lint`, `git diff --check`
+and per-PR `verify` are rechecked on that head before rehearsal.
 
 ### Pre-R2 post-Stage-0 evidence
 
@@ -354,9 +389,9 @@ items before cutover evidence is final:
 5. describe CI truthfully as unconditional per-PR execution, not provider-
    enforced required checks on the current repository plan.
 
-The implementation branches close these mechanically in backend `4b84fa7`
-and client `747cef6`. Local backend release/coordinator/guard is 31/31 PASS;
-both expanded guards PASS; the full client lint/browser/build suite PASS.
-Fresh CI and independent review remain mandatory before the disposable
-rehearsal. R2 does not authorize merge, publication, production mutation or
-cutover.
+The implementation branches close these mechanically in backend `6ee95ca`
+and client `747cef6`. Local backend release/coordinator/guard is 32/32 PASS;
+both expanded guards PASS; the full client lint/browser/build suite PASS; and
+the fresh exact-head CI in §9 is green. Final independent review remains
+mandatory before the disposable rehearsal. R2 does not authorize merge,
+publication, production mutation or cutover.
