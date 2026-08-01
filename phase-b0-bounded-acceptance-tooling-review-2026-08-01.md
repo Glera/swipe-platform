@@ -10,7 +10,7 @@ process-kill, reboot, rollback or runtime authority.
 | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `27791e0f1c23457f5746160ca752a3537149265b` |
 | reproducible release pipeline | stacked swipe-agents PR #15 at `437cbde242f348dd72abe9386291707ea9a6f3fa` |
-| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `69143208950a372cd115a33695567bccf25a36ef` |
+| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `00301a735ddab01b543d8fc3bef374a6e392f4bf` |
 | completion contract | `phase-b0-bounded-acceptance-matrix-2026-08-01.md` |
 
 ## Closure model
@@ -38,27 +38,34 @@ The source-controlled contour provides:
    lease and a real external dead-man ping;
 5. exact validators for provider-side dead-man interval evidence and complete
    operator incident dispositions. A local ping alone cannot substitute for
-   the provider observation digest, and `false_incident` fails closure;
+   the provider observation digest. The provider receipt proves first and last
+   heartbeat coverage, a bounded observation count and no gap over fifteen
+   minutes; `false_incident` fails closure and every disposition decision must
+   fall within twenty-four hours after the audited interval;
 6. emergency-safe disable. It always makes the runtime inert; when an anchor
    and end audit exist it additionally publishes a rollback receipt proving
    `enabled:false`, all labels unloaded, zero matching processes, no live
    runtime lease and no remote deletion;
 7. a root-owned final aggregate that requires the anchor, A1 audit, online B2
    window, restart, reboot, dead-man, incident and rollback receipts to agree
-   byte-for-byte on all shared identities.
+   byte-for-byte on all shared identities. Restart and reboot evidence must be
+   produced no later than the selected A1 audit end, so a later healthy host
+   state cannot repair a failed interval retrospectively.
 
 No command in this PR is executed by merge or install. `restart-drill`, reboot
 and rollback remain future explicit physical authority acts.
 
 ## Verification
 
-- Targeted host and acceptance tests: 37/37.
-- Full local repository suite: 476/476 across 74 files.
+- Targeted host, acceptance and finance-isolation tests: 41/41.
+- Full local repository suite: 477/477 across 74 files.
 - The full run includes the executable two-build immutable-release and
   install/current-separation regression inherited from PR #15.
 - Node syntax, zsh syntax and `git diff --check`: pass.
-- CI run for the exact PR #16 head is the authoritative remote gate; record its
-  terminal identity in the PR after completion.
+- Exact-head CI: swipe-agents run `30717456716`, `SUCCESS`, on
+  `00301a735ddab01b543d8fc3bef374a6e392f4bf`.
+- Meta evidence suite: 134/134 locally; the exact PR #52 CI identity is recorded
+  after this packet commit is pushed.
 - No reserve-host path, `current`, secret, launchd label, process or OS state
   was read or changed to produce this packet. The only process experiment was
   an isolated five-second local `caffeinate /bin/sleep` observation under the
@@ -81,12 +88,15 @@ The independent reviewer should attempt at least:
 5. choose unrelated start/end timestamps for the B2 and A1 receipts, omit an
    incident disposition, classify a false incident as acceptable, or reuse a
    receipt from another release;
-6. disable only part of the contour, leave a matching process/live lease,
+6. satisfy dead-man coverage with only endpoint observations, sparse pings or
+   one late success; place a restart/reboot receipt after the audited end or an
+   incident decision outside its bounded review period;
+7. disable only part of the contour, leave a matching process/live lease,
    claim deletion of remote data, or let emergency disable depend on the
    presence of acceptance evidence;
-7. exploit symlink, owner/mode, parent-path, partial-write, concurrent
+8. exploit symlink, owner/mode, parent-path, partial-write, concurrent
    publication or stale-candidate races in the root evidence set;
-8. complete from the remote verifier alone or complete before rollback.
+9. complete from the remote verifier alone or complete before rollback.
 
 ## Remaining gates
 
