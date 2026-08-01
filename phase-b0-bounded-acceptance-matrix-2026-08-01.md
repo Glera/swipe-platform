@@ -69,25 +69,27 @@ merge. No pre-review digest may be reused as post-merge authority.
 5. The remote verifier is necessary but not sufficient. Its success must
    never be reported as the complete Phase-B0 PASS.
 
-## Evidence gaps to close before bootstrap
+## Evidence tooling proposed before bootstrap
 
-The runtime implementation and release pipeline can proceed to independent
-review, but the following completion tooling is still required before the
-human bootstrap decision:
+Stacked swipe-agents PR #16 at
+`69143208950a372cd115a33695567bccf25a36ef` proposes all five source-controlled
+closure surfaces identified by this matrix:
 
-1. a typed bootstrap/window anchor bound to exact activation and launchd
-   identities;
+1. a root-owned typed bootstrap/window anchor bound to exact activation,
+   native boot identity, launchd state and the Node-to-caffeinate process
+   chain;
 2. a deterministic Phase-B0 base-A1 end-audit receipt for the anchored SQLite
    interval;
-3. exact-release physical restart/takeover and cold-boot receipt procedures;
-4. an external-monitor continuity evidence schema;
+3. exact-release physical restart/takeover and cold-boot receipt producers;
+4. an external-monitor continuity evidence schema bound to the same window;
 5. a post-disable rollback receipt that proves the absence of jobs, processes
-   and a live runtime lease without deleting remote data.
+   and a live runtime lease without deleting remote data, followed by a final
+   aggregate that requires every receipt above plus the remote B2 verifier.
 
-These are evidence/acceptance gaps, not permission to expand runtime
-authority. They should be implemented and independently reviewed without
-touching the disabled reserve host. Until they are closed, the honest state is
-`runtime implementation review-ready; bounded acceptance tooling incomplete`,
+This code is stacked review input, not an achieved gate or permission to
+expand runtime authority. Until PR #16 receives independent exact-head GO and
+is included in the later reviewed merge/release, the honest state remains
+`runtime implementation review-ready; bounded acceptance tooling unapproved`,
 not `Phase-B0 activation-ready`.
 
 ## Authority sequence after tooling closure
