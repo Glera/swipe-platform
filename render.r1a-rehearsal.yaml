@@ -1,0 +1,64 @@
+# Disposable R1-A rehearsal only. Never sync against production resources.
+# Delete every resource and disconnect this Blueprint after the evidence packet.
+previews:
+  generation: "off"
+
+databases:
+  - name: swipe-r1a-rehearsal-db-20260801
+    plan: free
+    databaseName: swipe_r1a_rehearsal
+    postgresMajorVersion: "16"
+    region: frankfurt
+
+services:
+  - type: web
+    name: swipe-r1a-rehearsal-web-20260801
+    runtime: docker
+    repo: https://github.com/Glera/swipe-backend
+    branch: codex/r1a-rehearsal-baseline
+    autoDeployTrigger: "off"
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: frankfurt
+    preDeployCommand: >-
+      python -m alembic upgrade 0070_published_test_delivery
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: swipe-r1a-rehearsal-db-20260801
+          property: connectionString
+      - key: PLATFORM_DATABASE_IDENTITY
+        value: r1a-rehearsal-20260801
+      - key: ENABLE_ISLAND_LEGACY_SURFACE
+        value: "false"
+      - key: ENABLE_ISLAND_GENERATION_RUNNERS
+        value: "false"
+      - key: ENABLE_ISLAND_PROTECTIVE_SURFACE
+        value: "true"
+      - key: ENABLE_ISLAND_SOCIAL
+        value: "false"
+      - key: ENABLE_ISLAND_BOTS
+        value: "false"
+      - key: ENABLE_ISLAND_VISIT_AWARDS
+        value: "false"
+      - key: ENABLE_ISLAND_NOTIFICATIONS
+        value: "false"
+      - key: ISLAND_REWARDS_ENABLED
+        value: "false"
+      - key: ENABLE_ISLAND_CLOSED_DELIVERY
+        value: "false"
+
+  - type: cron
+    name: swipe-r1a-rehearsal-cron-20260801
+    runtime: docker
+    repo: https://github.com/Glera/swipe-backend
+    branch: codex/r1a-rehearsal-baseline
+    autoDeployTrigger: "off"
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: frankfurt
+    schedule: "0 0 1 1 *"
+    dockerCommand: >-
+      python -c "from pathlib import Path;
+      print(Path('/app/platform-backend-sha').read_text().strip())"
