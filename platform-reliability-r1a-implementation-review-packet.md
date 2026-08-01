@@ -519,3 +519,21 @@ The local correction now:
 The GitHub plan has not been upgraded, no new ref has been published and no
 provider/resource state has changed. Those remain outside local correction and
 wait for follow-up review plus explicit operator authority.
+
+## 19. Rehearsal review R8
+
+R8 preserved R5's implementation GO and accepted every R7 blocker closure. It
+returned **NO-GO** for one remaining Blueprint-discrimination P1 and three
+evidence/authorization P2s. The captured report and disposition are:
+
+- `platform-reliability-r1a-review-r8-raw.md`;
+- `platform-reliability-r1a-review-r8-disposition.md`.
+
+The local documentation-only correction now requires exact discriminating
+post-create provider fields, cites only coordinator evidence that actually
+exists, orders the shared Render GitHub App access change after the production
+provider gate, and proves Render authority is absent at repository scope. It
+also pins sentinel identity, makes the registration capture numbered step 0,
+bounds package transfer, proves first-version visibility/linkage and declares
+a 60-day cutover deadline before Actions sidecar expiry. No external state or
+R1-A implementation code changed.
