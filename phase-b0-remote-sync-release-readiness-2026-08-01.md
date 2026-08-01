@@ -1,10 +1,11 @@
 # Phase-B0 remote-sync — review and activation packet
 
-Date: 2026-08-01. Status: R1 NO-GO remediation submitted for diff-only review;
+Date: 2026-08-01. Status: R2 NO-GO remediation submitted for diff-only review;
 **not merged, installed, activated or enabled by this packet**. The prior
-independent verdict found 1 P1, 3 P2 and 9 P3. This document records the
-author's dispositions; it does not promote them to independently verified
-closures.
+independent review confirmed all original 1 P1, 3 P2 and 9 P3 closures, then
+found one owner decision, one activation-deadline tail and seven P3 tails in
+the remediation. This document records the owner's decision and author's R3
+dispositions; it does not promote them to independently verified closures.
 
 ## Decision and scope
 
@@ -26,7 +27,8 @@ deploy, publish, payment, product flags or other mutating authority.
 | prerequisite physical-preflight fix | swipe-agents PR #12, merged as `d1a2d29`; reviewed source head `3a7f2a1f18c629f9e165f3ea70e46845af0ba9e6` |
 | remote-sync implementation | [swipe-agents PR #13](https://github.com/Glera/swipe-agents/pull/13) |
 | R1 NO-GO head | `bfab9294913c2f9052bbfbf862a61588aa999e1a` |
-| remediation head for diff-only review | `6ffa3d0273aace9d4af412a6f0f8d49e70a8e1f2` |
+| R2-reviewed remediation head | `6ffa3d0273aace9d4af412a6f0f8d49e70a8e1f2` |
+| R3 remediation head for diff-only review | `b76c4a7914a0950309af3ee5661767522132fa63` |
 | frozen host policy digest | `ae2ec821c33b06cb288fd92b603b094b8abb6f3fa85dbd157b4390fb8bb0f0cf` |
 | remote attestation schema | `agents.phase-b0-remote-sync-attestation.v2` |
 | host policy schema | `agents.phase-b0-host-policy.v2` |
@@ -61,20 +63,27 @@ PR #13 is based on merged `main`, not stacked on an unmerged branch.
    fails closed.
 7. Remote backup is a third launchd job: `RunAtLoad`, six-hour interval, no
    `KeepAlive`, no Telegram/LLM/provider-configuration authority, typed
-   low-volume stdout/stderr under its private state root, and durable private
+   low-volume stdout/stderr under its private state root, bounded to one 1 MiB
+   active file and one rotated archive per stream, and durable private
    receipts. Generic refusal logs contain no provider response or credential.
-8. One atomic writer lease fences init, backup and restore. Seed and scheduled
-   snapshots have separate tags. Pruning occurs at most daily, preserves the
-   last 72 hours, then applies 14 daily, 8 weekly and 6 monthly retention.
+8. One atomic four-hour writer lease fences init, backup and restore; release
+   removes only the same inode and holder identity, never a replacement lock.
+   Seed and scheduled snapshots have separate tags. Attended scheduled-path
+   backups are recorded but excluded from unattended acceptance; the launchd
+   path is separately named and refuses a non-launchd parent. Pruning occurs at
+   most daily, preserves the last 72 hours, then applies 14 daily, 8 weekly and
+   6 monthly retention.
    Every scheduled snapshot records a backup-time tree digest and accepts
    restic RFC3339 timestamps with a local offset only after normalizing them to
    UTC-Z.
 9. The 48-hour verifier considers scheduled receipts only, anchors every one
    to a distinct row in the complete remote restic ledger, derives gaps from
    external snapshot times and requires remote-latest to match local-latest.
-   Separately, every five-minute dead-man preflight refuses to ping once the
-   latest receipt is older than 6h15m, turning a silent backup failure into an
-   external absence alert.
+   Separately, a receipt older than 6h15m intentionally fails the complete
+   base-A1 runtime and every dead-man preflight. Activation preparation and
+   publication instead require the seven-day remote-attestation freshness and
+   do not inherit the 6h15m runtime deadline. Cold start is repaired by the
+   remote-sync `RunAtLoad` job; B2 failure leaves A1 off.
 10. Upgrading the already installed disabled host bundle requires explicit
    `--replace-files` and refuses while any of the three jobs is loaded. Host
    install, root evidence publication, remote attestation, activation receipt,
@@ -99,24 +108,41 @@ PR #13 is based on merged `main`, not stacked on an unmerged branch.
 | P3: digest-then-exec left a restic identity window | Every invocation opens and hashes the executable and captures device/inode/size/mtime/ctime immediately before execution, executes the resolved physical path, then verifies the same identity after. The production path additionally requires a root-owned non-symlink regular file at exact mode `0555`. |
 | P3: scheduled remote backup lacked its own activation gate | The scheduled command requires the root-owned enabled Phase-B0 activation and exact attestation digest before any provider or restic write; seed remains a separately named attended path. |
 
+## R2 findings and R3 dispositions
+
+| R2 finding / decision | Disposition at `b76c4a7` |
+| --- | --- |
+| Owner decision: does a stale independent backup stop only heartbeat or all base A1? | **Intentional full-runtime fail-closed boundary.** Runtime and dead-man require a latest receipt no older than 6h15m. Remote-sync remains able to repair it; there is no local-only or operator-bypass mode. The cold-start sequence is explicit in the runbook. |
+| P2/P3: seed-to-activation had an undocumented 6h15m deadline | The host now has closed typed freshness profiles: `runtime={fresh attestation:false, fresh latest:true}` and `activation={fresh attestation:true, fresh latest:false}`. Preparation/publication keep the seven-day attestation bound but do not force a re-seed after 6h15m. A real attended backup refreshes the runtime receipt immediately before bootstrap. |
+| P3: binding parse escaped typed host diagnostics | Binding parse moved inside the translation boundary; the regression requires `remote_sync_invalid_restic_repository`, never generic `unexpected`. |
+| P3: two-hour non-renewing lease could expire inside the bounded three-hour backup path, and release unconditionally removed the lock | Lease is four hours; each of the three possible restic subprocesses is capped at one hour. Release verifies both captured lock inode/device and holder UUID. The replacement-holder regression proves the old holder returns false and leaves the new lock intact. |
+| P3: attended `backup` was indistinguishable from launchd evidence | Public attended `backup` records `runOrigin=attended`. The plist invokes the distinct `scheduled-backup`; both wrapper and module require launchd parent PID 1 before recording `runOrigin=launchd`. Acceptance filters to `scheduled+launchd`, so attended repair/probe cycles never count. |
+| P3: malformed `last-backup.json` was permanently fatal with no recovery procedure | `quarantine-corrupt-head` takes the writer lock, refuses valid evidence and insecure ownership/mode, atomically preserves invalid bytes in a private quarantine path and returns only their digest. The runbook then requires an attended backup and full Phase-B0 check. |
+| P3: four negative paths were untested | Executing regressions now cover `insecure_restic`, `restic_identity_changed`, clean provider-probe drift and `receipt_time_regressed`; the time-regression test follows two valid committed receipts. |
+| P3: test-count claim included platform skips | This packet reports literal results only: targeted 40/40 with no skip; full suite 457 passed plus one disclosed timeout; isolated affected file 2/2. |
+| P3: remote-sync logs were unbounded | Wrapper rotates each stream at 1 MiB, keeps one archive, rejects symlink/non-file log paths and applies mode 0600 to the new active file. |
+
 ## Verification evidence
 
-- Targeted host/security suite: 34/34 green. The 13 remote-sync tests execute
+- Targeted host/security suite: 40/40 green. The 16 remote-sync tests execute
   an actual fake-restic binary, including the `+03:00` timestamp path; none is
   conditionally skipped.
 - Native syntax gates: Node checks green; zsh checks green; all three plists
   pass `plutil -lint`.
 - Build and typecheck: green.
-- Full local suite: 451 passed and one `backup-commit-race` case timed out at
+- Full local suite: 457 passed and one `backup-commit-race` case timed out at
   the shared 30-second limit under full-suite contention. The entire affected
-  file then passed alone 2/2 in 7.35 seconds. This is not reported as an
+  file then passed alone 2/2 in 8.67 seconds. This is not reported as an
   all-green full-suite run; exact-head CI is authoritative for the merge gate.
 - Two clean installer dry-runs at the exact head were byte-identical and made
   no host changes; the complete rendered manifest output hashes to
-  `2576343001411bdf556d3b444c223487e788f6f9f0c48d3d844b9816988671e0`.
-- Exact-head repository CI [run 30706702436](https://github.com/Glera/swipe-agents/actions/runs/30706702436)
+  `1f5200e272dd5d52c31052f6deda022a41f61240a41f9c7fd4ca1bbe182707e7`.
+- Exact-head repository CI [run 30708573840](https://github.com/Glera/swipe-agents/actions/runs/30708573840)
   completed successfully at
-  `6ffa3d0273aace9d4af412a6f0f8d49e70a8e1f2`.
+  `b76c4a7914a0950309af3ee5661767522132fa63`.
+- Meta-repository verification passed 130/130 with zero skips. The repository's
+  authoritative command is `node --test 'scripts/*.test.mjs'`; the unrelated
+  legacy workspace `scripts/verify.sh` is not used as evidence for this packet.
 - The real scheduled-path cycle on this non-UTC Mac remains intentionally
   unproved because restic, the scoped key, root evidence and activation have
   not been installed or issued. It is a post-review, installed-but-unloaded
