@@ -22,6 +22,13 @@ const config = {
     rawCleanRaster: 'pass',
     diagnosticSoleAuthority: false,
     receiptSha256: 'a'.repeat(64),
+    referenceCleanPair: {
+      status: 'pass-current-candidate',
+      receiptSha256: 'b'.repeat(64),
+      referenceVideoSha256: 'c'.repeat(64),
+      candidateVideoSha256: 'd'.repeat(64),
+      candidateCommit: 'e'.repeat(40),
+    },
     surfaces: {
       referenceTwin: {
         model: 'pass',
@@ -93,6 +100,30 @@ test('review rejects diagnostic-only acceptance without the three-surface quorum
       acceptanceCoverage: { ...config.acceptanceCoverage, diagnosticSoleAuthority: true },
     }),
     /diagnostic cannot be sole authority/u,
+  );
+});
+
+test('review rejects candidate-only raster proof without a current raw Reference to Twin pair', () => {
+  const { referenceCleanPair: _pair, ...withoutPair } = config.acceptanceCoverage;
+  assert.throws(
+    () => normalizeReviewConfig({
+      ...config,
+      acceptanceCoverage: withoutPair,
+    }),
+    /current SHA-256-bound Reference↔Twin clean pair/u,
+  );
+  assert.throws(
+    () => normalizeReviewConfig({
+      ...config,
+      acceptanceCoverage: {
+        ...config.acceptanceCoverage,
+        referenceCleanPair: {
+          ...config.acceptanceCoverage.referenceCleanPair,
+          candidateCommit: 'superseded',
+        },
+      },
+    }),
+    /candidate-only raw raster invariants are insufficient/u,
   );
 });
 

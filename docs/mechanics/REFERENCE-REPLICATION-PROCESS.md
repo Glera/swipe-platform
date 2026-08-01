@@ -191,10 +191,21 @@ Composite score не может скрыть красный MUST.
 1. `model` — positive и negative rule/invariant probes;
 2. `browser-input` — тот же сценарий доставлен реальными pointer events в
    production bundle, а не вызовом engine/debug API;
-3. `raw-clean-raster` — исходный clean кадр/клип и production raster без
-   silhouette/occupancy downsample как единственного verdict;
-4. `diagnostic` — motion/edge/occupancy канал только как дополнительное
+3. `raw-clean-pair` — исходный clean reference и заново снятый clean candidate
+   одного scenario/event, привязанные SHA-256 к текущему candidate commit;
+4. `candidate-raster-invariants` — production/Twin raster без диагностической
+   подмены: scale, draw order, occlusion, role colour и boundary emission;
+5. `diagnostic` — motion/edge/occupancy канал только как дополнительное
    причинное измерение.
+
+`raw-clean-pair` и `candidate-raster-invariants` — разные доказательства.
+Кадры только собственной реализации не могут закрыть сходство с Reference;
+старую пару нельзя повторно засчитать после изменения engine, presentation,
+profile или Twin dataset. Clean-pair receipt содержит SHA-256 обоих видео,
+candidate commit, реальный pointer trace, event-relative keyframes и ссылку на
+неизменённый contact sheet. Полноэкранный RGB score не используется как
+verdict при разной identity, но raw pair всегда остаётся доступной под каждым
+semantic/normalized выводом.
 
 Machine pass на одной поверхности не переносится на остальные. В частности,
 solver/model не доказывает browser event semantics, а совпадение `16×16`
@@ -206,10 +217,11 @@ particle-boundary emission.
 Общий engine/profile уменьшает implementation drift, но не переносит browser
 или raster pass одного dataset на другой.
 
-Review config обязан byte-bind SHA-256 coverage receipt. Review tooling
-fail-closed отклоняет сессию без `model/browser-input/raw-clean-raster=pass`
-или с `diagnosticSoleAuthority=true`; тот же binding входит в экспортируемый
-operator receipt и проверяется disposition tool.
+Review config обязан byte-bind SHA-256 coverage receipt и отдельный current
+Reference↔Twin clean-pair receipt. Review tooling fail-closed отклоняет сессию
+без `model/browser-input/candidate-raster=pass`, без fresh clean pair или с
+`diagnosticSoleAuthority=true`; те же bindings входят в экспортируемый
+operator receipt и проверяются disposition tool.
 
 Для каждого interaction MUST coverage matrix содержит минимум один успешный и
 один запрещённый сценарий. Для drag/collision/gate классов обязательны:

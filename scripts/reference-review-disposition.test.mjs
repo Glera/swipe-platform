@@ -15,6 +15,13 @@ const configFor = (comparison) => ({
     rawCleanRaster: 'pass',
     diagnosticSoleAuthority: false,
     receiptSha256: 'b'.repeat(64),
+    referenceCleanPair: {
+      status: 'pass-current-candidate',
+      receiptSha256: 'c'.repeat(64),
+      referenceVideoSha256: 'd'.repeat(64),
+      candidateVideoSha256: 'e'.repeat(64),
+      candidateCommit: 'f'.repeat(40),
+    },
     surfaces: {
       referenceTwin: {
         model: 'pass',

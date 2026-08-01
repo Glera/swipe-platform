@@ -3,8 +3,8 @@
 - Process: `reference-replication.v3.1`
 - Status: **dual-surface machine pass; final operator field play pending**
 - Primary source: Falcon/CYLINDER Android `1.0.177+177`
-- Playables implementation commit: `9259e28477a1085864d64b67cba524fb8649b67a`
-- Calibration receipt commit: `d1d623d`
+- Playables clean-pair candidate commit: `ecd22889c7b2dad837e319aa01af91a6a08fe776`
+- Calibration binding commit: `6c4f06b0c3766843a8c13c51760a0698e7e57dbd`
 - Native scenarios: `BO-FC-GS-01-L2-GATE`,
   `BO-FC-GS-02-L2-HOLD-GATE`
 
@@ -23,7 +23,7 @@ scenario ID and capture provenance. All forbidden tokens are absent after the
 final rebuild.
 
 The review HTML SHA-256 is
-`cb512789b9c8f8abc56bedd5932f8644074177afa2f8132cda9ceecce9f75fe4`.
+`2d5590ef8f88a4000b4d3f69100281811705b48ae161e0e436a4945b4422c6b2`.
 It is regenerated locally and excluded from git; it cannot replace `dist/` or
 `dist-swipe/`.
 
@@ -37,6 +37,9 @@ It is regenerated locally and excluded from git; it cannot replace `dist/` or
 - static tap preserves the Twin digest;
 - five raw consume samples report `0 px` gate-foreground overwrite and `0 px`
   intact-body leak outside the gate plane;
+- a fresh clean Falcon→current-Twin pair binds native video `3cb021d2…`,
+  candidate video `34b7c151…`, contact sheet `93b3bf13…` and receipt
+  `f57038ab…`; candidate raster invariants are recorded separately;
 - shipping presentation profile is inside the Falcon contract bands;
 - Production Original browser receipt records `manualInputBlocked=false`,
   stable host-pause digest and `0` page errors;
@@ -55,7 +58,7 @@ All v3 choice receipts below are historical and remain immutable, but the
 `superseded-false-positive`. They are diagnostic evidence only. The current
 gate is a full live play of the new executable Twin followed by Production
 Original; its machine calibration receipt SHA-256 is
-`b40801383e3db4aaae7a41d8992669c5c13939a005be1743c7b39672fbc7e4d0`.
+`73b2925ec6acd25af1e7aa3b00d410fbb7ecffc288cf103ed7565c426cf9315a`.
 
 Round 1 contained two short sessions, each with one unique comparison and one
 hidden repeat:

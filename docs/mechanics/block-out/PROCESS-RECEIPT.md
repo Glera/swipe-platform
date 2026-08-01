@@ -2,8 +2,8 @@
 
 - Process version: `reference-replication.v3.1` (reopened from v3)
 - Status: `dual-surface machine pass; final Twin + Original field play pending`
-- Playables candidate commit: `9259e28477a1085864d64b67cba524fb8649b67a`
-- Calibration receipt commit: `d1d623d`
+- Playables clean-pair candidate commit: `ecd22889c7b2dad837e319aa01af91a6a08fe776`
+- Calibration binding commit: `6c4f06b0c3766843a8c13c51760a0698e7e57dbd`
 - Class authority: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Golden scenarios: [`GOLDEN-SCENARIOS.md`](GOLDEN-SCENARIOS.md)
 - Gesture traces: [`GESTURE-TRACES.v1.json`](GESTURE-TRACES.v1.json)
@@ -47,7 +47,7 @@
 | Blind/unmeasured correction rounds | `0 / 2` | every change is tied to a native frame ledger or measured causal delta |
 | Evidence-driven correction rounds | `2` | fragment propagation, then front-loaded progressive gate-plane emission plus causal normalization |
 | Invalid review surfaces rebuilt | `2` | static identity in round 1; input/scale/texture confounds in correction 1 |
-| Auto-verified must-match rows | current `7 / 7` dual-surface quorum | model + browser-input + raw clean raster; diagnostic supplemental |
+| Auto-verified must-match rows | current `7 / 7` dual-surface quorum | model + browser-input + fresh raw clean pair + candidate raster; diagnostic supplemental |
 | Automated tests | historical `34/34`; current regression baseline intentionally red | blocked throat, reversible corridor, role mismatch and constant scale reproduce field defects |
 | Near-duplicate checks | pass | receipt `5a9f3eb…`; max Falcon score `0.308`, max internal score `0.676`, reject threshold `0.900` |
 | Rework after first taste gate | `2 evidence corrections` | both retain immutable receipts and explicit diagnoses |
@@ -58,9 +58,10 @@
 | --- | ---: | --- |
 | Reproduced defects before fixes | `5 / 5` | throat teleport, role mismatch, overlapping visible gates, reverse-corridor asymmetry, consume shrink |
 | New fixed regression IDs | `4 model families` | `BO-FX-CORRIDOR-REVERSIBLE`, `BO-FX-GATE-THROAT-BLOCKED`, `BO-FX-WRONG-ROLE-GATE`, `BO-FX-VISIBLE-GATE-ROLE-UNAMBIGUOUS` |
-| Model/fidelity tests | `45 / 45` | includes 1/2/8 gesture segmentation, dual-surface quorum and immutable calibration receipt |
+| Model/fidelity tests | `46 / 46` | includes 1/2/8 gesture segmentation, dual-surface quorum, fresh clean-pair binding and immutable calibration receipt |
 | Browser pointer negatives | `4 / 4` | static tap, blocked throat, reverse anchor, foreign-role gate |
 | Raw raster gates | pass | no carried growth; gate foreground changes `0 px`; outside intact-body leak `0 px` |
+| Fresh Falcon→Twin clean pair | pass/current candidate | native `3cb021d2…`; Twin `34b7c151…`; receipt `f57038ab…`; seven event-relative raw keyframes |
 | Reference Twin full pointer replay | `4 / 4` actions | separate review build; exact board terminal; per-action model/browser digest equality |
 | Production Original full pointer replay | `5 / 5` levels | terminal trace lengths `8/9/10/11/11`; includes turning paths and reposition actions |
 | Production Twin deny | pass | AppLovin + SWIPE module graphs contain no Twin/reference IDs or provenance |
@@ -74,10 +75,10 @@
 | --- | --- | --- |
 | Authority ready | pass | Falcon/CYLINDER build is primary; must-match projection and stop rule are frozen |
 | Evidence ready | pass for v1 scope | doctor passes; both Level 2 pairs verify with perceptual distance `0`; exact tactile waveform remains explicit `B` |
-| Twin ready | machine pass | exact Level 2 dataset, separate executable review build, full real-pointer witness, raw raster and production deny |
+| Twin ready | machine pass | exact Level 2 dataset, separate executable review build, full real-pointer witness, fresh Falcon clean pair, candidate raster and production deny |
 | Vertical slice | reopened | old single positive gate scenario is insufficient |
 | Runtime unified | pass | Twin and Original use one rules/engine/validator/presentation profile |
-| Presentation parity | reopened | raw clean scale/occlusion/boundary evidence required |
+| Presentation parity | machine pass; operator pending | fresh current raw pair and separate scale/occlusion/boundary raster evidence attached |
 | Level-feel parity | operator reopened | historical `same / same` is superseded; new dual-surface live play pending |
 | Original ready | machine pass for prototype | own specs/provenance, solvability, near-duplicate and full five-level real-pointer replay pass |
 | Platform ready | machine pass; operator pending | lifecycle/runtime and pointer probes pass; final two-surface field play required |

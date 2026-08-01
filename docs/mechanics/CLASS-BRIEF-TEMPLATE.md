@@ -425,6 +425,10 @@ interface LevelSpec {
 
 - [ ] Reference packet приложен (включая feel-таблицу и parity checklist).
 - [ ] Capture manifest/hash chain проверены.
+- [ ] Fresh Reference↔Twin clean pair снята после последнего изменения
+      engine/presentation/profile/dataset и byte-bound к candidate commit.
+- [ ] Candidate raster invariants проверены отдельно; они не засчитаны как
+      доказательство Reference parity.
 - [ ] Exact Reference Twin trace replay приложен.
 - [ ] Dataset-only switch одного canonical runtime доказан.
 - [ ] Production deny и near-duplicate gates приложены.

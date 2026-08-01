@@ -7,11 +7,13 @@
 - Implementation commit: `534955d6fb37394ab995b207b65d9b95ff94d4ce`
 - Machine-receipt commit: `c987b4d`
 - Dual-surface implementation commit: `9259e28477a1085864d64b67cba524fb8649b67a`
-- Calibration-receipt commit: `d1d623d`
+- Clean-pair candidate commit: `ecd22889c7b2dad837e319aa01af91a6a08fe776`
+- Calibration-binding commit: `6c4f06b0c3766843a8c13c51760a0698e7e57dbd`
 - Production HTML SHA-256: `2820bfb0459011c34357469ab8271fc125936cb15ea7a98ea8a703314a43de54`
-- Reference Twin review HTML SHA-256: `cb512789b9c8f8abc56bedd5932f8644074177afa2f8132cda9ceecce9f75fe4`
-- Review4 receipt SHA-256: `5746632fd65085a0046ffce805c25b2f7dfb6db0757a6440b7b14e71e5e99ab2`
-- Twin/Original calibration receipt SHA-256: `b40801383e3db4aaae7a41d8992669c5c13939a005be1743c7b39672fbc7e4d0`
+- Reference Twin review HTML SHA-256: `2d5590ef8f88a4000b4d3f69100281811705b48ae161e0e436a4945b4422c6b2`
+- Review4 receipt SHA-256: `af5f23005b065abdf4a46f24f02563609127f08520a59192daf02a4102ab8e5c`
+- Fresh clean-pair receipt SHA-256: `f57038ab140218a9720d59e7c54b24af23c24dc16a758d075e4c2d6c12eec442`
+- Twin/Original calibration receipt SHA-256: `73b2925ec6acd25af1e7aa3b00d410fbb7ecffc288cf103ed7565c426cf9315a`
 
 ## Red-before-green reproduction
 
@@ -61,9 +63,24 @@ caused by immediate pointerdown exit as proof of pickup response.
 
 Diagnostic occupancy remains supplemental; it is not used as the sole verdict.
 
+## Third acceptance correction: fresh Reference↔Twin raw pair
+
+The first dual-surface quorum still overloaded `raw clean raster`: its samples
+proved candidate occlusion and leak invariants, but did not recapture the
+corrected Twin next to Falcon. The historical causal pair belonged to the
+field-rejected implementation and could not be promoted again.
+
+`block-out-reference-clean-pair.mjs` now records the exact red-top Level 2
+micro-scenario through a continuous real pointer gesture. It binds the native
+clean source, current Twin video, candidate commit, trace/digests and seven
+event-relative unmodified keyframes. The current source video hashes are
+`3cb021d2…` (Falcon) and `34b7c151…` (Twin); contact sheet `93b3bf13…` and
+receipt `f57038ab…`. Candidate-only Canvas assertions remain a separate
+surface, and normalized occupancy remains supplemental-only.
+
 ## Automated results
 
-- Block Out model/fidelity/reference/originality: `45/45` pass.
+- Block Out model/fidelity/reference/originality: `46/46` pass.
 - Review4 production bundle: all positive and negative pointer/raster assertions
   pass; raw samples cover approximately `60/120/250/380/515 ms`.
 - Platform runtime: `39 pass`, `1` expected production-debug warning, `0 fail`.

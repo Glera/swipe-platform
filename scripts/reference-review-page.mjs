@@ -45,6 +45,18 @@ export function normalizeReviewConfig(input) {
     || !/^[0-9a-f]{64}$/.test(coverage.receiptSha256)) {
     fail('v3.1 review requires a SHA-256-bound model/browser-input/raw-clean-raster coverage receipt; diagnostic cannot be sole authority');
   }
+  const cleanPair = coverage.referenceCleanPair;
+  if (cleanPair?.status !== 'pass-current-candidate'
+    || typeof cleanPair.receiptSha256 !== 'string'
+    || !/^[0-9a-f]{64}$/.test(cleanPair.receiptSha256)
+    || typeof cleanPair.referenceVideoSha256 !== 'string'
+    || !/^[0-9a-f]{64}$/.test(cleanPair.referenceVideoSha256)
+    || typeof cleanPair.candidateVideoSha256 !== 'string'
+    || !/^[0-9a-f]{64}$/.test(cleanPair.candidateVideoSha256)
+    || typeof cleanPair.candidateCommit !== 'string'
+    || !/^[0-9a-f]{40}$/.test(cleanPair.candidateCommit)) {
+    fail('v3.1 review requires a current SHA-256-bound Reference↔Twin clean pair; candidate-only raw raster invariants are insufficient');
+  }
   if (input.comparison === 'twin-original') {
     const twin = coverage.surfaces?.referenceTwin;
     const original = coverage.surfaces?.productionOriginal;
@@ -56,7 +68,7 @@ export function normalizeReviewConfig(input) {
       || twin.productionBundleDeny !== 'pass'
       || !hasQuorum(original)
       || original.nearDuplicate !== 'pass') {
-      fail('twin-original review requires independent Reference Twin and Production Original model/browser/raw/full-pointer quorums, Twin production deny, and Original near-duplicate pass');
+      fail('twin-original review requires independent Reference Twin and Production Original model/browser/raw/full-pointer quorums, a current Reference↔Twin clean pair, Twin production deny, and Original near-duplicate pass');
     }
   }
   if (input.comparison === 'reference-twin') {
