@@ -21,6 +21,7 @@ function row(value) {
 
 function profile({
   user = 'old_user',
+  sessionUser = user,
   observedAt = '2026-07-30T08:40:00.000Z',
   database = 'swipe_55ht',
   databaseOid = '16384',
@@ -31,6 +32,7 @@ function profile({
   columnSelect = true,
   policyApplies = true,
   roleConfig = [],
+  sessionCredential = {},
   complete = true,
   extraRows = [],
 } = {}) {
@@ -41,13 +43,35 @@ function profile({
       database,
       databaseOid,
       user,
-      sessionUser: user,
+      sessionUser,
       readOnly: true,
       timezone: 'UTC',
       serverVersionNum: '160010',
       serverAddress,
       serverPort: 5432,
       systemIdentifier,
+    },
+    {
+      kind: 'sessionCredential',
+      identity: 'session',
+      delegated: sessionUser !== user,
+      superuser: false,
+      login: true,
+      inherit: true,
+      createRole: false,
+      createDb: false,
+      replication: false,
+      bypassRls: false,
+      connectionLimit: -1,
+      roleConfig: sessionUser === user
+        ? []
+        : ['role=CURRENT_EFFECTIVE_USER'],
+      directMembershipCount: sessionUser === user ? 0 : 1,
+      currentRoleMembership: true,
+      allDirectMembershipsCoveredByEffective: true,
+      allDirectSetCoveredByEffective: true,
+      allDirectMembershipAdminsFalse: true,
+      ...sessionCredential,
     },
     {
       kind: 'role',
@@ -235,6 +259,39 @@ test('equal capabilities bind each profile digest to credential and time', () =>
   assert.doesNotMatch(JSON.stringify(result), /old_user|new_user|swipe_55ht/);
 });
 
+test('Render delegated login preserves effective authority without hiding extras', () => {
+  const result = compareProfiles(
+    parseProfile(profile()),
+    parseProfile(profile({
+      user: 'old_user',
+      sessionUser: 'new_user',
+      observedAt: '2026-07-30T08:41:00.000Z',
+    })),
+  );
+
+  assert.equal(result.profilesEqual, true);
+  assert.equal(result.rotationMode, 'delegated-effective-role-preserved');
+  assert.equal(result.oldEffectiveUserSha256, result.newEffectiveUserSha256);
+  assert.notEqual(result.oldUserSha256, result.newUserSha256);
+
+  for (const sessionCredential of [
+    { superuser: true },
+    { roleConfig: ['role=CURRENT_EFFECTIVE_USER', 'search_path=private'] },
+    { allDirectMembershipsCoveredByEffective: false },
+    { allDirectSetCoveredByEffective: false },
+    { allDirectMembershipAdminsFalse: false },
+  ]) {
+    assert.throws(
+      () => parseProfile(profile({
+        user: 'old_user',
+        sessionUser: 'new_user',
+        sessionCredential,
+      })),
+      /delegated session credential/,
+    );
+  }
+});
+
 test('table privilege mismatch is typed without exposing object identity', () => {
   const result = compareProfiles(
     parseProfile(profile()),
@@ -298,7 +355,7 @@ test('cluster or database identity changes fail before capability comparison', (
       '"sessionUser":"old_user"',
       '"sessionUser":"different_login"',
     )),
-    /SET ROLE captures are invalid/,
+    /delegated does not match/,
   );
 });
 
@@ -334,7 +391,7 @@ test('same user, reversed time, unknown kind, and malformed schema fail closed',
       oldProfile,
       parseProfile(profile({ observedAt: '2026-07-30T08:41:00.000Z' })),
     ),
-    /must use different users/,
+    /must use different session users/,
   );
   assert.throws(
     () => compareProfiles(

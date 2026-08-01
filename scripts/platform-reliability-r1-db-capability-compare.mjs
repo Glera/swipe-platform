@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const PROFILE_SCHEMA = 'platform-reliability-r1-db-capability-profile.v1';
+const PROFILE_SCHEMA = 'platform-reliability-r1-db-capability-profile.v2';
 const COMPARISON_SCHEMA =
   'platform-reliability-r1-db-capability-comparison.v1';
 
@@ -44,6 +44,26 @@ const META_KEYS = [
   'serverAddress',
   'serverPort',
   'systemIdentifier',
+];
+
+const SESSION_CREDENTIAL_KEYS = [
+  'kind',
+  'identity',
+  'delegated',
+  'superuser',
+  'login',
+  'inherit',
+  'createRole',
+  'createDb',
+  'replication',
+  'bypassRls',
+  'connectionLimit',
+  'roleConfig',
+  'directMembershipCount',
+  'currentRoleMembership',
+  'allDirectMembershipsCoveredByEffective',
+  'allDirectSetCoveredByEffective',
+  'allDirectMembershipAdminsFalse',
 ];
 
 const FIELD_TYPES = {
@@ -322,8 +342,16 @@ function validateVersionDependentFields(row, serverVersionNumber, label) {
 export function parseProfile(raw) {
   const rows = parseLines(raw);
   const metas = rows.filter((row) => row.kind === 'meta');
+  const sessionCredentials = rows.filter(
+    (row) => row.kind === 'sessionCredential',
+  );
   const completes = rows.filter((row) => row.kind === 'complete');
   if (metas.length !== 1) fail(`expected one meta row, got ${metas.length}`);
+  if (sessionCredentials.length !== 1) {
+    fail(
+      `expected one sessionCredential row, got ${sessionCredentials.length}`,
+    );
+  }
   if (completes.length !== 1) {
     fail(`expected one complete row, got ${completes.length}`);
   }
@@ -338,9 +366,6 @@ export function parseProfile(raw) {
   const databaseOid = numericString(meta.databaseOid, 'meta.databaseOid');
   const user = nonEmptyString(meta.user, 'meta.user');
   const sessionUser = nonEmptyString(meta.sessionUser, 'meta.sessionUser');
-  if (sessionUser !== user) {
-    fail('meta.sessionUser must equal meta.user; SET ROLE captures are invalid');
-  }
   const serverVersionNum = numericString(
     meta.serverVersionNum,
     'meta.serverVersionNum',
@@ -362,6 +387,76 @@ export function parseProfile(raw) {
     'meta.systemIdentifier',
   );
 
+  const sessionCredential = sessionCredentials[0];
+  assertExactKeys(
+    sessionCredential,
+    SESSION_CREDENTIAL_KEYS,
+    'sessionCredential',
+  );
+  if (
+    sessionCredential.kind !== 'sessionCredential'
+    || sessionCredential.identity !== 'session'
+  ) {
+    fail('invalid sessionCredential identity');
+  }
+  const delegated = boolean(
+    sessionCredential.delegated,
+    'sessionCredential.delegated',
+  );
+  for (const field of [
+    'superuser',
+    'login',
+    'inherit',
+    'createRole',
+    'createDb',
+    'replication',
+    'bypassRls',
+    'currentRoleMembership',
+    'allDirectMembershipsCoveredByEffective',
+    'allDirectSetCoveredByEffective',
+    'allDirectMembershipAdminsFalse',
+  ]) {
+    boolean(sessionCredential[field], `sessionCredential.${field}`);
+  }
+  integer(
+    sessionCredential.connectionLimit,
+    'sessionCredential.connectionLimit',
+  );
+  stringArray(sessionCredential.roleConfig, 'sessionCredential.roleConfig');
+  nonNegativeInteger(
+    sessionCredential.directMembershipCount,
+    'sessionCredential.directMembershipCount',
+  );
+  if (delegated !== (sessionUser !== user)) {
+    fail('sessionCredential.delegated does not match session/effective users');
+  }
+  if (delegated) {
+    if (
+      sessionCredential.superuser
+      || !sessionCredential.login
+      || sessionCredential.createRole
+      || sessionCredential.createDb
+      || sessionCredential.replication
+      || sessionCredential.bypassRls
+    ) {
+      fail('delegated session credential has privileged role attributes');
+    }
+    if (
+      canonical(sessionCredential.roleConfig)
+      !== canonical(['role=CURRENT_EFFECTIVE_USER'])
+    ) {
+      fail('delegated session credential has unexpected role configuration');
+    }
+    if (
+      !sessionCredential.currentRoleMembership
+      || !sessionCredential.allDirectMembershipsCoveredByEffective
+      || !sessionCredential.allDirectSetCoveredByEffective
+      || !sessionCredential.allDirectMembershipAdminsFalse
+    ) {
+      fail('delegated session credential has uncovered membership authority');
+    }
+  }
+
   const complete = completes[0];
   assertExactKeys(
     complete,
@@ -377,7 +472,11 @@ export function parseProfile(raw) {
   const counts = Object.fromEntries(RECORD_KINDS.map((kind) => [kind, 0]));
   const recordKindSet = new Set(RECORD_KINDS);
   for (const [index, row] of rows.entries()) {
-    if (row.kind === 'meta' || row.kind === 'complete') continue;
+    if (
+      row.kind === 'meta'
+      || row.kind === 'sessionCredential'
+      || row.kind === 'complete'
+    ) continue;
     if (!recordKindSet.has(row.kind)) {
       fail(`line ${index + 1} has unsupported kind ${String(row.kind)}`);
     }
@@ -434,6 +533,7 @@ export function parseProfile(raw) {
   const profileDocument = {
     schema: PROFILE_SCHEMA,
     meta: normalizedMeta,
+    sessionCredential: stable(sessionCredential),
     complete: stable(complete),
     records: [...records.entries()].sort(([left], [right]) =>
       (left < right ? -1 : left > right ? 1 : 0)),
@@ -443,6 +543,8 @@ export function parseProfile(raw) {
     database,
     databaseOid,
     user,
+    sessionUser,
+    sessionCredential: stable(sessionCredential),
     serverVersionNum,
     serverAddress,
     serverPort,
@@ -490,8 +592,20 @@ export function compareProfiles(oldProfile, newProfile) {
   if (oldProfile.serverVersionNum !== newProfile.serverVersionNum) {
     fail('PostgreSQL server version changed between capability profiles');
   }
+  if (oldProfile.sessionUser === newProfile.sessionUser) {
+    fail('old and new capability profiles must use different session users');
+  }
+  let rotationMode = 'direct-user-change';
   if (oldProfile.user === newProfile.user) {
-    fail('old and new capability profiles must use different users');
+    if (!newProfile.sessionCredential.delegated) {
+      fail('same effective user requires a delegated new credential');
+    }
+    rotationMode = 'delegated-effective-role-preserved';
+  } else if (
+    oldProfile.sessionCredential.delegated
+    || newProfile.sessionCredential.delegated
+  ) {
+    fail('delegated credential rotation must preserve the effective user');
   }
   if (new Date(newProfile.observedAt) <= new Date(oldProfile.observedAt)) {
     fail('new capability profile must be observed after the old profile');
@@ -541,8 +655,11 @@ export function compareProfiles(oldProfile, newProfile) {
     serverVersionNum: oldProfile.serverVersionNum,
     oldObservedAt: oldProfile.observedAt,
     newObservedAt: newProfile.observedAt,
-    oldUserSha256: sha256(oldProfile.user),
-    newUserSha256: sha256(newProfile.user),
+    oldUserSha256: sha256(oldProfile.sessionUser),
+    newUserSha256: sha256(newProfile.sessionUser),
+    oldEffectiveUserSha256: sha256(oldProfile.user),
+    newEffectiveUserSha256: sha256(newProfile.user),
+    rotationMode,
     oldProfileSha256: oldProfile.profileSha256,
     newProfileSha256: newProfile.profileSha256,
     profilesEqual: differences.length === 0,
@@ -599,6 +716,7 @@ export function renderMarkdown(result) {
     `- PostgreSQL: ${inlineCode(result.serverVersionNum)}`,
     `- Old profile: ${inlineCode(result.oldProfileSha256)}`,
     `- New profile: ${inlineCode(result.newProfileSha256)}`,
+    `- Rotation mode: ${inlineCode(result.rotationMode)}`,
     `- Profiles equal: **${result.profilesEqual ? 'PASS' : 'FAIL'}**`,
     '',
   ];
