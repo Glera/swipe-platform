@@ -15,7 +15,7 @@ installation or runtime authority.
 | follow-up implementation | [swipe-agents PR #14](https://github.com/Glera/swipe-agents/pull/14) |
 | exact follow-up head | `27791e0f1c23457f5746160ca752a3537149265b` |
 | stacked release pipeline | [swipe-agents PR #15](https://github.com/Glera/swipe-agents/pull/15), based on PR #14 |
-| exact release-pipeline head | `4ca5bfcdae5f8c1dfa6f8a7019aae0dd80904dda` |
+| exact release-pipeline head | `437cbde242f348dd72abe9386291707ea9a6f3fa` |
 
 ## Final-review dispositions
 
@@ -65,14 +65,22 @@ identical. Copying an ordinary checkout therefore cannot satisfy a
 reproducible immutable-release claim.
 
 Stacked PR #15 closes that release-level gap. It archives only exact tracked
-source bytes, builds with an isolated private HOME and npm cache, removes the
-build home, emits only a deterministic `.git/HEAD` identity marker, freezes
-the full tree, and returns a typed production tree-digest receipt. A second
+source bytes, builds with an isolated private HOME and npm cache, fixed
+UTC/C/source-commit epoch and disabled user/system Git configuration, removes
+the build home, emits only a deterministic `.git/HEAD` identity marker,
+freezes the full tree, and returns a typed production tree-digest receipt. A second
 default-dry-run command re-verifies that candidate. `--apply-release` installs
 only the exact re-verified bytes while all Phase-B0 jobs are unloaded and does
 not touch `current`; `--switch-current` is a distinct authority act with an
 atomic switch and rollback to the prior link on post-switch verification
 failure.
+
+The installer also proves that its own tracked source is clean at the same
+exact commit with Git optional locks disabled. A launchd query counts as
+"unloaded" only on the observed macOS `launchctl print` ESRCH exit 113;
+loaded status 0 and every inconclusive/error/signal result refuse. Rollback
+captures the inode of the prepared `current` link and never overwrites a
+concurrent replacement.
 
 The macOS rename boundary is also recoverable. The installer opens only the
 staging root's owner-write bit for the same-filesystem rename and freezes the
@@ -81,9 +89,9 @@ target immediately afterward. If killed in that interval, a repeated explicit
 every child already frozen), restores root `0555`, and still requires the full
 reviewed digest. Any other writable shape remains a refusal.
 
-At exact PR #15 head `4ca5bfcdae5f8c1dfa6f8a7019aae0dd80904dda`,
+At exact PR #15 head `437cbde242f348dd72abe9386291707ea9a6f3fa`,
 two independent builds both reported `checkedPaths=3001` and digest
-`f54853d5c85beadca059ff2db7a397045b6fdffbd74428761ed226f1707bcfcf`.
+`054c836102a19aa0232990c05315610590da1cda9021f1b2a44a0d8ac9b9df02`.
 The no-write live installer receipt reported `installed=false` and
 `currentSwitched=false`. Temporary candidates were moved recoverably to the
 operator account's Trash; the live host was not changed.
@@ -106,7 +114,7 @@ operator account's Trash; the live host was not changed.
   temporary runtime without `current`, switches `current` separately, then
   re-runs the production scanner and native `better-sqlite3` probe.
 - PR #15 exact-head CI
-  [run 30714944927](https://github.com/Glera/swipe-agents/actions/runs/30714944927)
+  [run 30715470267](https://github.com/Glera/swipe-agents/actions/runs/30715470267)
   passed with the build/install executing regression enabled.
 - Unlike the earlier revision, the complete build/install executing regression
   is mandatory in Ubuntu CI as well as the local macOS run; it may not be
