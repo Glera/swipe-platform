@@ -1,10 +1,10 @@
 {
   "schema": "p4g.gesture-traces.v1",
-  "processVersion": "reference-replication.v3",
+  "processVersion": "reference-replication.v3.1",
   "mechanic": "block-out-v1",
   "coordinateSpace": "normalized-gameplay-board",
   "timeUnit": "normalized-progress",
-  "status": "planned; device coordinates bind after doctor/display receipt",
+  "status": "v3 baseline plus executable v3.1 aperture/release regressions",
   "traces": [
     {
       "scenarioId": "BO-GS-01",
@@ -28,7 +28,7 @@
       "scenarioId": "BO-GS-04",
       "traceId": "BO-GT-04-GATE-THRESHOLD",
       "samples": [[0, 0.5, 0.55], [0.25, 0.5, 0.42], [0.5, 0.5, 0.31], [0.75, 0.5, 0.22], [1, 0.5, 0.16]],
-      "semanticAnchors": {"feedbackStartDepthCells": 1.35, "captureDepthCells": 1},
+      "semanticAnchors": {"feedbackStartDepthCells": 1.35, "captureDepthCells": 1.35},
       "terminal": "gate-control-transfer"
     },
     {
@@ -43,6 +43,21 @@
       "samples": [[0, 0.7, 0.7], [0.25, 0.62, 0.58], [0.5, 0.56, 0.46], [0.75, 0.5, 0.32], [1, 0.5, 0.18]],
       "precondition": "prior consume presentation active; logical exit already committed",
       "terminal": "second-gate-control-transfer"
+    },
+    {
+      "scenarioId": "BO-GS-14",
+      "traceId": "BO-GT-14-OFFSET-NEAREST-FIT",
+      "samples": [[0, 0.5, 0.18], [0.5, 0.3, 0.18], [1, 0.3, 0.14]],
+      "semanticAnchors": {"capturePose": [0.75, 0], "nearestFullFitPose": [0, 0], "alignmentMs": 90},
+      "controls": ["obstacle-in-cross-axis-correction-path", "wider-aperture-no-unconditional-centre"],
+      "terminal": "nearest-fit-then-normal-axis-exit"
+    },
+    {
+      "scenarioId": "BO-GS-15",
+      "traceId": "BO-GT-15-LATERAL-STICKY-RELEASE",
+      "samples": [[0, 0.5, 0.18], [1, 0.33, 0.18]],
+      "controls": ["untouched-static-tap", "release-just-outside-1.35", "single-delta", "segmented-delta"],
+      "terminal": "release-capture-without-old-anchor-rollback"
     }
   ]
 }

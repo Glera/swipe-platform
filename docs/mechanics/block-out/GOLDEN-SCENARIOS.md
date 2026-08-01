@@ -33,13 +33,13 @@ historical Grand Games one-cell threshold by assumption.
 | --- | --- | --- |
 | `BO-MM-01` | pickup and continuous carried response | `BO-GS-01` |
 | `BO-MM-02` | collision contact slides without overlap/sticky stop | `BO-GS-02/03/05` |
-| `BO-MM-03` | compatible gate wakes on approach and takes control mid-drag before release | `BO-GS-04` |
+| `BO-MM-03` | compatible gate takes control mid-drag or on moved release inside the sticky field | `BO-GS-04/15` |
 | `BO-MM-04` | whole-body pull becomes same-role fragments while next input is available | `BO-GS-04/06` |
 | `BO-MM-05` | gate exit is physically and role constrained | `BO-GS-07/08` |
 | `BO-MM-06` | legal corridors remain reversible under continuous drag | `BO-GS-09` |
 | `BO-MM-07` | intact body keeps scale and disappears behind gate art while particles emerge at the boundary | `BO-GS-10` |
 | `BO-MM-08` | carried outline persists without pointer movement and never changes collision geometry | `BO-GS-11` |
-| `BO-MM-09` | compatible gate is sticky before release and preserves cross-axis pose during axial consume | `BO-GS-12` |
+| `BO-MM-09` | compatible gate applies only the nearest full-aperture fit, then consumes axially | `BO-GS-12/14` |
 | `BO-MM-10` | exact-clearance corridor accepts noisy input and active feedback stays within the frame budget | `BO-GS-13` |
 
 ## Scenarios
@@ -57,8 +57,10 @@ historical Grand Games one-cell threshold by assumption.
 | `BO-GS-09` | narrow corridor/shoulder contact with a legal outward route | replay path forward, exact reverse and two alternative event segmentations | returns to initial pose within tolerance; no carried-silhouette enlargement beyond collision geometry | clean + instrumented |
 | `BO-GS-10` | compatible clear gate with intact multi-cell block | slow gate consume sampled at `0/25/50/75/100%` pull | body scale constant; body progressively occluded behind foreground gate art; no intact pixels over foreground; fragments appear only at/outside gate plane | clean + instrumented |
 | `BO-GS-11` | multi-cell block away from capture | pointerdown, no pointermove for `≥450 ms`, then release | thick carried outline present on first rAF and stationary sample; pixel occupancy stable; role-colour body bounds unchanged | clean + instrumented |
-| `BO-GS-12` | compatible block offset so its centre enters the aperture but full footprint is not centred | drag laterally in-board, then one outward sample; keep pointer held | takeover commits before pointerup; pre-takeover boundary still needs full footprint; consume preserves cross-axis centroid and moves axially only | clean + instrumented |
+| `BO-GS-12` | compatible block offset so its centre enters the aperture but full footprint is not yet contained | drag laterally in-board, then one outward sample; keep pointer held | takeover commits before pointerup; actual capture pose remains observable; alignment does not begin before takeover | clean + instrumented |
 | `BO-GS-13` | two-cell-high exact-clearance corridor between stationary figures | five-sample forward trace with alternating `±0.35–0.46 cell` cross-axis error, sparse delivery, then reverse | expected anchor in both directions; outline/collision cue does not alter geometry; active-input p95 and pointer→rAF stay inside frozen thresholds | clean + instrumented |
+| `BO-GS-14` | offset compatible block whose centre is inside the aperture but whose complete footprint extends past one side; repeat with an obstacle in the correction corridor | trigger takeover and sample actual/aligned poses plus raw body bounds at early/fit/post-fit times | nearest collision-free cross-axis shift fully contains the footprint before plane crossing; obstructed correction rejects capture; no additional centring after fit | clean + instrumented |
+| `BO-GS-15` | moved compatible block inside the sticky field, plus untouched tap and just-outside control | move laterally without outward intent and release; repeat as static tap, one large delta and segmented deltas around the boundary | moved in-envelope release commits exactly once with no old-anchor rollback; untouched/outside controls do not; threshold pose is segmentation invariant | clean + instrumented |
 
 ## Initial-state binding
 
@@ -88,5 +90,5 @@ Scale-out remains blocked until:
 - no implementation number is relabelled `R-native` without source PTS.
 
 Historical vertical-slice closure is superseded. New Close additionally
-requires `BO-GS-07..10` on model, real browser pointer delivery and raw-clean
+requires `BO-GS-07..15` on model, real browser pointer delivery and raw-clean
 raster surfaces. Diagnostic occupancy is supplemental only.

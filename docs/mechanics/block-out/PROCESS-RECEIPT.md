@@ -2,8 +2,8 @@
 
 - Process version: `reference-replication.v3.1` (reopened from v3)
 - Status: `dual-surface machine pass; final Twin + Original field play pending`
-- Playables clean-pair runtime candidate commit: `bfdb351f83ebe3c11c5ab98f1666cb79f31b867f`
-- Calibration binding commit: `2a1ea71219263f0b0af67f9f6055e0c7a5d2a073`
+- Playables clean-pair runtime candidate commit: `8403ee6307d9804232999b59c2aba477bc7a2354`
+- Calibration binding commit: `8fcbc9366107fa63b61ac88fa3bc9f1731cf2464`
 - Class authority: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Golden scenarios: [`GOLDEN-SCENARIOS.md`](GOLDEN-SCENARIOS.md)
 - Gesture traces: [`GESTURE-TRACES.v1.json`](GESTURE-TRACES.v1.json)
@@ -49,7 +49,7 @@
 | Evidence-driven correction rounds | `2` | fragment propagation, then front-loaded progressive gate-plane emission plus causal normalization |
 | Invalid review surfaces rebuilt | `2` | static identity in round 1; input/scale/texture confounds in correction 1 |
 | Auto-verified must-match rows | current `10 / 10` dual-surface quorum | model + browser-input + fresh raw clean pair + candidate raster; diagnostic supplemental |
-| Automated tests | current `49/49` pass after red-before-green reproduction | held persistence, noisy corridor, sticky offset/axial path, blocked throat, role mismatch and semantic raw parity are protected |
+| Automated tests | current `52/52` pass after red-before-green reproduction | includes nearest full-aperture fit, release capture without rollback and fractional-threshold segmentation invariance |
 | Near-duplicate checks | pass | receipt `cf24646…`; max Falcon score `0.308`, max internal score `0.676`, reject threshold `0.900` |
 | Rework after first taste gate | `2 evidence corrections` | both retain immutable receipts and explicit diagnoses |
 
@@ -58,17 +58,17 @@
 | Metric | Current value | Evidence |
 | --- | ---: | --- |
 | Reproduced defects before fixes | `5 / 5` | throat teleport, role mismatch, overlapping visible gates, reverse-corridor asymmetry, consume shrink |
-| New fixed regression IDs | `6 model families + 3 temporal/browser invariants` | adds `BO-FX-CORRIDOR-ENTRY-ASSIST`, `BO-FX-GATE-STICKY-OFFSET`, held `50/450 ms`, pre-release takeover and active-input performance |
-| Model/fidelity tests | `49 / 49` | includes noisy exact-clearance input, axial gate trajectory, dual-surface quorum, nearest-rAF clean sampling and immutable calibration receipt |
+| New fixed regression IDs | `8 model families + 5 temporal/browser invariants` | additionally protects `BO-FX-GATE-APERTURE-ALIGN`, `BO-FX-GATE-NEAR-RELEASE`, nearest-fit raster and release-without-rollback |
+| Model/fidelity tests | `52 / 52` | includes full-aperture/collision-safe alignment, fractional boundary invariance, dual-surface quorum and immutable calibration receipt |
 | Browser pointer negatives | `4 / 4` | static tap, blocked throat, reverse anchor, foreign-role gate |
 | Raw raster gates | pass | no carried growth; gate foreground changes `0 px`; outside intact-body leak `0 px` |
-| Fresh Falcon→Twin clean pair | semantic pass/current candidate | native `3cb021d2…`; Twin `40195f43…`; receipt `f8a91d39…`; seven nearest-rAF raw keyframes; 19/19 semantic checks |
+| Fresh Falcon→Twin clean pair | semantic pass/current candidate | native `3cb021d2…`; Twin `a8fe2d95…`; receipt `2cc2a6a3…`; seven nearest-rAF raw keyframes; 19/19 semantic checks |
 | Reference Twin full pointer replay | `4 / 4` actions | separate review build; exact board terminal; per-action model/browser digest equality |
 | Production Original full pointer replay | `5 / 5` levels | terminal trace lengths `8/9/10/11/11`; includes turning paths and reposition actions |
 | Production Twin deny | pass | AppLovin + SWIPE module graphs contain no Twin/reference IDs or provenance |
 | Runtime checks | `39 pass / 1 expected warning / 0 fail` | portrait/landscape, offline, lifecycle, low-tier FPS |
 | Production FPS | `59 fps` at CPU×1/2/4 | invalidation-driven idle rendering; prior `28 fps` premium failure closed without threshold change |
-| Active manual drag | p95 `16.7 ms`, `0` frames `>50 ms` | isolated real-pointer window excludes capture/readback/restart work |
+| Active manual drag | p95 `16.8 ms`, `0` frames `>50 ms` | isolated real-pointer window excludes capture/readback/restart work |
 | Blind correction rounds | `0` | every change maps to operator defect and a red-before-green regression |
 | Operator status | pending | one full live Reference Twin + Production Original field play |
 
@@ -81,7 +81,7 @@
 | Twin ready | machine pass | exact Level 2 dataset, separate executable review build, full real-pointer witness, fresh Falcon clean pair, candidate raster and production deny |
 | Vertical slice | reopened | old single positive gate scenario is insufficient |
 | Runtime unified | pass | Twin and Original use one rules/engine/validator/presentation profile |
-| Presentation parity | machine semantic pass; operator pending | independently aligned raw pair: body corr `0.9983`, particle corr `0.9819`, cross-axis delta `0.0054` gate widths, plus scale/occlusion/boundary raster evidence |
+| Presentation parity | machine semantic pass; operator pending | independently aligned raw pair: body corr `0.9992`, particle corr `0.9814`, cross-axis delta `0.0054` gate widths, plus scale/occlusion/boundary/full-aperture raster evidence |
 | Level-feel parity | operator reopened | historical `same / same` is superseded; new dual-surface live play pending |
 | Original ready | machine pass for prototype | own specs/provenance, solvability, near-duplicate and full five-level real-pointer replay pass |
 | Platform ready | machine pass; operator pending | lifecycle/runtime and pointer probes pass; final two-surface field play required |

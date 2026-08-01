@@ -292,7 +292,7 @@ Level 15 gate-feel probe byte/frame verified как `R-native`;
 полные SHA-256 находятся в packet. Review 3 зафиксировал contact-allowed
 positive-area collision, unit-step anchor BFS, deterministic nearest snap и
 monotonicity proof. Последующий operator amendment добавил axis-decomposed
-sliding, one-cell mid-drag gate suction, control transfer,
+sliding, `1.35`-cell mid-drag/release sticky gate suction, control transfer,
 highlight/fragmentation и haptic priority, superseding full-crossing exit.
 `BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q` prototype candidate реализован в
 isolated branch. Candidate использует `BlockOutFeelSpecV1`, не блокирует новый
@@ -325,7 +325,7 @@ Locked/countdown gates, rollout и publication не разрешены.
   grid snap на release (`O`);
 - contact legal, collision только при positive-area overlap;
 - axis-decomposed sliding вдоль препятствий;
-- compatible reusable gates перехватывают block mid-drag в one-cell in-board
+- compatible reusable gates перехватывают block mid-drag или после moved release в `1.35`-cell in-board
   suction band;
 - deterministic nearest snap с tie-break `y,x`;
 - initial witness + v1 monotonicity lemma доказывают strong solvability;

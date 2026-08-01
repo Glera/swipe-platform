@@ -4,14 +4,14 @@
 - Process: `reference-replication.v3.1`
 - Reference: Falcon/CYLINDER Android `1.0.177+177`
 - Status: dual-surface machine quorum pass; final Twin + Original field play pending
-- Final runtime implementation commit: `a3efaa71c5c9daef8f7be4ccdcc726e374762a47`
-- Clean-pair capture/tooling candidate commit: `bfdb351f83ebe3c11c5ab98f1666cb79f31b867f`
-- Final calibration-binding commit: `2a1ea71219263f0b0af67f9f6055e0c7a5d2a073`
-- Production HTML SHA-256: `f634fe3a6b49823a574d119052adc8956447e0d7394c2522501a1ae821c59fa6`
-- Reference Twin review HTML SHA-256: `721791fb404a86cea472bb322c1d058f1053a1b4ddb80b996f151369b6fafc20`
-- Review4 receipt SHA-256: `46343b1c40d43095a2108e0c18845877f230b0e0b7fe51c45213f739eac5ce7f`
-- Fresh clean-pair receipt SHA-256: `f8a91d39531b5c11b9bf4d1c407032572befd34b2a8c748bee8f155808b9381f`
-- Twin/Original calibration receipt SHA-256: `77ce4dbad9f0db0e189f3307eefab0032382c9c08b0bcaa7b66a8110a25f07ea`
+- Final runtime implementation commit: `8403ee6307d9804232999b59c2aba477bc7a2354`
+- Clean-pair capture/tooling candidate commit: `8403ee6307d9804232999b59c2aba477bc7a2354`
+- Final calibration-binding commit: `8fcbc9366107fa63b61ac88fa3bc9f1731cf2464`
+- Production HTML SHA-256: `c317ea1fefbd61028c830d2acccbc290f1c4b098e07f30b0aeb1ca379ad8fac8`
+- Reference Twin review HTML SHA-256: `0df87060176285910aad0dc9810d7b3776b5d0a53f6c51e7b3e8e9bc3fb17471`
+- Review4 receipt SHA-256: `4d0fc4273850b5b50d2381770a3699be7c9a21e95e650cf879b82a3c36086aa3`
+- Fresh clean-pair receipt SHA-256: `2cc2a6a3ba21dcaa341c8e4d41b0967e7f66be2d29e9f881e2cad50c66daadde`
+- Twin/Original calibration receipt SHA-256: `c1a088b24476e343c27303da324587b58f888b83af2066a69f9f8de3509c18d4`
 
 ## Red-before-green reproduction
 
@@ -33,8 +33,9 @@ caused by immediate pointerdown exit as proof of pickup response.
 - Gate capture now requires a collision-free axial sweep from capture pose
   through the complete gate throat. Boundary contact remains legal, but a live
   figure touching the leading face blocks takeover.
-- `pointerdown` and `pointerup` cannot synthesize exit. Only an outward
-  continuous pointermove through a compatible clear gate can capture.
+- `pointerdown` without movement cannot synthesize exit. Outward movement
+  captures mid-drag; release after actual movement inside the compatible sticky
+  field also captures instead of silently snapping to the old anchor.
 - Engine exit rejects block/gate role mismatch explicitly. Level validation
   rejects positive-span gate overlap; the ambiguous Level 5 gold/mint gates
   were moved to distinct apertures and the level hash/witness regenerated.
@@ -96,6 +97,28 @@ requires full footprint containment in the aperture. The packaged autoplay
 witness is verified independently from the solver's arbitrary equal-cost
 tie-break order.
 
+## Fifth acceptance correction: full aperture and sticky release
+
+The next operator play exposed two remaining eventual-exit blind spots. An
+offset block could commit while part of its footprint stayed outside the gate,
+and a compatible block released beside a gate could roll back because release
+never queried the sticky envelope.
+
+The frozen correction adds `BO-GS-14/15` and two executable fixtures. Gate
+takeover retains the actual pointer pose, computes the nearest pose whose whole
+footprint fits the aperture, rejects that correction if its lateral sweep hits
+another figure, completes the correction in `90 ms`, and only then starts the
+normal-axis consume. Review4 binds actual/aligned poses `(0.75,0)→(0,0)` and
+raw body centroids at `20/95/130 ms`; the last two differ by less than `0.01 px`,
+so there is no continued centring after fit. A separate real-pointer scenario
+releases after lateral movement inside the `1.35`-cell field and proves one
+exit with no rollback; static tap remains a no-op.
+
+The red run also revealed pointer-delivery dependence: one large delta could
+find the fractional capture boundary at a grid line while a segmented trace
+found `1.35`. Boundary search now bisects the first capturing interval, so
+sparse/coalesced and segmented traces share the same pose.
+
 ## Third acceptance correction: fresh Reference↔Twin raw pair
 
 The first dual-surface quorum still overloaded `raw clean raster`: its samples
@@ -107,8 +130,8 @@ field-rejected implementation and could not be promoted again.
 micro-scenario through a continuous real pointer gesture. It binds the native
 clean source, current Twin video, candidate commit, trace/digests and seven
 event-relative unmodified keyframes. The current source video hashes are
-`3cb021d2…` (Falcon) and `40195f43…` (Twin); contact sheet `c98fc325…` and
-receipt `f8a91d39…`. Candidate-only Canvas assertions remain a separate
+`3cb021d2…` (Falcon) and `a8fe2d95…` (Twin); contact sheet `f09dd536…` and
+receipt `2cc2a6a3…`. Candidate-only Canvas assertions remain a separate
 surface, and normalized occupancy remains supplemental-only.
 
 The first fresh pair was still not a semantic pass. It reused the instrumented
@@ -119,9 +142,9 @@ candidate replaces the body curve with the measured mild ease and calibrates
 emission density, depth and sparse late survivors from raw clean frames.
 
 The current receipt now fail-closes on 19 class-specific checks rather than
-merely attaching a contact sheet: body correlation `0.9983` / NRMSE `0.0340`,
-particle correlation `0.9819` / NRMSE `0.1018`, total area ratio `1.0018`,
-tail ratio `1.1606`, centroid-depth RMSE `0.0079`, component count/size ratios
+merely attaching a contact sheet: body correlation `0.9992` / NRMSE `0.0222`,
+particle correlation `0.9814` / NRMSE `0.1032`, total area ratio `1.0043`,
+tail ratio `1.156`, centroid-depth RMSE `0.0076`, component count/size ratios
 inside frozen bands, and post-takeover cross-axis drift `0` versus native
 `0.0054` gate widths. Clean and instrumented offsets are stored separately.
 
@@ -132,11 +155,11 @@ each target, with a fail-closed sampling-error bound. This replaced the old
 
 ## Automated results
 
-- Block Out model/fidelity/reference/originality: `49/49` pass.
+- Block Out model/fidelity/reference/originality: `52/52` pass.
 - Review4 production bundle: all positive and negative pointer/raster assertions
   pass; raw samples cover approximately `60/120/250/380/515 ms`.
 - Platform runtime: `39 pass`, `1` expected production-debug warning, `0 fail`.
-- Active manual drag: p95 `16.7 ms`, `0` frames over `50 ms`; held outline
+- Active manual drag: p95 `16.8 ms`, `0` frames over `50 ms`; held outline
   occupancy is identical at `50/450 ms` (`8361 px`).
 - Reference Twin is now an executable review-only build, completes its exact
   four-action board by real pointer delivery, and retains `0 px` foreground

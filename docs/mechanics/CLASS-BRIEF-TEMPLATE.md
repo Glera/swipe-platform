@@ -441,6 +441,12 @@ interface LevelSpec {
       outline/feedback не исчезает без pointermove.
 - [ ] Sticky destination takeover доказан до pointerup с соседним negative;
       post-takeover cross-axis drift проверен отдельно.
+- [ ] Для offset aperture записаны actual capture pose и ближайшая full-fit
+      pose; весь footprint помещается до plane crossing, correction path не
+      проходит через obstacle, после fit нет дополнительного centring.
+- [ ] Fractional capture threshold совпадает для one-delta и segmented/coalesced
+      traces; release внутри/на/вне sticky envelope имеет явный capture/park/
+      rollback outcome, silent old-anchor rollback отсутствует.
 - [ ] Exact-clearance corridor пройден noisy/coalesced real-pointer trace в
       обоих направлениях и при всех визуальных feedback состояниях.
 - [ ] Active-input performance имеет отдельные frame/pointer-to-rAF метрики;

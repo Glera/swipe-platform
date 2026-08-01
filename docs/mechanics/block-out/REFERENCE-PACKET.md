@@ -238,8 +238,9 @@ Disposition и frame ledger:
   tie-break — меньший `y`, затем `x`.
 - Valid clamped pose всегда имеет хотя бы один legal anchor в своей component;
   нарушение — contract error, не fallback.
-- Exit commit происходит mid-drag при первом входе whole footprint в compatible
-  one-cell in-board suction band. Capture absorbing и забирает input authority.
+- Exit commit происходит mid-drag или после moved release при входе центра
+  footprint в compatible `1.35`-cell sticky field. Offset capture использует
+  ближайший collision-free full-aperture fit; capture absorbing.
 - Gates reusable/non-consuming.
 - Takeover во время autoplay-carry и host pause mid-drag rollback'ят
   uncommitted pose в last stable anchor без logical mutation.
@@ -308,8 +309,8 @@ Disposition и frame ledger:
   pose продолжал скользить вдоль доступного corridor (`O`);
 - release (`O`) выбирает nearest legal anchor по squared distance, tie-break
   меньший `y`, затем `x`; pointer velocity не создаёт inertia;
-- exit (`O`) commit'ится mid-drag при первом входе в compatible one-cell
-  in-board suction band; pointer authority после этого теряется;
+- exit (`O/P`) commit'ится mid-drag или после moved release в compatible
+  `1.35`-cell sticky field; pointer authority после этого теряется;
 - terminal success — no live blocks.
 
 Для unit translation swept region равен union endpoint footprints. Поэтому при
@@ -489,8 +490,9 @@ Own visual identity:
 | N1 next-input overlap | next carried outline at `~57.27 s` while prior particles remain | `R-native` | proves no full consume lock; not an exact input-latency measurement |
 | N1 empty-board -> win dim | `~61.23–61.73 s` | `R-native` approximate | 30 fps frame bracket |
 | N1 win mark -> full confetti | `~61.73–62.73 s` | `R-native` approximate | order/cadence only; reference logo excluded |
-| Own feedback/capture depth | `1.35 / 1.00 cells` | `P / O` | field begins before authoritative one-cell capture |
-| Own whole-body pull / fragment onset | `515 / 75 ms` | Falcon projection | accepted front-loaded candidate |
+| Own feedback/capture depth | `1.35 / 1.35 cells` | `P / O` | exact Falcon spatial depth remains open; candidate prevents near-gate rollback |
+| Own aperture alignment | `90 ms`, nearest collision-free full fit | `O/P` | completes before plane crossing; no unconditional centring |
+| Own whole-body pull / fragment onset | `515 / 50 ms` | Falcon projection | accepted front-loaded candidate |
 | Own fragment throat / tail | `705 / 1,565 ms` | Falcon projection | converge then exhaust; causal parity supported |
 | Own manual input lock after exit | `0 ms` | ordering `R-native/O`, projection `P` | stable exit commits immediately; visuals remain presentation-only |
 | Own win overlay / badge / confetti | `900 / 620 / 430 ms` | `P` | machine-pass; publication-level taste explicitly deferred |
@@ -513,8 +515,9 @@ not the live closure status. Executable closure and final dispositions live in
   overlap/tunnelling.
 - [ ] Rotation отсутствует, если отдельно не утверждена оператором.
 - [ ] Через gate выходит только block совпадающего gameplay role.
-- [ ] Exit принимается mid-drag при первом входе whole footprint в compatible
-  one-cell suction band; pointer больше не управляет captured block.
+- [ ] Exit принимается mid-drag или после moved release в compatible
+  `1.35`-cell sticky band; nearest collision-free full-aperture fit завершается
+  до plane crossing; pointer больше не управляет captured block.
 - [ ] Gate reusable и не меняет state при exit.
 - [ ] Successful exit удаляет ровно один live block.
 - [ ] Win наступает только после выхода всех required blocks.

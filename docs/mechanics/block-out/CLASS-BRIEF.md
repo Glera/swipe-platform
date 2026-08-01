@@ -29,7 +29,7 @@
 > оператором (`O`). Review 3 закрыл исходные collision/exit/snap contracts и дал
 > workstream-ready disposition для `BO-A/BO-E/BO-S`. Measured presentation feel
 > дополнен третьим native clip и operator amendment, который заменяет
-> full-crossing exit на чувствительную one-cell gate suction zone и открывает
+> full-crossing exit на чувствительную sticky gate suction zone и открывает
 > `BO-P` implementation. Fidelity iteration 31.07.2026 добавила typed feel
 > spec, original feature ladder и reproducible evidence; exact target-device
 > timing/haptic/taste acceptance остаётся открытым.
@@ -114,7 +114,7 @@ clarity, при осознанно исключённом timer и собств�
   фигура рядом с воротами, а также эффекты засасывания, дробления я бы повторял
   максимально точно, они составляют фундамент приятного ощущения от
   механики»**.
-- Opens: axis-decomposed collision sliding; carried highlight; one-cell
+- Opens: axis-decomposed collision sliding; carried highlight; compatible
   compatible-gate capture during hold; control transfer to gate; converging
   suction/fragmentation; supported-host haptic implementation; exhausted-gate
   visual cleanup.
@@ -189,12 +189,14 @@ clarity, при осознанно исключённом timer и собств�
   tie-break — меньший `y`, затем `x` (`O`).
 - Diagonal collision response сохраняет допустимую axis projection: block
   скользит вдоль walls/figures, а не залипает в первой точке контакта (`O`).
-- Compatible unlocked gate захватывает carried block mid-drag, когда footprint
-  входит в one-cell in-board suction band внутри gate span; control сразу
-  передаётся gate, full boundary crossing/release не требуются (`O`).
+- Compatible unlocked gate захватывает carried block mid-drag или после moved
+  release, когда центр footprint входит в `1.35`-cell in-board sticky field;
+  control сразу передаётся gate (`O/P`). Offset takeover затем использует
+  ближайший collision-free cross-axis fit полного footprint и только после
+  этого пересекает gate plane по нормали.
 - Falcon verified pairs confirm pre-release takeover but do not resolve exact
-  spatial depth. `1 cell` therefore remains the current first-party gameplay
-  candidate inherited from the historical ruling, not Falcon `R-native`.
+  spatial depth. `1.35 cells` and `90 ms` alignment therefore remain bounded
+  first-party parameters, not Falcon `R-native`.
 - Gates are reusable/non-consuming (`O`).
 - Gate скрывается presentation-слоем, когда live blocks его role закончились;
   это не consuming gameplay state (`O`).
@@ -319,8 +321,10 @@ Review 3 technical contract:
   меньший `y`, затем `x`;
 - для любой valid clamped pose существует хотя бы один legal anchor в её
   component; отсутствие anchor — contract violation, не fallback branch;
-- unlocked compatible gate commit'ит exit mid-drag при первом входе footprint в
-  one-cell in-board suction band внутри compatible span;
+- unlocked compatible gate commit'ит exit mid-drag или после moved release при
+  входе центра footprint в `1.35`-cell sticky field compatible span;
+- offset capture выравнивается минимальным collision-free сдвигом до полного
+  aperture containment, затем движется строго по gate normal;
 - capture band absorbing: после commit pointer больше не управляет block;
 - gates reusable/non-consuming.
 
@@ -332,8 +336,9 @@ Gameplay rows имеют `O`; feedback timing/easing остаётся `R-native/
 | --- | --- | --- | --- |
 | pointerdown block | manual/takeover, block live, input open | create gesture session, no stable-state mutation | pickup/carry response |
 | pointermove | active gesture | continuous pose uses shared positive-area-overlap collision authority; contact legal; residual axis projection slides along obstacle; no stable mutation | collision slide/clamp; no overlap |
-| release outside gate suction band | valid clamped pose | commit nearest legal anchor by squared distance, then `y`, then `x`; if snap target enters compatible suction band, commit exit | deterministic grid snap |
-| enter compatible gate suction band | whole footprint remains in-board, fits gate span and is within one cell of unlocked gate | immediate `exit(blockId,gateId)` mid-drag; control transfers to reusable gate; manual authority is available for another live block without waiting for tail | suction, converging fragments, haptic; presentation tail may overlap next gesture |
+| release outside gate sticky field | valid clamped pose | commit nearest legal anchor by squared distance, then `y`, then `x` | deterministic grid snap |
+| enter compatible gate sticky field | footprint remains in-board; role matches; centre is inside aperture and nearest full-fit correction plus axial throat are collision-free | immediate `exit(blockId,gateId)` mid-drag; store actual/nearest-fit poses; align before plane crossing; manual authority is available without waiting for tail | suction, converging fragments, haptic; presentation tail may overlap next gesture |
+| release inside compatible gate sticky field | gesture actually moved and the same compatibility/throat checks pass | one `exit(blockId,gateId)`; no snap to old anchor; untouched tap remains no-op | same nearest-fit then axial consume |
 | pointer crosses invalid pose | wall/block/out-of-bounds/wrong gate | carried pose clamps before invalid boundary; no solver action | collision cue |
 | pointerdown background | no active game gesture | no game state change | host swipe remains available |
 | first block pointerdown | autoplay, including auto-carry | cancel future auto actions; rollback uncommitted carry; start manual from last stable state | no restart/hidden move |
@@ -482,8 +487,9 @@ interface BlockOutRulesV1 {
   contact: "allowed";
   reachability: "unit-step-anchor-bfs";
   snap: "nearest-squared-euclidean-y-x";
-  exitCommit: "compatible-gate-suction-band";
-  gateCaptureDepthCells: 1;
+  exitCommit: "compatible-gate-center-suction-band";
+  gateAlignment: "nearest-full-aperture-fit-then-axial";
+  gateCaptureDepthCells: 1.35;
   gates: "reusable";
   quickFlick: "no-inertia";
   rotation: false;
@@ -521,8 +527,8 @@ Quick-flick policy утверждена оператором и входит в 
 - initial translated footprints are in bounds and non-overlapping;
 - role has at least one compatible gate;
 - gates have valid boundary span and independent accessibility cue;
-- gates reusable; exit requires first entry into the compatible one-cell
-  in-board suction band and never requires boundary crossing;
+- gates reusable; exit requires compatible `1.35`-cell sticky entry mid-drag or
+  moved release, with collision-free nearest full-aperture alignment;
 - every valid clamped pose has at least one legal anchor in its component;
 - rotation disabled;
 - modifiers empty for v1;
@@ -560,7 +566,7 @@ version обязан предоставить отдельный exhaustive proo
 - Legal action (`O`): move to any non-capture lattice anchor reachable by
   unit-step BFS under positive-area-overlap collision, or absorbing exit when
   the reachable carried pose/anchor enters a compatible reusable gate's
-  one-cell suction band.
+  `1.35`-cell sticky band.
 - Stable terminal: `liveBlockCount === 0`.
 - Spatial search identity: canonical `rulesVersion + live block ids + anchors`;
   runtime resource/presentation phase не входят в memoization key.
@@ -734,8 +740,8 @@ rules digest, seed/provenance. No skin, receipts or runtime animation.
 Stable solver/engine command after gesture translation:
 
 - `move { blockId, from, to }`;
-- `exit { blockId, from, gateId }` при первом входе carried footprint в
-  compatible one-cell suction band;
+- `exit { blockId, from, gateId }` при первом sticky entry mid-drag или moved
+  release после всех role/throat/full-aperture checks;
 - lifecycle commands `restart`, `setMode`, `hostPause/resume`.
 
 Exact action set follows approved movement rule. Raw pointer positions never
@@ -796,7 +802,9 @@ expected stable action/state digest и rules digest:
 | ID | Проверяет | Expected |
 | --- | --- | --- |
 | `BO-FX-SNUG-CORRIDOR` | footprint скользит в corridor ровно своей ширины | contact legal; unit-step BFS и clamp считают путь reachable |
-| `BO-FX-GATE-THRESHOLD` | pose непосредственно до и на one-cell suction threshold | outside band -> no exit; first band entry mid-drag -> one exit; gate остаётся reusable |
+| `BO-FX-GATE-THRESHOLD` | pose непосредственно до и на `1.35`-cell threshold; one-delta и segmented replay | outside band -> no exit; first band entry mid-drag -> one exit at identical fractional pose; gate reusable |
+| `BO-FX-GATE-APERTURE-ALIGN` | offset takeover с частично внешним footprint и obstacle в correction corridor | nearest full-fit pose, не unconditional centre; correction collision-free или capture rejected |
+| `BO-FX-GATE-NEAR-RELEASE` | lateral moved release внутри sticky field | exactly one exit; no old-anchor rollback; untouched tap remains no-op |
 | `BO-FX-SNAP-TIE` | clamped pose равноудалён от нескольких legal anchors | squared distance tie разрешает меньший `y`, затем `x` |
 | `BO-FX-FLICK` | одинаковый release pose при slow drag и fast flick | identical `move`/digest; no inertia |
 | `BO-FX-TAKEOVER-CARRY` | pointerdown во время autoplay-carry | rollback to last stable digest, затем manual gesture; no hidden move |
@@ -882,8 +890,9 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 - [x] Отдельная prototype authorization получена 29.07.2026; exact ruling
   записан выше.
 - [x] External prototype review дал GO с P2 sliding finding.
-- [x] `BO-R-N3` + operator amendment supersede full-crossing A2′ detail:
-  one-cell suction capture и axis-decomposed sliding записаны в authority.
+- [x] `BO-R-N3` + operator amendments supersede full-crossing A2′ detail:
+  sticky suction capture, nearest full-aperture fit и axis-decomposed sliding
+  записаны в authority.
 
 ### Historical Review 4 — superseded evidence candidate
 
@@ -936,7 +945,7 @@ Fixture IDs и expected outcomes являются BO-G authority. Их executabl
 - Primary/target (`O`): Falcon/CYLINDER Android `1.0.177+177` Level 2 native
   feel authority; static levels `6–10` remain the Original feature band.
 - Gameplay: positive-area-overlap/contact-allowed collision, unit-step anchor
-  BFS, deterministic axis-decomposed sliding/snap, one-cell suction-band
+  BFS, deterministic axis-decomposed sliding/snap, `1.35`-cell sticky
   reusable gates, no timer and monotone strong-solvability contract.
 - Workstreams: `BO-A/BO-E/BO-S/BO-P/BO-F/BO-I/BO-Q` remediation implemented;
   model/browser/raw-raster rows are green, operator feel rows remain open.

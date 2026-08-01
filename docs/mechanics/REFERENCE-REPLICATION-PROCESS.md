@@ -255,6 +255,7 @@ Reference↔Twin clean-pair receipt. Review tooling fail-closed отклоняе
 - foreign-role/colour destination;
 - forward + reversed gesture trace с разной event segmentation;
 - pointerdown без движения и release вне фактического capture crossing;
+- release после движения внутри, на границе и сразу вне sticky/capture envelope;
 - model state ↔ browser trace ↔ rendered silhouette congruence.
 
 Interaction MUST проверяется как временной инвариант, а не одним кадром.
@@ -262,6 +263,20 @@ Held-state эффект снимается сразу после pointerdown и 
 длина которого превышает полный предполагаемый pulse/decay period. Gate
 takeover проверяется до `pointerup`; отдельно фиксируются positive capture
 envelope, соседний negative и post-takeover cross/axial trajectory.
+
+Для destination/gate с ограниченным aperture acceptance проверяет весь
+footprint, а не центр/centroid. Если reference допускает offset takeover,
+машина отдельно доказывает: (1) фактическую capture pose, (2) ближайшую
+полностью помещающуюся pose, (3) collision-free поперечный путь между ними,
+(4) полное containment до пересечения gate plane и (5) отсутствие дальнейшего
+поперечного дрейфа после fit. Unconditional centring и сохранение частично
+вне-aperture pose одинаково считаются ошибкой.
+
+Fractional sticky/capture threshold переигрывается одним большим pointer delta
+и несколькими разбиениями того же пути. Event coalescing не может квантизировать
+порог к grid line. Release внутри положительного envelope обязан либо capture,
+либо park по заранее frozen правилу; молчаливый rollback к старому anchor без
+явной invalid-state причины запрещён.
 
 Exact-clearance corridor получает не только идеальный model trace, но и
 реальный pointer trace с контролируемыми поперечными возмущениями, редкой
