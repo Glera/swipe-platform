@@ -48,7 +48,7 @@ These acts had no fresh exact operator authorization. Attribution and
 containment are recorded separately in
 `phase-b0-authority-gate-incident-2026-08-01.md`.
 
-## Reproducible follow-up candidate
+## Follow-up implementation and release evidence
 
 The unmerged PR #14 source is clean at
 `27791e0f1c23457f5746160ca752a3537149265b`. Two independent no-write runs of
@@ -59,17 +59,39 @@ digest:
 
 The worktree index mode, mtime, ctime, size and SHA-256 remained identical
 across both renders. Targeted tests pass 44/44; full local tests pass 462/462;
-exact-head CI run 30712769109 passes.
+exact-head CI run 30712769109 passes. This proves the host-bundle manifest,
+not the full runtime release.
+
+Two ordinary full release builds from that same commit were not reproducible:
+their production tree digests were
+`02e294cbb0e59bf4980162998a41aa4e95c471c5fbf0f34b2b64a4729e00d1f7`
+and `177797827710ea50d3fc54268b572a27d2cf2b1cdff73744c9c222d2eee4530f`.
+Only `.git/index` and Git reflogs differed; product/native bytes matched.
+Ordinary checkout copying is therefore rejected as the replacement release
+procedure.
+
+Stacked swipe-agents PR #15 supplies the missing reproducible builder and a
+two-act installer. At exact head
+`2a97acb41b05b4405ab80508882efa8e946ff793`, two complete candidates both
+reported `checkedPaths=3001` and tree digest
+`6dafeb0250cc2bc50f1c09834b9ac7dd57dcef2fd6bb055ecda9f1eac74f607e`.
+The install regression proves release copy and `current` switch are separate;
+the live no-write receipt reported no install and no switch. Full local tests
+pass 464/464. Exact-head CI run 30714477425 passed; independent review has not
+yet returned GO.
 
 ## Next gated sequence
 
-1. independent GO for PR #14 and companion evidence PR #52;
-2. fresh operator permission naming both exact PR heads, then merge;
-3. reproduce and review the merged release candidate;
-4. separate operator permission to install the new immutable release and
-   replace the disabled host bundle; verify zero writable paths before any
-   activation candidate is prepared;
-5. perform credentials, provider evidence, seed/restore, attestation,
+1. independent GO for PR #14, stacked release PR #15 and companion evidence
+   PR #52, all at exact heads and with no open P1-P3;
+2. fresh operator permission naming all reviewed code PR heads, then merge in
+   order #14 -> #15;
+3. reproduce and review the final merged release candidate twice;
+4. separate operator permission to install the new immutable release without
+   switching `current`, and to replace the disabled host bundle;
+5. another explicit operator act to switch `current`; verify zero writable
+   paths before any activation candidate is prepared;
+6. perform credentials, provider evidence, seed/restore, attestation,
    activation, transient remote-sync physical gate, full bootstrap and 48-hour
    acceptance only through their already separated authority gates.
 
