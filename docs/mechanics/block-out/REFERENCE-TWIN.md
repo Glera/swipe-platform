@@ -3,8 +3,8 @@
 - Process: `reference-replication.v3.1`
 - Status: **dual-surface machine pass; final operator field play pending**
 - Primary source: Falcon/CYLINDER Android `1.0.177+177`
-- Playables clean-pair candidate commit: `ecd22889c7b2dad837e319aa01af91a6a08fe776`
-- Calibration binding commit: `6c4f06b0c3766843a8c13c51760a0698e7e57dbd`
+- Playables clean-pair runtime candidate commit: `400a64c52cb027f48f5345027ef79389f4fd1d01`
+- Calibration binding commit: `3f46db5fba2cd608fc6e64b4967a761d5a0a54eb`
 - Native scenarios: `BO-FC-GS-01-L2-GATE`,
   `BO-FC-GS-02-L2-HOLD-GATE`
 
@@ -23,7 +23,7 @@ scenario ID and capture provenance. All forbidden tokens are absent after the
 final rebuild.
 
 The review HTML SHA-256 is
-`2d5590ef8f88a4000b4d3f69100281811705b48ae161e0e436a4945b4422c6b2`.
+`dc0f46616fadd0985bfec3ccff739e4fa6346794d3d12e090a64d5b630070746`.
 It is regenerated locally and excluded from git; it cannot replace `dist/` or
 `dist-swipe/`.
 
@@ -38,13 +38,15 @@ It is regenerated locally and excluded from git; it cannot replace `dist/` or
 - five raw consume samples report `0 px` gate-foreground overwrite and `0 px`
   intact-body leak outside the gate plane;
 - a fresh clean Falcon→current-Twin pair binds native video `3cb021d2…`,
-  candidate video `34b7c151…`, contact sheet `93b3bf13…` and receipt
-  `f57038ab…`; candidate raster invariants are recorded separately;
+  candidate video `ae3c55ca…`, contact sheet `b721a9f5…` and receipt
+  `2f63c3e7…`; clean/instrumented event offsets are independent and all 16
+  semantic body/particle/tail/component checks pass; candidate raster
+  invariants are recorded separately;
 - shipping presentation profile is inside the Falcon contract bands;
 - Production Original browser receipt records `manualInputBlocked=false`,
   stable host-pause digest and `0` page errors;
 - pickup raster changes on the first rAF (`18,203` sampled pixels);
-- browser cadence: median/p95 `16.7/16.7 ms`, `0/497` frames above
+- browser cadence: median/p95 `16.7/16.8 ms`, `0/497` frames above
   `50 ms`.
 
 The historical rendered Twin artifact remains outside git. Its `twin.webm`
@@ -58,7 +60,7 @@ All v3 choice receipts below are historical and remain immutable, but the
 `superseded-false-positive`. They are diagnostic evidence only. The current
 gate is a full live play of the new executable Twin followed by Production
 Original; its machine calibration receipt SHA-256 is
-`73b2925ec6acd25af1e7aa3b00d410fbb7ecffc288cf103ed7565c426cf9315a`.
+`3fa8a421cc027ccbae6f2c9b168602ce85801c5ebf1da0f411a458652520496c`.
 
 Round 1 contained two short sessions, each with one unique comparison and one
 hidden repeat:

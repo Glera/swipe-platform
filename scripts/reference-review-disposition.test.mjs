@@ -17,6 +17,8 @@ const configFor = (comparison) => ({
     receiptSha256: 'b'.repeat(64),
     referenceCleanPair: {
       status: 'pass-current-candidate',
+      semanticRawComparison: 'pass',
+      channelTiming: 'independent-event-offsets',
       receiptSha256: 'c'.repeat(64),
       referenceVideoSha256: 'd'.repeat(64),
       candidateVideoSha256: 'e'.repeat(64),

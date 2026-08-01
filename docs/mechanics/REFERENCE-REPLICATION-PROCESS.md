@@ -203,9 +203,19 @@ Composite score не может скрыть красный MUST.
 старую пару нельзя повторно засчитать после изменения engine, presentation,
 profile или Twin dataset. Clean-pair receipt содержит SHA-256 обоих видео,
 candidate commit, реальный pointer trace, event-relative keyframes и ссылку на
-неизменённый contact sheet. Полноэкранный RGB score не используется как
-verdict при разной identity, но raw pair всегда остаётся доступной под каждым
+неизменённый contact sheet. Само наличие пары не является pass: receipt обязан
+содержать class/event-specific semantic raw comparison, frozen до финальной
+подстройки thresholds и нулевое число failed checks. Для consume-сценария это,
+например, отдельные кривые body remainder, particle onset/area/depth/tail и
+component count/size; один полноэкранный RGB score или aggregate correlation
+не закрывает MUST. Raw pair всегда остаётся доступной под каждым
 semantic/normalized выводом.
+
+State-paired clean и instrumented recordings не считаются timestamp-paired.
+Даже при одном scenario ID и одинаковом gesture trace event onset/bracket
+измеряется независимо в каждом media timeline; запрещено переносить PTS или
+offset instrumented channel на clean channel. Receipt хранит оба offsets,
+source-frame brackets и прямо объявляет `independent-event-offsets`.
 
 Machine pass на одной поверхности не переносится на остальные. В частности,
 solver/model не доказывает browser event semantics, а совпадение `16×16`
@@ -220,8 +230,9 @@ particle-boundary emission.
 Review config обязан byte-bind SHA-256 coverage receipt и отдельный current
 Reference↔Twin clean-pair receipt. Review tooling fail-closed отклоняет сессию
 без `model/browser-input/candidate-raster=pass`, без fresh clean pair или с
-`diagnosticSoleAuthority=true`; те же bindings входят в экспортируемый
-operator receipt и проверяются disposition tool.
+`diagnosticSoleAuthority=true`; clean pair без `semanticRawComparison=pass`
+или с общим cross-channel offset также отклоняется. Те же bindings входят в
+экспортируемый operator receipt и проверяются disposition tool.
 
 Для каждого interaction MUST coverage matrix содержит минимум один успешный и
 один запрещённый сценарий. Для drag/collision/gate классов обязательны:

@@ -47,6 +47,8 @@ export function normalizeReviewConfig(input) {
   }
   const cleanPair = coverage.referenceCleanPair;
   if (cleanPair?.status !== 'pass-current-candidate'
+    || cleanPair.semanticRawComparison !== 'pass'
+    || cleanPair.channelTiming !== 'independent-event-offsets'
     || typeof cleanPair.receiptSha256 !== 'string'
     || !/^[0-9a-f]{64}$/.test(cleanPair.receiptSha256)
     || typeof cleanPair.referenceVideoSha256 !== 'string'
@@ -55,7 +57,7 @@ export function normalizeReviewConfig(input) {
     || !/^[0-9a-f]{64}$/.test(cleanPair.candidateVideoSha256)
     || typeof cleanPair.candidateCommit !== 'string'
     || !/^[0-9a-f]{40}$/.test(cleanPair.candidateCommit)) {
-    fail('v3.1 review requires a current SHA-256-bound Reference↔Twin clean pair; candidate-only raw raster invariants are insufficient');
+    fail('v3.1 review requires a current SHA-256-bound Reference↔Twin clean pair with semantic raw pass and independent per-channel event offsets; candidate-only raw raster invariants are insufficient');
   }
   if (input.comparison === 'twin-original') {
     const twin = coverage.surfaces?.referenceTwin;

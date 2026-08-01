@@ -82,6 +82,10 @@ Receipt фиксирует:
   исполняются одинаково для clean/instrumented channel. Receipt сохраняет как
   planned offset, так и фактические invoke/complete timestamps для каждого
   события.
+- Одинаковый trace связывает state/action, но не media clock. Event onset и
+  source-frame bracket измеряются независимо в clean и instrumented channel;
+  перенос PTS/offset между каналами запрещён и fail-closed проверяется перед
+  semantic raw comparison.
 - `adb shell input touchscreen motionevent` не считается real-time transport:
   длительность каждого subprocess и schedule drift входят в uncertainty. Если
   drift меняет смысл probe, такой прогон отклоняется либо переводится в

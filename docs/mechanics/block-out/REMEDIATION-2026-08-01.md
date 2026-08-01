@@ -7,13 +7,13 @@
 - Implementation commit: `534955d6fb37394ab995b207b65d9b95ff94d4ce`
 - Machine-receipt commit: `c987b4d`
 - Dual-surface implementation commit: `9259e28477a1085864d64b67cba524fb8649b67a`
-- Clean-pair candidate commit: `ecd22889c7b2dad837e319aa01af91a6a08fe776`
-- Calibration-binding commit: `6c4f06b0c3766843a8c13c51760a0698e7e57dbd`
-- Production HTML SHA-256: `2820bfb0459011c34357469ab8271fc125936cb15ea7a98ea8a703314a43de54`
-- Reference Twin review HTML SHA-256: `2d5590ef8f88a4000b4d3f69100281811705b48ae161e0e436a4945b4422c6b2`
-- Review4 receipt SHA-256: `af5f23005b065abdf4a46f24f02563609127f08520a59192daf02a4102ab8e5c`
-- Fresh clean-pair receipt SHA-256: `f57038ab140218a9720d59e7c54b24af23c24dc16a758d075e4c2d6c12eec442`
-- Twin/Original calibration receipt SHA-256: `73b2925ec6acd25af1e7aa3b00d410fbb7ecffc288cf103ed7565c426cf9315a`
+- Clean-pair runtime candidate commit: `400a64c52cb027f48f5345027ef79389f4fd1d01`
+- Calibration-binding commit: `3f46db5fba2cd608fc6e64b4967a761d5a0a54eb`
+- Production HTML SHA-256: `7b4f9338687aea2b96f29db43d4e5670e258a745d1baa6b363eb412da425752d`
+- Reference Twin review HTML SHA-256: `dc0f46616fadd0985bfec3ccff739e4fa6346794d3d12e090a64d5b630070746`
+- Review4 receipt SHA-256: `10811878bf85fa5cac4cc004d4ce78b4cc504e5dcc8b11b6c8badf5327d881da`
+- Fresh clean-pair receipt SHA-256: `2f63c3e7d716f56e23a83648cad0ae5e1d11c0ab7a1825387db0197d6605a2ef`
+- Twin/Original calibration receipt SHA-256: `3fa8a421cc027ccbae6f2c9b168602ce85801c5ebf1da0f411a458652520496c`
 
 ## Red-before-green reproduction
 
@@ -74,13 +74,27 @@ field-rejected implementation and could not be promoted again.
 micro-scenario through a continuous real pointer gesture. It binds the native
 clean source, current Twin video, candidate commit, trace/digests and seven
 event-relative unmodified keyframes. The current source video hashes are
-`3cb021d2…` (Falcon) and `34b7c151…` (Twin); contact sheet `93b3bf13…` and
-receipt `f57038ab…`. Candidate-only Canvas assertions remain a separate
+`3cb021d2…` (Falcon) and `ae3c55ca…` (Twin); contact sheet `b721a9f5…` and
+receipt `2f63c3e7…`. Candidate-only Canvas assertions remain a separate
 surface, and normalized occupancy remains supplemental-only.
+
+The first fresh pair was still not a semantic pass. It reused the instrumented
+takeover PTS `2.778 s` for the clean recording, whose direct takeover bracket
+is `(2.297300, 2.314733] s`. Correct independent alignment exposed an overly
+fast cubic body collapse and particle area only `0.437×` Falcon. The final
+candidate replaces the body curve with the measured mild ease and calibrates
+emission density, depth and sparse late survivors from raw clean frames.
+
+The current receipt now fail-closes on 16 class-specific checks rather than
+merely attaching a contact sheet: body correlation `0.9983` / NRMSE `0.0329`,
+particle correlation `0.9877` / NRMSE `0.0776`, total area ratio `1.1243`,
+tail ratio `1.4424`, centroid-depth RMSE `0.0321`, and component count/size
+ratios inside frozen bands. Clean and instrumented offsets are stored
+separately.
 
 ## Automated results
 
-- Block Out model/fidelity/reference/originality: `46/46` pass.
+- Block Out model/fidelity/reference/originality: `47/47` pass.
 - Review4 production bundle: all positive and negative pointer/raster assertions
   pass; raw samples cover approximately `60/120/250/380/515 ms`.
 - Platform runtime: `39 pass`, `1` expected production-debug warning, `0 fail`.

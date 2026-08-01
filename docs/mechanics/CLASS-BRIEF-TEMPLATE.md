@@ -427,6 +427,10 @@ interface LevelSpec {
 - [ ] Capture manifest/hash chain проверены.
 - [ ] Fresh Reference↔Twin clean pair снята после последнего изменения
       engine/presentation/profile/dataset и byte-bound к candidate commit.
+- [ ] Clean/instrumented event onset измерен отдельно в каждой media timeline;
+      общий cross-channel timestamp не использован.
+- [ ] Class/event-specific semantic raw comparison прошёл frozen thresholds;
+      raw pair, измерения и все failed checks приложены к receipt.
 - [ ] Candidate raster invariants проверены отдельно; они не засчитаны как
       доказательство Reference parity.
 - [ ] Exact Reference Twin trace replay приложен.

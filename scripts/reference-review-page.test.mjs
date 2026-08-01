@@ -24,6 +24,8 @@ const config = {
     receiptSha256: 'a'.repeat(64),
     referenceCleanPair: {
       status: 'pass-current-candidate',
+      semanticRawComparison: 'pass',
+      channelTiming: 'independent-event-offsets',
       receiptSha256: 'b'.repeat(64),
       referenceVideoSha256: 'c'.repeat(64),
       candidateVideoSha256: 'd'.repeat(64),
@@ -124,6 +126,35 @@ test('review rejects candidate-only raster proof without a current raw Reference
       },
     }),
     /candidate-only raw raster invariants are insufficient/u,
+  );
+});
+
+test('review rejects an attached clean pair without semantic parity or independent channel timing', () => {
+  assert.throws(
+    () => normalizeReviewConfig({
+      ...config,
+      acceptanceCoverage: {
+        ...config.acceptanceCoverage,
+        referenceCleanPair: {
+          ...config.acceptanceCoverage.referenceCleanPair,
+          semanticRawComparison: 'not-run',
+        },
+      },
+    }),
+    /semantic raw pass/u,
+  );
+  assert.throws(
+    () => normalizeReviewConfig({
+      ...config,
+      acceptanceCoverage: {
+        ...config.acceptanceCoverage,
+        referenceCleanPair: {
+          ...config.acceptanceCoverage.referenceCleanPair,
+          channelTiming: 'shared-offset',
+        },
+      },
+    }),
+    /independent per-channel event offsets/u,
   );
 });
 

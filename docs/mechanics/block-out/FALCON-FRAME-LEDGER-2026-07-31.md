@@ -19,7 +19,22 @@ Initial clean/instrumented screenshots are byte-identical. Pair verification
 reports no structural mismatch and perceptual distance `0` against threshold
 `4`.
 
-## Event ledger
+## Per-channel event alignment correction
+
+Pair verification proves the same initial logical state; it does not prove a
+shared media timeline. Direct inspection of the clean recording brackets gate
+takeover at `(2.297300, 2.314733] s`. The instrumented recording brackets the
+same semantic event at `(2.746, 2.778] s`. Therefore all clean raw keyframes are
+projected from `2.314733 s`, while input/event correlation in the instrumented
+channel keeps `2.778 s`.
+
+An earlier acceptance pass incorrectly reused instrumented `2.778 s` as the
+clean offset. That compared candidate takeover against Falcon approximately
+`463 ms` after takeover and hid the candidate's early body collapse and weak
+particle field. The superseded projection is retained as historical evidence
+only; no cross-channel PTS is timing authority.
+
+## Instrumented event ledger
 
 | Event | PTS / bracket | Relative to takeover | Authority | Method / confidence |
 | --- | ---: | ---: | :---: | --- |
@@ -36,6 +51,10 @@ reports no structural mismatch and perceptual distance `0` against threshold
 silently promoted to a semantic reference event. In particular, maximum pixel
 density is only a proposal proxy for the presentation profile's
 `fragmentThroatMs`.
+
+Relative cadence below remains valid because it is measured within one
+instrumented timeline. Raw clean parity uses the independent clean takeover
+bracket above.
 
 ## Falcon profile projection
 
