@@ -72,13 +72,15 @@ procedure.
 
 Stacked swipe-agents PR #15 supplies the missing reproducible builder and a
 two-act installer. At exact head
-`2a97acb41b05b4405ab80508882efa8e946ff793`, two complete candidates both
+`4ca5bfcdae5f8c1dfa6f8a7019aae0dd80904dda`, two complete candidates both
 reported `checkedPaths=3001` and tree digest
-`6dafeb0250cc2bc50f1c09834b9ac7dd57dcef2fd6bb055ecda9f1eac74f607e`.
+`f54853d5c85beadca059ff2db7a397045b6fdffbd74428761ed226f1707bcfcf`.
 The install regression proves release copy and `current` switch are separate;
-the live no-write receipt reported no install and no switch. Full local tests
-pass 464/464. Exact-head CI run 30714477425 passed; independent review has not
-yet returned GO.
+it also recovers only the exact root-write/all-children-frozen crash shape.
+The live no-write receipt reported no install and no switch. Full local tests
+pass 464/464. The executing regression is mandatory in Ubuntu CI instead of a
+platform skip. Exact-head CI run 30714944927 passed; independent review has
+not yet returned GO.
 
 ## Next gated sequence
 
