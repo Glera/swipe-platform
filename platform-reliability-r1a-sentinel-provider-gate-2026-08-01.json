@@ -1,0 +1,99 @@
+{
+  "schema": "platform-reliability-r1a-production-provider-gate.v1",
+  "createdAt": "2026-08-01T12:12:28Z",
+  "observer": "codex",
+  "status": "pass",
+  "scope": {
+    "kind": "single-attended-sentinel-merge",
+    "repository": "Glera/swipe-backend",
+    "pullRequest": 45,
+    "sentinelHeadSha": "5ef857f493016501a0eaa733d174eb39ba221d2a",
+    "backendMasterBeforeSha": "09fa0cdc17e207ea21826036b671b1064871fa32",
+    "expiresAfterSentinelMerge": true,
+    "productionCutoverAuthorized": false
+  },
+  "operatorAuthorization": {
+    "explicitChatAuthorization": true,
+    "temporaryResourcesAndProviderAuthorityAccepted": true,
+    "observedInAttendedSession": true
+  },
+  "github": {
+    "plan": "Pro",
+    "planEvidence": "Signed-in GitHub billing UI showed the active plan and a Downgrade to Free action.",
+    "productionEnvironmentPresent": false,
+    "repositoryRenderSecretNames": [],
+    "repositoryRenderVariableNames": []
+  },
+  "render": {
+    "workspace": "My Workspace",
+    "blueprint": {
+      "name": "swipe-backend",
+      "id": "exs-d95qo3q8qa3s73ea23p0",
+      "sourceBranch": "master",
+      "blueprintPath": "render.yaml",
+      "autoSyncBefore": "Yes",
+      "autoSyncAfter": "No",
+      "afterObservedAt": "2026-08-01T12:08:20.856Z",
+      "afterControlReadOnly": true
+    },
+    "services": [
+      {
+        "name": "swipe-backend",
+        "kind": "web",
+        "id": "srv-d95r3bfavr4c73aqsi4g",
+        "sourceBranch": "master",
+        "dockerfilePath": "./Dockerfile.bake",
+        "autoDeployBefore": "On Commit",
+        "autoDeployAfter": "Off",
+        "afterObservedAt": "2026-08-01T12:07:36.348Z",
+        "afterControlReadOnly": true
+      },
+      {
+        "name": "swipe-seq-shadow-run",
+        "kind": "cron",
+        "id": "crn-d9kej0u1egvs73engu7g",
+        "sourceBranch": "master",
+        "dockerfilePath": "./Dockerfile.bake",
+        "autoDeployBefore": "On Commit",
+        "autoDeployAfter": "Off",
+        "afterObservedAt": "2026-08-01T12:07:50.792Z",
+        "afterControlReadOnly": true
+      },
+      {
+        "name": "swipe-c1-materialize",
+        "kind": "cron",
+        "id": "crn-d9e6vmtaeets73ai8cj0",
+        "sourceBranch": "master",
+        "dockerfilePath": "./Dockerfile.bake",
+        "autoDeployBefore": "On Commit",
+        "autoDeployAfter": "Off",
+        "afterObservedAt": "2026-08-01T12:08:07.084Z",
+        "afterControlReadOnly": true
+      }
+    ],
+    "mutationsPerformed": [
+      "Disabled Blueprint Auto Sync for exs-d95qo3q8qa3s73ea23p0.",
+      "Disabled Auto Deploy for srv-d95r3bfavr4c73aqsi4g.",
+      "Disabled Auto Deploy for crn-d9kej0u1egvs73engu7g.",
+      "Disabled Auto Deploy for crn-d9e6vmtaeets73ai8cj0."
+    ],
+    "postMutationHealth": {
+      "observedAt": "2026-08-01T12:10:43Z",
+      "endpoint": "/api/health",
+      "ok": true,
+      "service": "swipe-backend",
+      "reportedBuildPrefix": "09fa0cd",
+      "expectedBuildSha": "09fa0cdc17e207ea21826036b671b1064871fa32",
+      "bakeRuntimeStatus": "ready",
+      "ugcCommitPrefix": "83357fb"
+    },
+    "unexpectedDeployObserved": false
+  },
+  "evidenceSources": [
+    "Targeted signed-in Render Dashboard field inspection.",
+    "GitHub REST metadata and signed-in billing UI.",
+    "Production health endpoint after the Render control changes."
+  ],
+  "secretsCaptured": false,
+  "secretValuesStored": false
+}
