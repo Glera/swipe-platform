@@ -1,0 +1,37 @@
+{
+  "schema": "platform-reliability-r1-blueprint-hook-incident-receipt.v1",
+  "incidentId": "r1-window-blueprint-sync-hook-dom-20260802-1",
+  "observedAt": "2026-08-02T19:10:00Z",
+  "targetIdentityKind": "render_blueprint_id",
+  "targetSha256": "sha256:556758c36536ddbc9a77c97faafcf68f7f89e34053a4e8721cd2ac938be0a19a",
+  "providerSupport": {
+    "channel": "render_dashboard_intercom",
+    "acknowledgedAt": "2026-08-02T19:26:29Z",
+    "humanEscalationAcknowledged": true,
+    "terminalInvalidation": false,
+    "conversationIdAvailable": false,
+    "requestedActions": [
+      "rotate_or_invalidate_current_blueprint_sync_hook",
+      "confirm_self_service_rotation_and_disconnect_reconnect_semantics",
+      "define_exact_hook_authority",
+      "audit_previous_24_hours_for_non_dashboard_syncs"
+    ],
+    "secretValueSubmitted": false
+  },
+  "localContainment": {
+    "scannedRoots": [
+      "projects",
+      "codex_local_state"
+    ],
+    "repositoryMatchCount": 0,
+    "codexSessionMatchCount": 1,
+    "matchedPathSha256": "sha256:59c4771567b91bd38464a7bf425a9a48b9dc1e0fce1f89574937b4b4eb1e11ce",
+    "sessionDirectoryModeBefore": "0755",
+    "sessionDirectoryModeAfter": "0700",
+    "affectedFileModeBefore": "0644",
+    "affectedFileModeAfter": "0600",
+    "contentDeletedOrRewritten": false
+  },
+  "currentDisposition": "contained_pending_provider_invalidation",
+  "secretsCaptured": false
+}

@@ -12,6 +12,10 @@ DB-backed cron jobs. Backend PR #49 pins all three to
 `autoDeployTrigger: "off"`; after its independent review and merge, Gate C
 requires a fresh Preview, source SHA and sync identity.
 
+PR #49 is deploy-path hardening, not containment for the Sync Hook incident.
+Service commit triggers and the private Blueprint sync trigger are distinct
+authority paths.
+
 ## Purpose
 
 Gate C moves the closed production consumer set from the old Render-managed
@@ -75,6 +79,18 @@ private Blueprint Sync Hook into retained tool output. The value is not copied,
 used, hashed into public evidence or repeated here. The incident ID is
 `r1-window-blueprint-sync-hook-dom-20260802-1`; current disposition is
 `contained_pending_provider_invalidation`.
+
+A bounded local scan found zero repository matches and one retained Codex
+session match. The session directory was narrowed from `0755` to `0700` and
+the affected file from `0644` to `0600`; content was not deleted or rewritten.
+Exact bounded evidence is in
+`platform-reliability-r1-gate-c-hook-incident-receipt.json`.
+
+The operator-authorized Render Support request was submitted without any
+secret value. Render's automated agent confirmed the public self-service gap
+and acknowledged escalation to a human agent. The request asks for terminal
+rotation/invalidation, disconnect/reconnect semantics, exact hook authority
+and a provider-side audit of non-Dashboard syncs over the prior 24 hours.
 
 Gate C and every later operator action are stopped. Current public Render API
 and Dashboard documentation expose no Blueprint Sync Hook regeneration or
