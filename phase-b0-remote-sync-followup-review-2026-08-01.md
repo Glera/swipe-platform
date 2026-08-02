@@ -13,9 +13,9 @@ installation or runtime authority.
 | --- | --- |
 | merged predecessor | swipe-agents PR #13, source head `90412e2654442c747314ac6ea892f8dd493f7aca`, merge commit `5f62a41522712e36cf4592bdec9c8ea3e34a07cd` |
 | follow-up implementation | [swipe-agents PR #14](https://github.com/Glera/swipe-agents/pull/14) |
-| exact follow-up head | `27791e0f1c23457f5746160ca752a3537149265b` |
+| exact follow-up head | `f798e11185850ebbb5e6842b2cdaad22640b126c` |
 | stacked release pipeline | [swipe-agents PR #15](https://github.com/Glera/swipe-agents/pull/15), based on PR #14 |
-| exact release-pipeline head | `437cbde242f348dd72abe9386291707ea9a6f3fa` |
+| exact release-pipeline head | `e5c31b07f324309d1eb1d8393966468e455fb7e4` |
 
 ## Final-review dispositions
 
@@ -64,8 +64,12 @@ The only differing paths were mutable Git administration bytes
 identical. Copying an ordinary checkout therefore cannot satisfy a
 reproducible immutable-release claim.
 
-Stacked PR #15 closes that release-level gap. It archives only exact tracked
-source bytes, builds with an isolated private HOME and npm cache, fixed
+Stacked PR #15 closes that release-level gap without `git archive`. It parses
+the reviewed commit/tree/blob objects directly, recomputes every raw object
+OID, rejects gitlinks, unsafe paths and escaping symlinks, and materializes
+only those raw blob bytes. Local `.git/config`, `.git/info/attributes`, smudge
+filters, replace refs and checkout bytes are outside the build input. It builds
+with an isolated private HOME and npm cache, fixed
 UTC/C/source-commit epoch and disabled user/system Git configuration, removes
 the build home, emits only a deterministic `.git/HEAD` identity marker,
 freezes the full tree, and returns a typed production tree-digest receipt. A second
@@ -89,19 +93,19 @@ target immediately afterward. If killed in that interval, a repeated explicit
 every child already frozen), restores root `0555`, and still requires the full
 reviewed digest. Any other writable shape remains a refusal.
 
-At exact PR #15 head `437cbde242f348dd72abe9386291707ea9a6f3fa`,
-two independent builds both reported `checkedPaths=3001` and digest
-`054c836102a19aa0232990c05315610590da1cda9021f1b2a44a0d8ac9b9df02`.
-The no-write live installer receipt reported `installed=false` and
-`currentSwitched=false`. Temporary candidates were moved recoverably to the
-operator account's Trash; the live host was not changed.
+The former pre-fix head produced `checkedPaths=3001` and digest
+`054c836102a19aa0232990c05315610590da1cda9021f1b2a44a0d8ac9b9df02`;
+that identity is explicitly superseded and is not install authority. At exact
+PR #15 head `e5c31b07f324309d1eb1d8393966468e455fb7e4`, the executing regression
+builds the complete frozen release twice from raw Git objects, requires equal
+tree/build/toolchain/native identities, probes the installed native module and
+keeps `current` switching a separate act. No live host path was changed.
 
 ## Verification
 
-- Targeted host/security suites: 44/44 green, zero skips.
-- Full local suite at the final head: 462/462 green across 72 test files.
+- Targeted host/security suites at current PR #14 head: 45/45, zero skips.
 - Exact implementation head CI
-  [run 30712769109](https://github.com/Glera/swipe-agents/actions/runs/30712769109)
+  [run 30759565214](https://github.com/Glera/swipe-agents/actions/runs/30759565214)
   passed, including typecheck and the complete repository test suite.
 - Node syntax, zsh syntax, `plutil -lint` and `git diff --check`: green.
 - Two no-write installer renders at the final head produced identical manifest
@@ -109,12 +113,12 @@ operator account's Trash; the live host was not changed.
   The worktree Git index remained byte- and metadata-identical across both.
 - No credential value, bucket identifier or provider response was read or
   added to source/evidence.
-- PR #15 full local suite: 464/464 green across 73 files; its executing
+- PR #15 full local suite: 466/466 green across 73 files; its executing
   regression builds two complete releases, installs the reviewed bytes into a
   temporary runtime without `current`, switches `current` separately, then
   re-runs the production scanner and native `better-sqlite3` probe.
 - PR #15 exact-head CI
-  [run 30715470267](https://github.com/Glera/swipe-agents/actions/runs/30715470267)
+  [run 30760353764](https://github.com/Glera/swipe-agents/actions/runs/30760353764)
   passed with the build/install executing regression enabled.
 - Unlike the earlier revision, the complete build/install executing regression
   is mandatory in Ubuntu CI as well as the local macOS run; it may not be
