@@ -1,0 +1,21 @@
+{
+  "is_error": false,
+  "duration_api_ms": 71557,
+  "num_turns": 14,
+  "stop_reason": "end_turn",
+  "session_id": "19698a08-41ca-4e58-8be4-d5d2ac531ee3",
+  "total_cost_usd": 0.29962979999999995,
+  "usage": {
+    "input_tokens": 18,
+    "cache_creation_input_tokens": 24224,
+    "cache_read_input_tokens": 231646,
+    "output_tokens": 5545,
+    "service_tier": "standard",
+    "web_search_requests": 0,
+    "web_fetch_requests": 0
+  },
+  "model": "claude-sonnet-5",
+  "terminal_reason": "completed",
+  "subtype": "success",
+  "result": "GO\n\n**Reviewed:** parent `7728b89` → head `11c9bce` (PR #48, draft, unmerged), files `scripts/platform-release-coordinator.py`, `tests/test_platform_release_coordinator.py`.\n\n**Code delta.** `scripts/platform-release-coordinator.py:49` pins `_PRODUCTION_REGISTRY_CREDENTIAL_ID = \"rgc-d9np7tajnfac73bi5ib0\"`, replacing the prior `None` fail-closed sentinel. `_validate_authority_scope` (`scripts/platform-release-coordinator.py:98-126`) is unchanged in structure: rehearsal scope still hard-rejects any identifier in `_KNOWN_PRODUCTION_RENDER_IDS` (line 109-110) and requires the rehearsal-only database identity (line 111-112); production scope still rejects mismatched service/blueprint/owner/database (line 118-124) and now additionally requires exact registry-id match against the pinned literal (line 125-126). No broadening of accepted identities was introduced.\n\n**Tests.** `test_platform_release_coordinator.py:467-479` extends the rehearsal-rejection parametrization to include `registry_id`, confirming rehearsal fail-closed still covers the new field. `test_production_authority_uses_explicit_registry_pin` (replacing the old \"fails until pinned\" test) asserts the constant equals the exact receipt-matching literal and that production validation succeeds with it. `test_production_authority_is_bound_to_exact_known_target` (line 504-528) and a dedicated wrong-registry test (line 530-539, `production_registry_identity_invalid`) both exercise correct-identity acceptance and wrong-target rejection. This satisfies the \"tests both directions\" requirement.\n\n**Evidence cross-check** (`p4g-r1a-prod-precutover.MzJ9iO`):\n- Registry credential id `rgc-d9np7tajnfac73bi5ib0` is identical across `render-production-registry-credential-created.json`, `registry-credentials-after-create.raw.json`, and `render-production-registry-credential-direct.json`, and matches the code pin exactly.\n- `github-pat-user.headers` / `github-pat-package.headers` both report `x-oauth-scopes: read:packages` with no broader scope; body files confirm identity `Glera` and readable private package `swipe-backend` (`private: true`, `visibility: \"private\"`).\n- `provider-capture-before-pin.normalized.json` and `provider-capture-after-credential.normalized.json` are byte-identical (raw `diff` empty); production service deploy `dep-d9mtmabm8hqs73cighmg` remains `\"status\":\"live\"` in `srv-d95r3bfavr4c73aqsi4g-deploy-after-credential.json`, i.e. unchanged.\n- `render-retry-api-key-revocation.json` records `httpStatus: 401`, `status: \"PASS\"`; `render-retry-api-key-after-revoke.body` is `{\"message\":\"Unauthorized\"}`, confirming the temporary key was revoked and post-revocation requests are rejected.\n- `github-pr48.raw.json` shows `state: \"open\"`, `draft: true`, `merged: false` — no merge, no image publish, no provider source change, no Stage 1 action evidenced.\n\n**CI status:** could not independently execute (`pytest` not installed in this environment), so I did not re-run the suite; reported 50/71 passing figures were not independently reproduced here. If the authoritative CI run is still in progress, that is a pending status, not a code defect, and does not block this review's GO.\n\nNo P1/P2 findings."
+}

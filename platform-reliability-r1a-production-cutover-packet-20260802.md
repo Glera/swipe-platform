@@ -2,13 +2,14 @@
 
 Prepared: 2026-08-02 UTC.
 
-Status: **PRE-PIN SUCCESSOR ACCEPTED; PRODUCTION AUTHORITY NOT GRANTED**. Draft
-backend PR #48 is rebased, fully green and independently accepted at exact head
-`7728b89b329318bf59da67c117382e85d3a43ada`. This packet does not authorize a
-merge, image publication, production provider mutation, deployment, rollback
-or Stage 1 action. The next external step is deliberately blocked on explicit
-operator authority to create/capture the least-privilege production GHCR
-credential and fresh production provider gate.
+Status: **EXACT PRODUCTION CREDENTIAL PIN ACCEPTED; IMAGE PUBLICATION AND
+CUTOVER AUTHORITY NOT GRANTED**. Draft backend PR #48 is rebased, fully green
+and independently accepted at exact head
+`11c9bce9891ae5b041215056ac4521551a056cb5`. This packet does not authorize a
+merge, image publication, provider source switch, deployment, rollback or
+Stage 1 action. The next external step is deliberately blocked on separate
+operator authority to publish the immutable production baseline/candidate
+pair and complete the protected GitHub environment packet.
 
 ## 1. Accepted rehearsal authority
 
@@ -68,11 +69,12 @@ the merge vehicle.
 
 No Stage 1 commit is rebased, renumbered, merged or deployed in this phase.
 
-### Completed pre-pin successor receipt
+### Completed successor and exact-pin receipts
 
 - draft PR: [backend #48](https://github.com/Glera/swipe-backend/pull/48),
   `DO NOT MERGE`;
-- exact head: `7728b89b329318bf59da67c117382e85d3a43ada`;
+- pre-pin head: `7728b89b329318bf59da67c117382e85d3a43ada`;
+- exact reviewed pin head: `11c9bce9891ae5b041215056ac4521551a056cb5`;
 - base: backend `master@a12ca7ecea0f47e8862b4ba91879dff63cb46bfc`;
 - range-diff: 27/27 frozen candidate-v7 commits content-identical and in the
   same order, followed only by the Mission-policy reanchor;
@@ -84,16 +86,26 @@ No Stage 1 commit is rebased, renumbered, merged or deployed in this phase.
 - independent Claude session `141be604-da1d-42b6-9841-6960d290d08d`:
   GO, no P1/P2; receipt
   `platform-reliability-r1a-production-successor-review-20260802.md`;
-- production authority remains fail-closed at
-  `_PRODUCTION_REGISTRY_CREDENTIAL_ID = None`.
+- exact production registry credential:
+  `rgc-d9np7tajnfac73bi5ib0`, bound in code and verified against Render's
+  create, owner-inventory and direct-read receipts;
+- exact-pin local tests: targeted 50/50 and broader release set 71/71;
+- exact-pin CI: image/compact run `30762502229` PASS; full
+  PostgreSQL/migration run `30762502196` PASS;
+- exact-pin independent review session
+  `19698a08-41ca-4e58-8be4-d5d2ac531ee3`: GO, no P1/P2; receipt
+  `platform-reliability-r1a-production-pin-review-20260802.md`;
+- production capture and retry-window audit:
+  `platform-reliability-r1a-production-precutover-capture-20260802.md`.
 
-Steps 1–5 above are complete for the pre-pin head. The credential pin is a
-new cutover-only commit on PR #48 after the action-time provider capture; that
-new head requires focused CI/review before image publication or merge.
+Steps 1–5 above are complete for the exact pin head. PR #48 remains draft and
+unmerged. No production image has been published and no service/deploy state
+changed. Publishing the production immutable pair is the next separately
+authorized phase.
 
 ## 4. Production immutable pair
 
-After successor CI/review GO, publish each SHA at most once:
+After separate operator GO, publish each SHA at most once:
 
 - **production baseline**: exact action-time backend `master`, including all
   accepted production changes before R1-A;
@@ -133,6 +145,13 @@ The capture must prove:
 
 Unreadable, enabled or mismatched state is a hard stop. A capture authorizes at
 most the one exact attended merge/cutover window and is never reused.
+
+The provider-state and registry-credential portions were captured at
+`2026-08-02T19:03:32.093657Z`; normalized state before and after credential
+creation was byte-identical. The GitHub `production` environment remained
+absent by construction and must be created and captured only inside the next
+separately authorized image-publication phase. The full gate is therefore not
+yet satisfied for merge or deploy.
 
 ## 6. Exact attended sequence after operator GO
 
