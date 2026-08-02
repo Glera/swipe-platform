@@ -77,6 +77,117 @@ SELECT json_build_object(
     ) AS setting
     ORDER BY 1
   ),
+  'directAcl', ARRAY(
+    SELECT direct_acl.entry
+    FROM (
+      SELECT
+        'database|'
+        || CASE
+          WHEN database_object.datname = current_database()
+          THEN 'CURRENT_DATABASE'
+          ELSE quote_ident(database_object.datname)
+        END
+        || '|' || upper(acl.privilege_type)
+        || '|' || acl.is_grantable::text AS entry
+      FROM pg_database AS database_object
+      CROSS JOIN LATERAL aclexplode(database_object.datacl) AS acl
+      WHERE acl.grantee = session_role.oid
+
+      UNION ALL
+
+      SELECT
+        'schema|' || quote_ident(namespace_object.nspname)
+        || '|' || upper(acl.privilege_type)
+        || '|' || acl.is_grantable::text
+      FROM pg_namespace AS namespace_object
+      CROSS JOIN LATERAL aclexplode(namespace_object.nspacl) AS acl
+      WHERE acl.grantee = session_role.oid
+
+      UNION ALL
+
+      SELECT
+        'relation|' || quote_ident(namespace_object.nspname)
+        || '.' || quote_ident(relation_object.relname)
+        || '|' || upper(acl.privilege_type)
+        || '|' || acl.is_grantable::text
+      FROM pg_class AS relation_object
+      JOIN pg_namespace AS namespace_object
+        ON namespace_object.oid = relation_object.relnamespace
+      CROSS JOIN LATERAL aclexplode(relation_object.relacl) AS acl
+      WHERE acl.grantee = session_role.oid
+
+      UNION ALL
+
+      SELECT
+        'column|' || quote_ident(namespace_object.nspname)
+        || '.' || quote_ident(relation_object.relname)
+        || '.' || quote_ident(column_object.attname)
+        || '|' || upper(acl.privilege_type)
+        || '|' || acl.is_grantable::text
+      FROM pg_attribute AS column_object
+      JOIN pg_class AS relation_object
+        ON relation_object.oid = column_object.attrelid
+      JOIN pg_namespace AS namespace_object
+        ON namespace_object.oid = relation_object.relnamespace
+      CROSS JOIN LATERAL aclexplode(column_object.attacl) AS acl
+      WHERE acl.grantee = session_role.oid
+        AND column_object.attnum > 0
+        AND NOT column_object.attisdropped
+
+      UNION ALL
+
+      SELECT
+        'routine|' || routine_object.oid::regprocedure::text
+        || '|' || upper(acl.privilege_type)
+        || '|' || acl.is_grantable::text
+      FROM pg_proc AS routine_object
+      CROSS JOIN LATERAL aclexplode(routine_object.proacl) AS acl
+      WHERE acl.grantee = session_role.oid
+
+      UNION ALL
+
+      SELECT
+        'type|' || type_object.oid::regtype::text
+        || '|' || upper(acl.privilege_type)
+        || '|' || acl.is_grantable::text
+      FROM pg_type AS type_object
+      CROSS JOIN LATERAL aclexplode(type_object.typacl) AS acl
+      WHERE acl.grantee = session_role.oid
+
+      UNION ALL
+
+      SELECT
+        'defaultAcl|' || default_acl.defaclrole::text
+        || '|' || default_acl.defaclnamespace::text
+        || '|' || default_acl.defaclobjtype::text
+        || '|' || upper(acl.privilege_type)
+        || '|' || acl.is_grantable::text
+      FROM pg_default_acl AS default_acl
+      CROSS JOIN LATERAL aclexplode(default_acl.defaclacl) AS acl
+      WHERE acl.grantee = session_role.oid
+    ) AS direct_acl
+    ORDER BY direct_acl.entry
+  ),
+  'directSettings', ARRAY(
+    SELECT
+      CASE
+        WHEN role_setting.setdatabase = 0 THEN 'ALL_DATABASES'
+        WHEN role_setting.setdatabase = (
+          SELECT oid FROM pg_database WHERE datname = current_database()
+        ) THEN 'CURRENT_DATABASE'
+        ELSE role_setting.setdatabase::text
+      END
+      || '|'
+      || CASE
+        WHEN setting = 'role=' || current_user
+        THEN 'role=CURRENT_EFFECTIVE_USER'
+        ELSE setting
+      END
+    FROM pg_db_role_setting AS role_setting
+    CROSS JOIN LATERAL unnest(role_setting.setconfig) AS setting
+    WHERE role_setting.setrole = session_role.oid
+    ORDER BY 1
+  ),
   'directMembershipCount', (
     SELECT count(*)
     FROM pg_auth_members AS membership

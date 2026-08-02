@@ -66,6 +66,10 @@ function profile({
       roleConfig: sessionUser === user
         ? []
         : ['role=CURRENT_EFFECTIVE_USER'],
+      directAcl: [],
+      directSettings: sessionUser === user
+        ? []
+        : ['ALL_DATABASES|role=CURRENT_EFFECTIVE_USER'],
       directMembershipCount: sessionUser === user ? 0 : 1,
       currentRoleMembership: true,
       allDirectMembershipsCoveredByEffective: true,
@@ -274,9 +278,27 @@ test('Render delegated login preserves effective authority without hiding extras
   assert.equal(result.oldEffectiveUserSha256, result.newEffectiveUserSha256);
   assert.notEqual(result.oldUserSha256, result.newUserSha256);
 
+  const connectOnly = compareProfiles(
+    parseProfile(profile()),
+    parseProfile(profile({
+      user: 'old_user',
+      sessionUser: 'new_user',
+      observedAt: '2026-07-30T08:41:00.000Z',
+      sessionCredential: {
+        directAcl: ['database|CURRENT_DATABASE|CONNECT|false'],
+      },
+    })),
+  );
+  assert.equal(connectOnly.profilesEqual, true);
+
   for (const sessionCredential of [
     { superuser: true },
+    { login: false },
     { roleConfig: ['role=CURRENT_EFFECTIVE_USER', 'search_path=private'] },
+    { directAcl: ['relation|public.events|SELECT|false'] },
+    { directAcl: ['database|CURRENT_DATABASE|CONNECT|true'] },
+    { directSettings: ['CURRENT_DATABASE|search_path=private'] },
+    { currentRoleMembership: false },
     { allDirectMembershipsCoveredByEffective: false },
     { allDirectSetCoveredByEffective: false },
     { allDirectMembershipAdminsFalse: false },

@@ -376,7 +376,12 @@ rotation допустим наблюдаемый delegated-login (`session_user 
 только если effective user сохранён, session role не имеет privileged role
 attributes, его единственная role-config — `role=CURRENT_EFFECTIVE_USER`, а
 все прямые membership/SET-права уже покрыты effective user и ни одно членство
-не имеет admin option. Затем проверяются тот же PostgreSQL cluster/system
+не имеет admin option. Прямые ACL-гранты session-роли перечисляются по
+database/schema/relation/column/routine/type/default-ACL каталогам: допустимо
+только пустое множество либо негрантабельный `CONNECT` к текущей базе;
+в `pg_db_role_setting` допустима только глобальная
+`role=CURRENT_EFFECTIVE_USER`, остальные настройки запрещены. Затем
+проверяются тот же PostgreSQL cluster/system
 identifier, database OID и server version, разные session users, strictly
 later new-profile,
 полный completion sentinel и byte-canonical equality всех role attributes,

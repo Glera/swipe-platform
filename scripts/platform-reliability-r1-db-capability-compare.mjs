@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const PROFILE_SCHEMA = 'platform-reliability-r1-db-capability-profile.v2';
 const COMPARISON_SCHEMA =
-  'platform-reliability-r1-db-capability-comparison.v1';
+  'platform-reliability-r1-db-capability-comparison.v2';
 
 const RECORD_KINDS = [
   'role',
@@ -59,6 +59,8 @@ const SESSION_CREDENTIAL_KEYS = [
   'bypassRls',
   'connectionLimit',
   'roleConfig',
+  'directAcl',
+  'directSettings',
   'directMembershipCount',
   'currentRoleMembership',
   'allDirectMembershipsCoveredByEffective',
@@ -423,6 +425,11 @@ export function parseProfile(raw) {
     'sessionCredential.connectionLimit',
   );
   stringArray(sessionCredential.roleConfig, 'sessionCredential.roleConfig');
+  stringArray(sessionCredential.directAcl, 'sessionCredential.directAcl');
+  stringArray(
+    sessionCredential.directSettings,
+    'sessionCredential.directSettings',
+  );
   nonNegativeInteger(
     sessionCredential.directMembershipCount,
     'sessionCredential.directMembershipCount',
@@ -446,6 +453,21 @@ export function parseProfile(raw) {
       !== canonical(['role=CURRENT_EFFECTIVE_USER'])
     ) {
       fail('delegated session credential has unexpected role configuration');
+    }
+    const directAcl = canonical(sessionCredential.directAcl);
+    if (
+      directAcl !== canonical([])
+      && directAcl !== canonical([
+        'database|CURRENT_DATABASE|CONNECT|false',
+      ])
+    ) {
+      fail('delegated session credential has direct object authority');
+    }
+    if (
+      canonical(sessionCredential.directSettings)
+      !== canonical(['ALL_DATABASES|role=CURRENT_EFFECTIVE_USER'])
+    ) {
+      fail('delegated session credential has direct database settings');
     }
     if (
       !sessionCredential.currentRoleMembership
