@@ -10,9 +10,10 @@ authority.
 | Item | Exact identity | Verification state |
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 `f798e11185850ebbb5e6842b2cdaad22640b126c` | CI `SUCCESS` |
-| reproducible release pipeline | swipe-agents PR #15 `9f457710ad47e22010795db98c5bef7560e7a6ed` | exact-head CI `SUCCESS` ([run 30763862600](https://github.com/Glera/swipe-agents/actions/runs/30763862600)) |
-| bounded acceptance tooling | swipe-agents PR #16 `c03a840c4dae66d1b932a457e02cfef971ff7862` | exact-head CI `SUCCESS` ([run 30763970257](https://github.com/Glera/swipe-agents/actions/runs/30763970257)) |
+| reproducible release pipeline | swipe-agents PR #15 `8db31845272258611a7b6fa8df17725943169b91` | exact-head CI `SUCCESS` ([run 30764629683](https://github.com/Glera/swipe-agents/actions/runs/30764629683)) |
+| bounded acceptance tooling | swipe-agents PR #16 `b9dc59f6dc9c95891454d571d3f75b628e5a0310` | exact-head CI `SUCCESS` ([run 30765409989](https://github.com/Glera/swipe-agents/actions/runs/30765409989)); repeat review required |
 | original independent verdict | `phase-b0-stack-cross-review-2026-08-02.md` at meta master `f4db7ad` | `NO-GO`, 2 P1 plus P2/P3 |
+| second independent verdict | `phase-b0-stack-cross-review-r2-2026-08-02.md` at meta master `458c5e2` | `NO-GO`, 3 P1 plus enumerated P2 |
 | corrected evidence packet | p4g-workspace-meta PR #52 at the head containing this document | exact-head meta CI and repeat independent review required |
 
 The branches remain stacked in the same order: #14 -> #15 -> #16. No live
@@ -44,8 +45,10 @@ Fixed in PR #16. The live Backblaze B2 probe now requires a valid HTTPS
 response `Date` header and emits `agents.phase-b0-b2-provider-probe.v2` with
 `providerObservedAt` and exact `clockSkewMs`. The following chain is closed:
 
-- `agents.phase-b0-acceptance-anchor.v2` starts at B2 provider time and binds
-  the provider probe, repository digest and enabled macOS network-time state;
+- `agents.phase-b0-acceptance-anchor.v3` starts at B2 provider time plus a
+  fixed ten-minute warm-up and binds the provider probe, repository digest and
+  enabled macOS network-time state; all external preflight completes before
+  launchd mutation and the launchd snapshot must precede that future start;
 - every seed/scheduled backup obtains a fresh live B2 probe before restic or
   retention mutation and binds provider time plus the complete probe digest in
   `agents.phase-b0-remote-backup-receipt.v3`;
@@ -83,7 +86,7 @@ Fixed in PR #16. `p4g-agent-remote-sync` now accepts the no-argument
 `--observed-at`, separately from `audit --window-end`; its usage contract also
 names the command.
 
-The new integration test executes 20 production argv forms through the actual
+The new integration test executes 21 production argv forms through the actual
 zsh wrappers and requires every valid form to pass parsing and reach its
 authority/origin gate. Negative controls retain exit 2 for an extra
 `provider-probe` argument and the former invalid
@@ -101,9 +104,14 @@ so this test cannot silently collapse back to substring inspection.
 | P2-E apply and switch in one act | Argument validation rejects simultaneous `--apply-release` and `--switch-current`; the tests and runbook preserve two separate authority acts. |
 | P2-F capture reservation leaks | The physical publisher records the reservation inode and removes only that exact inode in `finally` on ordinary refusal, including pre-mutation failures. A process crash can still leave a marker intentionally; it fails closed and requires attended archive/disposition rather than automatic unsafe reclaim. The failure/retry lifecycle is executed by tests. |
 | P2-G dead-man local file claimed provider authority | Claim narrowed honestly. `agents.phase-b0-deadman-window-evidence.v2` is explicitly `operator_attested_external_provider_ui`; it requires an operator inspection flag/time and a separate root publication act. It is documented as a human gate, not a provider signature or machine-verifiable security boundary. An agent-authored file alone has no root publication authority. |
-| P2-H root loads runner-selected native addon/store | Root now asks the installed wrapper to execute `rollback-store-state` as non-admin `p4g_runner`. That helper re-hashes the exact anchored immutable release before loading its native module and reads the store without privilege. Root accepts only a typed receipt bound to anchor/release/tree/observation. |
-| P2-I effectful layer untested | Tests execute all eight named live wiring surfaces: start, audit, publish, physical capture, complete, rollback, runtime restart and cold-boot verification, with injected host boundaries plus negative paths. In addition, all 20 production CLI argv shapes now execute through the real zsh wrappers in CI; pure validators remain separately covered. |
-| P2-J repeat bootstrap mutates before known refusal | `control bootstrap` checks for an existing regular or symlink anchor before arming the trap or issuing any launchctl/install mutation. Source-order regression requires the guard before the first mutating statement. |
+| P2-H root loads runner-selected native addon/store | The installed wrapper still produces the typed store-state receipt as non-admin `p4g_runner` after re-hashing the anchored release. Root additionally invokes only `/usr/bin/sqlite3 -readonly` against the realpath-constrained, runner-owned mode-0600 `store-*/authority.sqlite` and independently derives the effective runtime lease. The two results must agree; root loads no runner-selected native addon. |
+| P2-I effectful layer untested | Tests execute the named live wiring surfaces with negative paths. In addition, all 21 production CLI argv shapes execute through the real zsh wrappers in CI, including the two-phase acceptance start and rollback store probe; malformed controls must stop at wrapper usage. Pure validators remain separately covered. |
+| P2-J late bootstrap refusal after host mutation | `control bootstrap` refuses an existing anchor first, then completes runner preflight, live B2 provider probe, network-time check and activation hashing into a root-private digested `acceptance-start-preflight.v1` before the first launchctl/install mutation. After launchd load, `start --candidate` performs only local receipt/activation/launchd validation and anchor publication. A stale/tampered candidate or late launchd failure remains inside the armed rollback trap. |
+| R2 P2: production release retained `dist/tests` | PR #15 prunes `dist/tests` explicitly and the executing two-build regression asserts its absence from the actual frozen release. |
+| R2 P2: new release refusal paths lacked coverage | PR #15 exports narrow validation seams and executes negative cases for raw-object digest/tree/mode/path/collision/gitlink/symlink, toolchain and native platform/digest/archive failures. |
+| R2 P2: changed release-tree algorithm retained `.v1` domain | The tree digest domain is `agents.phase-b0-release-tree.v2`; candidate/install receipts carry `releaseTreeDigestSchema`, and the incompatible activation contract is bumped to `agents.phase-b0-activation.v2`. |
+| R2 P2: an unfinished run before grace vanished from audit | PR #16 selects every run scheduled by the chosen end plus unfinished state crossing the start. Grace may delay a missed event but cannot hide `scheduled`/`started`; a real SQLite regression requires `base_a1_run_state_incomplete`. |
+| R2 P2: dead-man review forced a false five-minute timestamp | Validation permits a true operator inspection from window end through +24h, while root publication separately requires `operatorAttestedAt` within five minutes of the live publication time. Both the deliberate delay and stale-publication refusal are tested. |
 
 ## P3 dispositions
 
@@ -131,7 +139,11 @@ rewritten to failure by post-success rotation.
 - the Git attribute/filter channel is eliminated by raw object
   materialization (and `GIT_ATTR_NOSYSTEM=1` remains defense in depth);
 - production candidates remove dev dependencies, tests, `.github`, docs,
-  host/source TypeScript trees and build-only configuration;
+  host/source TypeScript trees, compiled `dist/tests` and build-only
+  configuration;
+- release-tree digest semantics and activation schema are versioned `.v2`;
+- raw Git, toolchain and native-artifact refusal codes have executable
+  negative coverage rather than substring-only assertions;
 - unused `SOURCE_DATE_EPOCH` dependence was removed;
 - negative tests cover inconclusive launchctl, rollback conflict, tampered
   candidates, dirty/inexact installer source and unsafe roots.
@@ -146,24 +158,29 @@ rewritten to failure by post-success rotation.
 - the physical-capture reservation keeps its original file descriptor open
   through the drill, so an unlink-and-replace cannot reuse that inode and be
   mistaken for the reservation during cleanup;
-- base-A1 audits include only runs whose grace deadline has matured by the
-  chosen end, avoiding a false failure for a currently valid in-flight run;
+- base-A1 audits include every run scheduled by the chosen end and every
+  unfinished run crossing the start, so grace cannot launder an in-flight
+  failure; the operator chooses an end after the final run is terminal;
 - the root acceptance wrapper uses the fixed system PATH;
+- rollback compares the runner receipt to an independent root system-SQLite
+  lease probe;
+- dead-man review has a 24-hour human window but a five-minute live-publication
+  bound;
+- external start checks complete before launchd mutation and feed a closed,
+  digested candidate into the post-load anchor;
 - dead-man, provider-time, reservation, bootstrap-order and every effectful
   control seam have explicit negative coverage.
 
 ## Verification receipts
 
 - PR #14 focused tests: 45/45; exact-head GitHub CI `SUCCESS`.
-- PR #15 exact-head GitHub CI: 73 files, 465 passed and two documented
-  macOS-only skips out of 467; the four release-candidate tests, including the
-  executable two-build and dirty-builder regressions, ran and passed.
-- PR #16 focused host/acceptance suites on macOS: 53/53.
-- PR #16 exact-head GitHub CI: 74 files, 492 passed and the same two
-  macOS-only skips out of 494; the real-wrapper argv regression ran and
-  passed. A local serial run completed all 494 assertions but ended non-zero
-  on a Vitest worker RPC timeout after the 70-second two-build test, so it is
-  explicitly not claimed as a PASS receipt.
+- PR #15 exact-head GitHub CI run 30764629683: `SUCCESS`; the actual frozen
+  candidate excludes `dist/tests`, all refusal families execute, and the
+  release-tree/activation schema v2 path passes.
+- PR #16 exact-head local serial run: 74/74 files, 497/497 assertions; the
+  executable two-build regression, 21-form real-wrapper regression, real
+  SQLite CLI lease probe and two-phase start tests all ran. Exact-head GitHub
+  CI run 30765409989 is `SUCCESS` on the same head.
 - TypeScript build, Node syntax, zsh syntax and `git diff --check`: pass.
 - Meta #52 exact-head CI must be green before the repeat reviewer may issue
   GO; implementation CI cannot substitute for independent review.
@@ -184,6 +201,11 @@ The independent reviewer should re-run, not merely inspect:
    wiring and typed missing-evidence failures;
 6. the narrowed dead-man statement: accept it only as an explicit operator
    attestation gate, never as cryptographic provider proof.
+7. actual candidate inventory (`dist/tests` absent), every new release refusal
+   family, and the `.v2` release-tree/activation bindings;
+8. an unfinished pre-grace run, runner/root lease disagreement, delayed honest
+   dead-man inspection versus stale publication, and B2/network-time refusal
+   before the first launchd mutation.
 
 The required verdict remains GO only with no open P1–P3. Even GO will be review
 evidence, not authority: merge, build/install, `current` switch, credentials,

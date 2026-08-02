@@ -9,8 +9,8 @@ process-kill, reboot, rollback or runtime authority.
 | Item | Identity |
 | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `f798e11185850ebbb5e6842b2cdaad22640b126c` |
-| reproducible release pipeline | stacked swipe-agents PR #15 at `9f457710ad47e22010795db98c5bef7560e7a6ed` |
-| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `c03a840c4dae66d1b932a457e02cfef971ff7862` |
+| reproducible release pipeline | stacked swipe-agents PR #15 at `8db31845272258611a7b6fa8df17725943169b91` |
+| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `b9dc59f6dc9c95891454d571d3f75b628e5a0310` |
 | completion contract | `phase-b0-bounded-acceptance-matrix-2026-08-01.md` |
 
 ## Closure model
@@ -24,15 +24,20 @@ three launchd jobs. Every later receipt must bind that anchor and the same
 
 The source-controlled contour provides:
 
-1. bootstrap-integrated anchor publication. All three labels and a fresh
-   runner preflight must pass. The launchd PID is the Node runtime PID and its
+1. two-phase anchor publication. Before the first launchd mutation, runner
+   preflight, live B2 time/boundary probe, network-time check and activation
+   hashing produce one root-private digested start candidate. Only then are
+   the three labels loaded. Post-load start consumes that candidate, rechecks
+   activation and captures launchd without another external call. The anchor
+   starts at provider time plus a fixed ten-minute warm-up, and launchd must be
+   ready before that future instant. The launchd PID is the Node runtime PID and its
    exact process-scoped `caffeinate -i -s` child is also required; the parsed
    child command must name the same immutable release as preflight. Anchor
    failure remains inside the bootstrap rollback trap;
 2. a read-only base-A1 SQLite interval audit whose end is already past: every
-   run whose grace deadline matured in-window or whose unfinished state still
-   overlaps the start boundary is terminal `succeeded`; a run still inside its
-   configured grace is excluded until mature. There is no
+   run scheduled by that end plus any unfinished state crossing the start is
+   terminal `succeeded`; configured grace can delay a missed event but cannot
+   hide an in-flight run. There is no
    failed/missed event, queued/unsettled/failed delivery, duplicate provider
    identity or SQLite error; and the live lease PID equals the launchd PID;
 3. a destructive restart drill that kills only the anchored supervised PID,
@@ -49,7 +54,9 @@ The source-controlled contour provides:
    observation and complete operator incident dispositions. The receipt is a
    human publication gate, not a provider signature or machine-verifiable
    security boundary; it requires first/last heartbeat coverage, a bounded
-   observation count and no gap over fifteen minutes. Every incident must
+   observation count and no gap over fifteen minutes. Honest operator review
+   may occur through +24h, but root publication must be within five minutes of
+   the recorded attestation. Every incident must
    close inside the window; `false_incident` fails,
    host-idle tolerance is limited to stored `network`/`network_down` evidence,
    every disposition is time-bounded, and incident signals already active at
@@ -62,7 +69,10 @@ The source-controlled contour provides:
    malformed or inconclusive identity fails closed, while an already-dead
    holder does not force a five-minute rollback delay. SQLite/native inspection
    runs as non-admin `p4g_runner` only after re-hashing the anchored immutable
-   release; root does not load a runner-selected native addon. The publisher then
+   release. Root separately reads the narrow lease row with system
+   `/usr/bin/sqlite3 -readonly` from the constrained runner-owned store and
+   requires both effective-lease answers to agree; root loads no runner-selected
+   native addon. The publisher then
    re-runs the online B2 verifier and binds its exact accepted-window digest;
    rollback/completion timestamps must be contemporaneous with the live host;
 7. a root-owned final aggregate that requires the anchor, A1 audit, online B2
@@ -81,15 +91,20 @@ and rollback remain future explicit physical authority acts.
 
 ## Verification
 
-- Focused host and acceptance tests: 53/53 on macOS.
-- Exact-head CI: 492 passed and two documented macOS-only skips across 74
-  files; the real-wrapper argv test and all four release-candidate tests ran.
+- Focused host and acceptance tests: 55/55 on macOS after R2 closure.
+- Exact-head local serial run: 74/74 files and 497/497 assertions. The
+  21-form real-wrapper test, real system-SQLite lease probe, two-phase start
+  boundary and all release-candidate tests ran. Exact-head GitHub CI run
+  30765409989 is `SUCCESS` on the same head.
 - The full run includes the executable two-build immutable-release and
   install/current-separation regression inherited from PR #15.
+- PR #15 exact-head CI run 30764629683 is `SUCCESS`; the frozen production
+  candidate excludes `dist/tests`, release-tree/activation semantics are v2,
+  and raw-object/toolchain/native refusal families have executable negatives.
 - Node syntax, zsh syntax and `git diff --check`: pass.
-- Exact-head CI for PR #16 is required on
-  `c03a840c4dae66d1b932a457e02cfef971ff7862`; its final result is recorded in
-  the cross-review disposition rather than inherited from the superseded head.
+- Exact-head CI for PR #16 on
+  `b9dc59f6dc9c95891454d571d3f75b628e5a0310` is recorded in the cross-review
+  disposition rather than inherited from a superseded head.
 - Meta evidence suite: 135/135 locally; the exact PR #52 CI identity is recorded
   after this packet commit is pushed.
 - No reserve-host path, `current`, secret, launchd label, process or OS state
@@ -127,6 +142,12 @@ The independent reviewer should attempt at least:
 8. exploit symlink, owner/mode, parent-path, partial-write, concurrent
    publication or stale-candidate races in the root evidence set;
 9. complete from the remote verifier alone or complete before rollback.
+10. leave a scheduled/started run just before its grace deadline, make the
+    runner/root lease views disagree, delay a truthful dead-man inspection,
+    or publish an old attestation timestamp.
+11. fail B2/network-time/preflight before bootstrap and prove no launchd or
+    plist mutation; tamper/stale the prepared start candidate after launchd and
+    prove the armed rollback removes all three jobs.
 
 ## Remaining gates
 
