@@ -344,6 +344,11 @@ KILL/rollback: если новый protocol request с Mac не проходит
 
 ### 4.2 Capability preflight и Blueprint sync — `OPERATOR GATE C`
 
+Исполняемый контракт конкретного окна, точный Preview и безопасный comparison
+receipt фиксируются отдельным reviewable-пакетом. Для текущего окна это
+`platform-reliability-r1-gate-c-contract.md`; чат не является authority для
+состава предусловий.
+
 До sync новый user должен пройти не только `SELECT 1`, но и read-only
 capability audit:
 
