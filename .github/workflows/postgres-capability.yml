@@ -66,14 +66,18 @@ jobs:
           PGUSER: postgres
         run: |
           psql -X -v ON_ERROR_STOP=1 <<'SQL'
-          CREATE ROLE r1_ci_owner NOLOGIN;
+          CREATE ROLE r1_ci_owner LOGIN;
           CREATE ROLE r1_ci_external NOLOGIN;
           CREATE ROLE r1_ci_old LOGIN;
           CREATE ROLE r1_ci_new LOGIN;
+          CREATE ROLE r1_ci_delegated LOGIN;
           GRANT CONNECT, TEMPORARY ON DATABASE capability_test TO r1_ci_owner;
           GRANT USAGE, CREATE ON SCHEMA public TO r1_ci_owner;
           GRANT r1_ci_owner TO r1_ci_old, r1_ci_new
             WITH INHERIT TRUE, SET TRUE;
+          GRANT r1_ci_owner TO r1_ci_delegated
+            WITH INHERIT TRUE, SET TRUE;
+          ALTER ROLE r1_ci_delegated SET role = 'r1_ci_owner';
 
           SET ROLE r1_ci_owner;
           CREATE TYPE public.r1_ci_kind AS ENUM ('one', 'two');
@@ -127,11 +131,42 @@ jobs:
             --new "${RUNNER_TEMP}/new-profile.jsonl" \
             > "${RUNNER_TEMP}/comparison.json"
 
+      - name: Capture delegated credential authority boundaries
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "5432"
+          PGDATABASE: capability_test
+        run: |
+          PGUSER=r1_ci_owner psql -X -q \
+            -f scripts/platform-reliability-r1-db-capability.sql \
+            > "${RUNNER_TEMP}/delegated-owner-profile.jsonl"
+          sleep 1
+          PGUSER=r1_ci_delegated psql -X -q \
+            -f scripts/platform-reliability-r1-db-capability.sql \
+            > "${RUNNER_TEMP}/delegated-clean-profile.jsonl"
+
+          PGUSER=postgres psql -X -q -v ON_ERROR_STOP=1 \
+            -c 'GRANT SELECT ON public.r1_ci_events TO r1_ci_delegated'
+          PGUSER=r1_ci_delegated psql -X -q \
+            -f scripts/platform-reliability-r1-db-capability.sql \
+            > "${RUNNER_TEMP}/delegated-object-grant-profile.jsonl"
+
+          PGUSER=postgres psql -X -q -v ON_ERROR_STOP=1 \
+            -c 'REVOKE SELECT ON public.r1_ci_events FROM r1_ci_delegated' \
+            -c 'GRANT CONNECT ON DATABASE capability_test TO r1_ci_delegated'
+          PGUSER=r1_ci_delegated psql -X -q \
+            -f scripts/platform-reliability-r1-db-capability.sql \
+            > "${RUNNER_TEMP}/delegated-connect-profile.jsonl"
+
       - name: Assert target-version coverage and sanitized evidence
         env:
           OLD_PROFILE: ${{ runner.temp }}/old-profile.jsonl
           NEW_PROFILE: ${{ runner.temp }}/new-profile.jsonl
           COMPARISON: ${{ runner.temp }}/comparison.json
+          DELEGATED_OWNER_PROFILE: ${{ runner.temp }}/delegated-owner-profile.jsonl
+          DELEGATED_CLEAN_PROFILE: ${{ runner.temp }}/delegated-clean-profile.jsonl
+          DELEGATED_OBJECT_GRANT_PROFILE: ${{ runner.temp }}/delegated-object-grant-profile.jsonl
+          DELEGATED_CONNECT_PROFILE: ${{ runner.temp }}/delegated-connect-profile.jsonl
         run: |
           node --input-type=module <<'NODE'
           import assert from 'node:assert/strict';
@@ -227,6 +262,40 @@ jobs:
 
           assert.equal(result.profilesEqual, true);
           assert.deepEqual(committedResult, result);
+
+          const delegatedOwner = parseProfile(
+            fs.readFileSync(process.env.DELEGATED_OWNER_PROFILE, 'utf8'),
+          );
+          const delegatedClean = parseProfile(
+            fs.readFileSync(process.env.DELEGATED_CLEAN_PROFILE, 'utf8'),
+          );
+          assert.deepEqual(delegatedClean.sessionCredential.directAcl, []);
+          assert.deepEqual(delegatedClean.sessionCredential.directSettings, [
+            'ALL_DATABASES|role=CURRENT_EFFECTIVE_USER',
+          ]);
+          assert.equal(
+            compareProfiles(delegatedOwner, delegatedClean).profilesEqual,
+            true,
+          );
+
+          assert.throws(
+            () => parseProfile(fs.readFileSync(
+              process.env.DELEGATED_OBJECT_GRANT_PROFILE,
+              'utf8',
+            )),
+            /direct object authority/,
+          );
+
+          const delegatedConnect = parseProfile(
+            fs.readFileSync(process.env.DELEGATED_CONNECT_PROFILE, 'utf8'),
+          );
+          assert.deepEqual(delegatedConnect.sessionCredential.directAcl, [
+            'database|CURRENT_DATABASE|CONNECT|false',
+          ]);
+          assert.equal(
+            compareProfiles(delegatedOwner, delegatedConnect).profilesEqual,
+            true,
+          );
 
           const serialized = JSON.stringify(result);
           for (const forbidden of [
