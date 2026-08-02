@@ -1,8 +1,16 @@
 # Platform Reliability R1 — Gate C contract
 
-Status: **PREPARED, NOT APPLIED**  
-Prepared: `2026-08-02`  
+Status: **BLOCKED, NOT APPLIED**
+
+Prepared: `2026-08-02`
+
 Authority: only an explicit operator `GO Gate C` permits Render **Approve**.
+
+The first Preview is explicitly stale and must never be approved. It would
+have restored commit-triggered production deploys for the web service and both
+DB-backed cron jobs. Backend PR #49 pins all three to
+`autoDeployTrigger: "off"`; after its independent review and merge, Gate C
+requires a fresh Preview, source SHA and sync identity.
 
 ## Purpose
 
@@ -16,9 +24,9 @@ separate Gate D.
 
 Every item is mandatory before **Approve**:
 
-1. Backend source is `a12ca7ecea0f47e8862b4ba91879dff63cb46bfc`
-   (PR #47), with the read-only Alembic check receipt already reviewed as
-   `exit 0`, SHA-256 `855ec70c…`.
+1. Backend source includes PR #47 plus reviewed PR #49, and the fresh Preview
+   is pinned to that exact post-merge source SHA. The read-only Alembic check
+   receipt remains reviewed as `exit 0`, SHA-256 `855ec70c…`.
 2. Capability implementation includes meta PR #54 merge
    `6f68be6de57276885633cc95e5c5c539edd5766b` and both required GitHub checks are green:
    `verify` and `postgres-16-capability-proof`.
@@ -28,27 +36,52 @@ Every item is mandatory before **Approve**:
 4. Its exact SHA-256 is
    `73cd60e81865a818b90b2b9bdea24eb5078133f423bebde4c96e913dadc68cd8`.
    Raw capability profiles remain operator-local and are not committed.
-5. The new session role has `directAclCount=0` and
-   `directSettingsCount=1`; the sole setting is the declared global delegated
-   role setting. The old and new effective roles are equal by digest.
+5. Successful schema-v2 comparison proves that direct ACL authority is within
+   the declared delegated-session allowance and direct settings equal the
+   declared global delegated-role setting. The old and new effective roles are
+   equal by digest; raw counts and identities are intentionally not committed.
 6. The committed exact visible Preview capture
-   `platform-reliability-r1-gate-c-blueprint-preview.json` is still the page
-   being approved, with sync identity `exe-d9nercqjnfac73aunbvg` and source
-   `a12ca7e`.
-7. Preview changes are limited to all six expected lines:
+   `platform-reliability-r1-gate-c-blueprint-preview.json` has `stale=false`
+   and is still the exact page being approved. Its sync identity and full
+   source SHA are rechecked immediately before the click.
+7. Preview changes are limited to three expected lines:
    - `DATABASE_URL` refresh for web `swipe-backend`;
    - `DATABASE_URL` refresh for cron `swipe-seq-shadow-run`;
-   - `DATABASE_URL` refresh for cron `swipe-c1-materialize`;
-   - `auto-deploy-trigger=commit` for those same three consumers.
+   - `DATABASE_URL` refresh for cron `swipe-c1-materialize`.
+   Any `auto-deploy-trigger=commit` line is **NO-GO**. The post-merge source
+   must declare `autoDeployTrigger: "off"` for all three consumers.
 8. Preview contains no create/delete, plan, storage, schedule, source,
    additional environment-variable or consumer-set change.
-9. Blueprint Auto Sync remains disabled before the manual act. Both old and
-   new credentials remain valid. No credential deletion is part of Gate C.
-10. The operator has issued a fresh, explicit `GO Gate C` after reviewing this
-    contract and the two evidence artifacts.
+9. `platform-reliability-r1-gate-c-blueprint-autosync.json` proves one unique
+   disabled `autoSync No` control, `syncStatus=paused` and
+   `secretsCaptured=false`. Auto Sync is rechecked immediately before the act.
+   Both old and new credentials remain valid; deletion is not part of Gate C.
+10. Secret incident `r1-window-blueprint-sync-hook-dom-20260802-1` has terminal
+    provider-supported rotation/invalidation proof bound to Blueprint identity
+    digest
+    `sha256:556758c36536ddbc9a77c97faafcf68f7f89e34053a4e8721cd2ac938be0a19a`
+    and a separate operator approval. Auto Sync `No`, disconnect/reconnect or
+    another residual-risk acceptance do not satisfy this precondition.
+11. The operator has issued a fresh, explicit `GO Gate C` after reviewing this
+    contract and all evidence artifacts.
 
 Any mismatch is **NO-GO**. Do not approve a regenerated or changed Preview
 under this contract; capture and review a new one.
+
+## Secret incident containment
+
+At `2026-08-02T19:10Z`, a broad DOM snapshot of Blueprint Settings returned a
+private Blueprint Sync Hook into retained tool output. The value is not copied,
+used, hashed into public evidence or repeated here. The incident ID is
+`r1-window-blueprint-sync-hook-dom-20260802-1`; current disposition is
+`contained_pending_provider_invalidation`.
+
+Gate C and every later operator action are stopped. Current public Render API
+and Dashboard documentation expose no Blueprint Sync Hook regeneration or
+revocation control. A provider-supported terminal rotation/invalidation proof
+and explicit operator approval are mandatory before this contract can return
+to `PREPARED`. The historical 2026-07-29 accepted residual cannot be extended
+to this new incident.
 
 ## Authorized action
 
