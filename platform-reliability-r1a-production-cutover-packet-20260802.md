@@ -2,11 +2,13 @@
 
 Prepared: 2026-08-02 UTC.
 
-Status: **PREPARED, NOT AUTHORIZED**. This packet defines the next attended
-window; it does not authorize a merge, image publication, production provider
-mutation, deployment, rollback or Stage 1 action. Every exact identity marked
-action-time must be captured again, independently reviewed, and named in a new
-operator GO.
+Status: **PRE-PIN SUCCESSOR ACCEPTED; PRODUCTION AUTHORITY NOT GRANTED**. Draft
+backend PR #48 is rebased, fully green and independently accepted at exact head
+`7728b89b329318bf59da67c117382e85d3a43ada`. This packet does not authorize a
+merge, image publication, production provider mutation, deployment, rollback
+or Stage 1 action. The next external step is deliberately blocked on explicit
+operator authority to create/capture the least-privilege production GHCR
+credential and fresh production provider gate.
 
 ## 1. Accepted rehearsal authority
 
@@ -65,6 +67,29 @@ the merge vehicle.
    exact operator GO below.
 
 No Stage 1 commit is rebased, renumbered, merged or deployed in this phase.
+
+### Completed pre-pin successor receipt
+
+- draft PR: [backend #48](https://github.com/Glera/swipe-backend/pull/48),
+  `DO NOT MERGE`;
+- exact head: `7728b89b329318bf59da67c117382e85d3a43ada`;
+- base: backend `master@a12ca7ecea0f47e8862b4ba91879dff63cb46bfc`;
+- range-diff: 27/27 frozen candidate-v7 commits content-identical and in the
+  same order, followed only by the Mission-policy reanchor;
+- reanchor: `app/models.py` baseline 8,701 lines, SHA-256
+  `fa7844bd4753bd6acb2206853dda046b617ff4e6f021a27a051e08f2b70e3cb0`;
+  integration growth budget remains zero;
+- image/compact check run `30738681840`: PASS;
+- full PostgreSQL/migration matrix run `30738681843`: PASS;
+- independent Claude session `141be604-da1d-42b6-9841-6960d290d08d`:
+  GO, no P1/P2; receipt
+  `platform-reliability-r1a-production-successor-review-20260802.md`;
+- production authority remains fail-closed at
+  `_PRODUCTION_REGISTRY_CREDENTIAL_ID = None`.
+
+Steps 1–5 above are complete for the pre-pin head. The credential pin is a
+new cutover-only commit on PR #48 after the action-time provider capture; that
+new head requires focused CI/review before image publication or merge.
 
 ## 4. Production immutable pair
 
