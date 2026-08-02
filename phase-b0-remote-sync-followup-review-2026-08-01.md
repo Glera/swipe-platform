@@ -15,7 +15,7 @@ installation or runtime authority.
 | follow-up implementation | [swipe-agents PR #14](https://github.com/Glera/swipe-agents/pull/14) |
 | exact follow-up head | `f798e11185850ebbb5e6842b2cdaad22640b126c` |
 | stacked release pipeline | [swipe-agents PR #15](https://github.com/Glera/swipe-agents/pull/15), based on PR #14 |
-| exact release-pipeline head | `9f457710ad47e22010795db98c5bef7560e7a6ed` |
+| exact release-pipeline head | `8db31845272258611a7b6fa8df17725943169b91` |
 
 ## Final-review dispositions
 
@@ -96,12 +96,15 @@ reviewed digest. Any other writable shape remains a refusal.
 The former pre-fix head produced `checkedPaths=3001` and digest
 `054c836102a19aa0232990c05315610590da1cda9021f1b2a44a0d8ac9b9df02`;
 that identity is explicitly superseded and is not install authority. At exact
-PR #15 head `9f457710ad47e22010795db98c5bef7560e7a6ed`, the executing regression
+PR #15 head `8db31845272258611a7b6fa8df17725943169b91`, the executing regression
 builds the complete frozen release twice from raw Git objects, requires equal
 tree/build/toolchain/native identities, probes the installed native module and
 keeps `current` switching a separate act. Before building it now also refuses
 any staged or unstaged tracked change and byte-compares the executing builder
-module closure to the reviewed commit. No live host path was changed.
+module closure to the reviewed commit. It also removes compiled `dist/tests`
+from the production release, binds the release-tree algorithm and activation
+to their `.v2` schemas, and executes negative coverage for each raw Git,
+toolchain and native-artifact refusal family. No live host path was changed.
 
 ## Verification
 
@@ -115,13 +118,12 @@ module closure to the reviewed commit. No live host path was changed.
   The worktree Git index remained byte- and metadata-identical across both.
 - No credential value, bucket identifier or provider response was read or
   added to source/evidence.
-- PR #15 exact-head CI: 465 passed plus two documented macOS-only skips across
-  73 files; its four-test release-candidate suite builds two complete releases,
-  rejects staged and unstaged builder changes, installs the reviewed bytes into a
-  temporary runtime without `current`, switches `current` separately, then
-  re-runs the production scanner and native `better-sqlite3` probe.
+- PR #15 exact-head suite builds two complete releases, rejects staged and
+  unstaged builder changes, proves `dist/tests` absent, installs the reviewed
+  bytes into a temporary runtime without `current`, switches `current`
+  separately, then re-runs the production scanner and native probe.
 - PR #15 exact-head CI
-  [run 30763862600](https://github.com/Glera/swipe-agents/actions/runs/30763862600)
+  [run 30764629683](https://github.com/Glera/swipe-agents/actions/runs/30764629683)
   passed with the build/install executing regression enabled.
 - Unlike the earlier revision, the complete build/install executing regression
   is mandatory in Ubuntu CI as well as the local macOS run; it may not be
