@@ -24,7 +24,7 @@ power-boundary evidence.
 | Item | Exact identity | Current gate |
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `f798e11185850ebbb5e6842b2cdaad22640b126c` | cross-review findings fixed; repeat exact-head review pending |
-| reproducible release pipeline | swipe-agents PR #15 at `e5c31b07f324309d1eb1d8393966468e455fb7e4` | cross-review findings fixed; repeat exact-head review pending |
+| reproducible release pipeline | swipe-agents PR #15 at `9f457710ad47e22010795db98c5bef7560e7a6ed` | cross-review findings fixed; repeat exact-head review pending |
 | evidence packet | p4g-workspace-meta PR #52; this matrix becomes part of its next exact head | independent exact-head review pending |
 | superseded pre-fix candidate identity | `checkedPaths=3001`, `releaseTreeDigest=054c836102a19aa0232990c05315610590da1cda9021f1b2a44a0d8ac9b9df02` | historical evidence only; explicitly not install authority |
 
@@ -75,7 +75,7 @@ merge. No pre-review digest may be reused as post-merge authority.
 ## Evidence tooling proposed before bootstrap
 
 Stacked swipe-agents PR #16 at
-`58c186677c4672bf88103ee1e1ce8a61a1762e13` proposes all source-controlled
+`c03a840c4dae66d1b932a457e02cfef971ff7862` proposes all source-controlled
 closure surfaces identified by this matrix:
 
 1. a root-owned typed bootstrap/window anchor bound to exact activation,
