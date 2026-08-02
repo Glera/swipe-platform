@@ -11,7 +11,7 @@ authority.
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 `f798e11185850ebbb5e6842b2cdaad22640b126c` | CI `SUCCESS` |
 | reproducible release pipeline | swipe-agents PR #15 `8db31845272258611a7b6fa8df17725943169b91` | exact-head CI `SUCCESS` ([run 30764629683](https://github.com/Glera/swipe-agents/actions/runs/30764629683)) |
-| bounded acceptance tooling | swipe-agents PR #16 `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` | local 74/74 files and 498/498 assertions; exact-head CI and repeat review required |
+| bounded acceptance tooling | swipe-agents PR #16 `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` | local 74/74 files and 498/498 assertions; exact-head CI `SUCCESS` ([run 30766214538](https://github.com/Glera/swipe-agents/actions/runs/30766214538)); repeat review required |
 | original independent verdict | `phase-b0-stack-cross-review-2026-08-02.md` at meta master `f4db7ad` | `NO-GO`, 2 P1 plus P2/P3 |
 | second independent verdict | `phase-b0-stack-cross-review-r2-2026-08-02.md` at meta master `458c5e2` | `NO-GO`, 3 P1 plus enumerated P2 |
 | corrected evidence packet | p4g-workspace-meta PR #52 at the head containing this document | exact-head meta CI and repeat independent review required |
@@ -199,7 +199,7 @@ rewritten to failure by post-success rotation.
 - PR #16 final integration head local serial run: 74/74 files, 498/498 assertions; the
   executable two-build regression, 21-form real-wrapper regression, real
   SQLite CLI lease probe, two-phase start tests and production restic-digest
-  allowlist regression all ran. Exact-head CI is pending and must pass.
+  allowlist regression all ran. Exact-head CI run 30766214538 is `SUCCESS`.
 - TypeScript build, Node syntax, zsh syntax and `git diff --check`: pass.
 - Meta #52 exact-head CI must be green before the repeat reviewer may issue
   GO; implementation CI cannot substitute for independent review.

@@ -155,7 +155,8 @@ PR #13 is based on merged `main`, not stacked on an unmerged branch.
 - Final integration head `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe`
   passed the complete local swipe-agents suite: 74/74 files and 498/498
   assertions, including the wrong-digest and wrong-platform restic refusals.
-  Its exact-head CI and independent review remain mandatory.
+  Exact-head CI run 30766214538 is `SUCCESS`; independent review remains
+  mandatory.
 - The real scheduled-path cycle on this non-UTC Mac remains intentionally
   unproved because restic, the scoped key, root evidence and activation have
   not been installed or issued. It is a post-review, installed-but-unloaded
