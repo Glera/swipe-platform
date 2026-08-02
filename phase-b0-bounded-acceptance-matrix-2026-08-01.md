@@ -25,7 +25,7 @@ power-boundary evidence.
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `f798e11185850ebbb5e6842b2cdaad22640b126c` | cross-review findings fixed; repeat exact-head review pending |
 | reproducible release pipeline | swipe-agents PR #15 at `8db31845272258611a7b6fa8df17725943169b91` | R2 findings fixed; repeat exact-head review pending |
-| bounded acceptance tooling | swipe-agents PR #16 at `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` | R2 findings plus the owner-audit restic supply-chain gap fixed; local 498/498; exact-head CI and repeat review pending |
+| bounded acceptance tooling | swipe-agents PR #16 at `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` | R2 findings plus the owner-audit restic supply-chain gap fixed; local 498/498 and exact-head CI 30766214538 `SUCCESS`; repeat review pending |
 | evidence packet | p4g-workspace-meta PR #52; this matrix becomes part of its next exact head | independent exact-head review pending |
 | superseded pre-fix candidate identity | `checkedPaths=3001`, `releaseTreeDigest=054c836102a19aa0232990c05315610590da1cda9021f1b2a44a0d8ac9b9df02` | historical evidence only; explicitly not install authority |
 

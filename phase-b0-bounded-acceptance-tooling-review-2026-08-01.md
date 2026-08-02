@@ -95,7 +95,7 @@ and rollback remain future explicit physical authority acts.
 - Final-head local serial run: 74/74 files and 498/498 assertions. The
   21-form real-wrapper test, real system-SQLite lease probe, two-phase start
   boundary, all release-candidate tests and the exact official restic binary
-  allowlist test ran. Exact-head GitHub CI is pending and must pass.
+  allowlist test ran. Exact-head GitHub CI run 30766214538 is `SUCCESS`.
 - The full run includes the executable two-build immutable-release and
   install/current-separation regression inherited from PR #15.
 - PR #15 exact-head CI run 30764629683 is `SUCCESS`; the frozen production
@@ -103,8 +103,8 @@ and rollback remain future explicit physical authority acts.
   and raw-object/toolchain/native refusal families have executable negatives.
 - Node syntax, zsh syntax and `git diff --check`: pass.
 - Exact-head CI for PR #16 on
-  `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` must be recorded in the
-  cross-review disposition; no result from a superseded head counts.
+  `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` is `SUCCESS` in run
+  30766214538; no result from a superseded head counts.
 - Meta evidence suite: 135/135 locally; the exact PR #52 CI identity is recorded
   after this packet commit is pushed.
 - No reserve-host path, `current`, secret, launchd label, process or OS state
