@@ -25,7 +25,7 @@ power-boundary evidence.
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `f798e11185850ebbb5e6842b2cdaad22640b126c` | cross-review findings fixed; repeat exact-head review pending |
 | reproducible release pipeline | swipe-agents PR #15 at `8db31845272258611a7b6fa8df17725943169b91` | R2 findings fixed; repeat exact-head review pending |
-| bounded acceptance tooling | swipe-agents PR #16 at `b9dc59f6dc9c95891454d571d3f75b628e5a0310` | R2 findings fixed; exact-head CI 30765409989 `SUCCESS`; repeat review pending |
+| bounded acceptance tooling | swipe-agents PR #16 at `c3e0a182cc43695e623f515cc0dd3236e56cd9a3` | R2 findings fixed; exact-head CI 30765675575 `SUCCESS`; repeat review pending |
 | evidence packet | p4g-workspace-meta PR #52; this matrix becomes part of its next exact head | independent exact-head review pending |
 | superseded pre-fix candidate identity | `checkedPaths=3001`, `releaseTreeDigest=054c836102a19aa0232990c05315610590da1cda9021f1b2a44a0d8ac9b9df02` | historical evidence only; explicitly not install authority |
 
@@ -78,7 +78,7 @@ merge. No pre-review digest may be reused as post-merge authority.
 ## Evidence tooling proposed before bootstrap
 
 Stacked swipe-agents PR #16 at
-`b9dc59f6dc9c95891454d571d3f75b628e5a0310` proposes all source-controlled
+`c3e0a182cc43695e623f515cc0dd3236e56cd9a3` proposes all source-controlled
 closure surfaces identified by this matrix:
 
 1. a root-owned typed bootstrap/window anchor bound to exact activation,
