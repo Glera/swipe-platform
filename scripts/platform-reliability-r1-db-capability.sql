@@ -50,6 +50,66 @@ SELECT json_build_object(
   )
 )::text;
 
+-- Render-managed credential rotations authenticate as a fresh session role
+-- and then apply a role= setting that preserves the database's original
+-- effective owner. Capture that wrapper explicitly so the comparison can
+-- allow the provider pattern without accepting hidden or broader authority.
+SELECT json_build_object(
+  'kind', 'sessionCredential',
+  'identity', 'session',
+  'delegated', session_user <> current_user,
+  'superuser', session_role.rolsuper,
+  'login', session_role.rolcanlogin,
+  'inherit', session_role.rolinherit,
+  'createRole', session_role.rolcreaterole,
+  'createDb', session_role.rolcreatedb,
+  'replication', session_role.rolreplication,
+  'bypassRls', session_role.rolbypassrls,
+  'connectionLimit', session_role.rolconnlimit,
+  'roleConfig', ARRAY(
+    SELECT CASE
+      WHEN setting = 'role=' || current_user
+      THEN 'role=CURRENT_EFFECTIVE_USER'
+      ELSE setting
+    END
+    FROM unnest(
+      coalesce(session_role.rolconfig, ARRAY[]::text[])
+    ) AS setting
+    ORDER BY 1
+  ),
+  'directMembershipCount', (
+    SELECT count(*)
+    FROM pg_auth_members AS membership
+    WHERE membership.member = session_role.oid
+  ),
+  'currentRoleMembership', session_user = current_user OR coalesce((
+    SELECT bool_or(member_of.rolname = current_user)
+    FROM pg_auth_members AS membership
+    JOIN pg_roles AS member_of ON member_of.oid = membership.roleid
+    WHERE membership.member = session_role.oid
+  ), false),
+  'allDirectMembershipsCoveredByEffective', coalesce((
+    SELECT bool_and(pg_has_role(current_user, membership.roleid, 'MEMBER'))
+    FROM pg_auth_members AS membership
+    WHERE membership.member = session_role.oid
+  ), true),
+  'allDirectSetCoveredByEffective', coalesce((
+    SELECT bool_and(
+      NOT membership.set_option
+      OR pg_has_role(current_user, membership.roleid, 'SET')
+    )
+    FROM pg_auth_members AS membership
+    WHERE membership.member = session_role.oid
+  ), true),
+  'allDirectMembershipAdminsFalse', coalesce((
+    SELECT bool_and(NOT membership.admin_option)
+    FROM pg_auth_members AS membership
+    WHERE membership.member = session_role.oid
+  ), true)
+)::text
+FROM pg_roles AS session_role
+WHERE session_role.rolname = session_user;
+
 SELECT json_build_object(
   'kind', 'role',
   'identity', 'current',

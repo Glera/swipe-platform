@@ -370,9 +370,15 @@ node scripts/platform-reliability-r1-db-capability-compare.mjs \
   > <capability-comparison.json>
 ```
 
-Comparator требует прямой login каждой credential (`session_user =
-current_user`, SET ROLE запрещён), тот же PostgreSQL cluster/system identifier,
-database OID и server version, разные users, strictly later new-profile,
+Comparator требует прямую аутентификацию каждой credential. Для исходного
+пользователя допустим `session_user = current_user`; для Render-managed
+rotation допустим наблюдаемый delegated-login (`session_user != current_user`)
+только если effective user сохранён, session role не имеет privileged role
+attributes, его единственная role-config — `role=CURRENT_EFFECTIVE_USER`, а
+все прямые membership/SET-права уже покрыты effective user и ни одно членство
+не имеет admin option. Затем проверяются тот же PostgreSQL cluster/system
+identifier, database OID и server version, разные session users, strictly
+later new-profile,
 полный completion sentinel и byte-canonical equality всех role attributes,
 memberships/options/settings, ownership, RLS/policies, default ACL,
 database/schema/relation/column/sequence/routine/type privileges и grant
