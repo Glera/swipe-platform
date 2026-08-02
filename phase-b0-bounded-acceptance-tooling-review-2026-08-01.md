@@ -10,7 +10,7 @@ process-kill, reboot, rollback or runtime authority.
 | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `f798e11185850ebbb5e6842b2cdaad22640b126c` |
 | reproducible release pipeline | stacked swipe-agents PR #15 at `8db31845272258611a7b6fa8df17725943169b91` |
-| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `b9dc59f6dc9c95891454d571d3f75b628e5a0310` |
+| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `c3e0a182cc43695e623f515cc0dd3236e56cd9a3` |
 | completion contract | `phase-b0-bounded-acceptance-matrix-2026-08-01.md` |
 
 ## Closure model
@@ -92,10 +92,11 @@ and rollback remain future explicit physical authority acts.
 ## Verification
 
 - Focused host and acceptance tests: 55/55 on macOS after R2 closure.
-- Exact-head local serial run: 74/74 files and 497/497 assertions. The
+- Parent-head local serial run: 74/74 files and 497/497 assertions. The
   21-form real-wrapper test, real system-SQLite lease probe, two-phase start
-  boundary and all release-candidate tests ran. Exact-head GitHub CI run
-  30765409989 is `SUCCESS` on the same head.
+  boundary and all release-candidate tests ran. The final one-line fixed-parent
+  hardening has focused 55/55 and exact-head GitHub CI run 30765675575 is
+  `SUCCESS`.
 - The full run includes the executable two-build immutable-release and
   install/current-separation regression inherited from PR #15.
 - PR #15 exact-head CI run 30764629683 is `SUCCESS`; the frozen production
@@ -103,7 +104,7 @@ and rollback remain future explicit physical authority acts.
   and raw-object/toolchain/native refusal families have executable negatives.
 - Node syntax, zsh syntax and `git diff --check`: pass.
 - Exact-head CI for PR #16 on
-  `b9dc59f6dc9c95891454d571d3f75b628e5a0310` is recorded in the cross-review
+  `c3e0a182cc43695e623f515cc0dd3236e56cd9a3` is recorded in the cross-review
   disposition rather than inherited from a superseded head.
 - Meta evidence suite: 135/135 locally; the exact PR #52 CI identity is recorded
   after this packet commit is pushed.
