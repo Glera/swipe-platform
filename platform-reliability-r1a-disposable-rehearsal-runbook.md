@@ -1,18 +1,20 @@
 # Platform Reliability R1-A — disposable rehearsal runbook
 
-Status: prepared execution contract; **no external authority**. Creating a
-Render/GitHub resource, publishing an image, dispatching a workflow or changing
-provider state requires the operator's action-time confirmation. Production
-Render resources are never mutation targets; the only shared production
-namespace in rehearsal is the explicitly declared immutable GHCR package.
+Status: **corrective disposable contract fully executed; no production
+authority**. Exact candidate-v7 deploy, refusal proofs, forward-only rollback,
+resource cleanup and credential revocation all passed under the recorded
+R12/operator GO and USD 3 ceiling. Independent acceptance is the only remaining
+rehearsal gate. Production Render resources were never mutation targets; the
+only shared production namespace is the explicitly retained immutable GHCR
+package.
 
 ## Exact source set
 
 | Role | Exact identity |
 | --- | --- |
 | provider source-build baseline | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` on frozen successor ref `codex/r1a-rehearsal-baseline-v2-20260801` (`0070_published_test_delivery`); this remains the already-proved Blueprint/web/cron source identity |
-| immutable image baseline | `5cfe17896d90c639dbfcbca996fd4731dff52097` on frozen recovery ref `codex/r1a-rehearsal-baseline-v3-20260801` (`0070_published_test_delivery` + Buildx attestation-driver fix) |
-| immutable image candidate | `1e285238f33283047eb8c3b3c52d352ea3b587fa` on frozen recovery ref `codex/r1a-rehearsal-candidate-v5-20260801` (`0071_platform_release_receipts` + executable authority separation, compensating env CAS/retry, bounded live-command failures and the same Buildx fix) |
+| immutable image baseline | `8cb8239e04bf30f54f7fe1f85758da8f4fe7caac` on frozen final ref `codex/r1a-rehearsal-baseline-v4-20260801` (`0070_published_test_delivery` + Buildx attestation-driver fix + reviewed raw-Render-URL driver normalization) |
+| immutable image candidate | `9d3dc995b5f2976acbf18d3bac62ad3fc138f022` on frozen final ref `codex/r1a-rehearsal-candidate-v7-20260801` (`0071_platform_release_receipts` + executable authority separation, compensating env CAS/retry, bounded live-command failures, Buildx fix and the same URL normalization) |
 | rebased client guard | `e804c73d41f5e94401caa3bb5acb92f691866101` on durable new ref `codex/r1a-client-guard-20260801` |
 | registration sentinel | `5ef857f493016501a0eaa733d174eb39ba221d2a` on new ref `codex/r1a-workflow-registration` |
 | rehearsal Blueprint source | frozen successor ref `codex/r1a-rehearsal-blueprint-v2-20260801`; exact ref SHA is bound by `platform-reliability-r1a-blueprint-v2-publication-receipt-20260801.md`; reviewed `render.r1a-rehearsal.yaml` blob `809aa531176f44890f72dfa4953ee36148113629`, SHA-256 `4361c8c826f6868de1d9bd34b2050fc0af1d05e2fa1974f2c832e8790b2c6710` |
@@ -34,11 +36,13 @@ Compatibility inputs:
 The successor backend ranges were rebased onto backend
 `9277047852c0d73f4d3b9a081e1b0b586f48ae3c`; the client default branch remains
 `96780f55a28e2fdf98d33290a87e1865431826c8`, so the accepted client guard ref
-did not move. Candidate v5 adds no migration or product behavior beyond the
-accepted candidate v4; its publication-only delta selects the Buildx
-`docker-container` driver required for SBOM/provenance attestations. Candidate
-focused release/guard acceptance is `80 passed`; baseline v3 focused
-acceptance is `32 passed`; both Mission guards and workflow YAML checks pass.
+did not move. The final v4/v7 pair adds no migration or product behavior beyond
+the accepted release boundary; it combines the Buildx `docker-container`
+driver required for SBOM/provenance attestations with the reviewed normalization
+of Render's raw PostgreSQL URL at release-tooling engine creation sites. The
+final targeted release suite is `40 passed`; both Mission guards and workflow
+YAML checks pass. Earlier recovery acceptance remains recorded in
+`platform-reliability-r1a-buildx-recovery-receipt-20260801.md`.
 The accepted v2 source-range acceptance remains `74 passed, 3 skipped` for the
 candidate and `39 passed, 3 skipped` for the baseline; the client guard
 mutants/build remain accepted. Independent post-sentinel review returned GO
@@ -61,6 +65,29 @@ The feed input is the exact `feedCommit` in the public release archive at the
 listed `swipe-platform` SHA. It is not mislabeled as the client-guard review
 head; those are separate identities in the manifest.
 
+### Executed recovery chain
+
+The first attended workspace proved the coordinator and rollback path but only
+deployed candidate v6. Independent final-audit R1 correctly rejected that as
+insufficient coverage for the retained v7 image. Its history remains in the
+R1 disposition; it is not the final execution authority.
+
+The corrective workspace then ran the complete final pair: prepare exact
+candidate-v7 source, deploy the exact retained candidate-v7 digest, advance
+`0070_published_test_delivery` to `0071_platform_release_receipts`, replay the
+durable receipt, prove stale-CAS and conflicting-binding refusal, and deploy
+exact baseline-v4 forward-only while leaving the database at `0071`. Candidate
+and rollback health responses were byte-identical. The complete bounded matrix
+and cleanup receipts are in
+`platform-reliability-r1a-rehearsal-runtime-receipt-20260801.md`.
+
+An expired `read:packages` PAT caused the first corrective prepare-source run
+to fail closed before mutation. After replacing it with a one-day,
+`read:packages`-only PAT, the same reviewed operation passed. Both the expired
+and replacement PATs, the Render API key, the registry credential, GitHub
+environment and every disposable Render resource/workspace were then removed
+and independently probed absent.
+
 ## Default-branch registration prerequisite
 
 GitHub requires a `workflow_dispatch` workflow file on the default branch even
@@ -81,8 +108,9 @@ receipt SHA-256
 That receipt is historical evidence for the sentinel merge only and is not a
 substitute for the fresh production gate required before PR #33 cutover.
 
-The successful baseline dispatch is the executable ref-semantics probe. Invoke
-the workflow by exact path with `--ref codex/r1a-rehearsal-baseline-v3-20260801`; the
+The successful final baseline dispatch is the executable ref-semantics probe.
+Invoke the workflow by exact path with
+`--ref codex/r1a-rehearsal-baseline-v4-20260801`; the
 path is `.github/workflows/platform-release-image.yml`. The run must report
 that exact `head_sha` and execute the full image job. If the default-branch
 refusal sentinel runs instead, or the selected SHA differs, rehearsal stops
@@ -97,10 +125,10 @@ delta is committed. The publication ledger is:
 
 1. provider source baseline `codex/r1a-rehearsal-baseline-v2-20260801` →
    `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`;
-2. immutable image baseline `codex/r1a-rehearsal-baseline-v3-20260801` →
-   `5cfe17896d90c639dbfcbca996fd4731dff52097`;
-3. immutable image candidate `codex/r1a-rehearsal-candidate-v5-20260801` →
-   `1e285238f33283047eb8c3b3c52d352ea3b587fa` after independent recovery acceptance;
+2. immutable image baseline `codex/r1a-rehearsal-baseline-v4-20260801` →
+   `8cb8239e04bf30f54f7fe1f85758da8f4fe7caac`;
+3. immutable image candidate `codex/r1a-rehearsal-candidate-v7-20260801` →
+   `9d3dc995b5f2976acbf18d3bac62ad3fc138f022` after independent recovery acceptance;
 4. client evidence `codex/r1a-client-guard-20260801` →
    `e804c73d41f5e94401caa3bb5acb92f691866101`;
 5. backend sentinel `codex/r1a-workflow-registration` →
@@ -176,7 +204,7 @@ continuing:
   operator must explicitly accept this blast radius for the attended window;
 - one temporary GitHub `production` environment, available only after the
   GitHub-plan prerequisite above, whose selected deployment branch is exactly
-  `codex/r1a-rehearsal-candidate-v5-20260801`, containing only disposable
+  `codex/r1a-rehearsal-candidate-v7-20260801`, containing only disposable
   service/Blueprint/database/registry identities and the temporary Render key.
 
 The reviewed coordinator requires an environment-owned
@@ -245,7 +273,7 @@ operator's action-time confirmation.
    in the production backend repository only after the disposable IDs/key are
    known; it must not pre-exist. Read-only GitHub API receipts must prove the
    selected-branch policy is exactly
-   `codex/r1a-rehearsal-candidate-v5-20260801`, its secret-name set is exactly
+   `codex/r1a-rehearsal-candidate-v7-20260801`, its secret-name set is exactly
    `{RENDER_API_KEY}`, and its variable-name set is exactly
    `{RENDER_SERVICE_ID, RENDER_BLUEPRINT_ID, RENDER_OWNER_ID,
    RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY,
@@ -303,7 +331,7 @@ operator's action-time confirmation.
    or to contain no version/tag/digest outside an explicitly reviewed prior
    receipt; an unexplained existing version stops publication. Then dispatch
    `Platform release image` by exact workflow path on
-   `codex/r1a-rehearsal-baseline-v3-20260801` exactly once with:
+   `codex/r1a-rehearsal-baseline-v4-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -329,9 +357,9 @@ operator's action-time confirmation.
    and stop if the projected external transfer exceeds the remaining GitHub
    Pro Packages allowance. Record the calculation and plan headroom.
 5. **Publish immutable candidate.** After confirming the remote candidate
-   branch is still `1e285238f33283047eb8c3b3c52d352ea3b587fa` and no run exists
+   branch is still `9d3dc995b5f2976acbf18d3bac62ad3fc138f022` and no run exists
    for it, dispatch the workflow by exact path on
-   `codex/r1a-rehearsal-candidate-v5-20260801` exactly once with:
+   `codex/r1a-rehearsal-candidate-v7-20260801` exactly once with:
 
    | input | value |
    | --- | --- |
@@ -361,7 +389,7 @@ operator's action-time confirmation.
    margin. Missing that deadline requires a new reviewed image pair/rehearsal,
    even though the GHCR digests themselves remain available.
 6. **Prepare source.** Dispatch the reviewed cutover workflow by exact path and
-   `--ref codex/r1a-rehearsal-candidate-v5-20260801` through the temporary GitHub
+   `--ref codex/r1a-rehearsal-candidate-v7-20260801` through the temporary GitHub
    environment; the path is
    `.github/workflows/platform-release-cutover.yml`. Run `prepare-source`
    against the exact current disposable deploy CAS. Confirm it changes only

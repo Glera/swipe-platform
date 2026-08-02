@@ -1,293 +1,199 @@
-# Platform Reliability R1-A — disposable rehearsal evidence packet
+# Platform Reliability R1-A — final disposable rehearsal evidence packet
 
-Status: **attended disposable rehearsal in progress**. R12 GO and operator
-authority are recorded; provider provisioning/exact-source proof are complete,
-the first cleanly failed image attempt and reviewed Buildx recovery are bound
-by `platform-reliability-r1a-buildx-recovery-receipt-20260801.md`. See also
-`platform-reliability-r1a-rehearsal-provider-checkpoint-20260801.md` and
-`platform-reliability-r1a-rehearsal-start-receipt-20260801.md`. Every `PENDING` value
-must be replaced by bounded evidence from the attended run. This document is
-not provider, publication, merge, deploy or production authority.
+Evidence window: 2026-08-01 through 2026-08-02 UTC.
+
+Status: **corrective execution matrix PASS; cleanup PASS; independent final
+acceptance pending**. This packet is evidence only. It is not merge, deploy,
+provider-mutation, production-cutover or Stage 1 authority.
 
 Execution contract:
-`platform-reliability-r1a-disposable-rehearsal-runbook.md`.
-Spend preflight:
-`platform-reliability-r1a-rehearsal-cost-preflight-20260801.md`.
-Operational ceiling: **USD 3.00**; creation stops before the first paid
-resource unless the operator gives an action-time GO naming that cap and the
-account-wide Render API-key blast radius.
+`platform-reliability-r1a-disposable-rehearsal-runbook.md`. Runtime receipt:
+`platform-reliability-r1a-rehearsal-runtime-receipt-20260801.md`. Earlier
+incomplete execution and its accepted correction are retained in
+`platform-reliability-r1a-rehearsal-final-audit-r1-disposition.md`.
 
-## 1. Immutable reviewed inputs
+## 1. Operator authority and boundary
 
-| Role | Frozen ref | Exact SHA |
+The operator authorized a disposable rehearsal up to USD 3 and accepted the
+temporary account-wide Render API-key scope only for that disposable
+workspace. Production owner `tea-d1m4lmali9vc73euvelg` and its Blueprint, web,
+cron and PostgreSQL IDs were denylisted by the executable rehearsal authority.
+
+The first rehearsal's displayed cost was USD 0.02. Corrective resources ran
+for less than one hour and are estimated below USD 0.01. Cumulative spend is
+therefore estimated below USD 0.03; no provider-finalized exact corrective
+charge is claimed.
+
+## 2. Immutable reviewed inputs
+
+| Role | Frozen ref | Exact SHA / digest |
 | --- | --- | --- |
-| provider source baseline | `codex/r1a-rehearsal-baseline-v2-20260801` | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` |
-| immutable image baseline | `codex/r1a-rehearsal-baseline-v3-20260801` | `5cfe17896d90c639dbfcbca996fd4731dff52097` |
-| immutable image candidate | `codex/r1a-rehearsal-candidate-v5-20260801` | `1e285238f33283047eb8c3b3c52d352ea3b587fa` |
+| source-build baseline | `codex/r1a-rehearsal-baseline-v2-20260801` | `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` |
+| image baseline-v4 | `codex/r1a-rehearsal-baseline-v4-20260801` | `8cb8239e04bf30f54f7fe1f85758da8f4fe7caac` / `sha256:2230743aa443d481a1e5ee7fff1a7830403ebd94ca8a3464b497d879e722264b` |
+| image candidate-v7 | `codex/r1a-rehearsal-candidate-v7-20260801` | `9d3dc995b5f2976acbf18d3bac62ad3fc138f022` / `sha256:837612eda640e037f6d5322dc57c5ca9706a665ea8a9a38d6c986a5b54cdd2fb` |
 | client guard | `codex/r1a-client-guard-20260801` | `e804c73d41f5e94401caa3bb5acb92f691866101` |
 | registration sentinel | `codex/r1a-workflow-registration` | `5ef857f493016501a0eaa733d174eb39ba221d2a` |
-| rehearsal Blueprint | `codex/r1a-rehearsal-blueprint-v2-20260801` | `ccf690d106d7dd1f1d06279972a1851117287053` |
+| corrective Blueprint | `codex/r1a-rehearsal-blueprint-v2-20260801` | `ccf690d106d7dd1f1d06279972a1851117287053` |
 
-Blueprint path: `render.r1a-rehearsal.yaml`; Git blob
-`809aa531176f44890f72dfa4953ee36148113629`; file SHA-256
+Blueprint path `render.r1a-rehearsal.yaml`, blob
+`809aa531176f44890f72dfa4953ee36148113629`, file SHA-256
 `4361c8c826f6868de1d9bd34b2050fc0af1d05e2fa1974f2c832e8790b2c6710`.
 
-Public release inputs:
+Retained build authorities:
 
-- feed: `61110cdd506f5364b015f8e2b0cd81c12fda46a1`;
-- playables: `0960952a9fc7d2d7e6f3ae23b1dffe039d97ebb9`;
-- release archive: `a3a78562d6c71808e19d84bd1c23ab0cfaa0fc27`.
+| Role | Run | Manifest SHA-256 | Sidecar artifact / expiry |
+| --- | ---: | --- | --- |
+| baseline-v4 | `30712414323` | `ab33c178ca0671efc5ee5054d2971b898e217b9deca0624ed0b24e8bcc103bc3` | `8822315596` / `2026-10-30` |
+| candidate-v7 | `30712534528` | `5cd2d48fa4d87944d6cca124f6bddc238b738f1ef2c4285f13ce2c708c1496e0` | `8822349919` / `2026-10-30` |
 
-Preflight must resolve every remote ref and byte identity above again. Any
-mismatch requires a new reviewed identity; never move a frozen ref.
+Both builds are successful single attempts. No publication rerun occurred.
 
-## 2. Action-time authority and stop gates
+## 3. Corrective disposable provider set
 
-- Operator GO text/time: “Да, запускай rehearsal до $3; принимаю временный
-  account-wide scope Render API key только для disposable workspace” — recorded
-  into the execution packet at `2026-08-01T14:35:03Z` after R12 GO.
-- Accepted Render-key scope: account-wide read/write authority across every
-  workspace visible to the operator account, constrained operationally to the
-  recorded disposable IDs: **accepted for this attended disposable rehearsal**.
-- Maximum approved spend: **USD 3.00**.
-- GitHub Actions headroom and expected charge rechecked at: `PENDING`.
-- Render creation estimate shown before mutation: `PENDING`.
-- Production owner ID excluded from every target:
-  `tea-d1m4lmali9vc73euvelg`.
-- Known production IDs excluded from every target:
-  `exs-d95qo3q8qa3s73ea23p0`, `srv-d95r3bfavr4c73aqsi4g`,
-  `crn-d9kej0u1egvs73engu7g`, `crn-d9e6vmtaeets73ai8cj0`,
-  `dpg-d95r32favr4c73aqs4d0-a`.
+| Resource | Exact identity |
+| --- | --- |
+| workspace | `tea-d9n4a3lbedkc73aiovr0` |
+| Blueprint | `exs-d9neefrncjis73a0r0lg` |
+| web | `srv-d9nef7e417fc73d6qfqg` |
+| sequencing cron | `crn-d9neeiu417fc73d6p9fg` |
+| materialize cron | `crn-d9neeiu417fc73d6p9g0` |
+| PostgreSQL | `dpg-d9neeiu417fc73d6p9j0-a` |
+| registry credential | `rgc-d9negffqj5pc73endqpg` |
 
-Stop before mutation on an unreadable/mismatched owner, non-empty destination,
-unexpected Blueprint action, pre-existing GitHub `production` environment,
-repository-level `RENDER_*` authority, remote ref drift, package-inventory
-ambiguity or provider estimate above the approved cap.
+Render generated database name `swipe_r1a_rehearsal_rlaj`. The independently
+fixed release-authority identity was
+`PLATFORM_DATABASE_IDENTITY=r1a-rehearsal-20260801`; it did not depend on the
+provider-generated suffix. Currency, production data and Stage 1 resources
+were outside this rehearsal.
 
-## 3. Fresh pre-mutation inventories
+The temporary GitHub `production` environment admitted only branch
+`codex/r1a-rehearsal-candidate-v7-20260801`, exactly one secret
+`RENDER_API_KEY`, and six bounded variables:
+`RENDER_SERVICE_ID`, `RENDER_BLUEPRINT_ID`, `RENDER_OWNER_ID`,
+`RENDER_REGISTRY_CREDENTIAL_ID`, `PLATFORM_DATABASE_IDENTITY` and
+`PLATFORM_RELEASE_AUTHORITY_SCOPE=rehearsal`. Repository-level `RENDER_*`
+secret and variable names remained absent.
 
-| Receipt | Path / URL | SHA-256 | Result |
-| --- | --- | --- | --- |
-| GitHub environments | `PENDING` | `PENDING` | `PENDING` |
-| GitHub repo secret/variable names | `PENDING` | `PENDING` | `PENDING` |
-| Render visible owners/workspaces | `PENDING` | `PENDING` | `PENDING` |
-| empty disposable owner services | `PENDING` | `PENDING` | `PENDING` |
-| empty disposable owner databases | `PENDING` | `PENDING` | `PENDING` |
-| Render GitHub App repository access before | `PENDING` | `PENDING` | `PENDING` |
-| GHCR package inventory before | `PENDING` | `PENDING` | `PENDING` |
-| production provider capture before | `PENDING` | `PENDING` | `PENDING` |
-| production database projection before | `PENDING` | `PENDING` | `PENDING` |
+## 4. Corrective execution matrix
 
-Disposable Render workspace/owner ID: `tea-d9mu8grm8hqs73d5tnbg`.
-
-Blueprint validation must return `valid=true`, names
-`swipe-backend`, `swipe-seq-shadow-run`, `swipe-c1-materialize`, `swipe-db`,
-and exactly four create actions with no KV/environment-group action.
-
-- validation response: `valid=true`, exact four actions;
-- validation SHA-256:
-  `a0b4f057313e0b32efffef86aa497cf9bed316b78ab0321ba2df731efbe268ab`;
-- dashboard source/destination screenshot: `PENDING`.
-
-## 4. Disposable identities and provider controls
-
-| Resource | Exact ID | Initial deploy ID | Required control |
-| --- | --- | --- | --- |
-| Blueprint | `exs-d9n0cttaeets73av0i4g` | n/a | Auto Sync No |
-| web | `srv-d9n0s1vlk1mc73dhrvm0` | `dep-d9n0s2flk1mc73dhs0fg` | Auto Deploy Off; suspended between attended steps |
-| seq cron | `crn-d9n0rnflk1mc73dhre6g` | `dep-d9n0rnvlk1mc73dhreq0` | Auto Deploy Off; suspended; far-future schedule |
-| materialize cron | `crn-d9n0rnflk1mc73dhre5g` | `dep-d9n0ro7lk1mc73dhrf4g` | Auto Deploy Off; suspended; far-future schedule |
-| PostgreSQL 16 | `dpg-d9n0rnflk1mc73dhre60-a` | n/a | free; `swipe_r1a_rehearsal` |
-| registry credential | `rgc-d9n1m6m1egvs73f76ok0` | n/a | classic PAT, exact `read:packages` only |
-| temporary Render API key | identity only: `r1a-rehearsal-20260801-runtime3` | n/a | revoke during cleanup |
-| GitHub environment | `production` | n/a | selected candidate branch only |
-
-The raw GET receipts and canonical provider capture must prove the disposable
-owner, exact baseline branch, `./Dockerfile`, Starter services, Frankfurt,
-Auto Sync false and Auto Deploy Off. Record their paths/SHA-256 here:
-
-| Resource | Raw receipt | SHA-256 | Canonical assertion |
-| --- | --- | --- | --- |
-| Blueprint | `PENDING` | `PENDING` | `PENDING` |
-| web | `PENDING` | `PENDING` | `PENDING` |
-| seq cron | `PENDING` | `PENDING` | `PENDING` |
-| materialize cron | `PENDING` | `PENDING` | `PENDING` |
-| database | `PENDING` | `PENDING` | `PENDING` |
-
-Attended dashboard screenshot proving **Off**, not **After CI Checks Pass**:
-`PENDING`.
-
-Both disposable cron source builds must print exact container identity
-`0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725` from
-`/app/platform-backend-sha` before the crons are suspended.
-
-## 5. GitHub environment authority
-
-Environment creation time: `2026-08-01T16:13:35Z`.
-
-- selected branch:
-  `codex/r1a-rehearsal-candidate-v5-20260801`;
-- environment secret names: exactly `{RENDER_API_KEY}`;
-- environment variable names: exactly
-  `{RENDER_SERVICE_ID, RENDER_BLUEPRINT_ID, RENDER_OWNER_ID,
-  RENDER_REGISTRY_CREDENTIAL_ID, PLATFORM_DATABASE_IDENTITY,
-  PLATFORM_RELEASE_AUTHORITY_SCOPE}`;
-- `PLATFORM_DATABASE_IDENTITY`: exactly `r1a-rehearsal-20260801`;
-- `PLATFORM_RELEASE_AUTHORITY_SCOPE`: exactly `rehearsal`;
-- every ID value equals the disposable inventory above: PASS;
-- repository-level `RENDER_*` names remain absent: PASS.
-
-No secret value is written into this packet.
-
-## 6. Immutable image publications
-
-### Baseline
-
-- workflow: `.github/workflows/platform-release-image.yml`;
-- superseded clean failure: run `30707737253` at
-  `0add5f3fbd2fa60a3a0a3ae2ba6f20ed333dd725`; package absent, artifacts `0`;
-- exact workflow head SHA: `PENDING`;
-- run / attempt: `PENDING`;
-- conclusion: `PENDING`;
-- GHCR version ID/tag/digest: `PENDING`;
-- manifest SHA-256: `PENDING`;
-- provenance/SBOM/sidecar identities: `PENDING`;
-- compressed size and transfer budget: `PENDING`.
-
-### Candidate
-
-- workflow: `.github/workflows/platform-release-image.yml`;
-- exact workflow head SHA: `PENDING`;
-- run / attempt: `PENDING`;
-- conclusion: `PENDING`;
-- GHCR version ID/tag/digest: `PENDING`;
-- manifest SHA-256: `PENDING`;
-- pinned baseline run/digest/manifest equality: `PENDING`;
-- provenance/SBOM/sidecar identities: `PENDING`;
-- compressed size and transfer budget: `PENDING`.
-
-Each SHA gets at most one publication dispatch. A failure is not blindly
-redispatched or rerun. The two successful immutable package versions and their
-90-day sidecars are retained for production cutover.
-
-## 7. Coordinator execution matrix
-
-The coordinator rows below use
-`.github/workflows/platform-release-cutover.yml` from exact candidate ref
-`codex/r1a-rehearsal-candidate-v5-20260801`, the same remote concurrency
-domain and a fresh provider CAS.
-
-Residual authority note: the concurrency domain serializes coordinator runs,
-but Render has no atomic CAS-and-deploy API. During the documented second-CAS
-to deploy-POST interval, attended no-concurrent Render UI/API access is the
-compensating control. A `release_env_restore_failed` receipt requires manual
-restoration from the saved seven-key snapshot and exact independent reread; an
-unproved restoration is rehearsal failure, never PASS.
-
-| Step | Run / attempt | Input CAS / identity | Receipt / SHA-256 | Required result |
-| --- | --- | --- | --- | --- |
-| prepare-source | `PENDING` | `PENDING` | `PENDING` | only disposable web switches to exact candidate digest; no deploy |
-| candidate deploy | `PENDING` | `PENDING` | `PENDING` | predecessor→target; exact DB receipt; health + protective smoke |
-| stale source-CAS | `PENDING` | deliberately stale | `PENDING` | typed refusal; no provider/DB change |
-| rollback | `PENDING` | pinned baseline digest | `PENDING` | baseline serves newer schema; no downgrade |
-
-Replay and conflicting-binding proofs are **not** new coordinator deploys.
-Each coordinator workflow derives a new deploy identity from its own run and
-attempt, so it cannot prove exact replay of the already committed DB identity.
-Run these as bounded Render one-off jobs from the candidate service's latest
-successful image artifact:
-
-| Proof | Render job ID | Snapshotted deploy identity / manifest | Log receipt / SHA-256 | Required result |
-| --- | --- | --- | --- | --- |
-| exact preDeploy replay | `PENDING` | exact candidate deploy values | `PENDING` | `predeploy-env` returns the committed receipt with identical bytes/SHA-256 |
-| conflicting binding | `PENDING` | same deploy identity; separately verified manifest with distinct non-authoritative source identity | `PENDING` | typed `deploy_identity_conflict`; DB/provider deploy unchanged |
-
-Render one-off jobs inherit an immutable snapshot of the base service's build
-artifact and environment; the create-job API does not provide per-job env
-overrides. Therefore the conflict proof uses attended, exact-key `PUT`s while
-Auto Deploy is Off: snapshot the candidate env values; replace only the two
-manifest bytes/digest keys; create the one-off job; then restore the original
-two exact values immediately. Before and after receipts must prove every other
-env key, the current deploy ID, source binding and DB revision are unchanged.
-Failure to restore is a cleanup failure and blocks PASS.
-
-Database revision evidence:
-
-- before candidate: `PENDING` (must be `0070_published_test_delivery`);
-- after candidate: `PENDING` (must be `0071_platform_release_receipts`);
-- after rollback: `PENDING` (must remain
-  `0071_platform_release_receipts`).
-
-Bounded candidate health JSON and SHA-256: `PENDING`. It must contain
-`ok=true` and the expected compact-image change
-`island.bake_runtime.state=local`; this is evidence, not a liveness failure.
-
-Bounded rollback health JSON and SHA-256: `PENDING`.
-
-Protective compact-image smoke receipt: `PENDING`.
-
-## 8. Cleanup and revocation
-
-Cleanup starts even after a failed rehearsal. Retained GHCR baseline/candidate
-versions are the only intentional residue after PASS. The account-wide Render
-key is revoked last, after it proves all disposable resources absent and takes
-the post-window production snapshots.
-
-| Action | Completed at | Verification receipt |
+| Step | Authority | Evidence and result |
 | --- | --- | --- |
-| suspend/delete disposable web and crons | `PENDING` | `PENDING` |
-| delete disposable database | `PENDING` | `PENDING` |
-| disconnect/delete disposable Blueprint | `PENDING` | `PENDING` |
-| delete registry credential | `PENDING` | `PENDING` |
-| revoke `read:packages` PAT | `PENDING` | `PENDING` |
-| delete GitHub environment secret/variables/environment | `PENDING` | `PENDING` |
-| restore candidate manifest env after conflict proof | `PENDING` | `PENDING` |
-| restore Render GitHub App repository access | `PENDING` | `PENDING` |
-| delete disposable Render workspace | `PENDING` | `PENDING` |
-| prove repo-level `RENDER_*` names absent | `PENDING` | `PENDING` |
-| production provider capture after; normalized projection equals before | `PENDING` | `PENDING` |
-| production database projection after equals before | `PENDING` | `PENDING` |
-| executable rehearsal scope rejects every known production target class | `PENDING` | `PENDING` |
-| revoke temporary Render API key last and verify rejection | `PENDING` | `PENDING` |
+| expired-PAT fail-closed probe | run `30736707325`, job `91466681756` | `render_api_failed`; full log SHA-256 `00f12aea39d1fa7efaed5c9c8362d40f946efdb11674e95cadb83f64f6ad11b8`; source/deploy/env unchanged |
+| prepare exact candidate-v7 | run `30736957896`, job `91467387041` | PASS; receipt SHA-256 `46c943971e1276708c3fcac4f73484fa0a269ac3d7ce708f53645e21fb7fe18d`; no deploy |
+| candidate-v7 deploy | run `30737041825`, job `91467618071` | PASS; deploy `dep-d9nencdaeets73bpdta0`; receipt SHA-256 `7fc9875e2b320a6109ecc72d78fabef3193b5f09d27913074cd66f8402ea14e8` |
+| candidate verification | job `job-d9nenmlaeets73bpeir0` | PASS; DB advanced `0070` → `0071`; stored receipt SHA-256 `842abbc13a54edc61f7e2ba7896ded3f7d2980b9d670bb54df69df43d27a4843` |
+| exact replay | job `job-d9nepctaeets73bphqt0` | PASS; identical receipt; log SHA-256 `5ecc439c876bc5d387122e42cd426ec34bb9b3e6f4d0a795e038d6d4be234ff5` |
+| protective runtime probe | job `job-d9neq9vqj5pc73eo1kfg` | PASS; exact saved command asserted protective routers, gates and runners inside compact image |
+| stale source CAS | run `30737336650`, job `91468452323` | expected `source_cas_mismatch`; log SHA-256 `161aa08c1f61642ce2330e07cc6d0bf549fdf677336d33fde47cf154f1b20d8f`; no mutation |
+| conflicting receipt binding | job `job-d9netalaeets73bppj6g` | expected `deploy_identity_conflict`; log SHA-256 `f027f6ad7d5a8fe961d0338bdfd97a6fed1c2158c23be77ca364714f2240240c` |
+| post-conflict DB check | job `job-d9netth42hec73ffua00` | PASS; schema/receipt unchanged; log SHA-256 `a977ed7b51d94f186f7e6fb31eff03653eff7fdc8b70da3f8034bc0f60048320` |
+| forward-only rollback | run `30737537372`, job `91468973815` | PASS to exact baseline-v4, deploy `dep-d9neuhfqj5pc73eoaiv0`; receipt SHA-256 `f03e9497e27f0d4ac1ac7f5c708d3f45f6c8a1f01511646c237507b7f8ab277a` |
+| rollback verification | job `job-d9neurfqj5pc73eobau0` | PASS; DB remained `0071`; log SHA-256 `14ca5d5db5028fc713d1aac790295605a158bf1bf4a043023b2a7a59c5fcd34f`; inner receipt `3f7f0df52a903fdb801f59e37356c7b0b8bb82d4d1f3e9b1200436e24975c490` |
 
-Actual Render charge/estimate after cleanup: `PENDING`; must be within the
-approved ceiling.
+Candidate and rollback health payloads are byte-identical at SHA-256
+`3d5f2a2d1c514ff30c67eb1b1adda17bd1259eac126b882102d6bcd01e8b5036`.
+They contain `ok=true`, `service=swipe-backend` and
+`island.bake_runtime.state=local`.
+
+The first protective probe tried to invoke the development-only helper script,
+which the compact image intentionally excludes, and failed without mutation.
+The corrected inline probe passed. Render returned no log body for that short
+successful job; its succeeded status and exact saved command are the bounded
+evidence. This is an explicit evidence limitation, not a fabricated log hash.
+
+## 5. Negative and restoration proofs
+
+The conflicting manifest differed only at `.sources.feed.sha`; after removing
+that field, authoritative and conflicting objects were byte-equal at SHA-256
+`4a80454e4018ae5a46ac4f474fa6247cd23558c2bc2fcdd252a473639b834ce2`.
+The conflict manifest SHA-256 was
+`53766a4fb26aca20ebc763c7a96d92fe79e59a800ce0829211868f3b161d1a85`.
+
+Only the manifest-bytes and manifest-digest environment keys were changed for
+the conflict job. Both were restored exactly; the seven-key environment digest
+returned to
+`57bf394e585284b88f9cd7413b6bc675f1bc04153c4591c180913ead7de91b9a`.
+The current deploy and database receipt did not change.
+
+The expired PAT incident is classified as an operational credential-expiry
+test. It demonstrated fail-closed behavior before provider mutation; it is not
+represented as a product-code failure or omitted from the chain.
+
+## 6. Cleanup and revocation
+
+| Action | Proof |
+| --- | --- |
+| delete GitHub rehearsal environment | DELETE 204; subsequent GET 404; HTTP receipt SHA-256 `3cf79e14ca18ab73fb5eb5ab5e0e2dea146806467410eb117ea70ca5f03a5e62` |
+| keep repository authority absent | secret inventory SHA-256 `0bcafa2828bac6a4bc3f93da8c93ca39daf8351b61e1f8b50a799e6e1df74c6a`; variable inventory `8fb236d9855d43b214ea37db3296df40b54f11ee84dd9c96394813c4fbdf6423` |
+| delete web/crons/database/Blueprint/registry credential | every DELETE/disconnect returned 204; every direct GET returned 404; owner inventories empty |
+| delete disposable workspace | owner GET 404; owners inventory contains only production; inventory SHA-256 `9d6b8d0f8b7ab264654ee3f3652fb762b21795fda14dac583865f5949b4954ec` |
+| revoke both GitHub PATs | PAT IDs `5092363019`, `5090043869` absent in UI; both HTTP probes 401; receipt SHA-256 `2d5b433f1402c761c96ce13f73577d2fd30935cb724f70282a88230c2a92dab2` |
+| revoke Render API key | `r1a-rehearsal-20260801-runtime3` absent in UI; API probe 401; receipt SHA-256 `4904629d82401aa8221c70c8ddaef0dc544940519e9798c010fde439ee577c37` |
+| remove local credential material | exact permission-restricted PAT and Render-key files unlinked after provider-side revocation |
+
+Only retained baseline-v4 and candidate-v7 GHCR versions plus their Actions
+sidecars remain intentionally.
+
+## 7. Production non-target proof
+
+Corrective-window production provider projections are byte-equal after
+removing observation time, normalized SHA-256
+`6df8e2f1d819fc3fcee30e01f446ff87bcc0ec9ef2256a92e65fb92176ebc2e8`.
+Corrective-window production database projections are also byte-equal,
+normalized SHA-256
+`a62df65f1f45f8284425bb365cd251382f82cc5187b4850d49a13e224d296b20`.
+
+The earlier workspace observed a real concurrent production credential and
+ingress change owned by the separate Platform Reliability R1 Gate A/B window.
+Its exact attribution and independent disposition remain in
+`platform-reliability-r1a-concurrent-r1-db-disposition-20260801.md`. This
+packet neither erases that history nor uses it as an exception for the
+corrective run.
+
+## 8. Scope-isolation proof
+
+- Stage 1 backend PR #41 remains draft `DO NOT MERGE` at
+  `2029867495578310dda92c170a2e07c71203eefa`;
+- Stage 1 client branch `claude/stage1-p4-mission-client` remains at
+  `43f92693b55057d4c22652cbd81dad4ab67f0171`;
+- no Stage 1 merge, deployment or production mutation occurred;
+- generative-feed scope was unchanged.
+
+These heads must be refreshed read-only before final publication of this
+packet; any drift is reported, not silently normalized.
 
 ## 9. Completion audit
 
-- all immutable inputs still resolve exactly: `PENDING`;
-- every required receipt is bounded, no-clobber and hash-bound: `PENDING`;
-- baseline/candidate package visibility and repository linkage: `PENDING`;
-- all disposable authorities/resources removed: `PENDING`;
-- production provider state unchanged: `PENDING`;
-- Stage 1 PR #41 remains draft DO NOT MERGE: `PENDING`;
-- independent reviewer verdict on this exact filled packet: `PENDING`.
+| Gate | Result |
+| --- | --- |
+| exact candidate-v7 deployed and verified | PASS |
+| exact baseline-v4 forward-only rollback; DB remains at `0071` | PASS |
+| replay, stale-CAS and conflicting-binding behavior | PASS |
+| disposable provider and GitHub authorities removed | PASS |
+| temporary credentials revoked and rejected | PASS |
+| corrective production provider/database projections unchanged | PASS |
+| earlier concurrent-R1 delta explicitly disposed | PASS |
+| Stage 1 and generative-feed boundaries preserved | PASS |
+| independent reviewer verdict on this exact packet | PENDING |
 
-Final rehearsal verdict: `PENDING` (`PASS` or typed failure).
+Final rehearsal verdict remains pending only on the independent review above.
+Even a GO does not authorize production cutover.
 
-## 10. Production cutover handoff after rehearsal PASS
+## 10. Required production handoff after independent GO
 
-Rehearsal PASS does not authorize production. The later operator packet must
-pin the retained baseline/candidate build run IDs, image digests, manifests,
-current production master heads, fresh production provider inventory and a
-new single-use capture proving Blueprint Auto Sync and all three services'
-Auto Deploy are Off. It must enumerate each attended merge/source switch,
-deploy, verification and forward-only rollback action, with a stop point
-before each external mutation.
+The cutover packet must separately pin:
 
-Historical backend PR #33 remains at the pre-successor head and is currently
-conflicting by construction; it is audit history, not the merge vehicle for
-the exercised candidate. After rehearsal PASS, open a successor PR from the
-unchanged frozen candidate SHA (or a new independently reviewed successor if
-master moved). Never force-push a reviewed rehearsal ref or substitute an
-unrehearsed merge head. Fresh exact-head CI and independent delta review are
-required before the production packet can name that PR.
+1. a reviewed successor PR based on the current backend default branch;
+2. the retained build runs, image digests and manifest hashes above;
+3. a fresh production provider and database inventory;
+4. action-time proof that Blueprint Auto Sync and all deployable services'
+   Auto Deploy are Off;
+5. a production registry-credential ID explicitly pinned in reviewed code;
+6. exact prepare-source, deploy, verify and forward-only rollback actions, each
+   with its own stop point and receipt;
+7. current production and Stage 1 heads captured immediately before mutation;
+8. a new operator GO naming the exact packet.
 
-The rehearsal successor intentionally rejects `authority_scope=production`
-because no production registry credential ID is pinned in its code. The
-production cutover successor must add that exact reviewed pin and its negative
-test; this is a deliberate fail-closed handoff, not a runtime parameter.
-
-The operator must then give a new explicit GO for that exact production
-packet. Stage 1 rebase/renumber/merge remains after successful R1-A cutover and
-has its own separate GO.
+Historical PR #33 is audit history and must not be reused as the merge vehicle.
+No reviewed frozen ref is force-pushed. The retained Actions sidecars expire
+on 2026-10-30; a later cutover requires a newly reviewed pair.
