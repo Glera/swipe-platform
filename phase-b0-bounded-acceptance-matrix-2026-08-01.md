@@ -25,7 +25,7 @@ power-boundary evidence.
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `f798e11185850ebbb5e6842b2cdaad22640b126c` | cross-review findings fixed; repeat exact-head review pending |
 | reproducible release pipeline | swipe-agents PR #15 at `8db31845272258611a7b6fa8df17725943169b91` | R2 findings fixed; repeat exact-head review pending |
-| bounded acceptance tooling | swipe-agents PR #16 at `c3e0a182cc43695e623f515cc0dd3236e56cd9a3` | R2 findings fixed; exact-head CI 30765675575 `SUCCESS`; repeat review pending |
+| bounded acceptance tooling | swipe-agents PR #16 at `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` | R2 findings plus the owner-audit restic supply-chain gap fixed; local 498/498; exact-head CI and repeat review pending |
 | evidence packet | p4g-workspace-meta PR #52; this matrix becomes part of its next exact head | independent exact-head review pending |
 | superseded pre-fix candidate identity | `checkedPaths=3001`, `releaseTreeDigest=054c836102a19aa0232990c05315610590da1cda9021f1b2a44a0d8ac9b9df02` | historical evidence only; explicitly not install authority |
 
@@ -42,7 +42,7 @@ merge. No pre-review digest may be reused as post-merge authority.
 | Reproducible release | Final merged source produces identical immutable bytes twice | Two builder receipts have the same final merged commit, `checkedPaths`, `releaseTreeDigestSchema=agents.phase-b0-release-tree.v2` and `releaseTreeDigest`; compiled `dist/tests` is absent and no candidate is under the live runtime root. Any mismatch fails. | tooling ready |
 | Install without discovery switch | Exact candidate copied while all jobs remain unloaded | Installer receipt says `installed=true,currentSwitched=false`; production scanner passes; `current` and all launchd labels are unchanged. | requires separate permission |
 | Discovery switch | `current` points to the reviewed immutable release | Separate installer receipt says `currentSwitched=true`; post-switch scanner reports zero writable paths. Any rollback-holder conflict fails closed. | requires separate permission |
-| Independent backup bootstrap | Real encrypted B2 snapshot and exact restore | Attended `init`, `seed-backup`, `restore-drill`; root provider/escrow evidence and remote attestation bind the live private/free-only bucket, exact restic bytes and restored tree. Secrets and bucket identity remain out of evidence/chat. | requires attended credentials and publication gates |
+| Independent backup bootstrap | Real encrypted B2 snapshot and exact restore | Attended `init`, `seed-backup`, `restore-drill`; root provider/escrow evidence and remote attestation bind the live private/free-only bucket, restored tree and the source-controlled official Intel-macOS restic 0.19.1 SHA-256. Wrong version-text-compatible bytes or platform fail before a credential-bearing subprocess. Secrets and bucket identity remain out of evidence/chat. | requires attended credentials and publication gates |
 | Non-UTC launchd origin | Production discriminator runs on this Mac | With supervised/dead-man unloaded, one temporary remote-sync LaunchDaemon produces a new `scheduled+launchd` receipt with UTC-Z snapshot time; cleanup evidence proves bootout, disabled label and absent live plist. A shell, PPID-only or attended receipt fails. | source-controlled in reviewed PR #14; physical execution still requires permission |
 | Activation and top-up | Exact release is enabled only on fresh remote evidence | Root activation receipt binds final release/tree/policy/attestation/dead-man/boot digests. An attended scheduled-path top-up is fresh and explicitly excluded from the 48-hour count. | requires separate publication acts |
 | Bootstrap anchor | All three exact jobs become loaded once | Before the first launchd mutation, root completes runner/B2/network-time/activation preflight into a private digested candidate. Post-load start consumes only that candidate, re-checks activation, records exact launchd/PIDs and publishes the anchor. The Node-to-caffeinate child command uses exact `-i -s` argv and the preflight release. Any existing anchor refuses before preflight or mutation. | proposed in PR #16; pending independent exact-head review |
@@ -78,7 +78,7 @@ merge. No pre-review digest may be reused as post-merge authority.
 ## Evidence tooling proposed before bootstrap
 
 Stacked swipe-agents PR #16 at
-`c3e0a182cc43695e623f515cc0dd3236e56cd9a3` proposes all source-controlled
+`6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` proposes all source-controlled
 closure surfaces identified by this matrix:
 
 1. a root-owned typed bootstrap/window anchor bound to exact activation,

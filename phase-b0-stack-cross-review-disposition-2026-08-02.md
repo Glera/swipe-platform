@@ -11,7 +11,7 @@ authority.
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 `f798e11185850ebbb5e6842b2cdaad22640b126c` | CI `SUCCESS` |
 | reproducible release pipeline | swipe-agents PR #15 `8db31845272258611a7b6fa8df17725943169b91` | exact-head CI `SUCCESS` ([run 30764629683](https://github.com/Glera/swipe-agents/actions/runs/30764629683)) |
-| bounded acceptance tooling | swipe-agents PR #16 `c3e0a182cc43695e623f515cc0dd3236e56cd9a3` | exact-head CI `SUCCESS` ([run 30765675575](https://github.com/Glera/swipe-agents/actions/runs/30765675575)); repeat review required |
+| bounded acceptance tooling | swipe-agents PR #16 `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` | local 74/74 files and 498/498 assertions; exact-head CI and repeat review required |
 | original independent verdict | `phase-b0-stack-cross-review-2026-08-02.md` at meta master `f4db7ad` | `NO-GO`, 2 P1 plus P2/P3 |
 | second independent verdict | `phase-b0-stack-cross-review-r2-2026-08-02.md` at meta master `458c5e2` | `NO-GO`, 3 P1 plus enumerated P2 |
 | corrected evidence packet | p4g-workspace-meta PR #52 at the head containing this document | exact-head meta CI and repeat independent review required |
@@ -93,6 +93,23 @@ authority/origin gate. Negative controls retain exit 2 for an extra
 `rollback-store-state --window-end` form. Ubuntu CI installs zsh explicitly,
 so this test cannot silently collapse back to substring inspection.
 
+### P1-F: version text did not authenticate the credential-bearing restic binary
+
+Found by the owner-side requirement audit after the R2 resubmission and fixed
+in the final integration branch PR #16. The production path now accepts only
+the reviewed official Intel-macOS restic 0.19.1 binary with SHA-256
+`b2b553b402b9971b0c3f673d880397a421526f55a08f21fe5b82b5dd9e049a08`.
+The reviewed compressed release asset is
+`restic_0.19.1_darwin_amd64.bz2`, SHA-256
+`c38d579622cf602f665234c5a8c315030b6cf70656028fe6dc29a786b60e5f35`,
+from the source-controlled official GitHub release URL. Runtime hashes the
+opened executable before every version check and operation, still requires
+root ownership, no symlink and exact mode `0555`, and refuses a wrong platform
+or digest as `unreviewed_restic_binary` before credentials reach a subprocess.
+The runbook makes download, archive verification, decompression, binary
+verification and root install separate explicit steps and refuses implicit
+replacement.
+
 ## P2 dispositions
 
 | Finding | Disposition |
@@ -168,6 +185,8 @@ rewritten to failure by post-success rotation.
   bound;
 - external start checks complete before launchd mutation and feed a closed,
   digested candidate into the post-load anchor;
+- the production restic execution boundary pins the reviewed official
+  Intel-macOS binary digest instead of trusting executable version text;
 - dead-man, provider-time, reservation, bootstrap-order and every effectful
   control seam have explicit negative coverage.
 
@@ -177,11 +196,10 @@ rewritten to failure by post-success rotation.
 - PR #15 exact-head GitHub CI run 30764629683: `SUCCESS`; the actual frozen
   candidate excludes `dist/tests`, all refusal families execute, and the
   release-tree/activation schema v2 path passes.
-- PR #16 parent head local serial run: 74/74 files, 497/497 assertions; the
+- PR #16 final integration head local serial run: 74/74 files, 498/498 assertions; the
   executable two-build regression, 21-form real-wrapper regression, real
-  SQLite CLI lease probe and two-phase start tests all ran. The final one-line
-  parent-directory hardening has focused 55/55 and exact-head CI run
-  30765675575 is `SUCCESS`.
+  SQLite CLI lease probe, two-phase start tests and production restic-digest
+  allowlist regression all ran. Exact-head CI is pending and must pass.
 - TypeScript build, Node syntax, zsh syntax and `git diff --check`: pass.
 - Meta #52 exact-head CI must be green before the repeat reviewer may issue
   GO; implementation CI cannot substitute for independent review.
@@ -207,6 +225,9 @@ The independent reviewer should re-run, not merely inspect:
 8. an unfinished pre-grace run, runner/root lease disagreement, delayed honest
    dead-man inspection versus stale publication, and B2/network-time refusal
    before the first launchd mutation.
+9. a fake executable that prints the correct restic version but has different
+   bytes, plus platform substitution; neither may reach a credential-bearing
+   subprocess.
 
 The required verdict remains GO only with no open P1–P3. Even GO will be review
 evidence, not authority: merge, build/install, `current` switch, credentials,
