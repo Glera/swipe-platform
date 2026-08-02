@@ -3,7 +3,7 @@
 Evidence window: 2026-08-01 through 2026-08-02 UTC.
 
 Status: **corrective candidate-v7 rehearsal PASS; cleanup PASS; independent
-acceptance pending**. This receipt does not authorize production cutover, a
+acceptance GO**. This receipt does not authorize production cutover, a
 production mutation, or any Stage 1 merge/rollout.
 
 ## Immutable identities retained for cutover
@@ -40,15 +40,15 @@ receipt equates that authority identity with Render's generated physical name.
 | Proof | Exact authority | Result |
 | --- | --- | --- |
 | fail-closed expired credential | run `30736707325`, job `91466681756` | expected operational failure `render_api_failed`; log SHA-256 `00f12aea39d1fa7efaed5c9c8362d40f946efdb11674e95cadb83f64f6ad11b8`; source, deploy and environment unchanged |
-| prepare candidate-v7 source | run `30736957896`, job `91467387041` | PASS; receipt SHA-256 `46c943971e1276708c3fcac4f73484fa0a269ac3d7ce708f53645e21fb7fe18d`; source only changed, no deploy |
-| deploy exact candidate-v7 | run `30737041825`, job `91467618071`; deploy `dep-d9nencdaeets73bpdta0` | PASS; coordinator receipt SHA-256 `7fc9875e2b320a6109ecc72d78fabef3193b5f09d27913074cd66f8402ea14e8` |
+| prepare candidate-v7 source | run `30736957896` | PASS; receipt SHA-256 `46c943971e1276708c3fcac4f73484fa0a269ac3d7ce708f53645e21fb7fe18d`; source only changed, no deploy |
+| deploy exact candidate-v7 | run `30737041825`; deploy `dep-d9nencdaeets73bpdta0` | PASS; coordinator receipt SHA-256 `7fc9875e2b320a6109ecc72d78fabef3193b5f09d27913074cd66f8402ea14e8` |
 | candidate verification | Render job `job-d9nenmlaeets73bpeir0` | PASS; DB `0070_published_test_delivery` → `0071_platform_release_receipts`; stored receipt SHA-256 `842abbc13a54edc61f7e2ba7896ded3f7d2980b9d670bb54df69df43d27a4843` |
 | exact receipt replay | job `job-d9nepctaeets73bphqt0` | PASS; identical stored receipt; log SHA-256 `5ecc439c876bc5d387122e42cd426ec34bb9b3e6f4d0a795e038d6d4be234ff5` |
 | compact-image protective smoke | job `job-d9neq9vqj5pc73eo1kfg` | PASS; in-image import/assert probe verified protective routes, flags and runner isolation |
 | stale source CAS | run `30737336650`, job `91468452323` | expected `source_cas_mismatch`; log SHA-256 `161aa08c1f61642ce2330e07cc6d0bf549fdf677336d33fde47cf154f1b20d8f`; no provider/environment/deploy change |
 | conflicting receipt binding | job `job-d9netalaeets73bppj6g` | expected `deploy_identity_conflict`; log SHA-256 `f027f6ad7d5a8fe961d0338bdfd97a6fed1c2158c23be77ca364714f2240240c`; temporary two-key environment mutation restored exactly |
 | post-conflict DB verification | job `job-d9netth42hec73ffua00` | PASS; DB still `0071`; stored receipt unchanged; log SHA-256 `a977ed7b51d94f186f7e6fb31eff03653eff7fdc8b70da3f8034bc0f60048320` |
-| forward-only rollback | run `30737537372`, job `91468973815`; deploy `dep-d9neuhfqj5pc73eoaiv0` | PASS to exact baseline-v4; coordinator receipt SHA-256 `f03e9497e27f0d4ac1ac7f5c708d3f45f6c8a1f01511646c237507b7f8ab277a` |
+| forward-only rollback | run `30737537372`; deploy `dep-d9neuhfqj5pc73eoaiv0` | PASS to exact baseline-v4; coordinator receipt SHA-256 `f03e9497e27f0d4ac1ac7f5c708d3f45f6c8a1f01511646c237507b7f8ab277a` |
 | rollback verification | job `job-d9neurfqj5pc73eobau0` | PASS; DB remained `0071`; log SHA-256 `14ca5d5db5028fc713d1aac790295605a158bf1bf4a043023b2a7a59c5fcd34f`; inner receipt SHA-256 `3f7f0df52a903fdb801f59e37356c7b0b8bb82d4d1f3e9b1200436e24975c490` |
 
 Candidate and rollback health bodies are byte-identical, include `ok=true` and
@@ -73,11 +73,15 @@ represented as a nonexistent log receipt.
 - the disposable workspace was deleted; its direct owner GET is 404 and the
   visible owner inventory contains only the production owner;
 - both temporary GitHub PATs (`5092363019`, `5090043869`) were revoked; both
-  HTTP token probes return 401; absence receipt SHA-256
-  `1049668a09d6a08ec84b6ec13a9cd454171f2ae4e354a04cdca45ac4fa8f0eab`;
+  HTTP token probes return 401; browser-absence receipt SHA-256
+  `1049668a09d6a08ec84b6ec13a9cd454171f2ae4e354a04cdca45ac4fa8f0eab`,
+  HTTP-rejection receipt SHA-256
+  `2d5b433f1402c761c96ce13f73577d2fd30935cb724f70282a88230c2a92dab2`;
 - Render API key `r1a-rehearsal-20260801-runtime3` was revoked; API probe
-  returns 401; absence receipt SHA-256
-  `8e35cdba679ab95d70dc06452b0176dfcb8db36d68de4291cd5ecc5d4f31a85b`;
+  returns 401; browser-absence receipt SHA-256
+  `8e35cdba679ab95d70dc06452b0176dfcb8db36d68de4291cd5ecc5d4f31a85b`,
+  HTTP-rejection receipt SHA-256
+  `4904629d82401aa8221c70c8ddaef0dc544940519e9798c010fde439ee577c37`;
 - the exact local files containing those credentials were deleted.
 
 The first rehearsal's displayed charge was USD 0.02. The corrective resources
@@ -108,7 +112,9 @@ Stage 1 backend PR #41 remains draft `DO NOT MERGE` at
 `43f92693b55057d4c22652cbd81dad4ab67f0171`. No Stage 1 merge or rollout was
 performed. Generative-feed scope was not changed.
 
-The only remaining rehearsal gate is independent acceptance of this exact
-filled evidence chain. Rehearsal PASS still does not authorize production;
-production needs a fresh provider capture, a separately reviewed successor
-and a new exact operator GO.
+Independent Claude review of the exact committed evidence chain returned
+**GO**, with no P1/P2. Its raw verdict and disposition are recorded in
+`platform-reliability-r1a-rehearsal-final-review-r2-raw.md` and
+`platform-reliability-r1a-rehearsal-final-review-r2-disposition.md`.
+Rehearsal PASS still does not authorize production; production needs a fresh
+provider capture, a separately reviewed successor and a new exact operator GO.

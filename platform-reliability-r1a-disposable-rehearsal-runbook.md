@@ -3,8 +3,8 @@
 Status: **corrective disposable contract fully executed; no production
 authority**. Exact candidate-v7 deploy, refusal proofs, forward-only rollback,
 resource cleanup and credential revocation all passed under the recorded
-R12/operator GO and USD 3 ceiling. Independent acceptance is the only remaining
-rehearsal gate. Production Render resources were never mutation targets; the
+R12/operator GO and USD 3 ceiling. Independent review of exact evidence commit
+`1c2a1ec` returned GO with no P1/P2. Production Render resources were never mutation targets; the
 only shared production namespace is the explicitly retained immutable GHCR
 package.
 

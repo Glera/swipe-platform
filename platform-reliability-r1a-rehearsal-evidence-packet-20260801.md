@@ -3,7 +3,7 @@
 Evidence window: 2026-08-01 through 2026-08-02 UTC.
 
 Status: **corrective execution matrix PASS; cleanup PASS; independent final
-acceptance pending**. This packet is evidence only. It is not merge, deploy,
+acceptance GO**. This packet is evidence only. It is not merge, deploy,
 provider-mutation, production-cutover or Stage 1 authority.
 
 Execution contract:
@@ -79,15 +79,15 @@ secret and variable names remained absent.
 | Step | Authority | Evidence and result |
 | --- | --- | --- |
 | expired-PAT fail-closed probe | run `30736707325`, job `91466681756` | `render_api_failed`; full log SHA-256 `00f12aea39d1fa7efaed5c9c8362d40f946efdb11674e95cadb83f64f6ad11b8`; source/deploy/env unchanged |
-| prepare exact candidate-v7 | run `30736957896`, job `91467387041` | PASS; receipt SHA-256 `46c943971e1276708c3fcac4f73484fa0a269ac3d7ce708f53645e21fb7fe18d`; no deploy |
-| candidate-v7 deploy | run `30737041825`, job `91467618071` | PASS; deploy `dep-d9nencdaeets73bpdta0`; receipt SHA-256 `7fc9875e2b320a6109ecc72d78fabef3193b5f09d27913074cd66f8402ea14e8` |
+| prepare exact candidate-v7 | run `30736957896` | PASS; receipt SHA-256 `46c943971e1276708c3fcac4f73484fa0a269ac3d7ce708f53645e21fb7fe18d`; no deploy |
+| candidate-v7 deploy | run `30737041825` | PASS; deploy `dep-d9nencdaeets73bpdta0`; receipt SHA-256 `7fc9875e2b320a6109ecc72d78fabef3193b5f09d27913074cd66f8402ea14e8` |
 | candidate verification | job `job-d9nenmlaeets73bpeir0` | PASS; DB advanced `0070` → `0071`; stored receipt SHA-256 `842abbc13a54edc61f7e2ba7896ded3f7d2980b9d670bb54df69df43d27a4843` |
 | exact replay | job `job-d9nepctaeets73bphqt0` | PASS; identical receipt; log SHA-256 `5ecc439c876bc5d387122e42cd426ec34bb9b3e6f4d0a795e038d6d4be234ff5` |
 | protective runtime probe | job `job-d9neq9vqj5pc73eo1kfg` | PASS; exact saved command asserted protective routers, gates and runners inside compact image |
 | stale source CAS | run `30737336650`, job `91468452323` | expected `source_cas_mismatch`; log SHA-256 `161aa08c1f61642ce2330e07cc6d0bf549fdf677336d33fde47cf154f1b20d8f`; no mutation |
 | conflicting receipt binding | job `job-d9netalaeets73bppj6g` | expected `deploy_identity_conflict`; log SHA-256 `f027f6ad7d5a8fe961d0338bdfd97a6fed1c2158c23be77ca364714f2240240c` |
 | post-conflict DB check | job `job-d9netth42hec73ffua00` | PASS; schema/receipt unchanged; log SHA-256 `a977ed7b51d94f186f7e6fb31eff03653eff7fdc8b70da3f8034bc0f60048320` |
-| forward-only rollback | run `30737537372`, job `91468973815` | PASS to exact baseline-v4, deploy `dep-d9neuhfqj5pc73eoaiv0`; receipt SHA-256 `f03e9497e27f0d4ac1ac7f5c708d3f45f6c8a1f01511646c237507b7f8ab277a` |
+| forward-only rollback | run `30737537372` | PASS to exact baseline-v4, deploy `dep-d9neuhfqj5pc73eoaiv0`; receipt SHA-256 `f03e9497e27f0d4ac1ac7f5c708d3f45f6c8a1f01511646c237507b7f8ab277a` |
 | rollback verification | job `job-d9neurfqj5pc73eobau0` | PASS; DB remained `0071`; log SHA-256 `14ca5d5db5028fc713d1aac790295605a158bf1bf4a043023b2a7a59c5fcd34f`; inner receipt `3f7f0df52a903fdb801f59e37356c7b0b8bb82d4d1f3e9b1200436e24975c490` |
 
 Candidate and rollback health payloads are byte-identical at SHA-256
@@ -127,8 +127,8 @@ represented as a product-code failure or omitted from the chain.
 | keep repository authority absent | secret inventory SHA-256 `0bcafa2828bac6a4bc3f93da8c93ca39daf8351b61e1f8b50a799e6e1df74c6a`; variable inventory `8fb236d9855d43b214ea37db3296df40b54f11ee84dd9c96394813c4fbdf6423` |
 | delete web/crons/database/Blueprint/registry credential | every DELETE/disconnect returned 204; every direct GET returned 404; owner inventories empty |
 | delete disposable workspace | owner GET 404; owners inventory contains only production; inventory SHA-256 `9d6b8d0f8b7ab264654ee3f3652fb762b21795fda14dac583865f5949b4954ec` |
-| revoke both GitHub PATs | PAT IDs `5092363019`, `5090043869` absent in UI; both HTTP probes 401; receipt SHA-256 `2d5b433f1402c761c96ce13f73577d2fd30935cb724f70282a88230c2a92dab2` |
-| revoke Render API key | `r1a-rehearsal-20260801-runtime3` absent in UI; API probe 401; receipt SHA-256 `4904629d82401aa8221c70c8ddaef0dc544940519e9798c010fde439ee577c37` |
+| revoke both GitHub PATs | PAT IDs `5092363019`, `5090043869` absent in UI; browser receipt `1049668a09d6a08ec84b6ec13a9cd454171f2ae4e354a04cdca45ac4fa8f0eab`; HTTP-401 receipt `2d5b433f1402c761c96ce13f73577d2fd30935cb724f70282a88230c2a92dab2` |
+| revoke Render API key | `r1a-rehearsal-20260801-runtime3` absent in UI; browser receipt `8e35cdba679ab95d70dc06452b0176dfcb8db36d68de4291cd5ecc5d4f31a85b`; HTTP-401 receipt `4904629d82401aa8221c70c8ddaef0dc544940519e9798c010fde439ee577c37` |
 | remove local credential material | exact permission-restricted PAT and Render-key files unlinked after provider-side revocation |
 
 Only retained baseline-v4 and candidate-v7 GHCR versions plus their Actions
@@ -174,10 +174,12 @@ packet; any drift is reported, not silently normalized.
 | corrective production provider/database projections unchanged | PASS |
 | earlier concurrent-R1 delta explicitly disposed | PASS |
 | Stage 1 and generative-feed boundaries preserved | PASS |
-| independent reviewer verdict on this exact packet | PENDING |
+| independent reviewer verdict on exact commit `1c2a1ec` | GO; no P1/P2 |
 
-Final rehearsal verdict remains pending only on the independent review above.
-Even a GO does not authorize production cutover.
+Final rehearsal verdict: **GO**. Raw review and disposition:
+`platform-reliability-r1a-rehearsal-final-review-r2-raw.md` and
+`platform-reliability-r1a-rehearsal-final-review-r2-disposition.md`. This GO
+does not authorize production cutover.
 
 ## 10. Required production handoff after independent GO
 
