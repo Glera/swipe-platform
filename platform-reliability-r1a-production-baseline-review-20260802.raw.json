@@ -1,0 +1,74 @@
+{
+  "schema": "independent-review-chain.v1",
+  "reviewedBase": "a12ca7ecea0f47e8862b4ba91879dff63cb46bfc",
+  "reviewedHead": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+  "finalVerdict": "GO",
+  "findings": [],
+  "sessions": [
+    {
+      "sessionId": "8f40a6ad-e5d7-49bd-94d0-a931d85c7c8d",
+      "terminalReason": "budget_exhausted",
+      "verdict": null,
+      "disposition": "no authority"
+    },
+    {
+      "sessionId": "1397ea4f-f96f-4c4a-be88-65d6a7bee8a5",
+      "terminalReason": "completed",
+      "verdict": "GO",
+      "findings": [],
+      "scopeNote": "shell range-diff not independently rerun"
+    },
+    {
+      "sessionId": "61d36bd7-e33a-4faa-b5f9-4299b486ebae",
+      "terminalReason": "completed",
+      "verdict": "P2",
+      "finding": "default Git 2.17 lacks range-diff",
+      "disposition": "environment-only; rerun with /usr/bin/git"
+    },
+    {
+      "sessionId": "6ff1d2db-665d-4306-aa3d-c99a24386ba1",
+      "terminalReason": "completed",
+      "verdict": "GO",
+      "findings": [],
+      "proof": "base and merge-base exact; 17/17 range-diff pairs equal; final safety commit touches only cutover workflow and test"
+    },
+    {
+      "sessionId": "8751e0d1-f2b7-463f-825e-9a05602b756b",
+      "terminalReason": "completed",
+      "verdict": "GO",
+      "findings": [],
+      "proof": "matrix delta removes only the stale 0071 matrix row/test and preserves every real 0001-0070 acceptance path"
+    },
+    {
+      "sessionId": "6feb3492-9394-47a6-8366-b9b696daacd0",
+      "terminalReason": "budget_exhausted",
+      "verdict": null,
+      "disposition": "no authority"
+    },
+    {
+      "sessionId": "d5a601ea-5089-43de-a52f-570ddeb3d3cf",
+      "terminalReason": "completed",
+      "verdict": "GO",
+      "findings": [],
+      "proof": "bounded exact-delta review confirms candidate-only 0071 PostgreSQL file can be removed from baseline@0070 without weakening real 0001-0070 paths"
+    },
+    {
+      "sessionId": "a4ee4b9e-aca3-4da2-87c7-9455ba269f8f",
+      "terminalReason": "budget_exhausted",
+      "verdict": null,
+      "disposition": "redundant final-summary attempt; no authority"
+    },
+    {
+      "sessionId": "4b9dac38-75d1-4962-bfda-6e8143a79766",
+      "terminalReason": "aborted_streaming",
+      "verdict": null,
+      "disposition": "redundant final-summary attempt; no authority"
+    }
+  ],
+  "exactHeadCi": {
+    "imageRunId": 30764220924,
+    "postgresRunId": 30764220931,
+    "headSha": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+    "conclusion": "success"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "platform-release-ghcr-preflight.v1",
+  "capturedAt": "2026-08-02T19:55:59Z",
+  "source": "authenticated GitHub package versions UI; refreshed after final baseline CI",
+  "package": {
+    "owner": "Glera",
+    "name": "swipe-backend",
+    "visibility": "private",
+    "repository": "Glera/swipe-backend",
+    "taggedCount": 5,
+    "untaggedCount": 10
+  },
+  "taggedVersions": [
+    "9d3dc995b5f2976acbf18d3bac62ad3fc138f022",
+    "8cb8239e04bf30f54f7fe1f85758da8f4fe7caac",
+    "3387e9a9d844e950dac45a180609986f7acf456d",
+    "1e285238f33283047eb8c3b3c52d352ea3b587fa",
+    "5cfe17896d90c639dbfcbca996fd4731dff52097"
+  ],
+  "proposedProductionTags": {
+    "baseline": {
+      "sha": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+      "present": false
+    },
+    "candidate": {
+      "sha": "11c9bce9891ae5b041215056ac4521551a056cb5",
+      "present": false
+    }
+  },
+  "status": "PASS",
+  "authority": "read-only preflight; must be repeated immediately before publication"
+}

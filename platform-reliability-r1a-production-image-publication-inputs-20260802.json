@@ -1,0 +1,51 @@
+{
+  "schema": "platform-release-image-publication-inputs.v1",
+  "authority": "not-granted",
+  "workflow": ".github/workflows/platform-release-image.yml",
+  "baseline": {
+    "ref": "codex/r1a-production-baseline-v1-20260802",
+    "headSha": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+    "inputs": {
+      "publish": true,
+      "feed_sha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+      "playables_sha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+      "swipe_platform_sha": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+      "code_min_revision": "0069_arrows_runtime_variant",
+      "code_max_revision": "0070_published_test_delivery",
+      "lkg_min_revision": "0069_arrows_runtime_variant",
+      "lkg_max_revision": "0070_published_test_delivery",
+      "lkg_kind": "bootstrap-root",
+      "lkg_build_run_id": "",
+      "lkg_image_digest": "",
+      "lkg_manifest_sha256": ""
+    }
+  },
+  "candidate": {
+    "ref": "codex/r1a-production-cutover-v1-20260802",
+    "headSha": "11c9bce9891ae5b041215056ac4521551a056cb5",
+    "inputs": {
+      "publish": true,
+      "feed_sha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+      "playables_sha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+      "swipe_platform_sha": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+      "code_min_revision": "0070_published_test_delivery",
+      "code_max_revision": "0071_platform_release_receipts",
+      "lkg_min_revision": "0069_arrows_runtime_variant",
+      "lkg_max_revision": "0071_platform_release_receipts",
+      "lkg_kind": "image",
+      "lkg_build_run_id": null,
+      "lkg_image_digest": null,
+      "lkg_manifest_sha256": null
+    },
+    "pendingBindings": "must be copied exactly from the independently verified production baseline receipt"
+  },
+  "guards": {
+    "maximumPublishingRuns": 2,
+    "redispatchSameSha": false,
+    "merge": false,
+    "deploy": false,
+    "renderMutation": false,
+    "githubProductionEnvironmentMutation": false,
+    "stage1": false
+  }
+}
