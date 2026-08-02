@@ -10,8 +10,8 @@ authority.
 | Item | Exact identity | Verification state |
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 `f798e11185850ebbb5e6842b2cdaad22640b126c` | CI `SUCCESS` |
-| reproducible release pipeline | swipe-agents PR #15 `e5c31b07f324309d1eb1d8393966468e455fb7e4` | CI `SUCCESS` |
-| bounded acceptance tooling | swipe-agents PR #16 `58c186677c4672bf88103ee1e1ce8a61a1762e13` | exact-head CI required; do not inherit the superseded run |
+| reproducible release pipeline | swipe-agents PR #15 `9f457710ad47e22010795db98c5bef7560e7a6ed` | exact-head CI `SUCCESS` ([run 30763862600](https://github.com/Glera/swipe-agents/actions/runs/30763862600)) |
+| bounded acceptance tooling | swipe-agents PR #16 `c03a840c4dae66d1b932a457e02cfef971ff7862` | exact-head CI `SUCCESS` ([run 30763970257](https://github.com/Glera/swipe-agents/actions/runs/30763970257)) |
 | original independent verdict | `phase-b0-stack-cross-review-2026-08-02.md` at meta master `f4db7ad` | `NO-GO`, 2 P1 plus P2/P3 |
 | corrected evidence packet | p4g-workspace-meta PR #52 at the head containing this document | exact-head meta CI and repeat independent review required |
 
@@ -60,6 +60,36 @@ fails `provider_clock_skew` before backup mutation; choosing a host end 48
 hours ahead while provider time has advanced only minutes fails
 `invalid_remote_acceptance_window`. Both attacks are executable regressions.
 
+### P1-C: the builder executed unreviewed worktree bytes
+
+Fixed in PR #15. The builder again requires an empty tracked-worktree status,
+including staged changes, before creating a staging directory. It additionally
+reads the reviewed commit objects for its complete local execution closure
+(`p4g-agent-phase-b0-release-candidate.mjs`, `phase-b0-host.mjs` and
+`phase-b0-remote-sync.mjs`) and byte-compares every executing file to that
+commit. Release materialization still uses raw verified objects and remains
+independent of local Git attributes and filters.
+
+The regression creates a committed builder closure, proves the clean case,
+then requires both an unstaged and staged builder patch to fail before build.
+Local `.git/info/attributes` remains an allowed non-input and cannot alter the
+raw-object candidate.
+
+### P1-D/P1-E: installed wrappers rejected their callers
+
+Fixed in PR #16. `p4g-agent-remote-sync` now accepts the no-argument
+`provider-probe` command used by bounded-acceptance bootstrap.
+`p4g-agent-phase-b0-acceptance` now validates `rollback-store-state` with
+`--observed-at`, separately from `audit --window-end`; its usage contract also
+names the command.
+
+The new integration test executes 20 production argv forms through the actual
+zsh wrappers and requires every valid form to pass parsing and reach its
+authority/origin gate. Negative controls retain exit 2 for an extra
+`provider-probe` argument and the former invalid
+`rollback-store-state --window-end` form. Ubuntu CI installs zsh explicitly,
+so this test cannot silently collapse back to substring inspection.
+
 ## P2 dispositions
 
 | Finding | Disposition |
@@ -72,7 +102,7 @@ hours ahead while provider time has advanced only minutes fails
 | P2-F capture reservation leaks | The physical publisher records the reservation inode and removes only that exact inode in `finally` on ordinary refusal, including pre-mutation failures. A process crash can still leave a marker intentionally; it fails closed and requires attended archive/disposition rather than automatic unsafe reclaim. The failure/retry lifecycle is executed by tests. |
 | P2-G dead-man local file claimed provider authority | Claim narrowed honestly. `agents.phase-b0-deadman-window-evidence.v2` is explicitly `operator_attested_external_provider_ui`; it requires an operator inspection flag/time and a separate root publication act. It is documented as a human gate, not a provider signature or machine-verifiable security boundary. An agent-authored file alone has no root publication authority. |
 | P2-H root loads runner-selected native addon/store | Root now asks the installed wrapper to execute `rollback-store-state` as non-admin `p4g_runner`. That helper re-hashes the exact anchored immutable release before loading its native module and reads the store without privilege. Root accepts only a typed receipt bound to anchor/release/tree/observation. |
-| P2-I effectful layer untested | Tests now execute all eight named live wiring surfaces: start, audit, publish, physical capture, complete, rollback, runtime restart and cold-boot verification, with injected host boundaries plus negative paths. Pure validators remain separately covered. |
+| P2-I effectful layer untested | Tests execute all eight named live wiring surfaces: start, audit, publish, physical capture, complete, rollback, runtime restart and cold-boot verification, with injected host boundaries plus negative paths. In addition, all 20 production CLI argv shapes now execute through the real zsh wrappers in CI; pure validators remain separately covered. |
 | P2-J repeat bootstrap mutates before known refusal | `control bootstrap` checks for an existing regular or symlink anchor before arming the trap or issuing any launchctl/install mutation. Source-order regression requires the guard before the first mutating statement. |
 
 ## P3 dispositions
@@ -125,16 +155,18 @@ rewritten to failure by post-success rotation.
 ## Verification receipts
 
 - PR #14 focused tests: 45/45; exact-head GitHub CI `SUCCESS`.
-- PR #15 full suite: 466/466; exact-head GitHub CI `SUCCESS`.
-- PR #16 focused acceptance plus remote-sync: 45/45.
-- PR #16 full clean serial run on the exact head: 74 files, 492/492 tests,
-  zero skip and zero unhandled error. A preceding parallel run completed
-  492/492 assertions but reported a Vitest worker RPC timeout after the
-  suites; it is not counted as the PASS receipt. The serial clean run is the
-  local receipt.
+- PR #15 exact-head GitHub CI: 73 files, 465 passed and two documented
+  macOS-only skips out of 467; the four release-candidate tests, including the
+  executable two-build and dirty-builder regressions, ran and passed.
+- PR #16 focused host/acceptance suites on macOS: 53/53.
+- PR #16 exact-head GitHub CI: 74 files, 492 passed and the same two
+  macOS-only skips out of 494; the real-wrapper argv regression ran and
+  passed. A local serial run completed all 494 assertions but ended non-zero
+  on a Vitest worker RPC timeout after the 70-second two-build test, so it is
+  explicitly not claimed as a PASS receipt.
 - TypeScript build, Node syntax, zsh syntax and `git diff --check`: pass.
-- PR #16 and meta #52 exact-head CI must be green before the repeat reviewer
-  may issue GO.
+- Meta #52 exact-head CI must be green before the repeat reviewer may issue
+  GO; implementation CI cannot substitute for independent review.
 
 ## Repeat-review focus
 
