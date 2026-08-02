@@ -11,7 +11,7 @@ authority.
 | --- | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 `f798e11185850ebbb5e6842b2cdaad22640b126c` | CI `SUCCESS` |
 | reproducible release pipeline | swipe-agents PR #15 `e5c31b07f324309d1eb1d8393966468e455fb7e4` | CI `SUCCESS` |
-| bounded acceptance tooling | swipe-agents PR #16 `b355af9af36929ed419ab487b21bae12af3303be` | exact-head CI required; do not inherit the superseded run |
+| bounded acceptance tooling | swipe-agents PR #16 `58c186677c4672bf88103ee1e1ce8a61a1762e13` | exact-head CI required; do not inherit the superseded run |
 | original independent verdict | `phase-b0-stack-cross-review-2026-08-02.md` at meta master `f4db7ad` | `NO-GO`, 2 P1 plus P2/P3 |
 | corrected evidence packet | p4g-workspace-meta PR #52 at the head containing this document | exact-head meta CI and repeat independent review required |
 
@@ -113,6 +113,9 @@ rewritten to failure by post-success rotation.
   not a path regex;
 - atomic publication uses an unguessable temp and deletes it only when its
   dev/inode still match the file created by that invocation;
+- the physical-capture reservation keeps its original file descriptor open
+  through the drill, so an unlink-and-replace cannot reuse that inode and be
+  mistaken for the reservation during cleanup;
 - base-A1 audits include only runs whose grace deadline has matured by the
   chosen end, avoiding a false failure for a currently valid in-flight run;
 - the root acceptance wrapper uses the fixed system PATH;
@@ -124,10 +127,11 @@ rewritten to failure by post-success rotation.
 - PR #14 focused tests: 45/45; exact-head GitHub CI `SUCCESS`.
 - PR #15 full suite: 466/466; exact-head GitHub CI `SUCCESS`.
 - PR #16 focused acceptance plus remote-sync: 45/45.
-- PR #16 full clean serial run: 74 files, 492/492 tests, zero skip and zero
-  unhandled error. A preceding parallel run completed 492/492 assertions but
-  reported a Vitest worker RPC timeout after the suites; it is not counted as
-  the PASS receipt. The serial clean run is the local receipt.
+- PR #16 full clean serial run on the exact head: 74 files, 492/492 tests,
+  zero skip and zero unhandled error. A preceding parallel run completed
+  492/492 assertions but reported a Vitest worker RPC timeout after the
+  suites; it is not counted as the PASS receipt. The serial clean run is the
+  local receipt.
 - TypeScript build, Node syntax, zsh syntax and `git diff --check`: pass.
 - PR #16 and meta #52 exact-head CI must be green before the repeat reviewer
   may issue GO.

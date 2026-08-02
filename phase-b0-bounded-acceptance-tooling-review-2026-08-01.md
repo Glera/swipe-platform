@@ -10,7 +10,7 @@ process-kill, reboot, rollback or runtime authority.
 | --- | --- |
 | remote-sync follow-up | swipe-agents PR #14 at `f798e11185850ebbb5e6842b2cdaad22640b126c` |
 | reproducible release pipeline | stacked swipe-agents PR #15 at `e5c31b07f324309d1eb1d8393966468e455fb7e4` |
-| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `b355af9af36929ed419ab487b21bae12af3303be` |
+| bounded acceptance tooling | stacked [swipe-agents PR #16](https://github.com/Glera/swipe-agents/pull/16) at `58c186677c4672bf88103ee1e1ce8a61a1762e13` |
 | completion contract | `phase-b0-bounded-acceptance-matrix-2026-08-01.md` |
 
 ## Closure model
@@ -87,7 +87,7 @@ and rollback remain future explicit physical authority acts.
   install/current-separation regression inherited from PR #15.
 - Node syntax, zsh syntax and `git diff --check`: pass.
 - Exact-head CI for PR #16 is required on
-  `b355af9af36929ed419ab487b21bae12af3303be`; its final result is recorded in
+  `58c186677c4672bf88103ee1e1ce8a61a1762e13`; its final result is recorded in
   the cross-review disposition rather than inherited from the superseded head.
 - Meta evidence suite: 135/135 locally; the exact PR #52 CI identity is recorded
   after this packet commit is pushed.
