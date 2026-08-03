@@ -1,0 +1,18 @@
+{
+  "schema": "claude-independent-review-receipt.v1",
+  "source": "Claude Code local session transcript",
+  "session_id": "b10bc603-43a4-486e-ace3-a635af1c4751",
+  "model": "claude-sonnet-5",
+  "stop_reason": "end_turn",
+  "permission_denials": [],
+  "web_search_requests": 0,
+  "web_fetch_requests": 0,
+  "usage": {
+    "input_tokens": 2,
+    "cache_creation_input_tokens": 16697,
+    "cache_read_input_tokens": 3289,
+    "output_tokens": 7625
+  },
+  "reviewed_commit": "775ae7aad26e6a05fb5e27a359471be01884ffd2",
+  "result": "GO\n\nAll identity fields (backend master SHA, successor head, baseline run/digest/manifest, artifact ID) are byte-consistent across the drift receipt, successor-v2 receipt, candidate-publication request, and packet markdown. The old `099f3de` authority is unambiguously consumed: refused pre-key-creation on CAS mismatch, zero mutations, and the request document itself states it is no longer executable. Successor-v2 (PR #51 @ `4714e339`) shows only a 2-line `render.yaml` comment diff from the accepted v1 candidate, preserves all 3 Auto-Deploy-Off pins, passed local/CI/independent review, and Stage 1 heads are recorded unchanged. The candidate-publication request reuses the exact accepted baseline (rebuild forbidden), caps dispatch at 1, and is fail-closed against retry, drift, merge, GitHub environment creation, Render, deploy, migration, and Stage 1 mutation via explicit hardStops/forbiddenActions/failurePolicy. No future GO is present or implied as already granted anywhere in the packet."
+}
