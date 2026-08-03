@@ -1,0 +1,134 @@
+{
+  "schema": "platform-release-image-publication-receipt.v2",
+  "status": "PASS_PENDING_INDEPENDENT_REVIEW",
+  "authority": {
+    "packetCommit": "5e88f4efc94e73e264e430b83b7a2bf45cfd55ce",
+    "dispatchLimit": 1,
+    "dispatchesConsumed": 1,
+    "redispatchAuthorized": false,
+    "baselineRebuildAuthorized": false
+  },
+  "preflight": {
+    "observedAt": "2026-08-03T13:47:36Z",
+    "backendMasterSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "successorPullRequest": 51,
+    "successorHeadSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+    "successorDraftOpenUnmerged": true,
+    "acceptedCiRuns": [
+      30817233456,
+      30817235439
+    ],
+    "priorCandidateWorkflowDispatchCount": 0,
+    "priorCandidateGhcrTagCount": 0,
+    "productionEnvironmentPresent": false,
+    "repositoryRenderAuthorityPresent": false,
+    "stage1BackendHead": "2029867495578310dda92c170a2e07c71203eefa",
+    "stage1ClientHead": "43f92693b55057d4c22652cbd81dad4ab67f0171",
+    "workflowSha256": "266910bc31cfb5a49757bb043a55b57746ed5068ca90bb9d44061e1065f836eb",
+    "result": "PASS"
+  },
+  "dispatch": {
+    "acceptedAt": "2026-08-03T13:48:27Z",
+    "repository": "Glera/swipe-backend",
+    "workflow": ".github/workflows/platform-release-image.yml",
+    "ref": "codex/r1a-production-cutover-v2-20260803",
+    "runId": 30819666007,
+    "runAttempt": 1,
+    "runEvent": "workflow_dispatch",
+    "runHeadSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+    "runCreatedAt": "2026-08-03T13:48:29Z",
+    "runUpdatedAt": "2026-08-03T13:51:55Z",
+    "conclusion": "success",
+    "jobId": 91706119919,
+    "jobStartedAt": "2026-08-03T13:48:43Z",
+    "jobCompletedAt": "2026-08-03T13:51:54Z",
+    "jobConclusion": "success"
+  },
+  "inputs": {
+    "publish": true,
+    "feed_sha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+    "playables_sha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+    "swipe_platform_sha": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+    "code_min_revision": "0070_published_test_delivery",
+    "code_max_revision": "0071_platform_release_receipts",
+    "lkg_min_revision": "0069_arrows_runtime_variant",
+    "lkg_max_revision": "0071_platform_release_receipts",
+    "lkg_kind": "image",
+    "lkg_build_run_id": "30789375002",
+    "lkg_image_digest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+    "lkg_manifest_sha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88"
+  },
+  "artifact": {
+    "id": 8858370713,
+    "name": "platform-release-4714e339b60e3af747d138486ad7eadadec72dac",
+    "sizeInBytes": 86657,
+    "createdAt": "2026-08-03T13:51:47Z",
+    "expiresAt": "2026-11-01T13:48:34Z",
+    "expired": false,
+    "contentSetSha256": "8837d2c4ffac258004e4bcff221df14070822f0bdba53c36d6815d4de875b57e",
+    "files": {
+      "build-metadata.json": "237944f69b94509ef573a15715632aa1626e0fc1ad92ff439fae1897d27098e2",
+      "manifest-summary.json": "5c61b57c070185a52d11ab57f4b8c5d7cc3a599897c1bf2f373888907b21fd84",
+      "platform-release-manifest.v1.json": "a0e128be8ed3fa2484c74108cf324c8a6449be23daa7da5c25943b22b4c4e9e5",
+      "platform-schema-capability.v1.json": "e31eaf82a8386d20954002577e9b7ec63fe11f4626a2c2f1aab46df2e3fc72b0"
+    }
+  },
+  "manifest": {
+    "sha256": "a0e128be8ed3fa2484c74108cf324c8a6449be23daa7da5c25943b22b4c4e9e5",
+    "machineVerifier": "PASS",
+    "imageRepository": "ghcr.io/glera/swipe-backend",
+    "imageDigest": "sha256:d6aae406275945b30475aa6c797f73d52af6108a715f5c5a4bcfe109fddcd05b",
+    "backendSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+    "feedSha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+    "playablesSha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+    "targetRevision": "0071_platform_release_receipts",
+    "expectedPredecessor": "0070_published_test_delivery",
+    "codeCompatibility": [
+      "0070_published_test_delivery",
+      "0071_platform_release_receipts"
+    ],
+    "lkgCompatibility": [
+      "0069_arrows_runtime_variant",
+      "0070_published_test_delivery"
+    ],
+    "lkgForwardCompatibility": [
+      "0069_arrows_runtime_variant",
+      "0070_published_test_delivery",
+      "0071_platform_release_receipts"
+    ],
+    "schemaCapabilitySha256": "e31eaf82a8386d20954002577e9b7ec63fe11f4626a2c2f1aab46df2e3fc72b0",
+    "postgresMajor": 16,
+    "typedUgcAbsence": true
+  },
+  "registry": {
+    "package": "ghcr.io/glera/swipe-backend",
+    "packageVisibility": "Private",
+    "repositoryLinked": "Glera/swipe-backend",
+    "versionId": 1093812331,
+    "tag": "4714e339b60e3af747d138486ad7eadadec72dac",
+    "latest": true,
+    "ociIndexDigest": "sha256:d6aae406275945b30475aa6c797f73d52af6108a715f5c5a4bcfe109fddcd05b",
+    "linuxAmd64Digest": "sha256:d01d0531d44a76e9c81cc3d1420f4e5c5b04478056a7c352e5ff9e6dd87e8467",
+    "attestationDigest": "sha256:4781164a3f127fd0d86b8b878637f35c82c8e720893909b021c49c8efa06aa21"
+  },
+  "postconditions": {
+    "candidateWorkflowDispatchCount": 1,
+    "candidateCutoverDispatchCount": 0,
+    "successorPullRequestMerged": false,
+    "backendMasterSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "productionEnvironmentPresent": false,
+    "repositoryRenderAuthorityPresent": false,
+    "renderKeyCreatedOrUsed": false,
+    "renderMutation": false,
+    "deploy": false,
+    "migration": false,
+    "stage1BackendHead": "2029867495578310dda92c170a2e07c71203eefa",
+    "stage1ClientHead": "43f92693b55057d4c22652cbd81dad4ab67f0171"
+  },
+  "cost": {
+    "actualJobWallSeconds": 191,
+    "roundedLinuxMinutes": 4,
+    "maximumUsdAt0_006PerMinuteIfNoIncludedMinutesRemain": 0.024,
+    "renderSpendUsd": 0
+  }
+}

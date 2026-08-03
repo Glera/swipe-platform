@@ -2,7 +2,12 @@
 
 Prepared: 2026-08-03 UTC.
 
-Status: **READY FOR OPERATOR DECISION; AUTHORITY NOT GRANTED**.
+Status: **CONSUMED SUCCESSFULLY; INDEPENDENT RECEIPT REVIEW PENDING**.
+
+The operator granted this exact request through meta packet `5e88f4e`. Its
+single dispatch was consumed by successful run `30819666007/1`. Exact result:
+`platform-reliability-r1a-production-candidate-v2-publication-receipt-20260803.{json,md}`.
+No redispatch is permitted.
 
 PR #49 moved backend `master` after the old candidate image was published.
 Reviewed successor v2 is now exact head

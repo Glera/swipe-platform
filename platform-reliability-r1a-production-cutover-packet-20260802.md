@@ -2,14 +2,15 @@
 
 Prepared: 2026-08-02 UTC; successor-v2 recovery updated 2026-08-03 UTC.
 
-Status: **BASELINE RETAINED; OLD CANDIDATE STALE; SUCCESSOR V2 ACCEPTED;
+Status: **BASELINE RETAINED; CANDIDATE V2 PUBLISHED, RECEIPT REVIEW PENDING;
 CUTOVER AUTHORITY NOT GRANTED**. Backend `master` advanced through PR #49
 after the old candidate publication. The action-time CAS correctly refused
 packet `099f3de` before any external authority was created. Draft PR #51 is
 the reviewed successor at exact head
 `4714e339b60e3af747d138486ad7eadadec72dac`; it is green and independently
-accepted, but has no immutable candidate image yet. This packet authorizes no
-publication, merge, GitHub production-environment mutation, provider source
+accepted. Its immutable candidate image was published once under exact
+authority and is bound below; independent receipt review remains pending. This
+packet authorizes no further publication, merge, GitHub production-environment mutation, provider source
 switch, deployment, rollback or Stage 1 action.
 
 The previous preparation request
@@ -150,11 +151,15 @@ The baseline remains the accepted forward-only rollback image: its source and
 schema contract are unchanged, its Actions artifact is unexpired, and
 successor v2 retains the same reviewed LKG range. Rebuilding it is forbidden.
 
-Exactly one new candidate publication is now required. It must name source
-`4714e339b60e3af747d138486ad7eadadec72dac` and pin the existing baseline
-run/image/manifest above. The bounded request is
-`platform-reliability-r1a-production-candidate-v2-publication-authority-request-20260803.{json,md}`;
-its current status is authority-not-granted.
+Candidate v2 was published exactly once and pins the existing baseline:
+
+| Role | Backend | Run | OCI index | Manifest SHA-256 |
+| --- | --- | ---: | --- | --- |
+| production candidate v2 | `4714e339b60e3af747d138486ad7eadadec72dac` | `30819666007/1` | `sha256:d6aae406275945b30475aa6c797f73d52af6108a715f5c5a4bcfe109fddcd05b` | `a0e128be8ed3fa2484c74108cf324c8a6449be23daa7da5c25943b22b4c4e9e5` |
+
+Exact receipt:
+`platform-reliability-r1a-production-candidate-v2-publication-receipt-20260803.{json,md}`.
+The one-run authority is exhausted; no image may be redispatched or rebuilt.
 
 ## 5. Action-time provider gate
 
