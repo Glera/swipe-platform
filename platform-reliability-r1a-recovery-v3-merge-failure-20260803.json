@@ -1,0 +1,48 @@
+{
+  "schema": "platform.r1a.recovery-v3-merge-failure.v1",
+  "status": "FAIL_CONTAINED",
+  "observed_at": "2026-08-03T17:30:56Z",
+  "authority_packet": "a063ed91fb8cd09894097d26a099498294a6c8b2",
+  "failure_stage": "browser_runtime_handoff_isolation",
+  "temporary_render_key": {
+    "created": true,
+    "used_for_provider_capture": false,
+    "exposed_in_tool_output": true,
+    "revoked_in_ui": true,
+    "inventory_empty_after_revoke": true,
+    "revoked_probe_http_statuses": [400, 400, 400, 400, 400],
+    "exact_401_proof": false,
+    "browser_runtime_handoff_removed": true,
+    "host_handoff_was_empty": true,
+    "host_handoff_removed": true
+  },
+  "provider_capture": {
+    "executed": false
+  },
+  "github": {
+    "master": "f0cc933fb813be2e4784200592efced196d74973",
+    "pr": {
+      "state": "OPEN",
+      "isDraft": true,
+      "mergeable": "MERGEABLE",
+      "mergeStateStatus": "CLEAN",
+      "baseRefOid": "f0cc933fb813be2e4784200592efced196d74973",
+      "headRefOid": "8ea6f1de6d2fe4bbb43b56698fd135649130d3c5"
+    },
+    "production_environment_absent": true,
+    "repository_render_secret_count": 0,
+    "repository_render_variable_count": 0,
+    "active_cutover_runs": 0,
+    "active_image_publication_runs": 0
+  },
+  "forbidden_actions": {
+    "pr_ready": false,
+    "merge": false,
+    "workflow_dispatch": false,
+    "image_publication": false,
+    "render_service_mutation": false,
+    "deploy": false,
+    "migration": false,
+    "stage1_runtime_action": false
+  }
+}
