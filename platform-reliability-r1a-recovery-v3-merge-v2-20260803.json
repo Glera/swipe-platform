@@ -1,0 +1,117 @@
+{
+  "schema": "platform-reliability-r1a-recovery-v3-merge-v2.v1",
+  "status": "SOURCE_MERGED_WITH_POST_MERGE_NONCONFORMITIES",
+  "operatorAuthority": {
+    "packetMetaCommit": "c088b1c7f982fda12d991893509e06e80ad0a003",
+    "windowSeconds": 1800
+  },
+  "startedAt": "2026-08-03T17:58:00.382Z",
+  "sourceMergedAt": "2026-08-03T18:04:53Z",
+  "receiptPreparedAt": "2026-08-03T18:07:48Z",
+  "preflight": {
+    "metaHead": "c088b1c7f982fda12d991893509e06e80ad0a003",
+    "backendBase": "f0cc933fb813be2e4784200592efced196d74973",
+    "backendHead": "8ea6f1de6d2fe4bbb43b56698fd135649130d3c5",
+    "backendTree": "a7e4c6462d4d30d0af61eae4672792203739d832",
+    "pullRequest": 52,
+    "successfulChecks": 28,
+    "imageCiRun": 30833244754,
+    "postgresCiRun": 30833244184,
+    "githubProductionEnvironmentAbsent": true,
+    "repositoryRenderAuthorityAbsent": true,
+    "activeWorkflowRunsBeforeMerge": 0
+  },
+  "secretHandoff": {
+    "bidirectionalSharedHomeProbe": "PASS",
+    "temporaryRenderKeysCreated": 1,
+    "revealValueEmittedOrHashed": false,
+    "temporaryKeyRevokedBeforeMerge": true,
+    "emptyRenderKeyInventoryAfterRevoke": true,
+    "revokedKeyHttpStatus": 401,
+    "handoffMode": "0600",
+    "handoffRemoved": true
+  },
+  "providerEvidence": {
+    "captureFile": "platform-reliability-r1a-recovery-v3-merge-v2-provider-capture-20260803.json",
+    "canonicalCaptureReceiptSha256": "cea516724b9ef72f5fc14ea5fc17cf0a7411a289094b47dd00957c1dcdf1723b",
+    "trackedCaptureFileSha256": "c23b3dd30798b5088ebca006c950c4e267efb52298d525c1cdb8a990d07ef68c",
+    "inventoryFile": "platform-reliability-r1a-recovery-v3-merge-v2-provider-inventory-20260803.json",
+    "inventoryFileSha256": "2e0659ee6ea15bd9b0bc86c7395fe7634d8af2a27e668dc29232a44434c683d6",
+    "captureStatus": "PASS",
+    "mergeSafe": true,
+    "blueprintAutoSync": false,
+    "allServiceAutoDeploy": false,
+    "activeBlueprintSyncs": 0,
+    "activeDeploys": 0,
+    "activeJobs": 0,
+    "operations": [
+      "GET"
+    ]
+  },
+  "sourceMerge": {
+    "pullRequestState": "MERGED",
+    "mergeCommit": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "firstParent": "f0cc933fb813be2e4784200592efced196d74973",
+    "secondParent": "8ea6f1de6d2fe4bbb43b56698fd135649130d3c5",
+    "tree": "a7e4c6462d4d30d0af61eae4672792203739d832",
+    "exactParentsAndTree": true
+  },
+  "nonconformities": [
+    {
+      "code": "provider_web_source_path_authority_mismatch",
+      "detail": "The committed capture returned web dockerfilePath ./Dockerfile.bake while merge-window v2 runbook section 2 literally required ./Dockerfile. Earlier settled production captures and cutover-preparation-v2 authority record ./Dockerfile.bake for all three services. Auto Sync and all Auto Deploy controls were off, so the source merge caused no provider action.",
+      "detected": "post_merge_receipt_preparation",
+      "productionImpact": false
+    },
+    {
+      "code": "reveal_transfer_single_call_contract_not_met",
+      "detail": "The browser wrapper exposed code-snippet as a DIV textbox. Two sanitized attempts failed before writing because inputValue/value were unavailable; safe targeted count/method/tag/length diagnostics were emitted while the reveal remained open. A third non-emitting textContent transfer succeeded. The credential value was never emitted, hashed, snapshotted or copied to clipboard.",
+      "detected": "during_window",
+      "productionImpact": false
+    },
+    {
+      "code": "canonical_python_runtime_bootstrap",
+      "detail": "The literal python alias was absent and the system Python lacked pinned dependencies. Both attempts failed before an HTTP request. The committed script then ran from a disposable Python 3.13 venv containing only the repository-pinned SQLAlchemy, Alembic and rfc8785 packages.",
+      "detected": "during_window",
+      "productionImpact": false
+    }
+  ],
+  "forbiddenActions": {
+    "workflowDispatch": false,
+    "imagePublication": false,
+    "githubEnvironmentMutation": false,
+    "persistentRenderServiceMutation": false,
+    "deploy": false,
+    "migration": false,
+    "rehearsal": false,
+    "cutover": false,
+    "stage1RuntimeMutation": false
+  },
+  "automaticPostMergeChecks": [
+    {
+      "runId": 30839644353,
+      "workflow": "Browser E2E (real-backend feed closure)",
+      "event": "push",
+      "statusAtReceipt": "completed",
+      "conclusionAtReceipt": "success"
+    },
+    {
+      "runId": 30839644830,
+      "workflow": "PostgreSQL acceptance",
+      "event": "push",
+      "statusAtReceipt": "in_progress",
+      "conclusionAtReceipt": null
+    }
+  ],
+  "localVerification": {
+    "jsonValidation": "PASS",
+    "gitDiffCheck": "PASS",
+    "docsBoundaryLint": "PASS",
+    "rootTests": {
+      "passed": 130,
+      "failed": 0,
+      "git": "/usr/bin/git 2.39.5"
+    }
+  },
+  "nextBoundary": "No candidate publication, rehearsal or cutover until the authority-text mismatch and reveal-process deviation receive explicit disposition."
+}

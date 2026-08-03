@@ -1,0 +1,179 @@
+{
+  "blueprintSyncs": {
+    "activeCount": 0,
+    "count": 52,
+    "latest": [
+      {
+        "createdAt": "2026-07-30T15:09:14.863977Z",
+        "finishedAt": "2026-07-30T15:09:15.724489Z",
+        "id": "exe-d9lmi6ht0dsc73e6qj70",
+        "status": "success"
+      },
+      {
+        "createdAt": "2026-07-30T13:21:52.190313Z",
+        "finishedAt": "2026-07-30T13:21:52.926165Z",
+        "id": "exe-d9lkvs3tqb8s739hklh0",
+        "status": "success"
+      },
+      {
+        "createdAt": "2026-07-30T13:15:29.321447Z",
+        "finishedAt": "2026-07-30T13:15:30.084557Z",
+        "id": "exe-d9lkssc9v7es7381s160",
+        "status": "success"
+      },
+      {
+        "createdAt": "2026-07-30T12:49:41.072812Z",
+        "finishedAt": "2026-07-30T12:49:41.694563Z",
+        "id": "exe-d9lkgpcs728c739d7u00",
+        "status": "success"
+      },
+      {
+        "createdAt": "2026-07-28T17:40:19.419942Z",
+        "finishedAt": "2026-07-28T17:40:21.165233Z",
+        "id": "exe-d9kej0r7uimc73etmp60",
+        "status": "success"
+      }
+    ]
+  },
+  "deploys": {
+    "materialize": {
+      "activeCount": 0,
+      "count": 100,
+      "latest": [
+        {
+          "createdAt": "2026-08-01T11:40:26.340218Z",
+          "finishedAt": "2026-08-01T11:40:47.020629Z",
+          "id": "dep-d9mtmajm8hqs73cigkc0",
+          "status": "live"
+        },
+        {
+          "createdAt": "2026-08-01T08:35:41.645511Z",
+          "finishedAt": "2026-08-01T11:40:46.945691Z",
+          "id": "dep-d9mqvnbm8hqs73cgoce0",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-08-01T08:20:32.506662Z",
+          "finishedAt": "2026-08-01T08:36:01.76895Z",
+          "id": "dep-d9mqok5bedkc73ekh2qg",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-07-31T20:45:57.741086Z",
+          "finishedAt": "2026-08-01T08:20:52.635324Z",
+          "id": "dep-d9mgj1cs728c73ai3cq0",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-07-31T18:19:58.014074Z",
+          "finishedAt": "2026-07-31T20:46:19.449154Z",
+          "id": "dep-d9meejjm8hqs73c6alg0",
+          "status": "deactivated"
+        }
+      ]
+    },
+    "sequencing": {
+      "activeCount": 0,
+      "count": 32,
+      "latest": [
+        {
+          "createdAt": "2026-08-01T11:40:25.86652Z",
+          "finishedAt": "2026-08-01T11:40:47.075207Z",
+          "id": "dep-d9mtmabm8hqs73cigjk0",
+          "status": "live"
+        },
+        {
+          "createdAt": "2026-08-01T08:35:41.265784Z",
+          "finishedAt": "2026-08-01T11:40:47.0484Z",
+          "id": "dep-d9mqvnbm8hqs73cgoccg",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-08-01T08:20:32.075082Z",
+          "finishedAt": "2026-08-01T08:36:01.410109Z",
+          "id": "dep-d9mqok5bedkc73ekh2p0",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-07-31T20:45:57.30289Z",
+          "finishedAt": "2026-08-01T08:20:48.063321Z",
+          "id": "dep-d9mgj1cs728c73ai3cog",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-07-31T18:19:57.572784Z",
+          "finishedAt": "2026-07-31T20:46:19.049873Z",
+          "id": "dep-d9meejbm8hqs73c6aleg",
+          "status": "deactivated"
+        }
+      ]
+    },
+    "web": {
+      "activeCount": 0,
+      "count": 100,
+      "latest": [
+        {
+          "createdAt": "2026-08-01T11:40:25.076246Z",
+          "finishedAt": "2026-08-01T11:41:18.234264Z",
+          "id": "dep-d9mtmabm8hqs73cighmg",
+          "status": "live"
+        },
+        {
+          "createdAt": "2026-08-01T08:35:40.667821Z",
+          "finishedAt": "2026-08-01T08:36:43.532295Z",
+          "id": "dep-d9mqvn3m8hqs73cgoaf0",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-08-01T08:20:31.360413Z",
+          "finishedAt": "2026-08-01T08:21:28.954694Z",
+          "id": "dep-d9mqojtbedkc73ekh0rg",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-07-31T20:45:56.584246Z",
+          "finishedAt": "2026-07-31T20:46:58.917418Z",
+          "id": "dep-d9mgj14s728c73ai3ar0",
+          "status": "deactivated"
+        },
+        {
+          "createdAt": "2026-07-31T18:19:57.026143Z",
+          "finishedAt": "2026-07-31T18:21:04.21456Z",
+          "id": "dep-d9meej3m8hqs73c6ajhg",
+          "status": "deactivated"
+        }
+      ]
+    }
+  },
+  "jobs": {
+    "web": {
+      "activeCount": 0,
+      "count": 3,
+      "latest": [
+        {
+          "createdAt": "2026-08-03T14:36:43.365947Z",
+          "finishedAt": "2026-08-03T14:37:11Z",
+          "id": "job-d9oaeur7uimc738u0vdg",
+          "status": "succeeded"
+        },
+        {
+          "createdAt": "2026-08-03T12:44:24.095283Z",
+          "finishedAt": "2026-08-03T12:44:55Z",
+          "id": "job-d9o8qa142hec738utke0",
+          "status": "succeeded"
+        },
+        {
+          "createdAt": "2026-08-02T17:54:59.63691Z",
+          "finishedAt": "2026-08-02T17:55:29Z",
+          "id": "job-d9no8sqjnfac73bgf2ig",
+          "status": "succeeded"
+        }
+      ]
+    }
+  },
+  "observedAt": "2026-08-03T18:03:30.687519+00:00",
+  "operations": [
+    "GET"
+  ],
+  "schemaVersion": "platform-release-provider-inventory.v1"
+}
