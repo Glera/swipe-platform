@@ -10,15 +10,19 @@ final cutover GO is a fresh attended production-state capture plus an exact
 GitHub `production` environment. This document requests only that preparation
 window. It does not request merge or deploy authority.
 
-The previous window authorized at
-`3d933b1f09ad621d9dfb584c612af9145c319f35` failed closed during temporary-key
-handoff: the one-time secret reveal entered technical tool output. The unused
-key was immediately revoked, no provider request, database job or GitHub
-environment was created, and cleanup is recorded in
+Two prior authorities are consumed and contained. Commit `3d933b1` stopped at
+secret handoff and is recorded in
 `platform-reliability-r1a-cutover-preparation-failure-20260803.{json,md}`.
-That authority is consumed. This request can be used again only after the
-hardened runbook and failure receipt are committed and independently accepted,
-and only by an operator GO naming that new commit.
+Commit `7ed3c5d` completed the fresh provider capture and the one authorized
+`alembic current` job, then GitHub rejected zero-value reviewer/wait fields for
+this private repository's billing plan. Its empty environment shell was
+deleted, its temporary key was revoked with a `401` proof, and the exact
+evidence is in
+`platform-reliability-r1a-cutover-preparation-plan-failure-20260803.{json,md}`.
+No merge, deploy, migration or Stage 1 mutation occurred in either window.
+This request can be used again only after the plan-compatible payload and both
+failure receipts are committed and independently accepted, and only by an
+operator GO naming that new commit.
 
 ## Fixed release identities
 
@@ -63,11 +67,15 @@ One attended window may:
 7. commit the fresh evidence and obtain independent review of the final
    cutover packet.
 
-GitHub environment configuration is exact: zero-minute wait, no reviewers,
-`prevent_self_review=false`, custom-branch policy enabled, protected-branch
-policy disabled. Human authorization remains this explicit operator gate;
-the environment isolates the secret and prevents execution from any other
-ref. The workflow's concurrency group remains the single-flight writer.
+GitHub environment configuration is exact: custom-branch policy enabled and
+protected-branch policy disabled. The v2 request body intentionally omits
+`wait_timer`, `reviewers` and `prevent_self_review`, because GitHub documents
+wait timers and required reviewers as unavailable for private repositories on
+the current plan and the first payload was rejected with HTTP `422`. No
+required-reviewer or wait-timer protection rule is expected on read-back.
+Human authorization remains this explicit operator gate; the branch policy
+isolates the environment secret from every ref except the reviewed candidate.
+The workflow's concurrency group remains the single-flight writer.
 
 ## Hard stops
 

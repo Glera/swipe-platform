@@ -1,0 +1,95 @@
+{
+  "schema": "platform-release-cutover-preparation-failure.v1",
+  "status": "FAIL_CONTAINED",
+  "authorityCommit": "7ed3c5d39b23535537452db2615c97dfb703c498",
+  "windowStartedAt": "2026-08-03T12:31:04Z",
+  "cleanupVerifiedAt": "2026-08-03T12:50:19.602825Z",
+  "failureStage": "github-production-environment-creation",
+  "failureKind": "unsupported-private-repository-environment-protection-fields",
+  "renderEvidence": {
+    "providerCapture": {
+      "observedAt": "2026-08-03T12:36:04.442227Z",
+      "sha256": "872bc6bf71a0aafe59609e1a684baa1bf2a7e4e5f6c4edc16166f0b8614c5947",
+      "status": "PASS"
+    },
+    "inventory": {
+      "observedAt": "2026-08-03T12:42:23.587016Z",
+      "sha256": "5fab84f51c103a66cc44bafe7dae66b81384246d6b4d801619c33a16eccecda6",
+      "latestDeploys": {
+        "web": "dep-d9mtmabm8hqs73cighmg",
+        "sequencing": "dep-d9mtmabm8hqs73cigjk0",
+        "materialize": "dep-d9mtmajm8hqs73cigkc0"
+      },
+      "activeDeployCount": 0,
+      "activeJobCountBeforeRevisionJob": 0,
+      "databaseVersion": "16",
+      "databaseStatus": "available",
+      "registryCredentialId": "rgc-d9np7tajnfac73bi5ib0",
+      "status": "PASS"
+    },
+    "databaseRevisionJob": {
+      "id": "job-d9o8qa142hec738utke0",
+      "command": "alembic current",
+      "createdAt": "2026-08-03T12:44:23.762111Z",
+      "observedAt": "2026-08-03T12:44:56.629183Z",
+      "terminalStatus": "succeeded",
+      "exactOutput": "0070_published_test_delivery (head)",
+      "receiptSha256": "3453e503e8b570a039e7cf3b773a59a9fc1ac2f26b62face7fd2c229e5c312cb",
+      "status": "PASS"
+    }
+  },
+  "githubFailure": {
+    "requestedPayload": "platform-reliability-r1a-github-production-environment-payload-20260803.json",
+    "requestedPayloadSha256": "49fdf38cb9513ef9aa6e6e4b5ac0312001beba6c4e28f1213be214cf042e53e5",
+    "httpStatus": 422,
+    "message": "Failed to create the environment protection rule. Please ensure the billing plan supports the required reviewers protection rule.",
+    "errorResponseSha256": "84bb2c92f1a6aa846a8e52f2bfa9e277a723776feaf46aff2266b3faea4dfc83",
+    "partialEnvironment": {
+      "id": 19205562261,
+      "name": "production",
+      "createdAt": "2026-08-03T12:47:08Z",
+      "protectionRuleCount": 0,
+      "deploymentBranchPolicy": null,
+      "readbackSha256": "deefe2d5c362d39840070e74448aa58907cbf652c2c5734ad541e375f7a62976"
+    },
+    "branchPoliciesCreated": 0,
+    "environmentSecretsWritten": 0,
+    "environmentVariablesWritten": 0
+  },
+  "temporaryKey": {
+    "name": "r1a-precutover-retry-20260803",
+    "created": true,
+    "usedOnlyForAuthorizedProviderGetsAndRevisionJob": true,
+    "secretValueRecorded": false,
+    "revoked": true,
+    "revocationProofHttpStatus": 401,
+    "handoffFilePresentAfterCleanup": false,
+    "renderUiPostcondition": "No provisioned API keys"
+  },
+  "actions": {
+    "providerCaptureRuns": 1,
+    "webServiceJobsCreated": 1,
+    "githubProductionEnvironmentCreateAttempts": 1,
+    "githubBranchPoliciesCreated": 0,
+    "githubSecretsWritten": 0,
+    "githubVariablesWritten": 0,
+    "cutoverWorkflowDispatches": 0,
+    "merges": 0,
+    "renderServiceMutations": 0,
+    "deploys": 0,
+    "migrations": 0,
+    "imagePublications": 0,
+    "stage1Mutations": 0
+  },
+  "cleanup": {
+    "partialProductionEnvironmentDeleted": true,
+    "productionEnvironmentCount": 0,
+    "repositoryRenderSecretCount": 0,
+    "repositoryRenderVariableCount": 0,
+    "candidateCutoverRunCount": 0,
+    "temporaryKeyRevoked": true,
+    "handoffFilePresent": false,
+    "decisionDeadlineStarted": false
+  },
+  "nextAuthority": "A fresh operator GO must name a new committed packet whose environment payload omits plan-gated wait-timer and required-reviewer fields while retaining the exact custom branch restriction."
+}

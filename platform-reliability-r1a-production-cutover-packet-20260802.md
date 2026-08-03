@@ -160,6 +160,16 @@ separately authorized cutover-preparation window. A fresh provider/database
 capture is also required. The full gate is therefore not yet satisfied for
 merge or deploy.
 
+An attended refresh under authority `7ed3c5d` reconfirmed provider state and
+database revision, but GitHub rejected plan-gated zero-value reviewer/wait
+fields while creating the environment. The resulting empty shell was deleted
+and the temporary Render key revoked; no secret, branch policy, merge, deploy
+or migration occurred. Its exact evidence is
+`platform-reliability-r1a-cutover-preparation-plan-failure-20260803.{json,md}`.
+The successor request uses a plan-compatible payload that retains the exact
+custom branch restriction and omits unsupported reviewer/wait fields. It still
+requires a fresh named operator authority before execution.
+
 ## 6. Exact attended sequence after operator GO
 
 Each item has a stop point and its own receipt:

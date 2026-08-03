@@ -2,7 +2,7 @@
   "schema": "platform-release-cutover-preparation-authority-request.v1",
   "status": "READY_FOR_OPERATOR_DECISION",
   "authority": "not-granted",
-  "preparedAt": "2026-08-03T12:12:01Z",
+  "preparedAt": "2026-08-03T12:57:08Z",
   "sourceEvidenceCommit": "e7d782bdac44198ca4ed63e7211eb8a0db37577f",
   "previousFailedWindow": {
     "authorityCommit": "3d933b1f09ad621d9dfb584c612af9145c319f35",
@@ -12,6 +12,17 @@
     "temporaryKeyUsed": false,
     "productionEnvironmentCreated": false,
     "databaseJobCreated": false
+  },
+  "latestFailedWindow": {
+    "authorityCommit": "7ed3c5d39b23535537452db2615c97dfb703c498",
+    "status": "FAIL_CONTAINED",
+    "failureReceipt": "platform-reliability-r1a-cutover-preparation-plan-failure-20260803.json",
+    "providerCapturePassed": true,
+    "databaseRevisionJobPassed": true,
+    "githubEnvironmentCreateHttpStatus": 422,
+    "partialProductionEnvironmentDeleted": true,
+    "temporaryKeyRevoked": true,
+    "productionEnvironmentPresentAfterCleanup": false
   },
   "immutableRelease": {
     "successorPullRequest": 48,
@@ -75,9 +86,14 @@
   },
   "githubProductionEnvironment": {
     "name": "production",
-    "waitTimerMinutes": 0,
-    "preventSelfReview": false,
-    "reviewers": [],
+    "planGatedProtectionFieldsOmitted": [
+      "wait_timer",
+      "prevent_self_review",
+      "reviewers"
+    ],
+    "expectedProtectionRules": [
+      "branch_policy"
+    ],
     "deploymentBranchPolicy": {
       "protectedBranches": false,
       "customBranchPolicies": true,
@@ -98,8 +114,8 @@
   },
   "githubPayloads": {
     "environment": {
-      "path": "platform-reliability-r1a-github-production-environment-payload-20260803.json",
-      "sha256": "49fdf38cb9513ef9aa6e6e4b5ac0312001beba6c4e28f1213be214cf042e53e5"
+      "path": "platform-reliability-r1a-github-production-environment-payload-v2-20260803.json",
+      "sha256": "2a6cb895a3d98f5f17d7c36082cde31d6870476992d28a86f7950a95109cde1e"
     },
     "branchPolicy": {
       "path": "platform-reliability-r1a-github-production-branch-policy-payload-20260803.json",

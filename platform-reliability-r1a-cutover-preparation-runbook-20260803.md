@@ -11,6 +11,14 @@ This runbook makes that request executable; it does not broaden it. All paths
 below are explicit, every write is no-clobber or externally read back, and no
 cutover workflow is dispatched.
 
+The first environment payload sent zero-value reviewer/wait fields and was
+rejected by GitHub for this private repository's plan. That attempt is
+contained in
+`platform-reliability-r1a-cutover-preparation-plan-failure-20260803.{json,md}`.
+The reviewed v2 payload therefore sends only the supported custom-branch
+selector. It does not request a wait timer or required reviewers; the operator
+GO remains the human authorization boundary.
+
 GitHub API shapes were checked against the official current documentation for
 [environments](https://docs.github.com/en/rest/deployments/environments),
 [deployment branch policies](https://docs.github.com/en/rest/deployments/branch-policies),
@@ -99,8 +107,8 @@ The two committed payloads are the only accepted request bodies. Before use,
 record their SHA-256 and confirm their canonical projections equal the
 authority JSON.
 
-- environment payload:
-  `49fdf38cb9513ef9aa6e6e4b5ac0312001beba6c4e28f1213be214cf042e53e5`;
+- environment payload v2:
+  `2a6cb895a3d98f5f17d7c36082cde31d6870476992d28a86f7950a95109cde1e`;
 - branch-policy payload:
   `81855b2e11d9c0acf9400c523d4609b4902417d9f7c58ad76620ef772d220cee`.
 
@@ -110,7 +118,7 @@ Create the environment, then the one exact branch policy:
 gh api --method PUT \
   -H "X-GitHub-Api-Version: 2026-03-10" \
   repos/Glera/swipe-backend/environments/production \
-  --input platform-reliability-r1a-github-production-environment-payload-20260803.json
+  --input platform-reliability-r1a-github-production-environment-payload-v2-20260803.json
 
 gh api --method POST \
   -H "X-GitHub-Api-Version: 2026-03-10" \
@@ -143,8 +151,8 @@ GET and save bounded receipts for:
 
 The verifier must require all of the following simultaneously:
 
-1. environment name `production`, zero wait, no reviewers and exact custom
-   branch mode;
+1. environment name `production`, exact custom-branch mode, and no
+   `wait_timer` or `required_reviewers` protection rule;
 2. exactly one policy of type `branch` whose name is the reviewed successor
    ref;
 3. environment secret-name set exactly `{RENDER_API_KEY}`;
