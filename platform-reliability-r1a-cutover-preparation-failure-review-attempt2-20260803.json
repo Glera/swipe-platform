@@ -1,0 +1,15 @@
+{
+  "schema": "independent-review-attempt.v1",
+  "status": "NO_VERDICT",
+  "reviewTarget": "R1-A contained pre-cutover failure and hardened retry",
+  "sessionId": "bb5e2131-0483-4dcd-9e9d-55e55a702722",
+  "terminalReason": "budget_exhausted",
+  "result": null,
+  "isError": true,
+  "maxBudgetUsd": 0.3,
+  "reportedCostUsd": 0.3115326,
+  "webSearchRequests": 0,
+  "webFetchRequests": 0,
+  "permissionDenials": [],
+  "authorityEffect": "none"
+}

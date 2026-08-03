@@ -28,6 +28,30 @@ with `mktemp -d`; set its mode to `0700`. Create the Render key handoff as a
 different exclusive temporary file with mode `0600`. Never put the key in a
 command argument, chat, clipboard transcript, receipt or git.
 
+The one-time Render key reveal is a no-observation zone. After submitting the
+key-creation dialog and until the value is stored and that dialog is closed,
+do **not** request a DOM snapshot, screenshot, body/element text, console log,
+clipboard transcript or any other browser/tool output. Use only the already
+grounded unique dialog locator, wait directly for its `code-snippet` textbox,
+read its value into process memory without emitting the result, validate its
+shape without printing it, and write it directly into the pre-created `0600`
+handoff file. Verify only file mode and non-zero size; never print or hash the
+value. Close the reveal dialog before any subsequent browser observation.
+
+The read, validation and file write must occur inside one non-emitting local
+browser-runtime call. The call source may contain the already-created handoff
+path but never the key value. Write through the runtime's filesystem API; do
+not pass the value to a shell, subprocess, command argument, tool parameter,
+clipboard, returned object, stdout or stderr. Do not call any output helper,
+and make the call return no value. The next tool call is permitted only after
+the reveal dialog is closed and the `0600` mode/non-zero-size checks have
+passed without reading the file contents.
+
+If any browser or tool result contains the full key, treat the key as exposed:
+revoke it immediately, verify the API-key list is empty, remove the handoff
+file, publish a bounded FAIL receipt and stop. Do not create a replacement key
+under the same operator GO.
+
 Before reading the key, repeat every action-time stop in the authority JSON:
 exact remote `master`, PR #48/ref, both image runs/artifacts, absent production
 environment, absent repository `RENDER_*` keys, and exact frozen Stage 1 heads.

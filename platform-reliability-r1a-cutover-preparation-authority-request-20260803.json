@@ -2,8 +2,17 @@
   "schema": "platform-release-cutover-preparation-authority-request.v1",
   "status": "READY_FOR_OPERATOR_DECISION",
   "authority": "not-granted",
-  "preparedAt": "2026-08-03T06:52:02Z",
+  "preparedAt": "2026-08-03T12:12:01Z",
   "sourceEvidenceCommit": "e7d782bdac44198ca4ed63e7211eb8a0db37577f",
+  "previousFailedWindow": {
+    "authorityCommit": "3d933b1f09ad621d9dfb584c612af9145c319f35",
+    "status": "FAIL_CONTAINED",
+    "failureReceipt": "platform-reliability-r1a-cutover-preparation-failure-20260803.json",
+    "temporaryKeyRevoked": true,
+    "temporaryKeyUsed": false,
+    "productionEnvironmentCreated": false,
+    "databaseJobCreated": false
+  },
   "immutableRelease": {
     "successorPullRequest": 48,
     "successorHeadSha": "11c9bce9891ae5b041215056ac4521551a056cb5",

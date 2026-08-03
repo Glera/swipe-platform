@@ -1,0 +1,40 @@
+{
+  "schema": "platform-release-cutover-preparation-failure.v1",
+  "status": "FAIL_CONTAINED",
+  "authorityCommit": "3d933b1f09ad621d9dfb584c612af9145c319f35",
+  "windowStartedAt": "2026-08-03T12:04:11Z",
+  "cleanupVerifiedAt": "2026-08-03T12:09:40Z",
+  "failureStage": "temporary-render-api-key-handoff",
+  "failureKind": "secret-value-emitted-in-technical-tool-output",
+  "secretValueRecorded": false,
+  "temporaryKey": {
+    "name": "r1a-precutover-20260803",
+    "created": true,
+    "used": false,
+    "writtenToHandoffFile": false,
+    "revoked": true,
+    "postcondition": "Render UI reports No provisioned API keys"
+  },
+  "actions": {
+    "providerCaptureRuns": 0,
+    "renderApiRequestsWithTemporaryKey": 0,
+    "webServiceJobsCreated": 0,
+    "githubProductionEnvironmentCreates": 0,
+    "githubSecretsWritten": 0,
+    "githubVariablesWritten": 0,
+    "cutoverWorkflowDispatches": 0,
+    "merges": 0,
+    "deploys": 0,
+    "migrations": 0,
+    "imagePublications": 0,
+    "stage1Mutations": 0
+  },
+  "cleanup": {
+    "productionEnvironmentCount": 0,
+    "candidateCutoverRunCount": 0,
+    "handoffFilePresent": false,
+    "receiptTempDirectoryPresent": false,
+    "decisionDeadlineStarted": false
+  },
+  "nextAuthority": "A fresh operator GO must name a new committed packet containing the hardened no-observation handoff procedure."
+}

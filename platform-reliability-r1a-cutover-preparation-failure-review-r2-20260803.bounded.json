@@ -1,0 +1,15 @@
+{
+  "schema": "independent-review-bounded-result.v1",
+  "status": "FINDING",
+  "sessionId": "97ebdc1f-5935-440c-93b0-d9ef428ffe95",
+  "totalCostUsd": 0.195028,
+  "terminalReason": "completed",
+  "webSearchRequests": 0,
+  "webFetchRequests": 0,
+  "finding": {
+    "priority": "P2",
+    "summary": "The no-observation rule did not literally prevent the key value from entering a tool parameter, shell argument, returned object or technical trace during the file-write step."
+  },
+  "otherChecks": "pass",
+  "authorityEffect": "none"
+}

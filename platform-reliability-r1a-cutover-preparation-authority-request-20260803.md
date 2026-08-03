@@ -10,6 +10,16 @@ final cutover GO is a fresh attended production-state capture plus an exact
 GitHub `production` environment. This document requests only that preparation
 window. It does not request merge or deploy authority.
 
+The previous window authorized at
+`3d933b1f09ad621d9dfb584c612af9145c319f35` failed closed during temporary-key
+handoff: the one-time secret reveal entered technical tool output. The unused
+key was immediately revoked, no provider request, database job or GitHub
+environment was created, and cleanup is recorded in
+`platform-reliability-r1a-cutover-preparation-failure-20260803.{json,md}`.
+That authority is consumed. This request can be used again only after the
+hardened runbook and failure receipt are committed and independently accepted,
+and only by an operator GO naming that new commit.
+
 ## Fixed release identities
 
 | Role | Exact value |
