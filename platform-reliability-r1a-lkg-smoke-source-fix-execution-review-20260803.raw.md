@@ -1,0 +1,24 @@
+GO
+
+## Verified against exact heads
+
+**1. Source shape — confirmed.** `git rev-list --count f2a8405..223ab97` = `1`; parent is exactly `f2a8405`. `--numstat`: `1 0` on `.github/workflows/platform-release-image.yml`, `4 0` on `tests/test_platform_release.py` — no other path. Tree `75dbd88045b5b301a903d9bc917c006cd2ceaffe` matches the receipt; working tree clean at that head.
+
+**2. Workflow change — confirmed minimal and correctly placed.** The sole insertion is `.github/workflows/platform-release-image.yml:262`, inside the `docker run --rm --network host` of step *"Prove exact pinned LKG against candidate-head PG16"* (lines 251–274), immediately after `-e EXPECTED_SCHEMA_REVISION` (261) and before the first feature flag (263) and the `/smoke.py:ro` mount (272). The step's `if:` gate, `lkg_ref`, digest, `EXPECTED_SCHEMA_REVISION: ${{ inputs.lkg_max_revision }}`, entrypoint and mount are byte-identical to parent. Build (276–304), publication, Render-fallback, inventory, Stage-0 smoke, manifest, product code and Mission runtime are untouched. The other `-e PYTHONPATH=/app` (line 345) is pre-existing in the Stage-0 `runtime_env` array — outside the bounded block, so it neither changed nor contaminates the count assertion.
+
+**3. Tests — confirmed exact and parent-red for the right reason.** `tests/test_platform_release.py:472-479` bounds `lkg_smoke` between step names *"Prove exact pinned LKG against candidate-head PG16"* and *"Build compact candidate without publication"*. New assertions: `:484` `count("-e PYTHONPATH=/app") == 1` and `:485-487` index-before-`platform-release-lkg-forward-smoke.py:/smoke.py:ro`. On the parent the block contains zero occurrences, so `:484` fails first and alone — matching the recorded red proof (20 passed, 1 failed, `actualCount: 0`, disposable mutation discarded pre-branch). Exact-count (not `in`) also forbids a duplicate argument.
+
+**4. Receipts — internally consistent.** Diff index lines `a2befbf..b8490d5` and `606af8f..7c7afdb` match `preflight.sourceBlobs.workflow/test` and `source.resultBlobs` exactly; insertions 5 / deletions 0 match. The accepted v3 failure evidence (`…candidate-v3-publication-failure-20260803.json:121-159`) pins run `30845173288/1`, step 17 = the same LKG smoke step, `ImportError: cannot import name 'models' from 'app'`, with `WORKDIR /app` + `COPY app ./app` baseline facts — and `scripts/platform-release-lkg-forward-smoke.py:14` does `from app import models` under `--entrypoint python /smoke.py`, so `/app` on `PYTHONPATH` is precisely the missing bootstrap. Local receipts (py 3.13.7 / pytest 9.1.1, 86 passed, guard PASS with policy digest, `diff --check` clean) cover the runbook's required set. Both CI runs are `event: pull_request` on head `223ab97`, success, zero artifacts, `manualDispatches: 0`, `reruns: 0`. Because the LKG smoke step is gated on `workflow_dispatch && inputs.publish`, PR CI provably did not execute it — and no receipt claims behavioral candidate-v4 proof; the execution md explicitly defers it, matching the accepted P3 disposition.
+
+**5. Boundary — confirmed.** PR #53 `draft: true`, `state: OPEN`, title `DO NOT MERGE · R1-A LKG smoke PYTHONPATH fix`; `sourcePushCount: 1`, `secondPush: false`; every `boundary.*` flag false. Post-CI: remote master still `f2a8405`, no GHCR tag for PR head or failed source, production environment and release secrets/variables still absent. Local branch carries exactly the one commit.
+
+**6. Scope of this GO.** Review evidence only. Source merge, candidate-v4 publication, rehearsal and cutover remain separate operator authorities, as stated in the authority request (lines 55–62) and receipt `next`.
+
+## No P1/P2 findings
+
+## P3 advisories (non-blocking, no change required)
+
+- `…source-fix-authority-review-20260803.md:6` records GO on substantive commit `7a93094…`, while `…execution-20260803.json:5` cites operator packet `6093e50…` (the later commit that adds the review + disposition). The chain is coherent and matches the disposition's "final reviewed packet commit" wording, but I could not independently confirm `6093e50`'s contents — Bash git in the meta worktree was denied, so meta verification was file-content only.
+- The disposition promised the receipt would quote the exact `ImportError` and evidence filenames; the JSON does (`:19`, plus `acceptedFailureEvidenceCommit` and four source blob digests), the markdown narrative does not. Traceability is intact via the JSON.
+- `…execution-20260803.json:90` records `pullRequest.base` as a SHA rather than the base branch name; harmless given master is pinned unchanged.
+- Fix efficacy still rests on the pinned LKG image (`sha256:39f354d8…`) using the `/app/app` layout, evidenced only from the baseline Dockerfile blob `47cfc38` in the v3 receipt. Nothing in this stage executes it — correctly deferred to candidate-v4.
