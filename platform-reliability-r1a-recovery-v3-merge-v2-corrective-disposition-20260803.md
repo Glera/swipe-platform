@@ -78,6 +78,11 @@ argv/clipboard/git or returned by a tool. The key was used only for GET
 requests, revoked before merge, proved unusable by exact HTTP 401 and removed
 from the handoff.
 
+The sanitized count/method/tag/length observations remain in the attended
+session transcript as non-secret metadata. That immutable audit residue is
+accepted by this disposition; it cannot reconstruct or narrow the credential
+and requires no deletion.
+
 ### Disposition
 
 **Accept as contained process nonconformity, not a credential exposure.** The
@@ -87,8 +92,10 @@ credential or production mutation to remediate.
 
 For every later Render-key window:
 
-- ground before submit that `code-snippet` is a role=textbox DIV and read it
-  only through `textContent`;
+- pre-commit to the observed Render contract that `code-snippet` appears only
+  after submit as a role=textbox DIV; because the element cannot be inspected
+  before submit, validate its tag/role/shape block-locally inside the final
+  call without emitting diagnostics, then read only `textContent`;
 - the final create/read/write/fsync/`Done`/hidden sequence is one
   non-emitting call;
 - method/tag/count diagnostics after submit are forbidden even when they do
@@ -103,8 +110,17 @@ three repository-pinned imports. Both attempts stopped before any HTTP request.
 The committed capture then ran in a disposable Python 3.13 venv containing
 only the pinned SQLAlchemy, Alembic and rfc8785 packages.
 
-**Accept as P3 execution-note.** Future attended packets must pin the executable
-and dependency bootstrap during preflight, before key creation.
+**Accept as P3 execution-note.** Future attended packets must pin and record
+the executable path plus exact disposable-venv package set during preflight,
+before key creation.
+
+## Independent-review reproduction boundary
+
+The corrective reviewer had a stale local backend checkout and read-only scope
+forbade fetching. It therefore verified merge SHA, parent/tree and GitHub CI
+identities as internally consistent attestations in the committed receipts,
+not by resolving those objects locally. The live GitHub read-after-write proof
+was performed by the operator session and is retained in the machine receipt.
 
 ## Resulting boundary
 

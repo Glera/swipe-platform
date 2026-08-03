@@ -2,8 +2,8 @@
 
 Prepared: 2026-08-03 UTC.
 
-Status: **SOURCE MERGED; TWO AUTHORITY/PROCESS NONCONFORMITIES RECORDED;
-NO PRODUCTION CUTOVER OR DEPLOY**.
+Status: **SOURCE MERGED; TWO AUTHORITY/PROCESS NONCONFORMITIES AND ONE LOCAL
+BOOTSTRAP NOTE RECORDED; NO PRODUCTION CUTOVER OR DEPLOY**.
 
 The operator authorized packet
 `c088b1c7f982fda12d991893509e06e80ad0a003`. Backend PR #52 was merged as
@@ -62,6 +62,8 @@ Two sanitized browser-runtime attempts failed before writing because
 diagnostics were emitted while the reveal remained open; this violated the
 one-call/no-observation wording. A third non-emitting `textContent` transfer
 succeeded. No credential value or derivative entered tool output.
+
+### 3. Local Python bootstrap
 
 The literal `python` alias was also absent and the system interpreter lacked
 the three pinned imports. Those attempts stopped before any HTTP request. The

@@ -18,7 +18,7 @@ candidate publication packet. It grants no operational action.
 Operator form, not an authorization:
 
 > ACCEPT R1-A recovery-v3 merge-window v2 corrective disposition for packet
-> `<exact-reviewed-meta-commit>` only. Accept NC-1 as an authority-document
+> `<exact-reviewed-substantive-commit>` only. Accept NC-1 as an authority-document
 > defect with settled pre-cutover baseline
 > `master + ./Dockerfile.bake`; accept NC-2 as a contained process
 > nonconformity without credential exposure; accept NC-3 as a local bootstrap
@@ -28,3 +28,7 @@ Operator form, not an authorization:
 > no workflow dispatch, image publication, Render key or provider mutation,
 > GitHub-environment mutation, deploy, migration, rehearsal, cutover or Stage 1
 > runtime action.
+
+The final handoff must replace the placeholder in the operator's message with
+the exact independently reviewed substantive commit. The tracked template
+cannot self-pin the SHA of the commit that contains itself.
