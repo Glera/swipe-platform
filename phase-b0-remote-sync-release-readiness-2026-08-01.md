@@ -29,6 +29,7 @@ deploy, publish, payment, product flags or other mutating authority.
 | R1 NO-GO head | `bfab9294913c2f9052bbfbf862a61588aa999e1a` |
 | R2-reviewed remediation head | `6ffa3d0273aace9d4af412a6f0f8d49e70a8e1f2` |
 | R3 remediation head for diff-only review | `b76c4a7914a0950309af3ee5661767522132fa63` |
+| final-stack restic supply-chain hardening | swipe-agents PR #16 `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe` |
 | frozen host policy digest | `ae2ec821c33b06cb288fd92b603b094b8abb6f3fa85dbd157b4390fb8bb0f0cf` |
 | remote attestation schema | `agents.phase-b0-remote-sync-attestation.v2` |
 | host policy schema | `agents.phase-b0-host-policy.v2` |
@@ -43,8 +44,15 @@ PR #13 is based on merged `main`, not stacked on an unmerged branch.
    `b2:<reviewed-bucket>:p4g-phase-b0`. Credentials remain only in the
    runner-owned mode-0600 `agents.env`; subprocess and receipt output contain
    identities only as SHA-256 digests.
-3. The binary is exactly restic 0.19.1 and its physical bytes are bound into
-   both the root-owned remote attestation and the Phase-B0 activation path.
+3. The production binary is the reviewed official Intel-macOS restic 0.19.1
+   release: compressed asset SHA-256
+   `c38d579622cf602f665234c5a8c315030b6cf70656028fe6dc29a786b60e5f35`
+   and decompressed binary SHA-256
+   `b2b553b402b9971b0c3f673d880397a421526f55a08f21fe5b82b5dd9e049a08`.
+   Runtime verifies those physical bytes before every credential-bearing
+   subprocess and binds the digest into both the root-owned remote attestation
+   and the Phase-B0 activation path; matching version text alone is
+   insufficient.
 4. A public remote attestation is publishable only after a remote seed backup
    and a later restore of that exact snapshot with identical relative paths,
    bytes and modes. Restore compares against the backup-time tree digest,
@@ -121,6 +129,7 @@ PR #13 is based on merged `main`, not stacked on an unmerged branch.
 | P3: four negative paths were untested | Executing regressions now cover `insecure_restic`, `restic_identity_changed`, clean provider-probe drift and `receipt_time_regressed`; the time-regression test follows two valid committed receipts. |
 | P3: test-count claim included platform skips | This packet reports literal results only: targeted 40/40 with no skip; full suite 457 passed plus one disclosed timeout; isolated affected file 2/2. |
 | P3: remote-sync logs were unbounded | Wrapper rotates each stream at 1 MiB, keeps one archive, rejects symlink/non-file log paths and applies mode 0600 to the new active file. |
+| Owner audit: version text and receipt binding did not independently approve the installed restic supply chain | Final integration PR #16 source-controls the official Intel-macOS archive URL, archive SHA-256 and decompressed binary SHA-256. The production runtime re-hashes the opened root-owned mode-0555 binary and refuses wrong bytes or platform as `unreviewed_restic_binary` before secrets reach a subprocess. The runbook verifies both artifacts before a separate attended root install. |
 
 ## Verification evidence
 
@@ -143,6 +152,11 @@ PR #13 is based on merged `main`, not stacked on an unmerged branch.
 - Meta-repository verification passed 130/130 with zero skips. The repository's
   authoritative command is `node --test 'scripts/*.test.mjs'`; the unrelated
   legacy workspace `scripts/verify.sh` is not used as evidence for this packet.
+- Final integration head `6ce1ca618f842fe81ae0ce844f760df2b25ea1fe`
+  passed the complete local swipe-agents suite: 74/74 files and 498/498
+  assertions, including the wrong-digest and wrong-platform restic refusals.
+  Exact-head CI run 30766214538 is `SUCCESS`; independent review remains
+  mandatory.
 - The real scheduled-path cycle on this non-UTC Mac remains intentionally
   unproved because restic, the scoped key, root evidence and activation have
   not been installed or issued. It is a post-review, installed-but-unloaded
@@ -169,6 +183,9 @@ The reviewer should attack at least:
 9. restic/B2 output or inherited environment leaking into logs, receipts or
    exception text;
 10. 48-hour window boundary, first/last interval and provider-latest races.
+11. a fake binary that prints the required version but does not match the
+    reviewed official digest, and an otherwise-correct binary on a different
+    architecture; both must refuse before credential-bearing execution.
 
 ## Current physical state at packet creation
 
