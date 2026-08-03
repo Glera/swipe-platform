@@ -1,0 +1,121 @@
+{
+  "schema": "platform-release-cutover-preparation-authority-request.v1",
+  "status": "READY_FOR_OPERATOR_DECISION",
+  "authority": "not-granted",
+  "preparedAt": "2026-08-03T06:52:02Z",
+  "sourceEvidenceCommit": "e7d782bdac44198ca4ed63e7211eb8a0db37577f",
+  "immutableRelease": {
+    "successorPullRequest": 48,
+    "successorHeadSha": "11c9bce9891ae5b041215056ac4521551a056cb5",
+    "successorRef": "codex/r1a-production-cutover-v1-20260802",
+    "baseline": {
+      "buildRunId": 30789375002,
+      "imageDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+      "manifestSha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88"
+    },
+    "candidate": {
+      "buildRunId": 30789817457,
+      "imageDigest": "sha256:1969bd9afeb948d9ab40432dd11e629d22ef37cc863204b97d6f45ef5ff6b8df",
+      "manifestSha256": "1e708f6418ddc88689ab0aae5cd67b7ce65ceb962cc50eaea81d7973b991613b"
+    }
+  },
+  "productionTarget": {
+    "ownerId": "tea-d1m4lmali9vc73euvelg",
+    "blueprintId": "exs-d95qo3q8qa3s73ea23p0",
+    "webServiceId": "srv-d95r3bfavr4c73aqsi4g",
+    "sequencingCronId": "crn-d9kej0u1egvs73engu7g",
+    "materializeCronId": "crn-d9e6vmtaeets73ai8cj0",
+    "databaseId": "dpg-d95r32favr4c73aqs4d0-a",
+    "registryCredentialId": "rgc-d9np7tajnfac73bi5ib0",
+    "databaseIdentity": "swipe-production"
+  },
+  "lastAcceptedState": {
+    "observedAt": "2026-08-02T19:03:32.093657Z",
+    "backendMasterSha": "a12ca7ecea0f47e8862b4ba91879dff63cb46bfc",
+    "databaseRevision": "0070_published_test_delivery",
+    "webDeployId": "dep-d9mtmabm8hqs73cighmg",
+    "sequencingDeployId": "dep-d9mtmabm8hqs73cigjk0",
+    "materializeDeployId": "dep-d9mtmajm8hqs73cigkc0",
+    "blueprintAutoSync": false,
+    "allAutoDeploy": false,
+    "productionEnvironment": "absent"
+  },
+  "requestedWindow": {
+    "kind": "attended-pre-cutover-preparation",
+    "accountWideRenderApiKey": "one-new-temporary-key",
+    "allowedActions": [
+      "create one temporary Render API key for this attended window",
+      "run the reviewed GET-only provider capture against the exact production IDs",
+      "create one Render web-service job whose exact command is alembic current",
+      "create the GitHub production environment with the exact custom branch policy",
+      "write one environment secret named RENDER_API_KEY",
+      "write the six exact environment variables declared below",
+      "read back bounded key-name and policy receipts without exposing secret values",
+      "commit the fresh capture and final cutover packet for independent review"
+    ],
+    "forbiddenActions": [
+      "merge any pull request",
+      "dispatch platform-release-cutover.yml",
+      "invoke prepare-source, deploy, or rollback",
+      "change Render service source, image, environment, Auto Deploy, or Blueprint state",
+      "run alembic upgrade or downgrade",
+      "publish or redispatch an image",
+      "mutate or rebase either Stage 1 implementation branch",
+      "perform any Stage 1 production action"
+    ]
+  },
+  "githubProductionEnvironment": {
+    "name": "production",
+    "waitTimerMinutes": 0,
+    "preventSelfReview": false,
+    "reviewers": [],
+    "deploymentBranchPolicy": {
+      "protectedBranches": false,
+      "customBranchPolicies": true,
+      "allowedBranch": "codex/r1a-production-cutover-v1-20260802"
+    },
+    "secretNames": [
+      "RENDER_API_KEY"
+    ],
+    "variables": {
+      "PLATFORM_DATABASE_IDENTITY": "swipe-production",
+      "PLATFORM_RELEASE_AUTHORITY_SCOPE": "production",
+      "RENDER_BLUEPRINT_ID": "exs-d95qo3q8qa3s73ea23p0",
+      "RENDER_OWNER_ID": "tea-d1m4lmali9vc73euvelg",
+      "RENDER_REGISTRY_CREDENTIAL_ID": "rgc-d9np7tajnfac73bi5ib0",
+      "RENDER_SERVICE_ID": "srv-d95r3bfavr4c73aqsi4g"
+    },
+    "repositoryRenderSecretsAndVariables": []
+  },
+  "stopConditions": [
+    "any reviewed ref or immutable artifact identity differs",
+    "PR 48 is not open, draft, unmerged, and exactly at the reviewed head",
+    "backend master differs from the accepted Stage 0 base",
+    "production environment unexpectedly exists before the authorized create",
+    "any repository-level RENDER_ secret or variable exists",
+    "any production Render ID, owner membership, service name, type, branch, Dockerfile path, consumer set, or registry credential differs",
+    "Blueprint Auto Sync or any of the three Auto Deploy controls is enabled or unreadable",
+    "any deploy, sync, preDeploy, or migration is active",
+    "any latest production deploy differs from the last accepted identity",
+    "database is unavailable, not PostgreSQL 16, or alembic current is not exactly 0070_published_test_delivery",
+    "the environment branch policy, secret-name set, or variable key/value set does not equal this request"
+  ],
+  "requiredReceipts": [
+    "fresh canonical provider capture with observation time and SHA-256",
+    "database revision job create/status/log digests and exact bounded revision",
+    "GitHub production environment GET receipt and custom branch-policy receipt",
+    "environment secret-name and variable key/value receipts with no secret value",
+    "repository secret/variable name receipts proving no repository RENDER_ authority",
+    "temporary Render API-key lifecycle receipt without the key value",
+    "final packet commit and independent GO or exact finding disposition"
+  ],
+  "failureCleanup": {
+    "deleteProductionEnvironmentIfCreated": true,
+    "revokeTemporaryRenderApiKey": true,
+    "preserveDurableGhcrRegistryCredential": true,
+    "renderServiceMutation": false,
+    "merge": false,
+    "deploy": false
+  },
+  "nextAuthority": "A later operator GO must name the final packet commit, fresh capture digest/time, exact current deploy, database revision, successor PR/head, and the fixed baseline/candidate identities before any merge or cutover workflow dispatch."
+}

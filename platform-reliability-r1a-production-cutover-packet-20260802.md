@@ -11,6 +11,11 @@ merge, GitHub production-environment mutation, provider source switch,
 deployment, rollback or Stage 1 action. The next external step remains blocked
 on a fresh attended provider capture and separate operator cutover GO.
 
+The exact bounded request for that preparation is
+`platform-reliability-r1a-cutover-preparation-authority-request-20260803.md`
+plus its machine-readable JSON companion. Its status is authority-not-granted;
+no step in that request may run until the operator names its committed SHA.
+
 ## 1. Accepted rehearsal authority
 
 The corrective disposable run deployed exact candidate-v7, advanced the
