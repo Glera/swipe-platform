@@ -1,7 +1,7 @@
 # Independent review — R1-A recovery after concurrent master advance
 
 Review exact meta proposal commit
-`291e09987f8cc29940ba25afcbfd4307f6f06c42` in the current repository and
+`291e099b0ccf1b9b445053e09f7658c0882d13e6` in the current repository and
 current backend GitHub-authority commit
 `47a0a0a6b4841212c44382c73dbeb0b26037e850`. This is a read-only design and
 safety review. Do not edit files, use the web or call external mutation APIs.
