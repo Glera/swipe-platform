@@ -285,6 +285,14 @@ Blueprint новый hook; последний sync старого Blueprint бы
 `2026-07-30T15:09:14Z`. Точный bounded receipt —
 `platform-reliability-r1-gate-c-render-support-response.json`.
 
+Ответ не устанавливает судьбу уже разрешённых `fromDatabase` env bindings во
+время отсутствия Blueprint. Перед Gate C0 вопрос задаётся повторно в том же
+support thread. Пока provider continuity не подтверждена, оба DB-backed cron
+обязаны быть suspended на всё окно, web не должен рестартовать, а один active
+attempt ограничен 900 секундами. Deadline, pause state и отсутствие web
+restart входят в v2 before/after observations; истечение deadline оставляет
+cron suspended и требует нового baseline + нового operator GO.
+
 Ответ не является terminal proof: до фактической замены старый hook остаётся
 валидным. Удаление/recreation — отдельный destructive `OPERATOR GATE C0` по
 `platform-reliability-r1-gate-c-contract.md`. PASS требует отсутствия старого
@@ -294,6 +302,15 @@ disconnect/reconnect не считается инвалидированием. �
 исполнения закрывает оба incident того же старого hook, включая исторический
 residual. Ни новый Sync Hook incident, ни раскрытие учётных данных базы так
 принять нельзя.
+
+Service/database continuity в Gate C0 имеет evidence class
+`operator_attested`, не provider-verified. Observation v2 сохраняет raw
+bounded non-secret projections (service ID/kind/status/plan/schedule/runtime,
+command, environment key names, structured DB binding and DB configuration),
+а comparator сам вычисляет stable code-point-ordered digests. Caller-supplied
+configuration hashes в observation запрещены. После terminal old-Blueprint
+absence локальная сохранённая копия hook становится inert, но не исчезает:
+она удаляется отдельным cleanup receipt либо получает явного owner/deadline.
 
 Если новый secret-exposure incident возникает уже в окне, текущий action
 останавливается/получает typed containment, и никакой следующий gate-action не
@@ -369,6 +386,15 @@ KILL/rollback: если новый protocol request с Mac не проходит
 receipt фиксируются отдельным reviewable-пакетом. Для текущего окна это
 `platform-reliability-r1-gate-c-contract.md`; чат не является authority для
 состава предусловий.
+
+Если старый Sync Hook ещё не инвалидирован, сначала исполняется отдельный
+`OPERATOR GATE C0`: fresh GO → suspend обоих cron → v2 before observation →
+удаление только старого Blueprint → bounded relink Preview → создание нового
+Blueprint → v2 after observation до 900-second deadline. Cron остаются
+suspended до terminal comparison и отдельного Gate C; при deadline, web
+restart или неожиданном runnable cron окно останавливается без удаления
+какой-либо DB credential. Точная последовательность и stop rules живут в
+Gate C contract.
 
 До sync новый user должен пройти не только `SELECT 1`, но и read-only
 capability audit:

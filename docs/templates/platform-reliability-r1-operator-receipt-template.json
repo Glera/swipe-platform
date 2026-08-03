@@ -175,6 +175,7 @@
         },
         "credentialNegativeProof": null,
         "blueprintContinuity": {
+          "evidenceClass": "operator_attested",
           "before": {
             "observedAt": "{{UTC}}",
             "blueprintId": "exs-d95qo3q8qa3s73ea23p0",

@@ -135,6 +135,11 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
       .blueprintContinuity.comparisonResult,
     'replaced_same_source_and_services',
   );
+  assert.equal(
+    receipt.secretExposureIncidents[1].disposition
+      .blueprintContinuity.evidenceClass,
+    'operator_attested',
+  );
   assert.ok(Array.isArray(receipt.ingressClosure.internalFreshProofs));
   assert.ok(receipt.restoreDrill.beforeObservation.observedDbAt);
   assert.ok(receipt.restoreDrill.afterTerminalRun.runId);
@@ -224,4 +229,10 @@ test('Gate C records the human Render remediation without claiming completion', 
   assert.match(contract, /Delete only old Blueprint/);
   assert.match(contract, /unchanged service IDs/);
   assert.match(contract, /Do not read or expose the new Sync Hook/);
+  assert.match(contract, /fromDatabase\.connectionString/);
+  assert.match(contract, /Suspend `swipe-seq-shadow-run`/);
+  assert.match(contract, /hard deadline no more than 900 seconds/);
+  assert.match(contract, /unconfirmed_compensated_by_quiescence/);
+  assert.match(contract, /evidenceClass=operator_attested/);
+  assert.match(contract, /providerVerifiedServiceContinuity=false/);
 });

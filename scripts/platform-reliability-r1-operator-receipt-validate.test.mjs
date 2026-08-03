@@ -167,6 +167,7 @@ function addBlueprintReplacementIncident(receipt) {
       },
       credentialNegativeProof: null,
       blueprintContinuity: {
+        evidenceClass: 'operator_attested',
         before: {
           observedAt: '2026-07-30T10:51:30Z',
           blueprintId: oldBlueprintId,
@@ -730,6 +731,10 @@ test('accepts provider-supported Blueprint replacement and rejects continuity sh
         .blueprintContinuity.comparisonResult = 'equal';
     },
     (candidate) => {
+      delete candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.evidenceClass;
+    },
+    (candidate) => {
       candidate.consumerClosure.consumers[0].blueprintReferenceId =
         'blueprint-main';
     },
@@ -747,9 +752,32 @@ test('accepts provider-supported Blueprint replacement and rejects continuity sh
         candidate,
         makeValidFinalEvidence(candidate),
       ),
-      /Blueprint|linked services|closed Blueprint target|typed provider target|consumerClosure|sourceBranch|autoSyncState/,
+      /Blueprint|linked services|closed Blueprint target|typed provider target|consumerClosure|sourceBranch|autoSyncState|strict schema/,
     );
   }
+});
+
+test('requires a superseding Blueprint replacement after the superseded observation', () => {
+  const receipt = addBlueprintReplacementIncident(makeValidOperatorReceipt());
+  const prior = clone(receipt.secretExposureIncidents[0]);
+  prior.incidentId = 'r1-window-blueprint-sync-hook-dom-20260730-3';
+  prior.observedAt = '2026-07-30T10:48:00Z';
+  prior.operatorDecision.decisionId = 'r1-decision-20260730-3';
+  prior.operatorDecision.confirmedAt = '2026-07-30T10:49:00Z';
+  prior.disposition.actionId = 'r1-secret-action-20260730-3';
+  prior.disposition.startedAt = '2026-07-30T10:50:00Z';
+  prior.disposition.completedAt = '2026-07-30T10:51:00Z';
+  prior.disposition.providerReceipt.observedAt = '2026-07-30T10:51:00Z';
+  prior.disposition.blueprintContinuity.before.observedAt =
+    '2026-07-30T10:49:30Z';
+  prior.disposition.blueprintContinuity.after.observedAt =
+    '2026-07-30T10:55:00Z';
+  receipt.secretExposureIncidents.push(prior);
+
+  assert.throws(
+    () => validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)),
+    /does not bind the exact closed Blueprint target/,
+  );
 });
 
 test('rejects a secret disposition that remains active across another incident', () => {

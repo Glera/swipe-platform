@@ -10,9 +10,10 @@ of the Blueprint object, and only a later explicit `GO Gate C` permits Render
 
 The first Preview is explicitly stale and must never be approved. It would
 have restored commit-triggered production deploys for the web service and both
-DB-backed cron jobs. Backend PR #49 pins all three to
-`autoDeployTrigger: "off"`; after its independent review and merge, Gate C
-requires a fresh Preview, source SHA and sync identity.
+DB-backed cron jobs. Backend PR #49 was independently reviewed GO and merged
+source-only as `7b41e96ad0d979863159ebdd356122af6295a203`; it pins all three to
+`autoDeployTrigger: "off"`. Gate C requires a fresh Preview, source SHA and
+sync identity after this merge.
 
 PR #49 is deploy-path hardening, not containment for the Sync Hook incident.
 Service commit triggers and the private Blueprint sync trigger are distinct
@@ -30,8 +31,9 @@ separate Gate D.
 
 Every item is mandatory before **Approve**:
 
-1. Backend source includes PR #47 plus reviewed PR #49, and the fresh Preview
-   is pinned to that exact post-merge source SHA. The read-only Alembic check
+1. Backend source includes PR #47 plus reviewed/merged PR #49
+   (`7b41e96ad0d979863159ebdd356122af6295a203`), and the fresh Preview is
+   pinned to the exact then-current source SHA. The read-only Alembic check
    receipt remains reviewed as `exit 0`, SHA-256 `855ec70c…`.
 2. Capability implementation includes meta PR #54 merge
    `6f68be6de57276885633cc95e5c5c539edd5766b` and both required GitHub checks are green:
@@ -101,6 +103,15 @@ detected for relinking. Render also reports the last Blueprint sync at
 `2026-07-30T15:09:14Z`, before this incident. The exact bounded receipt is
 `platform-reliability-r1-gate-c-render-support-response.json`.
 
+Render did **not** establish what happens to already-resolved
+`fromDatabase.connectionString` environment bindings while the owning
+Blueprint object is absent (`serviceRelinkContinuityObserved=false`). A
+follow-up question must remain in the same authenticated support thread; its
+answer, if any, is captured without connection values. Until a provider answer
+is committed, Gate C0 treats this continuity as unconfirmed and compensates by
+quiescing both cron services, forbidding a web restart, and bounding one active
+replacement attempt to 15 minutes.
+
 This response is a remediation contract, not terminal evidence: the old
 Blueprint still exists and its hook is not yet invalidated. Gate C and every
 later operator action therefore remain stopped. A separate `GO Gate C0`,
@@ -117,33 +128,53 @@ Gate C0 is destructive only to the old Blueprint control object. It is not
 authorized to delete, recreate, resize, redeploy or reconfigure any service,
 cron or database. Before its operator confirmation:
 
-1. PR #49 must have an independent GO and be merged. The exact current backend
-   source must declare `autoDeployTrigger: "off"` for the web and both DB-backed
+1. PR #49 has independent GO and is merged at
+   `7b41e96ad0d979863159ebdd356122af6295a203`. The exact current backend source
+   must still declare `autoDeployTrigger: "off"` for the web and both DB-backed
    cron consumers.
-2. Capture a no-secret baseline of the old Blueprint ID, repo/branch/path,
-   Auto Sync `No`, last sync, and the exact service IDs, plans, schedules,
-   commands and database bindings that must survive unchanged.
+2. Capture a read-only, no-secret inventory of the old Blueprint ID,
+   repo/branch/path, Auto Sync `No`, last sync, and the exact service IDs,
+   plans, schedules, and raw non-secret command/environment-key/database-
+   binding projections that must survive unchanged. Comparison hashes are
+   computed from these projections; inputs cannot supply configuration hashes.
 3. Recheck that web, both cron consumers and the source database are healthy;
    both old and new database credentials remain valid.
-4. Show the operator the exact old Blueprint target and obtain a fresh
-   `GO Gate C0` immediately before deletion.
+4. Send the bounded `fromDatabase` continuity question in the already-open
+   Render Support thread. If Render has not answered by the operator window,
+   record `unconfirmed_compensated_by_quiescence`; this is not provider proof.
+5. Show the operator the exact old Blueprint target, both cron targets, the
+   15-minute deadline and rollback boundary, then obtain a fresh `GO Gate C0`.
+   That GO authorizes cron suspension and Blueprint replacement in this one
+   window; it does not authorize credential deletion.
 
 After approval:
 
-1. Delete only old Blueprint `exs-d95qo3q8qa3s73ea23p0`.
-2. Prove the old Blueprint is absent while every baseline service keeps the
+1. Suspend `swipe-seq-shadow-run` and `swipe-c1-materialize`; capture their
+   provider state and prove that no scheduled run can start in the window.
+   Record a start time and hard deadline no more than 900 seconds later.
+2. Capture the v2 `before` observation after suspension. It must show web
+   `live/running`, both cron services `suspended`, no observed web restart and
+   `unconfirmed_compensated_by_quiescence` for the `fromDatabase` question.
+   A later Render answer requires a separately reviewed schema revision; an
+   operator-authored observation cannot upgrade itself to provider-confirmed.
+3. Delete only old Blueprint `exs-d95qo3q8qa3s73ea23p0`.
+4. Prove the old Blueprint is absent while every baseline service keeps the
    same ID and remains available.
-3. Start creation of a new Blueprint from the exact same repo, branch and
+5. Start creation of a new Blueprint from the exact same repo, branch and
    `render.yaml` path. Do not read or expose the new Sync Hook.
-4. Before any final create/apply action, inspect the provider Preview. It must
+6. Before any final create/apply action, inspect the provider Preview. It must
    relink the existing service IDs and must not create/delete a service, change
    plan/storage/schedule/command/source, or enable commit-triggered deploys.
-5. If Render cannot show that bounded Preview before a mutating final action,
-   stop; Blueprint deletion alone is containment, and recreation requires a
-   separately reviewed provider procedure.
-6. After creation, record the different new Blueprint ID, exact source SHA,
+7. If Render cannot show that bounded Preview, if the web restarts, if either
+   cron becomes runnable, or if the 900-second deadline expires, stop. Leave
+   both cron services suspended, retain both database credentials, alert the
+   operator and require a new baseline plus a new explicit GO for any later
+   recreation attempt. Blueprint deletion alone remains containment.
+8. After creation, record the different new Blueprint ID, exact source SHA,
    Auto Sync `No`, unchanged linked service IDs and terminal old-ID absence.
-7. Publish the no-secret observations as
+   Capture the v2 `after` observation before the deadline and while both cron
+   services remain suspended. Do not resume them in Gate C0.
+9. Publish the no-secret observations as
    `platform-reliability-r1-gate-c0-blueprint-before.json` and
    `platform-reliability-r1-gate-c0-blueprint-after.json`, then generate
    `platform-reliability-r1-gate-c0-blueprint-comparison.json` only with:
@@ -156,12 +187,24 @@ After approval:
    ```
 
    A standalone rerun with `--verify-json` must PASS before Gate C is
-   prepared. The final evidence scanner replays this comparison from exact
-   bytes and cross-binds all three files to the operator receipt.
+   prepared. The comparator emits `evidenceClass=operator_attested`,
+   `providerVerifiedServiceContinuity=false` and derives service/database
+   digests from raw bounded projections with code-point ordering and stable
+   object-key ordering. The final evidence scanner replays the comparison
+   from the exact bytes it scanned and cross-binds all three files to the
+   operator receipt.
 
 Any duplicate resource proposal, unexpected deploy/sync, source drift or
 service-ID change is **NO-GO**. The old database credential remains available;
 no database user is deleted in Gate C0.
+
+After terminal replacement, the exposed old hook is inert by the combination
+of Render's human remediation contract and observed terminal absence of the
+old Blueprint. This is not retroactively described as provider-observed
+service continuity. The retained local session file remains a contained copy
+until that terminal proof exists; immediately afterward it must either be
+securely removed under a separate local cleanup receipt or remain an explicitly
+accepted local residual with owner and deletion deadline.
 
 ## Authorized action
 

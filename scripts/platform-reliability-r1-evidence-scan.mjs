@@ -12,9 +12,12 @@ import {
   toMarkdown as deltaToMarkdown,
 } from './platform-reliability-r1-db-delta.mjs';
 import {
-  run as compareBlueprintReplacement,
+  compareBlueprintReplacementEvidence,
 } from './platform-reliability-r1-blueprint-replacement-compare.mjs';
-import { validateOperatorEvidence } from './platform-reliability-r1-operator-receipt-validate.mjs';
+import {
+  REQUIRED_BLUEPRINT_REPLACEMENT_INCIDENT_ID,
+  validateOperatorEvidence,
+} from './platform-reliability-r1-operator-receipt-validate.mjs';
 
 const MAX_ARTIFACT_BYTES = 5 * 1024 * 1024;
 const OUTPUT_RECEIPT = 'platform-reliability-r1-secret-scan-receipt.json';
@@ -382,7 +385,7 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   );
   const snapshotBaseline = readArtifact(root, SNAPSHOT_BASELINE);
   const providerBaseline = readArtifact(root, PROVIDER_BASELINE);
-  readArtifact(root, BLUEPRINT_SUPPORT_RESPONSE);
+  const blueprintSupport = readArtifact(root, BLUEPRINT_SUPPORT_RESPONSE);
   const expectedDelta = analyzeDeltaEvidence({
     beforePath: path.join(root, SNAPSHOT_BASELINE),
     beforeBytes: snapshotBaseline.bytes,
@@ -416,26 +419,29 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   ) {
     fail('delta JSON/Markdown pair does not match the exact evidence inputs');
   }
-  const blueprintBeforePath = path.join(
-    root,
+  const beforeArtifact = byPath.get(
     'platform-reliability-r1-gate-c0-blueprint-before.json',
   );
-  const blueprintAfterPath = path.join(
-    root,
+  const afterArtifact = byPath.get(
     'platform-reliability-r1-gate-c0-blueprint-after.json',
   );
-  const blueprintComparisonPath = path.join(
-    root,
+  const comparisonArtifact = byPath.get(
     'platform-reliability-r1-gate-c0-blueprint-comparison.json',
   );
-  const blueprintValidation = compareBlueprintReplacement([
-    '--before', blueprintBeforePath,
-    '--after', blueprintAfterPath,
-    '--support', path.join(root, BLUEPRINT_SUPPORT_RESPONSE),
-    '--verify-json', blueprintComparisonPath,
-  ]).result;
-  if (!blueprintValidation.replacementSafe) {
-    fail('Blueprint replacement evidence is not terminal-safe');
+  const blueprintValidation = compareBlueprintReplacementEvidence({
+    beforeBytes: beforeArtifact.bytes,
+    afterBytes: afterArtifact.bytes,
+    supportBytes: blueprintSupport.bytes,
+    publishedComparisonBytes: comparisonArtifact.bytes,
+  }).result;
+  if (
+    blueprintValidation.evidenceClass !== 'operator_attested'
+    || blueprintValidation.providerVerifiedServiceContinuity !== false
+    || blueprintValidation.hookDispositionBasis
+      !== 'provider_contract_plus_terminal_old_blueprint_absence'
+    || !blueprintValidation.boundedReplacementConsistent
+  ) {
+    fail('Blueprint replacement evidence is not bounded and internally consistent');
   }
   const operatorValidation = validateOperatorEvidence(
     byPath.get('platform-reliability-r1-operator-receipt.json').decoded,
@@ -446,21 +452,14 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   const replacementIncident = operatorReceipt.secretExposureIncidents.find(
     (incident) => (
       incident.incidentId
-        === 'r1-window-blueprint-sync-hook-dom-20260802-1'
+        === REQUIRED_BLUEPRINT_REPLACEMENT_INCIDENT_ID
     ),
   );
   const replacementDisposition = replacementIncident?.disposition;
-  const beforeArtifact = byPath.get(
-    'platform-reliability-r1-gate-c0-blueprint-before.json',
-  );
-  const afterArtifact = byPath.get(
-    'platform-reliability-r1-gate-c0-blueprint-after.json',
-  );
-  const comparisonArtifact = byPath.get(
-    'platform-reliability-r1-gate-c0-blueprint-comparison.json',
-  );
   if (
     replacementDisposition?.providerMethod !== 'replace_blueprint'
+    || replacementDisposition.blueprintContinuity.evidenceClass
+      !== blueprintValidation.evidenceClass
     || replacementDisposition.providerReceipt.evidenceSha256
       !== afterArtifact.metadata.sha256
     || replacementDisposition.terminalProofSha256
@@ -531,6 +530,9 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
     blueprintReplacementValidation: {
       schema: blueprintValidation.schema,
       status: 'pass',
+      evidenceClass: blueprintValidation.evidenceClass,
+      providerVerifiedServiceContinuity:
+        blueprintValidation.providerVerifiedServiceContinuity,
       beforeSha256: blueprintValidation.beforeSha256,
       afterSha256: blueprintValidation.afterSha256,
       supportSha256: blueprintValidation.supportSha256,

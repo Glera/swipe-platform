@@ -29,9 +29,16 @@ function fixture() {
       status: 'live',
       plan: 'starter',
       schedule: null,
-      commandSha256: hash('1'),
-      databaseBindingSha256: hash('2'),
-      environmentShapeSha256: hash('3'),
+      executionState: 'running',
+      runtime: 'docker',
+      dockerfilePath: './Dockerfile.bake',
+      dockerCommand: null,
+      environmentKeyNames: ['PUBLIC_BASE_URL', 'DATABASE_URL'],
+      databaseBinding: {
+        environmentKey: 'DATABASE_URL',
+        sourceDatabaseServiceId: 'dpg-source',
+        sourceProperty: 'connectionString',
+      },
     },
     {
       serviceId: 'srv-cron-b',
@@ -39,9 +46,16 @@ function fixture() {
       status: 'available',
       plan: 'starter',
       schedule: '0 * * * *',
-      commandSha256: hash('4'),
-      databaseBindingSha256: hash('5'),
-      environmentShapeSha256: hash('6'),
+      executionState: 'suspended',
+      runtime: 'docker',
+      dockerfilePath: './Dockerfile.bake',
+      dockerCommand: 'python -m app.content_analytics run-once',
+      environmentKeyNames: ['ENABLE_CONTENT_ANALYTICS', 'DATABASE_URL'],
+      databaseBinding: {
+        environmentKey: 'DATABASE_URL',
+        sourceDatabaseServiceId: 'dpg-source',
+        sourceProperty: 'connectionString',
+      },
     },
     {
       serviceId: 'srv-cron-a',
@@ -49,19 +63,38 @@ function fixture() {
       status: 'available',
       plan: 'starter',
       schedule: '15 * * * *',
-      commandSha256: hash('7'),
-      databaseBindingSha256: hash('8'),
-      environmentShapeSha256: hash('9'),
+      executionState: 'suspended',
+      runtime: 'docker',
+      dockerfilePath: './Dockerfile.bake',
+      dockerCommand: 'python -m app.feed_sequencing_shadow_runner run-once',
+      environmentKeyNames: ['ENABLE_FEED_SEQUENCING_SHADOW_OPS', 'DATABASE_URL'],
+      databaseBinding: {
+        environmentKey: 'DATABASE_URL',
+        sourceDatabaseServiceId: 'dpg-source',
+        sourceProperty: 'connectionString',
+      },
     },
   ];
   const common = {
-    schema: 'platform-reliability-r1-blueprint-replacement-observation.v1',
+    schema: 'platform-reliability-r1-blueprint-replacement-observation.v2',
     sourceDatabase: {
       serviceId: 'dpg-source',
       status: 'available',
-      configurationSha256: hash('a'),
+      plan: 'basic-256mb',
+      logicalDatabaseName: 'swipe-db',
+      postgresMajorVersion: 16,
+      allocatedStorageGiB: 1,
+      storageAutoscalingEnabled: false,
     },
     services,
+    safetyWindow: {
+      startedAt: '2026-08-03T07:00:00Z',
+      deadlineAt: '2026-08-03T07:15:00Z',
+      maximumDurationSeconds: 900,
+      cronExecutionState: 'suspended',
+      webRestartObserved: false,
+      providerFromDatabaseContinuity: 'unconfirmed_compensated_by_quiescence',
+    },
     hookValueObserved: false,
     secretsCaptured: false,
   };
@@ -93,24 +126,38 @@ function fixture() {
       blueprintId: oldBlueprintId,
       observedAt: '2026-08-03T07:05:00Z',
       terminalOutcome: 'not_found',
-      evidenceSha256: hash('b'),
+      observationSurface: 'authenticated_render_dashboard_blueprint_lookup',
     },
   };
   const support = {
     schema: 'platform-reliability-r1-render-support-response.v1',
+    observedAt: '2026-08-03T06:42:17Z',
+    channel: 'authenticated_render_dashboard_support_conversation',
+    responseActorKind: 'human_render_support_agent',
+    responseDate: '2026-08-03',
+    responseTimestampPrecision: 'date_only',
     affectedBlueprintId: oldBlueprintId,
     affectedBlueprintIdentitySha256: `sha256:${digest(oldBlueprintId)}`,
     providerStatements: {
       supportedRemediation: 'delete_existing_blueprint_then_create_new_blueprint',
       oldHookInvalidatedByRemediation: true,
+      newBlueprintReceivesNewHook: true,
       existingServicesDeletedWithBlueprint: false,
       existingServicesExpectedToRelinkByDetection: true,
       lastObservedSyncAt: '2026-07-30T15:09:14Z',
+      hookCanInitiateBlueprintSync: true,
+      hookAloneCanChangeConnectedRepository: false,
+      providerIncidentAssessment: 'fairly_minor',
     },
     evidenceLimits: {
       providerHasNotExecutedRemediation: true,
       oldHookTerminallyInvalidated: false,
+      serviceRelinkContinuityObserved: false,
+      providerSideActorAuditProvided: false,
+      lastSyncTimestampImpliesNoPostExposureSync: true,
     },
+    nextAuthorizedBoundary: 'operator_go_required_before_blueprint_delete_recreate',
+    secretValueSubmitted: false,
     secretValueCaptured: false,
   };
   return { before, after, support };
@@ -137,10 +184,16 @@ test('proves a different Blueprint with exact source and service continuity', ()
     '--after', paths.after,
     '--support', paths.support,
   ]);
-  assert.equal(result.replacementSafe, true);
+  assert.equal(result.boundedReplacementConsistent, true);
+  assert.equal(result.evidenceClass, 'operator_attested');
+  assert.equal(result.providerVerifiedServiceContinuity, false);
+  assert.equal(
+    result.hookDispositionBasis,
+    'provider_contract_plus_terminal_old_blueprint_absence',
+  );
   assert.deepEqual(result.differences, []);
   assert.equal(result.oldBlueprintAbsent, true);
-  assert.equal(result.autoSyncDisabled, true);
+  assert.equal(result.executionQuiescenceObserved, true);
   assert.equal(result.secretsCaptured, false);
   fs.writeFileSync(paths.comparison, output);
   const verified = run([
@@ -149,7 +202,7 @@ test('proves a different Blueprint with exact source and service continuity', ()
     '--support', paths.support,
     '--verify-json', paths.comparison,
   ]);
-  assert.equal(verified.result.replacementSafe, true);
+  assert.equal(verified.result.boundedReplacementConsistent, true);
 });
 
 test('reports source, service, database, identity, and absence drift', () => {
@@ -164,7 +217,7 @@ test('reports source, service, database, identity, and absence drift', () => {
       candidate.after.services[0].plan = 'pro';
     },
     (candidate) => {
-      candidate.after.sourceDatabase.configurationSha256 = hash('c');
+      candidate.after.sourceDatabase.plan = 'different';
     },
     (candidate) => {
       candidate.after.oldBlueprintAbsence.blueprintId = 'exs-other';
@@ -187,7 +240,7 @@ test('reports source, service, database, identity, and absence drift', () => {
       '--after', paths.after,
       '--support', paths.support,
     ]);
-    assert.equal(result.replacementSafe, false);
+    assert.equal(result.boundedReplacementConsistent, false);
     assert.ok(result.differences.length >= 1);
   }
 });
@@ -208,6 +261,23 @@ test('fails closed on unsafe observation structure and stale comparison bytes', 
     },
     (candidate) => {
       candidate.after.extra = true;
+    },
+    (candidate) => {
+      candidate.before.services[1].executionState = 'running';
+    },
+    (candidate) => {
+      candidate.after.safetyWindow.deadlineAt = '2026-08-03T07:15:01Z';
+    },
+    (candidate) => {
+      candidate.after.services[0].databaseBinding.sourceDatabaseServiceId =
+        'dpg-foreign';
+    },
+    (candidate) => {
+      candidate.before.services[0].commandSha256 = hash('f');
+    },
+    (candidate) => {
+      candidate.before.safetyWindow.providerFromDatabaseContinuity =
+        'provider_confirmed';
     },
   ];
   for (const mutate of structuralCases) {
@@ -238,6 +308,84 @@ test('fails closed on unsafe observation structure and stale comparison bytes', 
   );
 });
 
+test('rejects forged or broadened support authority', () => {
+  for (const mutate of [
+    (candidate) => {
+      candidate.support.responseActorKind = 'automated_bot_reply';
+    },
+    (candidate) => {
+      candidate.support.channel = 'anonymous_forum_post';
+    },
+    (candidate) => {
+      candidate.support.nextAuthorizedBoundary = 'no_operator_go_required';
+    },
+    (candidate) => {
+      candidate.support.secretValueSubmitted = true;
+    },
+    (candidate) => {
+      candidate.support.observedAt = 'not-a-timestamp';
+    },
+    (candidate) => {
+      candidate.support.responseDate = '2026-02-31';
+    },
+    (candidate) => {
+      candidate.support.providerStatements.unreviewedAuthority = true;
+    },
+    (candidate) => {
+      candidate.support.evidenceLimits.providerSideActorAuditProvided = true;
+    },
+  ]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
+    const candidate = fixture();
+    mutate(candidate);
+    const paths = writeFixture(root, candidate);
+    assert.throws(
+      () => run([
+        '--before', paths.before,
+        '--after', paths.after,
+        '--support', paths.support,
+      ]),
+      /support response|canonical UTC/,
+    );
+  }
+});
+
+test('derives locale-independent service digests from raw projections', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
+  const candidate = fixture();
+  candidate.before.services[1].serviceId = 'd95zq3';
+  candidate.after.services[1].serviceId = 'd95zq3';
+  candidate.before.services[2].serviceId = 'd95tq3';
+  candidate.after.services[2].serviceId = 'd95tq3';
+  const paths = writeFixture(root, candidate);
+  const executeWithLocale = (locale) => JSON.parse(execFileSync(
+    process.execPath,
+    [
+      SCRIPT,
+      '--before', paths.before,
+      '--after', paths.after,
+      '--support', paths.support,
+    ],
+    {
+      encoding: 'utf8',
+      env: { ...process.env, LANG: locale, LC_ALL: locale },
+    },
+  ));
+  const resultA = executeWithLocale('en_US.UTF-8');
+  const resultB = executeWithLocale('et_EE.UTF-8');
+
+  assert.equal(
+    resultA.linkedServiceIdsSha256,
+    resultB.linkedServiceIdsSha256,
+  );
+  assert.equal(
+    resultA.linkedServiceConfigurationSha256,
+    resultB.linkedServiceConfigurationSha256,
+  );
+  assert.equal(resultA.boundedReplacementConsistent, true);
+  assert.equal(resultB.boundedReplacementConsistent, true);
+});
+
 test('CLI exits 0 for continuity, 2 for drift, and rejects unknown options', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
   const paths = writeFixture(root);
@@ -247,7 +395,7 @@ test('CLI exits 0 for continuity, 2 for drift, and rejects unknown options', () 
     '--after', paths.after,
     '--support', paths.support,
   ], { encoding: 'utf8' });
-  assert.equal(JSON.parse(output).replacementSafe, true);
+  assert.equal(JSON.parse(output).boundedReplacementConsistent, true);
 
   const drift = fixture();
   drift.after.services[0].plan = 'pro';
@@ -259,7 +407,7 @@ test('CLI exits 0 for continuity, 2 for drift, and rejects unknown options', () 
     '--support', driftPaths.support,
   ], { encoding: 'utf8' });
   assert.equal(driftRun.status, 2);
-  assert.equal(JSON.parse(driftRun.stdout).replacementSafe, false);
+  assert.equal(JSON.parse(driftRun.stdout).boundedReplacementConsistent, false);
 
   const invalid = spawnSync(process.execPath, [SCRIPT, '--unknown', 'x'], {
     encoding: 'utf8',

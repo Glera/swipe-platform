@@ -161,21 +161,39 @@ function writeValidBlueprintEvidence(root, receipt) {
     status: consumer.kind === 'web' ? 'live' : 'available',
     plan: 'starter',
     schedule: consumer.kind === 'web' ? null : `${index} * * * *`,
-    commandSha256: crypto.createHash('sha256')
-      .update(`command-${consumer.serviceId}`).digest('hex'),
-    databaseBindingSha256: crypto.createHash('sha256')
-      .update(`binding-${consumer.serviceId}`).digest('hex'),
-    environmentShapeSha256: crypto.createHash('sha256')
-      .update(`environment-${consumer.serviceId}`).digest('hex'),
+    executionState: consumer.kind === 'web' ? 'running' : 'suspended',
+    runtime: 'docker',
+    dockerfilePath: './Dockerfile.bake',
+    dockerCommand: consumer.kind === 'web'
+      ? null
+      : `python -m app.test_runner ${index}`,
+    environmentKeyNames: ['DATABASE_URL', `SAFE_KEY_${index}`],
+    databaseBinding: {
+      environmentKey: 'DATABASE_URL',
+      sourceDatabaseServiceId: receipt.sourceDatabaseServiceId,
+      sourceProperty: 'connectionString',
+    },
   }));
   const common = {
-    schema: 'platform-reliability-r1-blueprint-replacement-observation.v1',
+    schema: 'platform-reliability-r1-blueprint-replacement-observation.v2',
     sourceDatabase: {
       serviceId: receipt.sourceDatabaseServiceId,
       status: 'available',
-      configurationSha256: 'a'.repeat(64),
+      plan: 'basic-256mb',
+      logicalDatabaseName: 'swipe-db',
+      postgresMajorVersion: 16,
+      allocatedStorageGiB: 1,
+      storageAutoscalingEnabled: false,
     },
     services,
+    safetyWindow: {
+      startedAt: '2026-08-03T07:00:00Z',
+      deadlineAt: '2026-08-03T07:15:00Z',
+      maximumDurationSeconds: 900,
+      cronExecutionState: 'suspended',
+      webRestartObserved: false,
+      providerFromDatabaseContinuity: 'unconfirmed_compensated_by_quiescence',
+    },
     hookValueObserved: false,
     secretsCaptured: false,
   };
@@ -207,7 +225,7 @@ function writeValidBlueprintEvidence(root, receipt) {
       blueprintId: oldBlueprintId,
       observedAt: '2026-08-03T07:05:00Z',
       terminalOutcome: 'not_found',
-      evidenceSha256: 'b'.repeat(64),
+      observationSurface: 'authenticated_render_dashboard_blueprint_lookup',
     },
   };
   const beforePath = path.join(
@@ -281,6 +299,7 @@ function writeValidBlueprintEvidence(root, receipt) {
       },
       credentialNegativeProof: null,
       blueprintContinuity: {
+        evidenceClass: comparison.result.evidenceClass,
         before: {
           observedAt: before.observedAt,
           blueprintId: oldBlueprintId,
@@ -406,6 +425,14 @@ test('scans the exact git patch manifest and emits only hashes', () => {
     assert.match(result.deltaAnalyzerSourceSha256, /^[a-f0-9]{64}$/);
     assert.match(result.blueprintComparatorSourceSha256, /^[a-f0-9]{64}$/);
     assert.equal(result.blueprintReplacementValidation.status, 'pass');
+    assert.equal(
+      result.blueprintReplacementValidation.evidenceClass,
+      'operator_attested',
+    );
+    assert.equal(
+      result.blueprintReplacementValidation.providerVerifiedServiceContinuity,
+      false,
+    );
     for (const artifact of result.requiredFiles) {
       assert.match(artifact.sha256, /^[a-f0-9]{64}$/);
       assert.equal(Object.hasOwn(artifact, 'content'), false);
@@ -547,6 +574,96 @@ test('rejects stale or unbound Blueprint replacement evidence', () => {
     } finally {
       files.cleanup();
     }
+  }
+});
+
+test('rejects non-exact comparison bytes even when the receipt rebinds their hash', () => {
+  const files = fixture();
+  try {
+    const comparisonPath = path.join(
+      files.root,
+      'platform-reliability-r1-gate-c0-blueprint-comparison.json',
+    );
+    const comparison = JSON.parse(fs.readFileSync(comparisonPath, 'utf8'));
+    comparison.callerAuthored = true;
+    fs.writeFileSync(comparisonPath, `${JSON.stringify(comparison, null, 2)}\n`);
+    const comparisonSha256 = crypto.createHash('sha256')
+      .update(fs.readFileSync(comparisonPath)).digest('hex');
+    const receiptPath = path.join(
+      files.root,
+      'platform-reliability-r1-operator-receipt.json',
+    );
+    const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+    receipt.secretExposureIncidents[1].disposition.terminalProofSha256 =
+      comparisonSha256;
+    fs.writeFileSync(receiptPath, `${JSON.stringify(receipt)}\n`);
+    fs.writeFileSync(
+      path.join(files.root, 'platform-reliability-r1-final-evidence.md'),
+      makeValidFinalEvidence(receipt),
+    );
+
+    assert.throws(
+      () => scan(files.root),
+      /published comparison does not match the exact inputs/,
+    );
+  } finally {
+    files.cleanup();
+  }
+});
+
+test('rejects an exact but inconsistent Blueprint comparison before receipt binding', () => {
+  const files = fixture();
+  try {
+    const beforePath = path.join(
+      files.root,
+      'platform-reliability-r1-gate-c0-blueprint-before.json',
+    );
+    const afterPath = path.join(
+      files.root,
+      'platform-reliability-r1-gate-c0-blueprint-after.json',
+    );
+    const supportPath = path.join(
+      files.root,
+      'platform-reliability-r1-gate-c-render-support-response.json',
+    );
+    const comparisonPath = path.join(
+      files.root,
+      'platform-reliability-r1-gate-c0-blueprint-comparison.json',
+    );
+    const after = JSON.parse(fs.readFileSync(afterPath, 'utf8'));
+    after.oldBlueprintAbsence.observedAt = '2026-08-03T07:04:59Z';
+    fs.writeFileSync(afterPath, `${JSON.stringify(after, null, 2)}\n`);
+    const comparison = compareBlueprintReplacement([
+      '--before', beforePath,
+      '--after', afterPath,
+      '--support', supportPath,
+    ]);
+    assert.equal(comparison.result.boundedReplacementConsistent, false);
+    fs.writeFileSync(comparisonPath, comparison.output);
+
+    const fileSha256 = (target) => crypto.createHash('sha256')
+      .update(fs.readFileSync(target)).digest('hex');
+    const receiptPath = path.join(
+      files.root,
+      'platform-reliability-r1-operator-receipt.json',
+    );
+    const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+    const disposition = receipt.secretExposureIncidents[1].disposition;
+    disposition.providerReceipt.evidenceSha256 = fileSha256(afterPath);
+    disposition.blueprintContinuity.after.evidenceSha256 = fileSha256(afterPath);
+    disposition.terminalProofSha256 = fileSha256(comparisonPath);
+    fs.writeFileSync(receiptPath, `${JSON.stringify(receipt)}\n`);
+    fs.writeFileSync(
+      path.join(files.root, 'platform-reliability-r1-final-evidence.md'),
+      makeValidFinalEvidence(receipt),
+    );
+
+    assert.throws(
+      () => scan(files.root),
+      /not bounded and internally consistent/,
+    );
+  } finally {
+    files.cleanup();
   }
 });
 

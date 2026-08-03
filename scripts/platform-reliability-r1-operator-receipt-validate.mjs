@@ -21,8 +21,10 @@ export const R1_COMPLETION_REQUIREMENTS = Object.freeze([
 ]);
 
 const GATES = Object.freeze(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
-const REQUIRED_SECRET_EXPOSURE_ID =
+export const REQUIRED_SECRET_EXPOSURE_ID =
   'r1-prewindow-blueprint-sync-hook-dom-20260729';
+export const REQUIRED_BLUEPRINT_REPLACEMENT_INCIDENT_ID =
+  'r1-window-blueprint-sync-hook-dom-20260802-1';
 const REQUIRED_SECRET_EXPOSURE_KIND =
   'render_blueprint_sync_hook_dom_exposure';
 const REQUIRED_SECRET_EXPOSURE_OBSERVED_AT = '2026-07-29T15:01:19Z';
@@ -227,6 +229,7 @@ function incidentEvidenceLine(incident) {
           + `\`sha256:${disposition.blueprintContinuity.after.linkedServiceIdsSha256}\` / `
           + `configuration \`sha256:${disposition.blueprintContinuity.before.linkedServiceConfigurationSha256}\` -> `
           + `\`sha256:${disposition.blueprintContinuity.after.linkedServiceConfigurationSha256}\` / `
+          + `evidence class \`${disposition.blueprintContinuity.evidenceClass}\` / `
           + `auto sync \`${disposition.blueprintContinuity.before.autoSyncState}\` -> `
           + `\`${disposition.blueprintContinuity.after.autoSyncState}\` / `
         )
@@ -1448,17 +1451,29 @@ export function validateOperatorEvidence(
       );
     }
     const blueprintContinuity = disposition.blueprintContinuity;
+    const replacement = providerMethod === 'replace_blueprint';
     exactKeys(
       blueprintContinuity,
       `${location}.disposition.blueprintContinuity`,
-      ['before', 'after', 'comparisonResult'],
+      [
+        'before',
+        'after',
+        'comparisonResult',
+        ...(replacement ? ['evidenceClass'] : []),
+      ],
     );
+    if (replacement) {
+      enumValue(
+        blueprintContinuity.evidenceClass,
+        `${location}.disposition.blueprintContinuity.evidenceClass`,
+        ['operator_attested'],
+      );
+    }
     const continuityObservations = {};
     for (const phase of ['before', 'after']) {
       const observation = blueprintContinuity[phase];
       const observationLocation =
         `${location}.disposition.blueprintContinuity.${phase}`;
-      const replacement = providerMethod === 'replace_blueprint';
       exactKeys(observation, observationLocation, [
         'observedAt',
         'blueprintId',
@@ -1537,17 +1552,9 @@ export function validateOperatorEvidence(
         && continuityObservations.after.observedAt
           > gateBounds.get('A').gateStart
       );
-    const replacement = providerMethod === 'replace_blueprint';
-    const sourceIdentity = (observation) => JSON.stringify({
-      sourceRepository: observation.sourceRepository,
-      sourceBranch: observation.sourceBranch,
-      blueprintPath: observation.blueprintPath,
-    });
     const replacementContinuityInvalid = replacement && (
       continuityObservations.before.blueprintId
         === continuityObservations.after.blueprintId
-      || sourceIdentity(continuityObservations.before)
-        !== sourceIdentity(continuityObservations.after)
       || continuityObservations.before.linkedServiceIdsSha256
         !== continuityObservations.after.linkedServiceIdsSha256
       || continuityObservations.before.linkedServiceIdsSha256
@@ -1558,8 +1565,6 @@ export function validateOperatorEvidence(
         !== continuityObservations.after.sourceSha
       || consumerSourceShas.size !== 1
       || !consumerSourceShas.has(continuityObservations.before.sourceSha)
-      || continuityObservations.before.autoSyncState !== 'disabled'
-      || continuityObservations.after.autoSyncState !== 'disabled'
       || blueprintContinuity.comparisonResult
         !== 'replaced_same_source_and_services'
     );
@@ -1619,10 +1624,10 @@ export function validateOperatorEvidence(
       observedAt,
       dispositionStartedAt,
       dispositionCompletedAt,
-      acceptedRenderResidual,
       providerMethod,
       continuityBeforeBlueprintId: continuityObservations.before.blueprintId,
       continuityAfterBlueprintId: continuityObservations.after.blueprintId,
+      continuityAfterObservedAt: continuityObservations.after.observedAt,
     });
     if (observedAt < windowStart) {
       if (dispositionCompletedAt > gateBounds.get('A').gateStart) {
@@ -1668,6 +1673,8 @@ export function validateOperatorEvidence(
         && candidate.continuityBeforeBlueprintId
           === incident.continuityAfterBlueprintId
         && candidate.continuityAfterBlueprintId === finalBlueprintId
+        && candidate.dispositionCompletedAt
+          >= incident.continuityAfterObservedAt
       ),
     );
     if (!supersedingReplacement) {

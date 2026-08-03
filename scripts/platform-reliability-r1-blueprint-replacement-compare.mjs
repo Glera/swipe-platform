@@ -6,14 +6,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const OBSERVATION_SCHEMA =
-  'platform-reliability-r1-blueprint-replacement-observation.v1';
+  'platform-reliability-r1-blueprint-replacement-observation.v2';
 const COMPARISON_SCHEMA =
-  'platform-reliability-r1-blueprint-replacement-comparison.v1';
+  'platform-reliability-r1-blueprint-replacement-comparison.v2';
 const SUPPORT_SCHEMA = 'platform-reliability-r1-render-support-response.v1';
 const INCIDENT_OBSERVED_AT = '2026-08-02T19:10:00Z';
+const MAXIMUM_REPLACEMENT_WINDOW_SECONDS = 15 * 60;
 const SHA256_RE = /^[a-f0-9]{64}$/;
 const GIT_SHA_RE = /^[a-f0-9]{40}$/;
-const SAFE_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
+const SAFE_ID_RE = /^[a-z0-9][a-z0-9._:-]{0,127}$/;
+const ENVIRONMENT_KEY_RE = /^[A-Z][A-Z0-9_]{0,127}$/;
 
 function fail(message) {
   throw new Error(message);
@@ -88,6 +90,35 @@ function booleanValue(value, label) {
   return value;
 }
 
+function integerValue(value, label, minimum, maximum) {
+  if (
+    !Number.isSafeInteger(value)
+    || value < minimum
+    || value > maximum
+  ) {
+    fail(`${label} must be an integer between ${minimum} and ${maximum}`);
+  }
+  return value;
+}
+
+function codePointCompare(left, right) {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
+function stableValue(value) {
+  if (Array.isArray(value)) return value.map(stableValue);
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort(codePointCompare)
+        .map((key) => [key, stableValue(value[key])]),
+    );
+  }
+  return value;
+}
+
 function nullableUtc(value, label) {
   if (value === null) return value;
   return utcValue(value, label);
@@ -117,12 +148,25 @@ function utcValue(value, label) {
   return value;
 }
 
+function utcDateValue(value, label) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    fail(`${label} must be a canonical UTC date`);
+  }
+  const timestamp = Date.parse(`${value}T00:00:00.000Z`);
+  if (
+    !Number.isFinite(timestamp)
+    || new Date(timestamp).toISOString().slice(0, 10) !== value
+  ) {
+    fail(`${label} must be a real UTC date`);
+  }
+  return value;
+}
+
 function sha256(bytes) {
   return crypto.createHash('sha256').update(bytes).digest('hex');
 }
 
-function readJson(filePath, label) {
-  const bytes = fs.readFileSync(filePath);
+function parseJsonBytes(bytes, label) {
   let value;
   try {
     value = JSON.parse(bytes.toString('utf8'));
@@ -139,32 +183,93 @@ function parseService(value, label) {
     'status',
     'plan',
     'schedule',
-    'commandSha256',
-    'databaseBindingSha256',
-    'environmentShapeSha256',
+    'executionState',
+    'runtime',
+    'dockerfilePath',
+    'dockerCommand',
+    'environmentKeyNames',
+    'databaseBinding',
   ], label);
+  const kind = enumValue(value.kind, ['web', 'cron'], `${label}.kind`);
+  const status = enumValue(
+    value.status,
+    ['available', 'live'],
+    `${label}.status`,
+  );
+  const executionState = enumValue(
+    value.executionState,
+    ['running', 'suspended'],
+    `${label}.executionState`,
+  );
+  if (
+    (kind === 'web' && (status !== 'live' || executionState !== 'running'))
+    || (kind === 'cron' && executionState !== 'suspended')
+  ) {
+    fail(`${label} does not prove web-live / cron-suspended quiescence`);
+  }
+  if (!Array.isArray(value.environmentKeyNames) || value.environmentKeyNames.length < 1) {
+    fail(`${label}.environmentKeyNames must be a nonempty array`);
+  }
+  const environmentKeyNames = value.environmentKeyNames.map((key, index) => {
+    if (typeof key !== 'string' || !ENVIRONMENT_KEY_RE.test(key)) {
+      fail(`${label}.environmentKeyNames[${index}] is invalid`);
+    }
+    return key;
+  }).sort(codePointCompare);
+  if (new Set(environmentKeyNames).size !== environmentKeyNames.length) {
+    fail(`${label}.environmentKeyNames contains a duplicate`);
+  }
+  if (!environmentKeyNames.includes('DATABASE_URL')) {
+    fail(`${label}.environmentKeyNames must include the database binding key`);
+  }
+  exactKeys(value.databaseBinding, [
+    'environmentKey',
+    'sourceDatabaseServiceId',
+    'sourceProperty',
+  ], `${label}.databaseBinding`);
+  const databaseBinding = {
+    environmentKey: enumValue(
+      value.databaseBinding.environmentKey,
+      ['DATABASE_URL'],
+      `${label}.databaseBinding.environmentKey`,
+    ),
+    sourceDatabaseServiceId: safeId(
+      value.databaseBinding.sourceDatabaseServiceId,
+      `${label}.databaseBinding.sourceDatabaseServiceId`,
+    ),
+    sourceProperty: enumValue(
+      value.databaseBinding.sourceProperty,
+      ['connectionString'],
+      `${label}.databaseBinding.sourceProperty`,
+    ),
+  };
+  const schedule = nullableString(value.schedule, `${label}.schedule`);
+  const dockerCommand = nullableString(
+    value.dockerCommand,
+    `${label}.dockerCommand`,
+  );
+  if ((kind === 'web' && schedule !== null) || (kind === 'cron' && schedule === null)) {
+    fail(`${label}.schedule does not match the service kind`);
+  }
+  if (kind === 'cron' && dockerCommand === null) {
+    fail(`${label}.dockerCommand must be present for a cron service`);
+  }
   return {
     serviceId: safeId(value.serviceId, `${label}.serviceId`),
-    kind: enumValue(value.kind, ['web', 'cron', 'worker'], `${label}.kind`),
-    status: enumValue(
-      value.status,
-      ['available', 'live'],
-      `${label}.status`,
-    ),
+    kind,
+    status,
     plan: safeString(value.plan, `${label}.plan`),
-    schedule: nullableString(value.schedule, `${label}.schedule`),
-    commandSha256: sha256Value(
-      value.commandSha256,
-      `${label}.commandSha256`,
+    schedule,
+    executionState,
+    runtime: enumValue(value.runtime, ['docker'], `${label}.runtime`),
+    dockerfilePath: enumValue(
+      value.dockerfilePath,
+      ['./Dockerfile.bake'],
+      `${label}.dockerfilePath`,
     ),
-    databaseBindingSha256: sha256Value(
-      value.databaseBindingSha256,
-      `${label}.databaseBindingSha256`,
-    ),
-    environmentShapeSha256: sha256Value(
-      value.environmentShapeSha256,
-      `${label}.environmentShapeSha256`,
-    ),
+    dockerCommand,
+    environmentKeyNames,
+    databaseBinding,
   };
 }
 
@@ -176,6 +281,7 @@ function parseObservation(value, expectedPhase, label) {
     'blueprint',
     'sourceDatabase',
     'services',
+    'safetyWindow',
     'oldBlueprintAbsence',
     'hookValueObserved',
     'secretsCaptured',
@@ -226,7 +332,11 @@ function parseObservation(value, expectedPhase, label) {
   exactKeys(value.sourceDatabase, [
     'serviceId',
     'status',
-    'configurationSha256',
+    'plan',
+    'logicalDatabaseName',
+    'postgresMajorVersion',
+    'allocatedStorageGiB',
+    'storageAutoscalingEnabled',
   ], `${label}.sourceDatabase`);
   const sourceDatabase = {
     serviceId: safeId(
@@ -238,9 +348,26 @@ function parseObservation(value, expectedPhase, label) {
       ['available'],
       `${label}.sourceDatabase.status`,
     ),
-    configurationSha256: sha256Value(
-      value.sourceDatabase.configurationSha256,
-      `${label}.sourceDatabase.configurationSha256`,
+    plan: safeString(value.sourceDatabase.plan, `${label}.sourceDatabase.plan`),
+    logicalDatabaseName: safeString(
+      value.sourceDatabase.logicalDatabaseName,
+      `${label}.sourceDatabase.logicalDatabaseName`,
+    ),
+    postgresMajorVersion: integerValue(
+      value.sourceDatabase.postgresMajorVersion,
+      `${label}.sourceDatabase.postgresMajorVersion`,
+      12,
+      99,
+    ),
+    allocatedStorageGiB: integerValue(
+      value.sourceDatabase.allocatedStorageGiB,
+      `${label}.sourceDatabase.allocatedStorageGiB`,
+      1,
+      65536,
+    ),
+    storageAutoscalingEnabled: booleanValue(
+      value.sourceDatabase.storageAutoscalingEnabled,
+      `${label}.sourceDatabase.storageAutoscalingEnabled`,
     ),
   };
   if (!Array.isArray(value.services) || value.services.length < 1) {
@@ -248,10 +375,70 @@ function parseObservation(value, expectedPhase, label) {
   }
   const services = value.services.map((service, index) => (
     parseService(service, `${label}.services[${index}]`)
-  )).sort((left, right) => left.serviceId.localeCompare(right.serviceId));
+  )).sort((left, right) => codePointCompare(left.serviceId, right.serviceId));
   const serviceIds = new Set(services.map((service) => service.serviceId));
   if (serviceIds.size !== services.length) {
     fail(`${label}.services contains a duplicate serviceId`);
+  }
+  if (
+    services.some(
+      (service) => service.databaseBinding.sourceDatabaseServiceId
+        !== sourceDatabase.serviceId,
+    )
+  ) {
+    fail(`${label}.services contains a foreign database binding`);
+  }
+  exactKeys(value.safetyWindow, [
+    'startedAt',
+    'deadlineAt',
+    'maximumDurationSeconds',
+    'cronExecutionState',
+    'webRestartObserved',
+    'providerFromDatabaseContinuity',
+  ], `${label}.safetyWindow`);
+  const safetyWindow = {
+    startedAt: utcValue(
+      value.safetyWindow.startedAt,
+      `${label}.safetyWindow.startedAt`,
+    ),
+    deadlineAt: utcValue(
+      value.safetyWindow.deadlineAt,
+      `${label}.safetyWindow.deadlineAt`,
+    ),
+    maximumDurationSeconds: integerValue(
+      value.safetyWindow.maximumDurationSeconds,
+      `${label}.safetyWindow.maximumDurationSeconds`,
+      MAXIMUM_REPLACEMENT_WINDOW_SECONDS,
+      MAXIMUM_REPLACEMENT_WINDOW_SECONDS,
+    ),
+    cronExecutionState: enumValue(
+      value.safetyWindow.cronExecutionState,
+      ['suspended'],
+      `${label}.safetyWindow.cronExecutionState`,
+    ),
+    webRestartObserved: booleanValue(
+      value.safetyWindow.webRestartObserved,
+      `${label}.safetyWindow.webRestartObserved`,
+    ),
+    providerFromDatabaseContinuity: enumValue(
+      value.safetyWindow.providerFromDatabaseContinuity,
+      ['unconfirmed_compensated_by_quiescence'],
+      `${label}.safetyWindow.providerFromDatabaseContinuity`,
+    ),
+  };
+  if (safetyWindow.webRestartObserved) {
+    fail(`${label}.safetyWindow.webRestartObserved must be false`);
+  }
+  const startedAtMs = Date.parse(safetyWindow.startedAt);
+  const deadlineAtMs = Date.parse(safetyWindow.deadlineAt);
+  if (
+    deadlineAtMs <= startedAtMs
+    || deadlineAtMs - startedAtMs
+      > MAXIMUM_REPLACEMENT_WINDOW_SECONDS * 1000
+    || Date.parse(observedAt) < startedAtMs
+    || Date.parse(observedAt) > deadlineAtMs
+  ) {
+    fail(`${label}.safetyWindow does not bound this observation`);
   }
   let oldBlueprintAbsence = null;
   if (expectedPhase === 'before') {
@@ -263,7 +450,7 @@ function parseObservation(value, expectedPhase, label) {
       'blueprintId',
       'observedAt',
       'terminalOutcome',
-      'evidenceSha256',
+      'observationSurface',
     ], `${label}.oldBlueprintAbsence`);
     oldBlueprintAbsence = {
       blueprintId: safeId(
@@ -279,9 +466,10 @@ function parseObservation(value, expectedPhase, label) {
         ['not_found'],
         `${label}.oldBlueprintAbsence.terminalOutcome`,
       ),
-      evidenceSha256: sha256Value(
-        value.oldBlueprintAbsence.evidenceSha256,
-        `${label}.oldBlueprintAbsence.evidenceSha256`,
+      observationSurface: enumValue(
+        value.oldBlueprintAbsence.observationSurface,
+        ['authenticated_render_dashboard_blueprint_lookup'],
+        `${label}.oldBlueprintAbsence.observationSurface`,
       ),
     };
   }
@@ -296,26 +484,83 @@ function parseObservation(value, expectedPhase, label) {
     blueprint,
     sourceDatabase,
     services,
+    safetyWindow,
     oldBlueprintAbsence,
   };
 }
 
 function parseSupport(value) {
-  plainObject(value, 'support response');
+  exactKeys(value, [
+    'schema',
+    'observedAt',
+    'channel',
+    'responseActorKind',
+    'responseDate',
+    'responseTimestampPrecision',
+    'affectedBlueprintId',
+    'affectedBlueprintIdentitySha256',
+    'providerStatements',
+    'evidenceLimits',
+    'nextAuthorizedBoundary',
+    'secretValueSubmitted',
+    'secretValueCaptured',
+  ], 'support response');
   if (value.schema !== SUPPORT_SCHEMA) fail('support response schema is unsupported');
-  const statements = plainObject(
-    value.providerStatements,
-    'support response providerStatements',
+  utcValue(value.observedAt, 'support response observedAt');
+  enumValue(
+    value.channel,
+    ['authenticated_render_dashboard_support_conversation'],
+    'support response channel',
   );
-  const limits = plainObject(value.evidenceLimits, 'support response evidenceLimits');
+  enumValue(
+    value.responseActorKind,
+    ['human_render_support_agent'],
+    'support response responseActorKind',
+  );
+  utcDateValue(value.responseDate, 'support response responseDate');
+  enumValue(
+    value.responseTimestampPrecision,
+    ['date_only'],
+    'support response responseTimestampPrecision',
+  );
+  exactKeys(value.providerStatements, [
+    'supportedRemediation',
+    'oldHookInvalidatedByRemediation',
+    'newBlueprintReceivesNewHook',
+    'existingServicesDeletedWithBlueprint',
+    'existingServicesExpectedToRelinkByDetection',
+    'lastObservedSyncAt',
+    'hookCanInitiateBlueprintSync',
+    'hookAloneCanChangeConnectedRepository',
+    'providerIncidentAssessment',
+  ], 'support response providerStatements');
+  const statements = value.providerStatements;
+  exactKeys(value.evidenceLimits, [
+    'providerHasNotExecutedRemediation',
+    'oldHookTerminallyInvalidated',
+    'serviceRelinkContinuityObserved',
+    'providerSideActorAuditProvided',
+    'lastSyncTimestampImpliesNoPostExposureSync',
+  ], 'support response evidenceLimits');
+  const limits = value.evidenceLimits;
   if (
     statements.supportedRemediation
       !== 'delete_existing_blueprint_then_create_new_blueprint'
     || statements.oldHookInvalidatedByRemediation !== true
+    || statements.newBlueprintReceivesNewHook !== true
     || statements.existingServicesDeletedWithBlueprint !== false
     || statements.existingServicesExpectedToRelinkByDetection !== true
+    || statements.hookCanInitiateBlueprintSync !== true
+    || statements.hookAloneCanChangeConnectedRepository !== false
+    || statements.providerIncidentAssessment !== 'fairly_minor'
     || limits.providerHasNotExecutedRemediation !== true
     || limits.oldHookTerminallyInvalidated !== false
+    || limits.serviceRelinkContinuityObserved !== false
+    || limits.providerSideActorAuditProvided !== false
+    || limits.lastSyncTimestampImpliesNoPostExposureSync !== true
+    || value.nextAuthorizedBoundary
+      !== 'operator_go_required_before_blueprint_delete_recreate'
+    || value.secretValueSubmitted !== false
     || value.secretValueCaptured !== false
   ) {
     fail('support response does not authorize the bounded replacement path');
@@ -337,7 +582,7 @@ function parseSupport(value) {
 }
 
 function canonical(value) {
-  return JSON.stringify(value);
+  return JSON.stringify(stableValue(value));
 }
 
 export function compareBlueprintReplacement({
@@ -356,18 +601,9 @@ export function compareBlueprintReplacement({
       !== support.blueprintIdentitySha256.replace(/^sha256:/, '')
   ) difference('oldBlueprintIdentitySha256');
   if (before.blueprint.id === after.blueprint.id) difference('newBlueprintId');
-  for (const field of [
-    'sourceRepository',
-    'sourceBranch',
-    'blueprintPath',
-    'sourceSha',
-  ]) {
-    if (before.blueprint[field] !== after.blueprint[field]) difference(field);
+  if (before.blueprint.sourceSha !== after.blueprint.sourceSha) {
+    difference('sourceSha');
   }
-  if (
-    before.blueprint.autoSyncState !== 'disabled'
-    || after.blueprint.autoSyncState !== 'disabled'
-  ) difference('autoSyncState');
   if (
     before.blueprint.lastSyncAt !== support.lastSyncAt
     || Date.parse(support.lastSyncAt) >= Date.parse(INCIDENT_OBSERVED_AT)
@@ -386,14 +622,23 @@ export function compareBlueprintReplacement({
   if (canonical(before.services) !== canonical(after.services)) {
     difference('services');
   }
+  if (canonical(before.safetyWindow) !== canonical(after.safetyWindow)) {
+    difference('safetyWindow');
+  }
   const linkedServiceIdsSha256 = sha256(Buffer.from(
     before.services.map((service) => service.serviceId).join('\n'),
   ));
   const linkedServiceConfigurationSha256 = sha256(Buffer.from(
     canonical(before.services),
   ));
+  const sourceDatabaseConfigurationSha256 = sha256(Buffer.from(
+    canonical(before.sourceDatabase),
+  ));
+  const boundedReplacementConsistent = differences.length === 0;
   return {
     schema: COMPARISON_SCHEMA,
+    evidenceClass: 'operator_attested',
+    providerVerifiedServiceContinuity: false,
     beforeObservedAt: before.observedAt,
     afterObservedAt: after.observedAt,
     oldBlueprintId: before.blueprint.id,
@@ -401,16 +646,64 @@ export function compareBlueprintReplacement({
     sourceSha: before.blueprint.sourceSha,
     linkedServiceIdsSha256,
     linkedServiceConfigurationSha256,
+    sourceDatabaseConfigurationSha256,
     oldBlueprintAbsent: !differences.includes('oldBlueprintAbsence'),
     sourceDatabaseUnchanged: !differences.includes('sourceDatabase'),
-    autoSyncDisabled: !differences.includes('autoSyncState'),
-    replacementSafe: differences.length === 0,
+    executionQuiescenceObserved: !differences.includes('safetyWindow'),
+    maximumWindowSeconds: MAXIMUM_REPLACEMENT_WINDOW_SECONDS,
+    hookDispositionBasis: boundedReplacementConsistent
+      ? 'provider_contract_plus_terminal_old_blueprint_absence'
+      : 'not_established',
+    boundedReplacementConsistent,
     differences,
     beforeSha256,
     afterSha256,
     supportSha256,
     secretsCaptured: false,
   };
+}
+
+export function compareBlueprintReplacementEvidence({
+  beforeBytes,
+  afterBytes,
+  supportBytes,
+  publishedComparisonBytes = null,
+}) {
+  for (const [bytes, label] of [
+    [beforeBytes, 'before observation'],
+    [afterBytes, 'after observation'],
+    [supportBytes, 'support response'],
+  ]) {
+    if (!Buffer.isBuffer(bytes)) fail(`${label} bytes must be a Buffer`);
+  }
+  if (
+    publishedComparisonBytes !== null
+    && !Buffer.isBuffer(publishedComparisonBytes)
+  ) {
+    fail('published comparison bytes must be a Buffer');
+  }
+  const beforeInput = parseJsonBytes(beforeBytes, 'before observation');
+  const afterInput = parseJsonBytes(afterBytes, 'after observation');
+  const supportInput = parseJsonBytes(supportBytes, 'support response');
+  const before = parseObservation(beforeInput.value, 'before', 'before observation');
+  const after = parseObservation(afterInput.value, 'after', 'after observation');
+  const support = parseSupport(supportInput.value);
+  const result = compareBlueprintReplacement({
+    before,
+    after,
+    support,
+    beforeSha256: sha256(beforeBytes),
+    afterSha256: sha256(afterBytes),
+    supportSha256: sha256(supportBytes),
+  });
+  const output = `${JSON.stringify(result, null, 2)}\n`;
+  if (
+    publishedComparisonBytes !== null
+    && !publishedComparisonBytes.equals(Buffer.from(output))
+  ) {
+    fail('published comparison does not match the exact inputs');
+  }
+  return { result, output };
 }
 
 function parseArgs(argv) {
@@ -438,28 +731,14 @@ function parseArgs(argv) {
 
 export function run(argv) {
   const options = parseArgs(argv);
-  const beforeInput = readJson(options.beforePath, 'before observation');
-  const afterInput = readJson(options.afterPath, 'after observation');
-  const supportInput = readJson(options.supportPath, 'support response');
-  const before = parseObservation(beforeInput.value, 'before', 'before observation');
-  const after = parseObservation(afterInput.value, 'after', 'after observation');
-  const support = parseSupport(supportInput.value);
-  const result = compareBlueprintReplacement({
-    before,
-    after,
-    support,
-    beforeSha256: sha256(beforeInput.bytes),
-    afterSha256: sha256(afterInput.bytes),
-    supportSha256: sha256(supportInput.bytes),
+  return compareBlueprintReplacementEvidence({
+    beforeBytes: fs.readFileSync(options.beforePath),
+    afterBytes: fs.readFileSync(options.afterPath),
+    supportBytes: fs.readFileSync(options.supportPath),
+    publishedComparisonBytes: options.verifyJsonPath === null
+      ? null
+      : fs.readFileSync(options.verifyJsonPath),
   });
-  const output = `${JSON.stringify(result, null, 2)}\n`;
-  if (options.verifyJsonPath !== null) {
-    const published = fs.readFileSync(options.verifyJsonPath);
-    if (!published.equals(Buffer.from(output))) {
-      fail('published comparison does not match the exact inputs');
-    }
-  }
-  return { result, output };
 }
 
 const isMain =
@@ -470,7 +749,7 @@ if (isMain) {
   try {
     const { result, output } = run(process.argv.slice(2));
     process.stdout.write(output);
-    if (!result.replacementSafe) process.exitCode = 2;
+    if (!result.boundedReplacementConsistent) process.exitCode = 2;
   } catch (error) {
     process.stderr.write(
       `platform-reliability-r1-blueprint-replacement-compare: ${error.message}\n`,

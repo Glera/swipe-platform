@@ -101,6 +101,7 @@ const incidentEvidenceLine = (incident) => {
           + `\`sha256:${disposition.blueprintContinuity.after.linkedServiceIdsSha256}\` / `
           + `configuration \`sha256:${disposition.blueprintContinuity.before.linkedServiceConfigurationSha256}\` -> `
           + `\`sha256:${disposition.blueprintContinuity.after.linkedServiceConfigurationSha256}\` / `
+          + `evidence class \`${disposition.blueprintContinuity.evidenceClass}\` / `
           + `auto sync \`${disposition.blueprintContinuity.before.autoSyncState}\` -> `
           + `\`${disposition.blueprintContinuity.after.autoSyncState}\` / `
         )
