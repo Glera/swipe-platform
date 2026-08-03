@@ -2,7 +2,12 @@
 
 Published: 2026-08-03 UTC.
 
-Status: **PASS, PENDING INDEPENDENT REVIEW**.
+Status: **PASS, INDEPENDENTLY ACCEPTED**.
+
+Independent safe-mode review of exact evidence commit `4d8f18b` returned GO
+with no P1/P2. Its complete text and the later budget-exhausted CLI envelope
+are both preserved in
+`platform-reliability-r1a-production-candidate-v2-publication-review-20260803.*`.
 
 Operator authority named exact meta packet
 `5e88f4efc94e73e264e430b83b7a2bf45cfd55ce` and allowed exactly one

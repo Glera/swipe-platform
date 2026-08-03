@@ -1,6 +1,6 @@
 {
   "schema": "platform-release-image-publication-authority-request.v2",
-  "status": "CONSUMED_SUCCESS_PENDING_INDEPENDENT_REVIEW",
+  "status": "CONSUMED_SUCCESS_INDEPENDENTLY_ACCEPTED",
   "authority": "granted-by-operator-and-consumed",
   "preparedAt": "2026-08-03T13:26:12Z",
   "consumedAt": "2026-08-03T13:48:27Z",

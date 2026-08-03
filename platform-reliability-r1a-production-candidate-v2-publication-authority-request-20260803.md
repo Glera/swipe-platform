@@ -2,12 +2,16 @@
 
 Prepared: 2026-08-03 UTC.
 
-Status: **CONSUMED SUCCESSFULLY; INDEPENDENT RECEIPT REVIEW PENDING**.
+Status: **CONSUMED SUCCESSFULLY; RECEIPT INDEPENDENTLY ACCEPTED**.
 
 The operator granted this exact request through meta packet `5e88f4e`. Its
 single dispatch was consumed by successful run `30819666007/1`. Exact result:
 `platform-reliability-r1a-production-candidate-v2-publication-receipt-20260803.{json,md}`.
 No redispatch is permitted.
+
+Independent safe-mode review of evidence commit `4d8f18b` returned GO with no
+P1/P2; exact receipts are
+`platform-reliability-r1a-production-candidate-v2-publication-review-20260803.*`.
 
 PR #49 moved backend `master` after the old candidate image was published.
 Reviewed successor v2 is now exact head

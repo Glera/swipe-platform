@@ -1,6 +1,6 @@
 {
   "schema": "platform-release-image-publication-receipt.v2",
-  "status": "PASS_PENDING_INDEPENDENT_REVIEW",
+  "status": "PASS_INDEPENDENTLY_ACCEPTED",
   "authority": {
     "packetCommit": "5e88f4efc94e73e264e430b83b7a2bf45cfd55ce",
     "dispatchLimit": 1,
@@ -130,5 +130,14 @@
     "roundedLinuxMinutes": 4,
     "maximumUsdAt0_006PerMinuteIfNoIncludedMinutesRemain": 0.024,
     "renderSpendUsd": 0
+  },
+  "independentReview": {
+    "verdict": "GO",
+    "p1Count": 0,
+    "p2Count": 0,
+    "reviewedCommit": "4d8f18b1b15352b0a4107e250dfe0cfd29358d12",
+    "sessionId": "f7bdeb75-3d2e-447d-af41-687629df9d8d",
+    "receipt": "platform-reliability-r1a-production-candidate-v2-publication-review-20260803.md",
+    "terminalEnvelope": "budget_exhausted_after_complete_text_verdict"
   }
 }
