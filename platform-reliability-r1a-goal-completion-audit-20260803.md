@@ -60,3 +60,9 @@ A local-only implementation proof is pinned in
 It proves the corrected one-step migration and exact-baseline source
 compatibility without creating external authority; PG16 and the accepted OCI
 image remain mandatory gates of any later authorized recovery PR/publication.
+
+Operator option A is now reflected in draft backend PR #52. Exact branch and
+local-preflight evidence is recorded in
+`platform-reliability-r1a-recovery-v3-pr-receipt-20260803.md`; CI and
+independent review remain incomplete, so no merge or production authority is
+implied.
