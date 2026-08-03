@@ -50,3 +50,7 @@ are specified in
 recovery branch or production action is authorized until the operator explicitly
 decides whether additive Stage 1 storage migrations may accompany R1-A while
 all Mission runtime surfaces remain off.
+
+The proposal received independent GO with no P1/P2; both P3 clarifications are
+incorporated in the plan and recorded in
+`platform-reliability-r1a-concurrent-master-recovery-review-20260803.md`.

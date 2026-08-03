@@ -55,6 +55,10 @@ The minimal single-head recovery is:
 The Stage 1 migrations create only new `mission_*` tables, sequences,
 validation functions and append-only triggers. They reference the existing
 `users` table but do not alter or delete existing application tables or data.
+The `mission_contributions.user_id -> users.id` foreign key has implicit
+`RESTRICT` deletion semantics: inert while Mission is off and empty, but a
+future Mission rollout must treat referenced users as non-deletable or define
+an explicit privacy-preserving deletion policy.
 The R1-A migration similarly adds only the release-receipt table, function and
 trigger. Their guarded downgrades are not the production rollback path:
 R1-A rolls application images forward against a compatible descendant schema.
@@ -88,7 +92,11 @@ master SHA and one draft PR, with no production actions:
 1. Replay the R1-A patchset while retaining both Stage 1 and R1-A acceptance
    entries in `postgres-acceptance.yml`.
 2. Rename/re-anchor only the R1-A migration and its exact test identities to
-   `0073_platform_release_receipts -> 0072_mission_ops_receipts`.
+   `0073_platform_release_receipts -> 0072_mission_ops_receipts`. This includes
+   every hard-coded predecessor/downgrade literal: in particular,
+   `tests/test_platform_release_migration_postgres.py` must use `0072` as its
+   one-step `PRIOR`, never cascade `0073 -> 0070` through both Mission
+   migrations. Rename the test identity itself where it still says `0071`.
 3. Preserve all three Mission flags at their code defaults (`false`) and add a
    CI assertion that the production release profile does not enable them.
 4. Strengthen the image workflow before any new publication. After upgrading
