@@ -2,8 +2,8 @@
 
 Prepared: 2026-08-03 UTC.
 
-Status: **REVIEW CANDIDATE — DO NOT EXECUTE WITHOUT AN OPERATOR GO NAMING THE
-EXACT COMMITTED V2 AUTHORITY REQUEST**.
+Status: **INDEPENDENT REVIEW GO — DO NOT EXECUTE WITHOUT AN OPERATOR GO NAMING
+THE EXACT COMMITTED V2 AUTHORITY REQUEST**.
 
 Authority and identities live in
 `platform-reliability-r1a-cutover-preparation-v2-authority-request-20260803.{json,md}`.

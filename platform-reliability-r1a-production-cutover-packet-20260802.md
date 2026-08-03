@@ -15,10 +15,11 @@ switch, deployment, rollback or Stage 1 action.
 
 The previous preparation request
 `platform-reliability-r1a-cutover-preparation-authority-request-20260803.md`
-is blocked and non-executable. The next bounded decision is the one-run
-candidate request
-`platform-reliability-r1a-production-candidate-v2-publication-authority-request-20260803.md`
-plus its machine-readable JSON companion.
+is blocked and non-executable. Candidate-v2 publication is complete and
+independently accepted. The next bounded decision is the reviewed preparation
+v2 request
+`platform-reliability-r1a-cutover-preparation-v2-authority-request-20260803.{json,md}`;
+it still has no operator authority.
 
 ## 1. Accepted rehearsal authority
 
@@ -127,9 +128,9 @@ the merge vehicle because its base predates PR #49.
 - exact receipt:
   `platform-reliability-r1a-production-successor-v2-20260803.{json,md}`.
 
-PR #51 remains draft and unmerged. Steps 1–5 are complete again for the new
-base, but candidate publication and all production actions remain separately
-gated.
+PR #51 remains draft and unmerged. Steps 1–5 and candidate-v2 publication are
+complete for the new base; all production preparation and cutover actions
+remain separately gated.
 
 ## 4. Production immutable images
 
@@ -214,8 +215,9 @@ backend `master` drift from `a12ca7e...` to `7b41e96...` and refused before
 creating a temporary key. No cleanup window started and no external mutation
 occurred. Receipt:
 `platform-reliability-r1a-precutover-master-drift-20260803.{json,md}`. The old
-preparation request is non-executable; it must be replaced only after the new
-candidate receipt is independently accepted.
+preparation request is non-executable. Candidate-v2 is now independently
+accepted and the reviewed v2 replacement request is committed separately; it
+requires a fresh named operator authority before execution.
 
 ## 6. Exact attended sequence after operator GO
 
@@ -259,12 +261,11 @@ The operator GO must name one immutable packet revision containing:
 - rollback target and compatibility proof;
 - approved execution window and authorized operator.
 
-The baseline fields are fixed by §4. Candidate-v2 fields remain empty until
-the one separately authorized publication succeeds and is reviewed. A later
-packet revision must bind that new candidate, then add a fresh
-provider/database capture, expected deploy identity, protected-environment
-receipt and execution window. It must not rebuild the baseline or redispatch
-any already published SHA.
+The baseline and candidate-v2 fields are fixed by §4. The remaining missing
+authority is a fresh provider/database capture, expected deploy identity,
+protected-environment receipt and bounded execution window. The reviewed
+preparation-v2 request may gather those facts only after its own exact operator
+GO. It must not rebuild the baseline or redispatch any published SHA.
 
 Example form, not an authorization:
 

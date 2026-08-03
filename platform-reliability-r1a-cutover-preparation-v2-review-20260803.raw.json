@@ -1,0 +1,41 @@
+{
+  "schema": "claude-independent-review-receipt.v1",
+  "source": "Claude Code local session transcript",
+  "session_id": "41810f38-e9f3-4d85-8da9-82185477394d",
+  "model": "claude-sonnet-5",
+  "permission_denials": [],
+  "web_search_requests": 0,
+  "web_fetch_requests": 0,
+  "reviewed_commit": "80768ed4bb7b23e5404761b692f62413ed89cf7f",
+  "verdict": "GO",
+  "p1_count": 0,
+  "p2_count": 0,
+  "p3_count": 1,
+  "verbatim_result_file": "platform-reliability-r1a-cutover-preparation-v2-review-20260803.raw.md",
+  "terminal_envelope": {
+    "type": "result",
+    "subtype": "error_max_budget_usd",
+    "terminal_reason": "budget_exhausted",
+    "stop_reason": "end_turn",
+    "is_error": true,
+    "configured_max_budget_usd": 0.15,
+    "total_cost_usd_internal_meter": 0.2386367,
+    "note": "the complete text verdict was emitted before the CLI terminal envelope reported budget exhaustion"
+  },
+  "model_usage": {
+    "claude-sonnet-5": {
+      "input_tokens": 2,
+      "cache_creation_input_tokens": 21705,
+      "cache_read_input_tokens": 3289,
+      "output_tokens": 6085,
+      "cost_usd_internal_meter": 0.2224977
+    },
+    "claude-haiku-4-5": {
+      "input_tokens": 16019,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 24,
+      "cost_usd_internal_meter": 0.016139
+    }
+  }
+}

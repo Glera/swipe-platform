@@ -1,6 +1,6 @@
 {
   "schema": "platform-release-cutover-preparation-authority-request.v2",
-  "status": "READY_FOR_OPERATOR_DECISION",
+  "status": "REVIEWED_GO_READY_FOR_OPERATOR_DECISION",
   "authority": "not-granted",
   "preparedAt": "2026-08-03T14:08:29Z",
   "sourceEvidenceCommit": "3ebc6f2c45c1d7e64d182ce9e20d7e9b325d0776",
@@ -203,6 +203,16 @@
     "renderServiceRollback": false,
     "merge": false,
     "deploy": false
+  },
+  "independentReview": {
+    "verdict": "GO",
+    "p1Count": 0,
+    "p2Count": 0,
+    "p3Count": 1,
+    "reviewedCommit": "80768ed4bb7b23e5404761b692f62413ed89cf7f",
+    "sessionId": "41810f38-e9f3-4d85-8da9-82185477394d",
+    "receipt": "platform-reliability-r1a-cutover-preparation-v2-review-20260803.md",
+    "terminalEnvelope": "budget_exhausted_after_complete_text_verdict"
   },
   "operatorGoTemplate": "GO R1-A pre-cutover preparation v2 for packet <exact-commit> only. Create one temporary account-wide Render API key; run exact GET-only production capture and one alembic current job; create GitHub environment production with the committed candidate-v2 branch policy, one secret and six variables; produce receipts and independent review. Merge, workflow dispatch, persistent Render service mutation, deploy, migration, image publication and Stage 1 mutation remain forbidden. On failure or deadline, delete only the environment created by this window and revoke the temporary key.",
   "nextAuthority": "A successful reviewed preparation receipt still does not authorize merge or cutover. The final packet must bind the fresh provider/database/environment receipt and requires a separate exact operator GO before any merge, workflow dispatch or persistent provider service mutation."
