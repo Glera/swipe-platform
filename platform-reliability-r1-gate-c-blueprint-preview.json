@@ -1,0 +1,12 @@
+{
+  "schema": "platform-reliability-r1-render-blueprint-preview.v1",
+  "capturedAt": "2026-08-02T17:54:51.176Z",
+  "pageUrl": "https://dashboard.render.com/blueprint/exs-d95qo3q8qa3s73ea23p0/sync/exe-d9nercqjnfac73aunbvg",
+  "pageTitle": "swipe-backend ・ Blueprint ・ Render Dashboard",
+  "visibleMainText": "Sync: a12ca7e\na12ca7e:Merge pull request #47 from Glera/codex/r1-alembic-metadata-indexes R1: align ORM metadata with protective indexes\n11 hours ago\nUpdate web service swipe-backend auto-deploy-trigger setting to commit\nUpdate environment variable with key DATABASE_URL for web service swipe-backend\nUpdate cron job swipe-seq-shadow-run auto-deploy-trigger setting to commit\nUpdate environment variable with key DATABASE_URL for cron job swipe-seq-shadow-run\nUpdate cron job swipe-c1-materialize auto-deploy-trigger setting to commit\nUpdate environment variable with key DATABASE_URL for cron job swipe-c1-materialize\nApprove",
+  "approveButtonCount": 1,
+  "approveButtonEnabled": true,
+  "approved": false,
+  "stale": true,
+  "staleReason": "Superseded by reviewed source hardening before Gate C; never approve this sync identity"
+}

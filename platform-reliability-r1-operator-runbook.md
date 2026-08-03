@@ -1,8 +1,9 @@
 # Platform Reliability R1 — PostgreSQL operator runbook
 
-Статус: **operator window отложено решением оператора 2026-07-30 до Gate A;
-production не менялся**. Snapshot 2 и его independent review завершены, но
-этот документ не является разрешением на production-изменения. Каждый
+Статус: **operator window возобновлено 2026-08-01; Gate A и Gate B исполнены;
+Gate C остановлен новым Sync Hook incident**. Snapshot 2 и его independent
+review завершены. Финальный operator receipt ещё не опубликован, поэтому эта
+строка — рабочее состояние, а не completion evidence. Каждый следующий
 помеченный `OPERATOR` гейт требует нового присутствия и явного подтверждения
 оператора в текущей сессии.
 
@@ -15,7 +16,13 @@ production не менялся**. Snapshot 2 и его independent review зав
 5. доказать одновременно fresh internal connectivity и отказ нового
    PostgreSQL-запроса снаружи.
 
-### Operator deferral 2026-07-30: active multi-Mac development
+### Historical operator deferral 2026-07-30: superseded 2026-08-01
+
+Этот блок сохраняется как журнал решения, но больше не описывает текущий
+runtime-state: оператор позднее дал отдельный GO на окно, Gate A сузил ingress
+до одного `/32`, а Gate B создал новый default credential. Ни один из этих
+фактов сам по себе не закрывает R1; их terminal evidence входит только в
+финальный operator receipt.
 
 Оператор разрабатывает с нескольких Mac. При текущих динамических внешних
 адресах точный `/32` создаёт регулярный ручной churn и риск самоблокировки.
@@ -144,6 +151,9 @@ preview обязан явно сохранить действующий `/32`; �
 | `platform-reliability-r1-0-snapshot-2-render-receipt.json` | same-service Render storage/identity observation |
 | `platform-reliability-r1-0-snapshot-delta.json` | машинный analyzer output |
 | `platform-reliability-r1-0-snapshot-delta.md` | review view |
+| `platform-reliability-r1-gate-c0-blueprint-before.json` | no-secret old Blueprint/source/service baseline before replacement |
+| `platform-reliability-r1-gate-c0-blueprint-after.json` | no-secret new Blueprint observation + terminal old-ID absence |
+| `platform-reliability-r1-gate-c0-blueprint-comparison.json` | exact-byte replayed source/service/Auto Sync continuity proof |
 | `platform-reliability-r1-operator-receipt.json` | несекретный журнал operator window |
 | `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
 | `platform-reliability-r1-secret-scan-receipt.json` | SHA-256 всех обязательных артефактов + zero-match secret/IP scan |
@@ -267,12 +277,40 @@ Typed-диспозиция обязана:
 - сохранить exact before/after continuity Blueprint/source и digest
   операторского решения.
 
-Выключение Auto Sync не доказывает инвалидирование hook. Disconnect/reconnect
-или создание нового Blueprint также не считаются инвалидированием. Если
-provider позже даст Regenerate/Revoke, предпочтительная диспозиция —
-настоящая rotation/invalidation; принятие риска разрешено только для этого
-исторического инцидента. Ни новый Sync Hook incident, ни любое раскрытие
-учётных данных базы так принять нельзя.
+Выключение Auto Sync не доказывает инвалидирование hook. Human Render Support
+`2026-08-03` подтвердил единственный provider-supported путь для этого
+Blueprint: удалить старый Blueprint и создать новый. По ответу провайдера это
+удаляет текущий hook, не удаляет существующие сервисы и выдаёт новому
+Blueprint новый hook; последний sync старого Blueprint был
+`2026-07-30T15:09:14Z`. Точный bounded receipt —
+`platform-reliability-r1-gate-c-render-support-response.json`.
+
+Ответ не устанавливает судьбу уже разрешённых `fromDatabase` env bindings во
+время отсутствия Blueprint. Перед Gate C0 вопрос задаётся повторно в том же
+support thread. Пока provider continuity не подтверждена, оба DB-backed cron
+обязаны быть suspended на всё окно, web не должен рестартовать, а один active
+attempt ограничен 900 секундами. Deadline, pause state и отсутствие web
+restart входят в v2 before/after observations; истечение deadline оставляет
+cron suspended и требует нового baseline + нового operator GO.
+
+Ответ не является terminal proof: до фактической замены старый hook остаётся
+валидным. Удаление/recreation — отдельный destructive `OPERATOR GATE C0` по
+`platform-reliability-r1-gate-c-contract.md`. PASS требует отсутствия старого
+Blueprint, нового ID, сохранения exact service IDs/configuration/source и Auto
+Sync `No`; новый hook не читается и не сохраняется. Простое
+disconnect/reconnect не считается инвалидированием. Этот путь после
+исполнения закрывает оба incident того же старого hook, включая исторический
+residual. Ни новый Sync Hook incident, ни раскрытие учётных данных базы так
+принять нельзя.
+
+Service/database continuity в Gate C0 имеет evidence class
+`operator_attested`, не provider-verified. Observation v2 сохраняет raw
+bounded non-secret projections (service ID/kind/status/plan/schedule/runtime,
+command, environment key names, structured DB binding and DB configuration),
+а comparator сам вычисляет stable code-point-ordered digests. Caller-supplied
+configuration hashes в observation запрещены. После terminal old-Blueprint
+absence локальная сохранённая копия hook становится inert, но не исчезает:
+она удаляется отдельным cleanup receipt либо получает явного owner/deadline.
 
 Если новый secret-exposure incident возникает уже в окне, текущий action
 останавливается/получает typed containment, и никакой следующий gate-action не
@@ -343,6 +381,20 @@ KILL/rollback: если новый protocol request с Mac не проходит
 удалять до §4.4.
 
 ### 4.2 Capability preflight и Blueprint sync — `OPERATOR GATE C`
+
+Исполняемый контракт конкретного окна, точный Preview и безопасный comparison
+receipt фиксируются отдельным reviewable-пакетом. Для текущего окна это
+`platform-reliability-r1-gate-c-contract.md`; чат не является authority для
+состава предусловий.
+
+Если старый Sync Hook ещё не инвалидирован, сначала исполняется отдельный
+`OPERATOR GATE C0`: fresh GO → suspend обоих cron → v2 before observation →
+удаление только старого Blueprint → bounded relink Preview → создание нового
+Blueprint → v2 after observation до 900-second deadline. Cron остаются
+suspended до terminal comparison и отдельного Gate C; при deadline, web
+restart или неожиданном runnable cron окно останавливается без удаления
+какой-либо DB credential. Точная последовательность и stop rules живут в
+Gate C contract.
 
 До sync новый user должен пройти не только `SELECT 1`, но и read-only
 capability audit:

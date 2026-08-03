@@ -21,8 +21,10 @@ export const R1_COMPLETION_REQUIREMENTS = Object.freeze([
 ]);
 
 const GATES = Object.freeze(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
-const REQUIRED_SECRET_EXPOSURE_ID =
+export const REQUIRED_SECRET_EXPOSURE_ID =
   'r1-prewindow-blueprint-sync-hook-dom-20260729';
+export const REQUIRED_BLUEPRINT_REPLACEMENT_INCIDENT_ID =
+  'r1-window-blueprint-sync-hook-dom-20260802-1';
 const REQUIRED_SECRET_EXPOSURE_KIND =
   'render_blueprint_sync_hook_dom_exposure';
 const REQUIRED_SECRET_EXPOSURE_OBSERVED_AT = '2026-07-29T15:01:19Z';
@@ -30,6 +32,7 @@ const SECRET_EXPOSURE_METHODS = Object.freeze({
   render_blueprint_sync_hook_dom_exposure: Object.freeze([
     'regenerate_sync_hook',
     'revoke_sync_hook',
+    'replace_blueprint',
   ]),
   render_database_credential_dom_exposure: Object.freeze([
     'rotate_database_credential',
@@ -202,13 +205,36 @@ function incidentEvidenceLine(incident) {
     + `\`${disposition.blueprintContinuity.before.sourceRepository}\` / `
     + `\`${disposition.blueprintContinuity.before.sourceBranch}\` / `
     + `\`${disposition.blueprintContinuity.before.blueprintPath}\` / `
+    + (
+      disposition.providerMethod === 'replace_blueprint'
+        ? `source \`${disposition.blueprintContinuity.before.sourceSha}\` / `
+        : ''
+    )
     + `\`sha256:${disposition.blueprintContinuity.before.evidenceSha256}\` / `
     + `after \`${disposition.blueprintContinuity.after.observedAt}\` / `
     + `\`${disposition.blueprintContinuity.after.blueprintId}\` / `
     + `\`${disposition.blueprintContinuity.after.sourceRepository}\` / `
     + `\`${disposition.blueprintContinuity.after.sourceBranch}\` / `
     + `\`${disposition.blueprintContinuity.after.blueprintPath}\` / `
+    + (
+      disposition.providerMethod === 'replace_blueprint'
+        ? `source \`${disposition.blueprintContinuity.after.sourceSha}\` / `
+        : ''
+    )
     + `\`sha256:${disposition.blueprintContinuity.after.evidenceSha256}\` / `
+    + (
+      disposition.providerMethod === 'replace_blueprint'
+        ? (
+          `services \`sha256:${disposition.blueprintContinuity.before.linkedServiceIdsSha256}\` -> `
+          + `\`sha256:${disposition.blueprintContinuity.after.linkedServiceIdsSha256}\` / `
+          + `configuration \`sha256:${disposition.blueprintContinuity.before.linkedServiceConfigurationSha256}\` -> `
+          + `\`sha256:${disposition.blueprintContinuity.after.linkedServiceConfigurationSha256}\` / `
+          + `evidence class \`${disposition.blueprintContinuity.evidenceClass}\` / `
+          + `auto sync \`${disposition.blueprintContinuity.before.autoSyncState}\` -> `
+          + `\`${disposition.blueprintContinuity.after.autoSyncState}\` / `
+        )
+        : ''
+    )
     + `continuity \`${disposition.blueprintContinuity.comparisonResult}\` / `
     + `terminal \`sha256:${disposition.terminalProofSha256}\`; `
     + `secrets captured \`${disposition.secretsCaptured}\``
@@ -798,6 +824,13 @@ export function validateOperatorEvidence(
     );
     consumers.set(serviceId, consumer);
   }
+  const consumerServiceIdsSha256 = crypto
+    .createHash('sha256')
+    .update([...consumers.keys()].sort().join('\n'))
+    .digest('hex');
+  const consumerSourceShas = new Set(
+    [...consumers.values()].map((consumer) => consumer.pinnedSourceSha),
+  );
   if (requirePass && closure.status !== 'closed') {
     fail('receipt.consumerClosure.status', 'must be closed for final evidence');
   }
@@ -1243,6 +1276,7 @@ export function validateOperatorEvidence(
       fail(location, 'incident approval/disposition chronology is invalid');
     }
     let providerObservedAt = dispositionCompletedAt;
+    let providerMethod = null;
     if (acceptedRenderResidual) {
       enumValue(
         disposition.terminalOutcome,
@@ -1291,14 +1325,16 @@ export function validateOperatorEvidence(
         `${location}.disposition.terminalOutcome`,
         ['rotated', 'invalidated'],
       );
-      const providerMethod = enumValue(
+      providerMethod = enumValue(
         disposition.providerMethod,
         `${location}.disposition.providerMethod`,
         SECRET_EXPOSURE_METHODS[incidentKind],
       );
-      const expectedTerminalOutcome = providerMethod.startsWith('revoke_')
-        ? 'invalidated'
-        : 'rotated';
+      const expectedTerminalOutcome =
+        providerMethod.startsWith('revoke_')
+          || providerMethod === 'replace_blueprint'
+          ? 'invalidated'
+          : 'rotated';
       if (disposition.terminalOutcome !== expectedTerminalOutcome) {
         fail(
           `${location}.disposition.terminalOutcome`,
@@ -1415,11 +1451,24 @@ export function validateOperatorEvidence(
       );
     }
     const blueprintContinuity = disposition.blueprintContinuity;
+    const replacement = providerMethod === 'replace_blueprint';
     exactKeys(
       blueprintContinuity,
       `${location}.disposition.blueprintContinuity`,
-      ['before', 'after', 'comparisonResult'],
+      [
+        'before',
+        'after',
+        'comparisonResult',
+        ...(replacement ? ['evidenceClass'] : []),
+      ],
     );
+    if (replacement) {
+      enumValue(
+        blueprintContinuity.evidenceClass,
+        `${location}.disposition.blueprintContinuity.evidenceClass`,
+        ['operator_attested'],
+      );
+    }
     const continuityObservations = {};
     for (const phase of ['before', 'after']) {
       const observation = blueprintContinuity[phase];
@@ -1432,6 +1481,14 @@ export function validateOperatorEvidence(
         'sourceBranch',
         'blueprintPath',
         'evidenceSha256',
+        ...(replacement
+          ? [
+            'sourceSha',
+            'linkedServiceIdsSha256',
+            'linkedServiceConfigurationSha256',
+            'autoSyncState',
+          ]
+          : []),
       ]);
       continuityObservations[phase] = {
         observedAt: utcValue(
@@ -1461,9 +1518,30 @@ export function validateOperatorEvidence(
           observation.evidenceSha256,
           `${observationLocation}.evidenceSha256`,
         ),
+        ...(replacement
+          ? {
+            sourceSha: gitShaValue(
+              observation.sourceSha,
+              `${observationLocation}.sourceSha`,
+            ),
+            linkedServiceIdsSha256: sha256Value(
+              observation.linkedServiceIdsSha256,
+              `${observationLocation}.linkedServiceIdsSha256`,
+            ),
+            linkedServiceConfigurationSha256: sha256Value(
+              observation.linkedServiceConfigurationSha256,
+              `${observationLocation}.linkedServiceConfigurationSha256`,
+            ),
+            autoSyncState: enumValue(
+              observation.autoSyncState,
+              `${observationLocation}.autoSyncState`,
+              ['disabled'],
+            ),
+          }
+          : {}),
       };
     }
-    if (
+    const commonContinuityInvalid =
       continuityObservations.before.observedAt > dispositionStartedAt
       || continuityObservations.before.observedAt < decisionAt
       || continuityObservations.after.observedAt < dispositionCompletedAt
@@ -1473,8 +1551,25 @@ export function validateOperatorEvidence(
         observedAt < windowStart
         && continuityObservations.after.observedAt
           > gateBounds.get('A').gateStart
-      )
-      || JSON.stringify({
+      );
+    const replacementContinuityInvalid = replacement && (
+      continuityObservations.before.blueprintId
+        === continuityObservations.after.blueprintId
+      || continuityObservations.before.linkedServiceIdsSha256
+        !== continuityObservations.after.linkedServiceIdsSha256
+      || continuityObservations.before.linkedServiceIdsSha256
+        !== consumerServiceIdsSha256
+      || continuityObservations.before.linkedServiceConfigurationSha256
+        !== continuityObservations.after.linkedServiceConfigurationSha256
+      || continuityObservations.before.sourceSha
+        !== continuityObservations.after.sourceSha
+      || consumerSourceShas.size !== 1
+      || !consumerSourceShas.has(continuityObservations.before.sourceSha)
+      || blueprintContinuity.comparisonResult
+        !== 'replaced_same_source_and_services'
+    );
+    const sameBlueprintContinuityInvalid = !replacement && (
+      JSON.stringify({
         ...continuityObservations.before,
         observedAt: null,
         evidenceSha256: null,
@@ -1484,32 +1579,29 @@ export function validateOperatorEvidence(
         evidenceSha256: null,
       })
       || blueprintContinuity.comparisonResult !== 'equal'
+    );
+    if (
+      commonContinuityInvalid
+      || replacementContinuityInvalid
+      || sameBlueprintContinuityInvalid
       || continuityObservations.before.evidenceSha256
         === continuityObservations.after.evidenceSha256
     ) {
       fail(
         `${location}.disposition.blueprintContinuity`,
-        'must prove equal dated observations before and after disposition',
+        replacement
+          ? 'must prove a different Blueprint with equal source and linked services'
+          : 'must prove equal dated observations before and after disposition',
       );
     }
-    const continuityBlueprintId = continuityObservations.after.blueprintId;
-    const closedBlueprintIds = new Set(
-      [...consumers.values()].map((consumer) => consumer.blueprintReferenceId),
-    );
-    if (
-      closedBlueprintIds.size !== 1
-      || !closedBlueprintIds.has(continuityBlueprintId)
-    ) {
-      fail(
-        `${location}.disposition.blueprintContinuity`,
-        'does not bind the exact closed Blueprint target',
-      );
-    }
+    const targetBlueprintId = replacement
+      ? continuityObservations.before.blueprintId
+      : continuityObservations.after.blueprintId;
     if (
       incidentKind === REQUIRED_SECRET_EXPOSURE_KIND
       && targetDigest !== crypto
         .createHash('sha256')
-        .update(continuityBlueprintId)
+        .update(targetBlueprintId)
         .digest('hex')
     ) {
       fail(
@@ -1532,6 +1624,10 @@ export function validateOperatorEvidence(
       observedAt,
       dispositionStartedAt,
       dispositionCompletedAt,
+      providerMethod,
+      continuityBeforeBlueprintId: continuityObservations.before.blueprintId,
+      continuityAfterBlueprintId: continuityObservations.after.blueprintId,
+      continuityAfterObservedAt: continuityObservations.after.observedAt,
     });
     if (observedAt < windowStart) {
       if (dispositionCompletedAt > gateBounds.get('A').gateStart) {
@@ -1547,6 +1643,46 @@ export function validateOperatorEvidence(
       'receipt.secretExposureIncidents',
       'must contain exactly one known Blueprint Sync Hook exposure',
     );
+  }
+  const closedBlueprintIds = new Set(
+    [...consumers.values()].map((consumer) => consumer.blueprintReferenceId),
+  );
+  if (closedBlueprintIds.size !== 1) {
+    fail(
+      'receipt.consumerClosure.consumers',
+      'must bind exactly one final Blueprint target',
+    );
+  }
+  const finalBlueprintId = [...closedBlueprintIds][0];
+  for (const incident of normalizedIncidents) {
+    if (incident.providerMethod === 'replace_blueprint') {
+      if (incident.continuityAfterBlueprintId !== finalBlueprintId) {
+        fail(
+          'receipt.secretExposureIncidents',
+          'replacement does not bind the final closed Blueprint target',
+        );
+      }
+      continue;
+    }
+    if (incident.continuityAfterBlueprintId === finalBlueprintId) {
+      continue;
+    }
+    const supersedingReplacement = normalizedIncidents.some(
+      (candidate) => (
+        candidate.providerMethod === 'replace_blueprint'
+        && candidate.continuityBeforeBlueprintId
+          === incident.continuityAfterBlueprintId
+        && candidate.continuityAfterBlueprintId === finalBlueprintId
+        && candidate.dispositionCompletedAt
+          >= incident.continuityAfterObservedAt
+      ),
+    );
+    if (!supersedingReplacement) {
+      fail(
+        'receipt.secretExposureIncidents',
+        'does not bind the exact closed Blueprint target',
+      );
+    }
   }
   const unifiedActions = [
     ...actionsById.values(),

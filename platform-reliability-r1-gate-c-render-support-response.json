@@ -1,0 +1,31 @@
+{
+  "schema": "platform-reliability-r1-render-support-response.v1",
+  "observedAt": "2026-08-03T06:42:17Z",
+  "channel": "authenticated_render_dashboard_support_conversation",
+  "responseActorKind": "human_render_support_agent",
+  "responseDate": "2026-08-03",
+  "responseTimestampPrecision": "date_only",
+  "affectedBlueprintId": "exs-d95qo3q8qa3s73ea23p0",
+  "affectedBlueprintIdentitySha256": "sha256:556758c36536ddbc9a77c97faafcf68f7f89e34053a4e8721cd2ac938be0a19a",
+  "providerStatements": {
+    "supportedRemediation": "delete_existing_blueprint_then_create_new_blueprint",
+    "oldHookInvalidatedByRemediation": true,
+    "newBlueprintReceivesNewHook": true,
+    "existingServicesDeletedWithBlueprint": false,
+    "existingServicesExpectedToRelinkByDetection": true,
+    "lastObservedSyncAt": "2026-07-30T15:09:14Z",
+    "hookCanInitiateBlueprintSync": true,
+    "hookAloneCanChangeConnectedRepository": false,
+    "providerIncidentAssessment": "fairly_minor"
+  },
+  "evidenceLimits": {
+    "providerHasNotExecutedRemediation": true,
+    "oldHookTerminallyInvalidated": false,
+    "serviceRelinkContinuityObserved": false,
+    "providerSideActorAuditProvided": false,
+    "lastSyncTimestampImpliesNoPostExposureSync": true
+  },
+  "nextAuthorizedBoundary": "operator_go_required_before_blueprint_delete_recreate",
+  "secretValueSubmitted": false,
+  "secretValueCaptured": false
+}

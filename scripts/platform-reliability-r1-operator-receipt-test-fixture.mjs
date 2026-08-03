@@ -77,13 +77,36 @@ const incidentEvidenceLine = (incident) => {
     + `\`${disposition.blueprintContinuity.before.sourceRepository}\` / `
     + `\`${disposition.blueprintContinuity.before.sourceBranch}\` / `
     + `\`${disposition.blueprintContinuity.before.blueprintPath}\` / `
+    + (
+      disposition.providerMethod === 'replace_blueprint'
+        ? `source \`${disposition.blueprintContinuity.before.sourceSha}\` / `
+        : ''
+    )
     + `\`sha256:${disposition.blueprintContinuity.before.evidenceSha256}\` / `
     + `after \`${disposition.blueprintContinuity.after.observedAt}\` / `
     + `\`${disposition.blueprintContinuity.after.blueprintId}\` / `
     + `\`${disposition.blueprintContinuity.after.sourceRepository}\` / `
     + `\`${disposition.blueprintContinuity.after.sourceBranch}\` / `
     + `\`${disposition.blueprintContinuity.after.blueprintPath}\` / `
+    + (
+      disposition.providerMethod === 'replace_blueprint'
+        ? `source \`${disposition.blueprintContinuity.after.sourceSha}\` / `
+        : ''
+    )
     + `\`sha256:${disposition.blueprintContinuity.after.evidenceSha256}\` / `
+    + (
+      disposition.providerMethod === 'replace_blueprint'
+        ? (
+          `services \`sha256:${disposition.blueprintContinuity.before.linkedServiceIdsSha256}\` -> `
+          + `\`sha256:${disposition.blueprintContinuity.after.linkedServiceIdsSha256}\` / `
+          + `configuration \`sha256:${disposition.blueprintContinuity.before.linkedServiceConfigurationSha256}\` -> `
+          + `\`sha256:${disposition.blueprintContinuity.after.linkedServiceConfigurationSha256}\` / `
+          + `evidence class \`${disposition.blueprintContinuity.evidenceClass}\` / `
+          + `auto sync \`${disposition.blueprintContinuity.before.autoSyncState}\` -> `
+          + `\`${disposition.blueprintContinuity.after.autoSyncState}\` / `
+        )
+        : ''
+    )
     + `continuity \`${disposition.blueprintContinuity.comparisonResult}\` / `
     + `terminal \`sha256:${disposition.terminalProofSha256}\`; `
     + `secrets captured \`${disposition.secretsCaptured}\``
@@ -384,6 +407,9 @@ export function makeValidFinalEvidence(
     '- platform-reliability-r1-0-snapshot-2-render-receipt.json',
     '- platform-reliability-r1-0-snapshot-delta.json',
     '- platform-reliability-r1-0-snapshot-delta.md',
+    '- platform-reliability-r1-gate-c0-blueprint-before.json',
+    '- platform-reliability-r1-gate-c0-blueprint-after.json',
+    '- platform-reliability-r1-gate-c0-blueprint-comparison.json',
     '- Snapshot completion sentinel: `PASS`',
     '',
     '## 3. Stop-before-start',
@@ -493,6 +519,7 @@ export function makeValidFinalEvidence(
     '',
     '- platform-reliability-r1-secret-scan-receipt.json',
     '- Scanner status: `PASS`',
+    `- Blueprint replacement comparator source digest: \`sha256:${hash('d')}\``,
     ...receipt.secretExposureIncidents.map(incidentEvidenceLine),
     '',
     '## 12. Independent final review',

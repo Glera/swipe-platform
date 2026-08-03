@@ -126,6 +126,81 @@ function makeDatabaseExposureIncident(receipt, {
   };
 }
 
+function addBlueprintReplacementIncident(receipt) {
+  const oldBlueprintId = 'blueprint-main';
+  const newBlueprintId = 'blueprint-replacement';
+  const targetSha256 = digest(oldBlueprintId);
+  const linkedServiceIdsSha256 = digest('srv-cron\nsrv-web');
+  const linkedServiceConfigurationSha256 = digest('stable-service-config');
+  const sourceSha = 'a'.repeat(40);
+  for (const consumer of receipt.consumerClosure.consumers) {
+    consumer.blueprintReferenceId = newBlueprintId;
+    consumer.pinnedSourceSha = sourceSha;
+  }
+  receipt.ingressClosure.autoSyncControl.linkedBlueprintId = newBlueprintId;
+  receipt.secretExposureIncidents.push({
+    incidentId: 'r1-window-blueprint-sync-hook-dom-20260730-2',
+    kind: 'render_blueprint_sync_hook_dom_exposure',
+    observedAt: '2026-07-30T10:50:10Z',
+    targetIdentityKind: 'render_blueprint_id',
+    targetSha256,
+    operatorDecision: {
+      decisionId: 'r1-decision-20260730-2',
+      confirmedAt: '2026-07-30T10:51:00Z',
+      decision: 'approved',
+      targetSha256,
+    },
+    disposition: {
+      actionId: 'r1-secret-action-20260730-2',
+      startedAt: '2026-07-30T10:52:00Z',
+      completedAt: '2026-07-30T10:54:00Z',
+      terminalOutcome: 'invalidated',
+      providerMethod: 'replace_blueprint',
+      providerReceipt: {
+        kind: 'render_dashboard_terminal_observation',
+        observedAt: '2026-07-30T10:53:30Z',
+        action: 'replace_blueprint',
+        terminalOutcome: 'invalidated',
+        targetSha256,
+        evidenceSha256: digest('blueprint-replacement-provider-receipt'),
+        secretsCaptured: false,
+      },
+      credentialNegativeProof: null,
+      blueprintContinuity: {
+        evidenceClass: 'operator_attested',
+        before: {
+          observedAt: '2026-07-30T10:51:30Z',
+          blueprintId: oldBlueprintId,
+          sourceRepository: 'Glera/swipe-backend',
+          sourceBranch: 'master',
+          blueprintPath: 'render.yaml',
+          sourceSha,
+          evidenceSha256: digest('old-blueprint-evidence'),
+          linkedServiceIdsSha256,
+          linkedServiceConfigurationSha256,
+          autoSyncState: 'disabled',
+        },
+        after: {
+          observedAt: '2026-07-30T10:54:00Z',
+          blueprintId: newBlueprintId,
+          sourceRepository: 'Glera/swipe-backend',
+          sourceBranch: 'master',
+          blueprintPath: 'render.yaml',
+          sourceSha,
+          evidenceSha256: digest('new-blueprint-evidence'),
+          linkedServiceIdsSha256,
+          linkedServiceConfigurationSha256,
+          autoSyncState: 'disabled',
+        },
+        comparisonResult: 'replaced_same_source_and_services',
+      },
+      terminalProofSha256: digest('blueprint-replacement-terminal-proof'),
+      secretsCaptured: false,
+    },
+  });
+  return receipt;
+}
+
 const SCRIPT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'platform-reliability-r1-operator-receipt-validate.mjs',
@@ -602,6 +677,107 @@ test('binds dynamic incident IDs to kind/day and credential proof to username', 
       /incident kind|observed UTC day|credentialNegativeProof|exact exposed username/,
     );
   }
+});
+
+test('accepts provider-supported Blueprint replacement and rejects continuity shortcuts', () => {
+  const receipt = addBlueprintReplacementIncident(
+    acceptKnownRenderResidual(makeValidOperatorReceipt()),
+  );
+  assert.equal(
+    validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)).status,
+    'pass',
+  );
+
+  for (const mutate of [
+    (candidate) => {
+      candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.after.blueprintId = 'blueprint-main';
+    },
+    (candidate) => {
+      candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.after.linkedServiceIdsSha256 = digest('different');
+    },
+    (candidate) => {
+      const continuity = candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity;
+      continuity.before.linkedServiceIdsSha256 = digest('invented');
+      continuity.after.linkedServiceIdsSha256 = digest('invented');
+    },
+    (candidate) => {
+      candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.after.linkedServiceConfigurationSha256 =
+          digest('different-configuration');
+    },
+    (candidate) => {
+      candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.after.sourceSha = 'b'.repeat(40);
+    },
+    (candidate) => {
+      const continuity = candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity;
+      continuity.before.sourceSha = 'b'.repeat(40);
+      continuity.after.sourceSha = 'b'.repeat(40);
+    },
+    (candidate) => {
+      candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.after.autoSyncState = 'enabled';
+    },
+    (candidate) => {
+      candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.after.sourceBranch = 'feature';
+    },
+    (candidate) => {
+      candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.comparisonResult = 'equal';
+    },
+    (candidate) => {
+      delete candidate.secretExposureIncidents[1].disposition
+        .blueprintContinuity.evidenceClass;
+    },
+    (candidate) => {
+      candidate.consumerClosure.consumers[0].blueprintReferenceId =
+        'blueprint-main';
+    },
+    (candidate) => {
+      const incident = candidate.secretExposureIncidents[1];
+      incident.targetSha256 = digest('blueprint-replacement');
+      incident.operatorDecision.targetSha256 = incident.targetSha256;
+      incident.disposition.providerReceipt.targetSha256 = incident.targetSha256;
+    },
+  ]) {
+    const candidate = clone(receipt);
+    mutate(candidate);
+    assert.throws(
+      () => validateOperatorEvidence(
+        candidate,
+        makeValidFinalEvidence(candidate),
+      ),
+      /Blueprint|linked services|closed Blueprint target|typed provider target|consumerClosure|sourceBranch|autoSyncState|strict schema/,
+    );
+  }
+});
+
+test('requires a superseding Blueprint replacement after the superseded observation', () => {
+  const receipt = addBlueprintReplacementIncident(makeValidOperatorReceipt());
+  const prior = clone(receipt.secretExposureIncidents[0]);
+  prior.incidentId = 'r1-window-blueprint-sync-hook-dom-20260730-3';
+  prior.observedAt = '2026-07-30T10:48:00Z';
+  prior.operatorDecision.decisionId = 'r1-decision-20260730-3';
+  prior.operatorDecision.confirmedAt = '2026-07-30T10:49:00Z';
+  prior.disposition.actionId = 'r1-secret-action-20260730-3';
+  prior.disposition.startedAt = '2026-07-30T10:50:00Z';
+  prior.disposition.completedAt = '2026-07-30T10:51:00Z';
+  prior.disposition.providerReceipt.observedAt = '2026-07-30T10:51:00Z';
+  prior.disposition.blueprintContinuity.before.observedAt =
+    '2026-07-30T10:49:30Z';
+  prior.disposition.blueprintContinuity.after.observedAt =
+    '2026-07-30T10:55:00Z';
+  receipt.secretExposureIncidents.push(prior);
+
+  assert.throws(
+    () => validateOperatorEvidence(receipt, makeValidFinalEvidence(receipt)),
+    /does not bind the exact closed Blueprint target/,
+  );
 });
 
 test('rejects a secret disposition that remains active across another incident', () => {

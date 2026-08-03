@@ -1,0 +1,10 @@
+{
+  "schema": "platform-reliability-r1-render-blueprint-autosync.v1",
+  "capturedAt": "2026-08-02T19:10:25.139Z",
+  "blueprintId": "exs-d95qo3q8qa3s73ea23p0",
+  "syncStatus": "paused",
+  "autoSync": "No",
+  "locatorCount": 1,
+  "controlDisabled": true,
+  "secretsCaptured": false
+}
