@@ -28,8 +28,8 @@ The operator authorized packet
   persistent Render service mutation, deploy, migration, rehearsal, cutover
   or Stage 1 runtime action occurred.
 - The merge triggered only ordinary `push` CI. Browser E2E run
-  `30839644353` completed successfully while this receipt was prepared;
-  PostgreSQL acceptance run `30839644830` was still in progress.
+  `30839644353` and PostgreSQL acceptance run `30839644830` both completed
+  successfully.
 - JSON validation, `git diff --check`, enforcing docs-boundary lint and all
   130 root tests passed. The first test invocation selected the obsolete
   `/usr/local/bin/git 2.17.1` and failed seven fixtures on unsupported

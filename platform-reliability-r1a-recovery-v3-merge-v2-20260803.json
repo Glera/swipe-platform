@@ -8,6 +8,7 @@
   "startedAt": "2026-08-03T17:58:00.382Z",
   "sourceMergedAt": "2026-08-03T18:04:53Z",
   "receiptPreparedAt": "2026-08-03T18:07:48Z",
+  "postMergeChecksClosedAt": "2026-08-03T18:11:05Z",
   "preflight": {
     "metaHead": "c088b1c7f982fda12d991893509e06e80ad0a003",
     "backendBase": "f0cc933fb813be2e4784200592efced196d74973",
@@ -99,8 +100,8 @@
       "runId": 30839644830,
       "workflow": "PostgreSQL acceptance",
       "event": "push",
-      "statusAtReceipt": "in_progress",
-      "conclusionAtReceipt": null
+      "statusAtReceipt": "completed",
+      "conclusionAtReceipt": "success"
     }
   ],
   "localVerification": {
