@@ -1,0 +1,107 @@
+{
+  "schema": "platform-release-lkg-smoke-source-fix-authority-request.v1",
+  "status": "DRAFT_REQUIRES_INDEPENDENT_REVIEW_AND_EXPLICIT_OPERATOR_GO",
+  "authority": "none",
+  "preparedAt": "2026-08-03T19:27:00Z",
+  "acceptedFailureEvidenceCommit": "6cb47b16148956fdeaaeb04d6cafd61b95700f95",
+  "repository": "Glera/swipe-backend",
+  "baseRef": "master",
+  "expectedBaseSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+  "newBranch": "codex/r1a-lkg-pythonpath-fix-20260803",
+  "failedRun": {
+    "runId": 30845173288,
+    "attempt": 1,
+    "headSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "conclusion": "failure",
+    "publicationOccurred": false,
+    "authorityConsumed": true,
+    "redispatchAuthorized": false
+  },
+  "exactFailureProducingBytes": {
+    "baselineDockerfileSource": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+    "baselineDockerfileGitBlob": "47cfc38f964aaf13b07c3426c2cd7bfc62cae294",
+    "smokeSource": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "smokeGitBlob": "d16f23fed611074bfd712cecbbc93b5b8128f9e5",
+    "workflowGitBlob": "a2befbfd7888ba69643a036159253c3ef2dceb66",
+    "testFileGitBlob": "606af8fd0c7dc918b04af67b458b64b4df9fc079",
+    "testFileSizeBytes": 18650
+  },
+  "allowedFiles": [
+    ".github/workflows/platform-release-image.yml",
+    "tests/test_platform_release.py"
+  ],
+  "requiredDiff": {
+    "workflow": [
+      "inside only the Prove exact pinned LKG against candidate-head PG16 step, add exactly one docker-run environment argument: -e PYTHONPATH=/app",
+      "place it after -e EXPECTED_SCHEMA_REVISION and before the feature-flag arguments",
+      "do not change the smoke script, image, LKG inputs, compatibility range, build, publication or manifest steps"
+    ],
+    "test": [
+      "inside the existing lkg_smoke substring assertions, require lkg_smoke.count(\"-e PYTHONPATH=/app\") == 1",
+      "require that exact argument to occur before the mounted platform-release-lkg-forward-smoke.py:/smoke.py:ro path",
+      "prove red on the exact base bytes with the new assertions alone and green only after the workflow line is present"
+    ]
+  },
+  "requiredPreflight": [
+    "the operator-named meta packet resolves exactly and includes independently accepted failure evidence commit 6cb47b16148956fdeaaeb04d6cafd61b95700f95",
+    "remote backend master still resolves to exactly f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "failed run 30845173288/1 remains the only Platform release image run for that exact source and remains failure with zero artifacts",
+    "the exact source has no tagged GHCR version",
+    "the new branch does not already exist locally or remotely",
+    "both allowed files at exact base have their action-time git blobs recorded and the workflow blob equals a2befbfd7888ba69643a036159253c3ef2dceb66",
+    "the GitHub production environment and repository-level RENDER_/PLATFORM_RELEASE_ authority remain absent"
+  ],
+  "requiredVerification": [
+    "red receipt: new exact lkg_smoke assertions fail against uncorrected workflow bytes",
+    "green: python -m pytest -q tests/test_platform_release.py tests/test_platform_release_coordinator.py tests/test_platform_release_provider_capture.py tests/test_mission_architecture_guard.py",
+    "green: python scripts/mission-architecture-guard.py",
+    "git diff --check and exact allowed-file diff",
+    "one push after the complete local packet, then automatic Platform release image and PostgreSQL acceptance CI only",
+    "independent read-only review of exact branch head and CI receipts"
+  ],
+  "allowedActionsAfterSeparateGo": [
+    "perform read-only git/GitHub/GHCR preflight checks",
+    "create one local branch codex/r1a-lkg-pythonpath-fix-20260803 from exact base",
+    "edit exactly the two allowed files with only the required diff",
+    "run local red-then-green and required verification",
+    "create one commit on the new branch and push that exact branch once",
+    "open one draft pull request to backend master marked DO NOT MERGE",
+    "observe only automatically triggered CI and collect exact receipts",
+    "obtain independent read-only review and commit bounded meta receipts"
+  ],
+  "forbiddenActions": [
+    "edit any third file or broaden the source correction",
+    "modify or force-update an existing ref",
+    "merge the new pull request or any other pull request",
+    "rerun run 30845173288 or redispatch f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "manually dispatch any GitHub workflow",
+    "publish, rebuild, delete or relabel an image/package version",
+    "create or mutate the GitHub production environment",
+    "create or use a Render API key or mutate any Render resource",
+    "deploy, migrate production, rehearse or cut over",
+    "enable, mutate or roll out Stage 1 runtime",
+    "expand generative-feed scope"
+  ],
+  "hardStops": [
+    "any exact base, failure receipt, source blob, branch absence, GHCR absence or authority-absence check differs",
+    "the red test does not fail for the exact missing PYTHONPATH assertion",
+    "the diff touches another file or changes any line beyond the exact harness/test correction",
+    "local verification or automatic CI fails",
+    "independent review reports P1/P2"
+  ],
+  "failurePolicy": {
+    "automaticRepairBeyondRequiredDiff": false,
+    "secondPushUnderSameAuthority": false,
+    "manualWorkflowRerun": false,
+    "merge": false,
+    "nextStep": "stop, preserve the branch/PR evidence and request a new exact operator decision"
+  },
+  "costPolicy": {
+    "manualWorkflowDispatches": 0,
+    "sourcePushes": 1,
+    "automaticCiSets": 1,
+    "renderSpendUsd": 0,
+    "note": "GitHub Actions uses the normal single PR CI set; no rerun or second push is authorized under this packet"
+  },
+  "nextAuthority": "After exact-head CI and independent review GO, prepare a separate source-merge authority with fresh production Auto Sync/Deploy-off evidence. Candidate-v4 publication remains later and separate."
+}
