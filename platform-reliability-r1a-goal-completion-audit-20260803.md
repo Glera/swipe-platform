@@ -43,3 +43,10 @@ authority.
 
 This goal must remain active until that final packet is produced and accepted;
 publication alone is not completion.
+
+The mechanically verified recovery and the resulting product-authority choice
+are specified in
+`platform-reliability-r1a-concurrent-master-recovery-plan-20260803.md`. No
+recovery branch or production action is authorized until the operator explicitly
+decides whether additive Stage 1 storage migrations may accompany R1-A while
+all Mission runtime surfaces remain off.
