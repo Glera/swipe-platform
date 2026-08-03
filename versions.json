@@ -204,5 +204,16 @@
     "mountCost": "light",
     "sourceCommit": "5792d944b92b60a4260467e8c90b88db32ab9dbc",
     "runtimeArtifactDigest": "sha256:1c6672c1ee59c4679d0c90ab4f538c03b4b727ce72f1a3d6f28d48635b603d1d"
+  },
+  "minesweeper-v1-swipe": {
+    "version": "a62f94702b",
+    "htmlBytes": 1091,
+    "payloadBytes": 55454,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 0,
+    "mountCost": "light",
+    "sourceCommit": "67fedba6901cf492bc0d60ac051560e89d443f3b",
+    "runtimeArtifactDigest": "sha256:31687c400a53bb7a844fdfc1a76a7475f13aab5763cc8fd82d9db13343e76220"
   }
 }
