@@ -1,7 +1,10 @@
 {
   "schema": "platform-release-cutover-preparation-authority-request.v2",
-  "status": "REVIEWED_GO_READY_FOR_OPERATOR_DECISION",
-  "authority": "not-granted",
+  "status": "CONSUMED_FAIL_CONTAINED_BY_CONCURRENT_DRIFT",
+  "authority": "granted-by-operator-and-consumed",
+  "consumedAt": "2026-08-03T14:29:05Z",
+  "failedAt": "2026-08-03T14:48:42Z",
+  "resultReceipt": "platform-reliability-r1a-cutover-preparation-v2-concurrent-drift-20260803.json",
   "preparedAt": "2026-08-03T14:08:29Z",
   "sourceEvidenceCommit": "3ebc6f2c45c1d7e64d182ce9e20d7e9b325d0776",
   "supersedes": {

@@ -2,9 +2,8 @@
 
 Observed: 2026-08-03 UTC.
 
-Status: **ACTIVE — one external authority gate remains before the final
-cutover packet can be completed.** This audit records evidence; it grants no
-production authority.
+Status: **ACTIVE — PRE-CUTOVER V2 FAIL CONTAINED; SUCCESSOR/IMAGE RECOVERY
+REQUIRED.** This audit records evidence; it grants no production authority.
 
 | Goal requirement | Current authority evidence | Assessment |
 | --- | --- | --- |
@@ -14,13 +13,13 @@ production authority.
 | Mission architecture policy reconciled with Stage 1 without taking authorship | `platform-reliability-r1a-stage1-adapter-r4-disposition.md`; policy head `4bfc1d6868d3a41c5439972375292305e13a50c0`; exact Stage 1 replay PASS | PROVEN |
 | Fresh R1-A CI and independent review for each material package | successor/pin/baseline/publication review receipts and exact run IDs committed in PR #40 | PROVEN |
 | Disposable rehearsal exercises real migration, candidate, conflict paths and forward-only rollback | `platform-reliability-r1a-rehearsal-runtime-receipt-20260801.md` plus accepted final evidence packet | PROVEN |
-| Production immutable baseline/candidate pair published once and verified | `platform-reliability-r1a-production-image-publication-receipt-20260803.{json,md}`; evidence commit `e7d782bdac44198ca4ed63e7211eb8a0db37577f` | PROVEN |
-| Stage 1 validator-parity and one-tap fixes stay author-owned; Codex reviews through closure | R1/R2 dispositions; R3 PR #41 comment `5150093650`; R4 GO comment `5151450107`; backend remains `2029867495578310dda92c170a2e07c71203eefa`, client remains `43f92693b55057d4c22652cbd81dad4ab67f0171`; PR #41 remains draft | PROVEN |
-| No Stage 1 production rollout or history mixing | frozen remote heads above; no Stage 1 merge/deploy authority in R1-A receipts | PROVEN |
+| Production immutable baseline/candidate pair published once and verified | `platform-reliability-r1a-production-image-publication-receipt-20260803.{json,md}`; evidence commit `e7d782bdac44198ca4ed63e7211eb8a0db37577f` | PROVEN FOR OLD GRAPH; STALE AS CURRENT CUTOVER AUTHORITY |
+| Stage 1 validator-parity and one-tap fixes stay author-owned; Codex reviews through closure | R1/R2 dispositions; R3 PR #41 comment `5150093650`; R4 GO comment `5151450107`; exact reviewed backend head `2029867495578310dda92c170a2e07c71203eefa`, client remains `43f92693b55057d4c22652cbd81dad4ab67f0171` | REVIEW PROVEN; PR #41 MERGED CONCURRENTLY |
+| No Stage 1 production rollout or history mixing | fresh provider evidence still shows old deploy IDs and DB `0070`, but PR #41 merged into backend master during pre-cutover | PRODUCTION NOT ROLLED OUT; HISTORY BOUNDARY VIOLATED |
 | Generative-feed scope not expanded | no open backend/client PR matches the generative-feed contour at this observation; no generative-feed mutation was made by this goal continuation | PROVEN FOR SCOPE BOUNDARY; no new deliverable inferred |
-| Exact production cutover packet ready for operator merge/deploy GO | immutable pair is bound, but the packet still lacks a fresh provider/database capture and live protected-environment receipt | NOT YET PROVEN |
+| Exact production cutover packet ready for operator merge/deploy GO | preparation evidence was captured, then mandatory CAS detected concurrent master/Stage 1 drift and removed temporary authority | REFUSED; PACKET NON-EXECUTABLE |
 
-## Sole remaining gate
+## Current recovery boundary
 
 The first attended attempt failed closed during temporary-key handoff; the
 unused key was revoked and no provider request, database job or GitHub
@@ -28,16 +27,19 @@ environment was created. The contained failure and hardened handoff are in
 `platform-reliability-r1a-cutover-preparation-failure-20260803.{json,md}` and
 the executable runbook. Independent R3 returned GO.
 
-The next authority request remains exactly
-`platform-reliability-r1a-cutover-preparation-authority-request-20260803.md`
-and its JSON companion. The executable runbook, two digest-bound GitHub
-payloads and independent reviews returned GO. The old authority at `3d933b1`
-is consumed. Until the operator names the new resulting committed SHA, no
-Render key, DB probe or GitHub `production` environment may be created.
+The v2 request at `f40e526` was executed and is consumed. Stage 1 PR #41 and a
+direct Minesweeper policy commit advanced backend master during the window.
+Mandatory readback stopped execution; the GitHub environment and temporary
+Render key were removed. Exact receipt:
+`platform-reliability-r1a-cutover-preparation-v2-concurrent-drift-20260803.{json,md}`.
 
-After the bounded preparation passes, the final packet must bind its fresh
-capture digest/time, exact live deploy, database revision and environment
-receipt. Only then can the operator issue the separate merge/cutover GO.
+PR #51 branches R1-A's `0071_platform_release_receipts` from `0070`, while
+current master now branches `0071_mission_slice_core` from the same revision
+and continues to `0072_mission_ops_receipts`. Recovery is therefore a new
+design/review cycle, not another preparation retry: freeze current master,
+resolve the single-head migration graph and rollback compatibility, build a
+new successor, rerun CI/review, then request new publication and pre-cutover
+authority.
 
 This goal must remain active until that final packet is produced and accepted;
 publication alone is not completion.

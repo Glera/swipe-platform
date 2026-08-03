@@ -2,8 +2,8 @@
 
 Prepared: 2026-08-02 UTC; successor-v2 recovery updated 2026-08-03 UTC.
 
-Status: **BASELINE RETAINED; CANDIDATE V2 PUBLISHED AND INDEPENDENTLY ACCEPTED;
-CUTOVER AUTHORITY NOT GRANTED**. Backend `master` advanced through PR #49
+Status: **PRE-CUTOVER V2 FAIL CONTAINED AFTER CONCURRENT STAGE 1 MERGE;
+CUTOVER PACKET NON-EXECUTABLE**. Backend `master` advanced through PR #49
 after the old candidate publication. The action-time CAS correctly refused
 packet `099f3de` before any external authority was created. Draft PR #51 is
 the reviewed successor at exact head
@@ -13,13 +13,21 @@ authority, is bound below and has independent receipt GO. This
 packet authorizes no further publication, merge, GitHub production-environment mutation, provider source
 switch, deployment, rollback or Stage 1 action.
 
+During the later authorized v2 preparation, Stage 1 PR #41 merged and master
+advanced to `47a0a0a6b4841212c44382c73dbeb0b26037e850`. The mandatory
+read-after-write CAS stopped the window; temporary GitHub/Render authority was
+removed. PR #51 now has both a stale base and a migration branch that conflicts
+with the Stage 1 graph. Exact receipt:
+`platform-reliability-r1a-cutover-preparation-v2-concurrent-drift-20260803.{json,md}`.
+
 The previous preparation request
 `platform-reliability-r1a-cutover-preparation-authority-request-20260803.md`
 is blocked and non-executable. Candidate-v2 publication is complete and
 independently accepted. The next bounded decision is the reviewed preparation
 v2 request
 `platform-reliability-r1a-cutover-preparation-v2-authority-request-20260803.{json,md}`;
-it still has no operator authority.
+that request is now consumed and failed-contained. No current cutover request
+is executable.
 
 ## 1. Accepted rehearsal authority
 
@@ -77,7 +85,9 @@ the merge vehicle.
 6. Open a new successor PR. It remains unmerged until the provider gate and
    exact operator GO below.
 
-No Stage 1 commit is rebased, renumbered, merged or deployed in this phase.
+This was a hard invariant of the reviewed sequence. It was violated by the
+concurrent merge of Stage 1 PR #41, so the sequence below is historical and
+cannot resume from its next numbered step.
 
 ### Superseded successor-v1 receipts
 
@@ -111,7 +121,7 @@ No Stage 1 commit is rebased, renumbered, merged or deployed in this phase.
 These receipts remain valid history for candidate v1, but PR #48 is no longer
 the merge vehicle because its base predates PR #49.
 
-### Accepted successor v2
+### Historical successor v2
 
 - draft PR: [backend #51](https://github.com/Glera/swipe-backend/pull/51),
   `DO NOT MERGE`;
@@ -128,9 +138,10 @@ the merge vehicle because its base predates PR #49.
 - exact receipt:
   `platform-reliability-r1a-production-successor-v2-20260803.{json,md}`.
 
-PR #51 remains draft and unmerged. Steps 1–5 and candidate-v2 publication are
-complete for the new base; all production preparation and cutover actions
-remain separately gated.
+PR #51 remains draft and unmerged, but its base predates the concurrent Stage 1
+merge and its migration now forms a second branch from `0070`. Its CI and
+review receipts remain valid history for that exact old graph; they are not
+merge or deploy authority on current master.
 
 ## 4. Production immutable images
 
@@ -148,9 +159,10 @@ The old candidate manifest correctly pins the exact baseline as its LKG, but
 its source predates new `master` and cannot authorize deploying successor v2.
 It is now historical evidence only. Never redispatch that SHA.
 
-The baseline remains the accepted forward-only rollback image: its source and
-schema contract are unchanged, its Actions artifact is unexpired, and
-successor v2 retains the same reviewed LKG range. Rebuilding it is forbidden.
+The baseline remains immutable, unexpired evidence for the old graph. After
+Stage 1 introduced `0071_mission_slice_core` and `0072_mission_ops_receipts`,
+it cannot be assumed to be a forward-only rollback target for a future revised
+R1-A schema without a new compatibility proof.
 
 Candidate v2 was published exactly once and pins the existing baseline:
 
@@ -161,6 +173,8 @@ Candidate v2 was published exactly once and pins the existing baseline:
 Exact receipt:
 `platform-reliability-r1a-production-candidate-v2-publication-receipt-20260803.{json,md}`.
 The one-run authority is exhausted; no image may be redispatched or rebuilt.
+Candidate v2 is stale as current cutover authority because it predates the
+concurrent Stage 1 merge and Minesweeper policy commit.
 
 ## 5. Action-time provider gate
 
@@ -219,9 +233,19 @@ preparation request is non-executable. Candidate-v2 is now independently
 accepted and the reviewed v2 replacement request is committed separately; it
 requires a fresh named operator authority before execution.
 
-## 6. Exact attended sequence after operator GO
+Packet `f40e526` later received that authority. Provider/database and GitHub
+environment setup passed, but Stage 1 PR #41 and a direct master commit landed
+during the window. Mandatory readback stopped the run and cleanup removed the
+environment and temporary key. Receipt:
+`platform-reliability-r1a-cutover-preparation-v2-concurrent-drift-20260803.{json,md}`.
+The provider remained undeployed at database revision `0070`; the reviewed v2
+request and this sequence are no longer executable.
 
-Each item has a stop point and its own receipt:
+## 6. Historical attended sequence — non-executable
+
+This is retained only to explain the failed packet. A replacement must be
+written and reviewed against the post-Stage-1 migration graph before any new
+operator decision.
 
 1. **Freeze:** announce single-flight window; recapture all heads and provider
    state; stop on drift.
@@ -261,11 +285,11 @@ The operator GO must name one immutable packet revision containing:
 - rollback target and compatibility proof;
 - approved execution window and authorized operator.
 
-The baseline and candidate-v2 fields are fixed by §4. The remaining missing
-authority is a fresh provider/database capture, expected deploy identity,
-protected-environment receipt and bounded execution window. The reviewed
-preparation-v2 request may gather those facts only after its own exact operator
-GO. It must not rebuild the baseline or redispatch any published SHA.
+No field set in this section is sufficient for a new GO. Recovery first needs
+a frozen current master, an explicit single-head migration topology, a new
+reviewed successor, a compatible baseline/candidate strategy and new immutable
+publication authority. Old published SHAs must not be redispatched or silently
+relabelled.
 
 Example form, not an authorization:
 
@@ -276,7 +300,8 @@ Example form, not an authorization:
 
 ## 8. Post-cutover boundary
 
-Only after production cutover receipts are independently accepted may Stage 1
-authors rebase and renumber their migrations around R1-A's `0071`. Stage 1
-still requires its own CI/review and separate GO. Generative-feed scope remains
-unchanged.
+Stage 1 merged before R1-A despite this boundary. It remains undeployed in the
+fresh provider evidence, and its product flags remain outside this packet, but
+its `0071`/`0072` migrations now own the master graph. R1-A recovery must adapt
+to that fact rather than rewriting or deploying Stage 1 implicitly.
+Generative-feed scope remains unchanged.

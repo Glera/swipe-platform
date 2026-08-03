@@ -1,0 +1,176 @@
+{
+  "schema": "platform-release-cutover-preparation-concurrent-drift.v2",
+  "status": "FAIL_CONTAINED",
+  "authorityCommit": "f40e52665981b6b5bdde900158e5aa03acdd6221",
+  "window": {
+    "initialPreflightPassedAt": "2026-08-03T14:29:05Z",
+    "environmentVerifiedAt": "2026-08-03T14:41:59.430338Z",
+    "decisionDeadlineWas": "2026-08-03T15:41:59.430338Z",
+    "hardStopCleanupStartedAt": "2026-08-03T14:48:42Z",
+    "cleanupVerifiedAt": "2026-08-03T14:53:37.131763Z"
+  },
+  "failure": {
+    "stage": "mandatory-read-after-write-cas",
+    "kind": "concurrent-backend-master-and-stage1-drift",
+    "expectedBackendMasterSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "actualBackendMasterSha": "47a0a0a6b4841212c44382c73dbeb0b26037e850",
+    "successorPullRequest": 51,
+    "successorHeadSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+    "successorBaseSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "successorDraftOpenUnmerged": true
+  },
+  "concurrentChanges": [
+    {
+      "kind": "pull-request-merge",
+      "pullRequest": 41,
+      "title": "Stage 1: mission slice v0 (default-off) — R4 GO",
+      "sourceHead": "2029867495578310dda92c170a2e07c71203eefa",
+      "mergeCommit": "cd7c66564e92e9d54846e77954c7c49360d1d18a",
+      "mergedAt": "2026-08-03T14:35:15Z",
+      "mergedBy": "Glera"
+    },
+    {
+      "kind": "direct-master-commit",
+      "commit": "47a0a0a6b4841212c44382c73dbeb0b26037e850",
+      "message": "feat: add Minesweeper series policy",
+      "committedAt": "2026-08-03T14:38:38Z"
+    }
+  ],
+  "providerEvidence": {
+    "initialCapture": {
+      "observedAt": "2026-08-03T14:33:44.104413Z",
+      "sha256": "8c62d398f4800a6787d7358cde4a9f011f79c536fcbf965bad986423f7dbb4c3",
+      "blueprintAutoSync": false,
+      "allAutoDeploy": false
+    },
+    "inventory": {
+      "observedAt": "2026-08-03T14:37:15.697207Z",
+      "sha256": "9c62c61f32e6f698da03bda406aff80ba5877d2c965267852f4d1f28508f2129",
+      "activeDeployCount": 0,
+      "activeJobCountBeforeRevisionJob": 0,
+      "latestDeploys": {
+        "web": "dep-d9mtmabm8hqs73cighmg",
+        "sequencing": "dep-d9mtmabm8hqs73cigjk0",
+        "materialize": "dep-d9mtmajm8hqs73cigkc0"
+      },
+      "databaseStatus": "available",
+      "databaseVersion": "16"
+    },
+    "revisionJob": {
+      "id": "job-d9oaeur7uimc738u0vdg",
+      "createdAt": "2026-08-03T14:36:43.365947Z",
+      "finishedAt": "2026-08-03T14:37:11Z",
+      "startCommand": "alembic current",
+      "status": "succeeded",
+      "exactOutput": "0070_published_test_delivery (head)"
+    },
+    "postEnvironmentCapture": {
+      "observedAt": "2026-08-03T14:43:17.715084Z",
+      "sha256": "dec92ad67114f7b9c8221b6d55cfd086e9c63b2e5aa6ec8f83e137281135d7e3",
+      "blueprintAutoSync": false,
+      "allAutoDeploy": false
+    },
+    "postEnvironmentInventory": {
+      "observedAt": "2026-08-03T14:44:07.646006Z",
+      "sha256": "88fe92add783745c08918c8f03e6e80772c04925cbb785bca34c0fd2c8d3050d",
+      "activeDeployCount": 0,
+      "activeJobCount": 0,
+      "latestDeploysUnchanged": true,
+      "jobSetDeltaFromPreflight": [
+        "job-d9oaeur7uimc738u0vdg"
+      ]
+    }
+  },
+  "githubEnvironment": {
+    "created": true,
+    "verifiedAt": "2026-08-03T14:41:59.430338Z",
+    "verificationSha256": "05c93b51a7cd922062db3e140d724dc35bf92a2af0367c92ca953d89eac0fd05",
+    "branchPolicy": {
+      "name": "codex/r1a-production-cutover-v2-20260803",
+      "type": "branch"
+    },
+    "secretNames": [
+      "RENDER_API_KEY"
+    ],
+    "variables": {
+      "PLATFORM_DATABASE_IDENTITY": "swipe-production",
+      "PLATFORM_RELEASE_AUTHORITY_SCOPE": "production",
+      "RENDER_BLUEPRINT_ID": "exs-d95qo3q8qa3s73ea23p0",
+      "RENDER_OWNER_ID": "tea-d1m4lmali9vc73euvelg",
+      "RENDER_REGISTRY_CREDENTIAL_ID": "rgc-d9np7tajnfac73bi5ib0",
+      "RENDER_SERVICE_ID": "srv-d95r3bfavr4c73aqsi4g"
+    },
+    "repositoryRenderAuthorityAbsentBeforeAndAfter": true,
+    "deletedAtCleanup": true,
+    "cleanupReceiptSha256": "736c4ee1d736d8ae5bd6f722766e2087c7196fd4dfe6454040de323b14d4f123",
+    "postCleanupGetStatus": 404
+  },
+  "temporaryRenderKey": {
+    "name": "r1a-precutover-v2-20260803",
+    "created": true,
+    "valueRecorded": false,
+    "usedOnlyForReviewedCaptureAndEnvironmentSecret": true,
+    "revoked": true,
+    "revokedKeyHttpStatus": 401,
+    "revocationVerifiedAt": "2026-08-03T14:50:10.251386Z",
+    "renderUiReportsNoProvisionedApiKeys": true,
+    "localHandoffPresentAfterCleanup": false
+  },
+  "immutableImages": {
+    "candidate": {
+      "sourceSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+      "versionId": 1093812331,
+      "ociIndex": "sha256:d6aae406275945b30475aa6c797f73d52af6108a715f5c5a4bcfe109fddcd05b",
+      "authenticatedBrowserReadbackMatched": true,
+      "workflowDispatchCount": 1,
+      "artifactId": 8858370713,
+      "artifactExpired": false
+    },
+    "baseline": {
+      "sourceSha": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+      "versionId": 1092313648,
+      "ociIndex": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+      "authenticatedBrowserReadbackMatched": true,
+      "artifactId": 8846489671,
+      "artifactExpired": false
+    }
+  },
+  "containment": {
+    "postcheckObservedAt": "2026-08-03T14:53:37.131763Z",
+    "postcheckSha256": "e372d87a881242491fb650c45068831b234fa9cd72d597cb93d50fe6b8f0542d",
+    "productionEnvironmentPresent": false,
+    "repositoryRenderAuthorityPresent": false,
+    "candidateCutoverWorkflowDispatchCount": 0,
+    "successorPullRequestMerged": false,
+    "renderPersistentServiceMutationByThisWindow": false,
+    "deployByThisWindow": false,
+    "migrationByThisWindow": false,
+    "imagePublicationByThisWindow": false,
+    "stage1MutationByThisWindow": false,
+    "concurrentStage1MergeObserved": true
+  },
+  "migrationCollision": {
+    "successorMigration": {
+      "revision": "0071_platform_release_receipts",
+      "downRevision": "0070_published_test_delivery"
+    },
+    "newMasterMigrations": [
+      {
+        "revision": "0071_mission_slice_core",
+        "downRevision": "0070_published_test_delivery"
+      },
+      {
+        "revision": "0072_mission_ops_receipts",
+        "downRevision": "0071_mission_slice_core"
+      }
+    ],
+    "oldSuccessorCanNoLongerMergeOrCutOverAsReviewed": true
+  },
+  "disposition": {
+    "preCutoverAuthorityConsumed": true,
+    "finalCutoverAuthorityRequested": false,
+    "candidateV2Status": "STALE_AS_CUTOVER_AUTHORITY",
+    "baselineStatus": "RETAINED_IMMUTABLE_EVIDENCE_REQUIRES_REEVALUATION_FOR_NEW_GRAPH",
+    "requiredRecovery": "freeze backend master, rebase and redesign R1-A on the post-Stage-1 migration graph, rerun CI and independent review, then publish a newly authorized immutable candidate and obtain a new pre-cutover authority"
+  }
+}

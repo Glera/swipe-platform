@@ -2,16 +2,20 @@
 
 Prepared: 2026-08-03 UTC.
 
-Status: **INDEPENDENT REVIEW GO — DO NOT EXECUTE WITHOUT AN OPERATOR GO NAMING
-THE EXACT COMMITTED V2 AUTHORITY REQUEST**.
+Status: **CONSUMED; FAIL CONTAINED AFTER CONCURRENT DRIFT; NON-EXECUTABLE**.
+
+This runbook was executed once under packet `f40e526`. Backend master and
+Stage 1 changed during the window, mandatory CAS stopped execution, and all
+temporary authority was removed. Exact receipt:
+`platform-reliability-r1a-cutover-preparation-v2-concurrent-drift-20260803.{json,md}`.
+Do not reuse this runbook or either payload for a later attempt.
 
 Authority and identities live in
 `platform-reliability-r1a-cutover-preparation-v2-authority-request-20260803.{json,md}`.
 This runbook narrows execution to that request. It grants no authority itself.
 
-The old request and old branch-policy payload remain historical and
-non-executable. Only the v2 request, the plan-compatible environment payload
-and the candidate-v2 branch-policy payload named below may be used.
+The old requests and both generations of branch-policy payload remain
+historical and non-executable.
 
 ## 0. Single-flight local boundary
 
