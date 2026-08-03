@@ -2,7 +2,7 @@
 
 Prepared: 2026-08-03 UTC.
 
-Status: **NON-EXECUTABLE UNTIL INDEPENDENT REVIEW AND EXACT OPERATOR GO**.
+Status: **INDEPENDENT REVIEW GO; NON-EXECUTABLE UNTIL EXACT OPERATOR GO**.
 
 Authority lives in
 `platform-reliability-r1a-recovery-v3-merge-v2-authority-request-20260803.md`.

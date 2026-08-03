@@ -2,7 +2,7 @@
 
 Prepared: 2026-08-03 UTC.
 
-Status: **READY FOR INDEPENDENT REVIEW; NOT AUTHORIZED**.
+Status: **INDEPENDENT REVIEW GO; READY FOR OPERATOR DECISION; NOT AUTHORIZED**.
 
 This request replaces the consumed `a063ed91…` merge window. Its only material
 change is the secret handoff boundary: the browser runtime and host share
