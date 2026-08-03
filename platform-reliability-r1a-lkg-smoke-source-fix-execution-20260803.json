@@ -1,0 +1,139 @@
+{
+  "schema": "platform-release-lkg-smoke-source-fix-execution.v1",
+  "status": "DRAFT_PR_GREEN_AWAITING_INDEPENDENT_REVIEW",
+  "recordedAt": "2026-08-03T20:25:38Z",
+  "authorityPacket": "6093e50cbfb317042e7a0e3c8e49da1a7f689a3b",
+  "acceptedFailureEvidenceCommit": "6cb47b16148956fdeaaeb04d6cafd61b95700f95",
+  "repository": "Glera/swipe-backend",
+  "preflight": {
+    "remoteMaster": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "failedRun": {
+      "id": 30845173288,
+      "attempt": 1,
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "failure",
+      "exactSourceRunCount": 1,
+      "artifactCount": 0
+    },
+    "failureSignature": "ImportError: cannot import name 'models' from 'app' (unknown location)",
+    "sourceBlobs": {
+      "workflow": "a2befbfd7888ba69643a036159253c3ef2dceb66",
+      "test": "606af8fd0c7dc918b04af67b458b64b4df9fc079",
+      "smoke": "d16f23fed611074bfd712cecbbc93b5b8128f9e5",
+      "baselineDockerfile": "47cfc38f964aaf13b07c3426c2cd7bfc62cae294"
+    },
+    "testFileSizeBytes": 18650,
+    "branchAbsentLocal": true,
+    "branchAbsentRemote": true,
+    "productionEnvironmentAbsent": true,
+    "repositoryReleaseSecrets": [],
+    "repositoryReleaseVariables": [],
+    "ghcr": {
+      "exactFailedSourceTagPresent": false,
+      "taggedVersionCount": 8,
+      "latestVisibleUnrelatedTag": "4714e339b60e3af747d138486ad7eadadec72dac",
+      "domSnapshotSha256": "2e416c682dd168a59f7b7b5c220d82d77d3fa80e0aeb8a68f7d5479c826d2210"
+    }
+  },
+  "redProof": {
+    "kind": "detached_disposable_worktree",
+    "base": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "mutation": "two exact lkg_smoke test assertions only",
+    "command": "/Users/gleb/My projects/p4g-platform-workspace/swipe-backend/.venv/bin/python -m pytest -q tests/test_platform_release.py",
+    "exitCode": 1,
+    "passed": 20,
+    "failed": 1,
+    "soleFailure": "assert lkg_smoke.count(\"-e PYTHONPATH=/app\") == 1",
+    "actualCount": 0,
+    "disposedBeforeBranchCreation": true
+  },
+  "source": {
+    "branch": "codex/r1a-lkg-pythonpath-fix-20260803",
+    "base": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "head": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "tree": "75dbd88045b5b301a903d9bc917c006cd2ceaffe",
+    "commitCount": 1,
+    "files": [
+      ".github/workflows/platform-release-image.yml",
+      "tests/test_platform_release.py"
+    ],
+    "insertions": 5,
+    "deletions": 0,
+    "diffSha256": "9a5f619e927b1913775b153fff5bdc7ccadbd86dc80b659115f2c1d746923258",
+    "resultBlobs": {
+      "workflow": "b8490d5c02db1e4c1c48d7c8f9191d65e5cc09fa",
+      "test": "7c7afdb35d3d29bebc643f9d544810180fedb23d"
+    },
+    "sourcePushCount": 1,
+    "secondPush": false
+  },
+  "localVerification": {
+    "python": "3.13.7",
+    "pytest": "9.1.1",
+    "requiredPytest": {
+      "passed": 86,
+      "failed": 0
+    },
+    "missionArchitectureGuard": {
+      "status": "PASS",
+      "policySha256": "3469120fba269c3be44eb4de4d829d83249cf01bcc426319b660f7256c0a3cc5"
+    },
+    "diffCheck": "clean"
+  },
+  "pullRequest": {
+    "number": 53,
+    "url": "https://github.com/Glera/swipe-backend/pull/53",
+    "state": "OPEN",
+    "draft": true,
+    "title": "DO NOT MERGE · R1-A LKG smoke PYTHONPATH fix",
+    "base": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "head": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "mergeState": "CLEAN"
+  },
+  "automaticCi": {
+    "manualDispatches": 0,
+    "reruns": 0,
+    "imageRun": {
+      "id": 30849622831,
+      "attempt": 1,
+      "event": "pull_request",
+      "head": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+      "conclusion": "success",
+      "artifactCount": 0
+    },
+    "postgresRun": {
+      "id": 30849622812,
+      "attempt": 1,
+      "event": "pull_request",
+      "head": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+      "conclusion": "success",
+      "artifactCount": 0
+    },
+    "allCheckRollupConclusions": "SUCCESS"
+  },
+  "postCi": {
+    "remoteMaster": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "remoteBranch": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "productionEnvironmentAbsent": true,
+    "repositoryReleaseSecrets": [],
+    "repositoryReleaseVariables": [],
+    "ghcrHeadTagPresent": false,
+    "ghcrFailedSourceTagPresent": false,
+    "ghcrDomSnapshotSha256": "b37fe23c1dbd08e5f0100a7fef1c32230826040e1ff8f9588edd4f249f75945e"
+  },
+  "boundary": {
+    "merge": false,
+    "manualWorkflowDispatchOrRerun": false,
+    "imagePublicationMutation": false,
+    "githubEnvironmentMutation": false,
+    "renderAccessOrMutation": false,
+    "deploy": false,
+    "productionMigration": false,
+    "rehearsal": false,
+    "cutover": false,
+    "stage1RuntimeAction": false,
+    "generativeFeedExpansion": false
+  },
+  "next": "Independent read-only review of exact head and receipts; source merge remains a separate operator authority."
+}
