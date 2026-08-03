@@ -1,0 +1,160 @@
+{
+  "schema": "platform-release-image-publication-failure-receipt.v1",
+  "status": "FAIL_CONTAINED_NO_PUBLICATION_AUTHORITY_CONSUMED",
+  "recordedAt": "2026-08-03T19:20:48Z",
+  "operatorAuthority": {
+    "packetCommit": "c5bfbef243e38f6c19f4f5ee53f8124e2aa37fb9",
+    "dispatchLimit": 1,
+    "dispatchConsumed": true,
+    "retryAuthorized": false,
+    "exactSource": "f2a840517956c4f480fc9d8aaf6f832ebde489d9"
+  },
+  "preflight": {
+    "observedAt": "2026-08-03T19:16:54Z",
+    "packetCommitResolved": "c5bfbef243e38f6c19f4f5ee53f8124e2aa37fb9",
+    "packetRequestGitBlob": "7473709040b33677e6f5fc04c9ea129ec1890ab5",
+    "reviewedRequestChangedAfterPacket": false,
+    "backendMaster": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "exactSourceRunsBeforeDispatch": 0,
+    "exactSourceTaggedGhcrVersionBeforeDispatch": false,
+    "ghcrTaggedVersionCountBeforeDispatch": 8,
+    "workflowGitBlob": "a2befbfd7888ba69643a036159253c3ef2dceb66",
+    "workflowSizeBytes": 16224,
+    "workflowSha256": "95d81d36dabbd6e901023ca40a62c041d2e60e991d889b54c130949a1640eb1d",
+    "sourcePushCi": [
+      {
+        "runId": 30839644353,
+        "attempt": 1,
+        "conclusion": "success"
+      },
+      {
+        "runId": 30839644830,
+        "attempt": 1,
+        "conclusion": "success"
+      }
+    ],
+    "baseline": {
+      "runId": 30789375002,
+      "attempt": 1,
+      "conclusion": "success",
+      "artifactId": 8846489671,
+      "artifactExpired": false,
+      "manifestSha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88",
+      "imageDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+      "targetRevision": "0070_published_test_delivery",
+      "codeCompatibility": [
+        "0069_arrows_runtime_variant",
+        "0070_published_test_delivery"
+      ]
+    },
+    "migrationChain": [
+      "0070_published_test_delivery",
+      "0071_mission_slice_core",
+      "0072_mission_ops_receipts",
+      "0073_platform_release_receipts"
+    ],
+    "githubProductionEnvironmentAbsent": true,
+    "repositoryRenderOrReleaseAuthorityNames": [],
+    "localExecutionNotes": [
+      "the first local sidecar inspection used Bash-only mapfile under zsh and stopped before dispatch",
+      "the same already-downloaded artifact was then verified with a zsh-compatible exact-one-file check before the final dispatch CAS"
+    ]
+  },
+  "dispatch": {
+    "dispatchedAt": "2026-08-03T19:18:12Z",
+    "repository": "Glera/swipe-backend",
+    "workflow": ".github/workflows/platform-release-image.yml",
+    "ref": "master",
+    "preDispatchMaster": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "finalImmediateMaster": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "inputs": {
+      "publish": true,
+      "feed_sha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+      "playables_sha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+      "swipe_platform_sha": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+      "code_min_revision": "0072_mission_ops_receipts",
+      "code_max_revision": "0073_platform_release_receipts",
+      "lkg_min_revision": "0069_arrows_runtime_variant",
+      "lkg_max_revision": "0073_platform_release_receipts",
+      "lkg_kind": "image",
+      "lkg_build_run_id": "30789375002",
+      "lkg_image_digest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+      "lkg_manifest_sha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88"
+    }
+  },
+  "run": {
+    "runId": 30845173288,
+    "runNumber": 32,
+    "attempt": 1,
+    "jobId": 91791592166,
+    "event": "workflow_dispatch",
+    "headBranch": "master",
+    "headSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "createdAt": "2026-08-03T19:18:15Z",
+    "startedAt": "2026-08-03T19:18:15Z",
+    "completedAt": "2026-08-03T19:19:36Z",
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/Glera/swipe-backend/actions/runs/30845173288",
+    "fullLogSha256": "6b0a03f90ab5bc438c9cc0ffe6cb6f5a9a5235649ed255400a7ded599fe82613",
+    "fullLogBytes": 222086
+  },
+  "failure": {
+    "stepNumber": 17,
+    "stepName": "Prove exact pinned LKG against candidate-head PG16",
+    "stepConclusion": "failure",
+    "failedAt": "2026-08-03T19:19:30Z",
+    "exitCode": 1,
+    "expectedSchemaRevision": "0073_platform_release_receipts",
+    "exactLkgImageDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+    "errorType": "ImportError",
+    "error": "cannot import name 'models' from 'app' (unknown location)",
+    "errorCountInFullLog": 1,
+    "classification": "lkg_forward_smoke_container_python_path_bootstrap_defect",
+    "compatibilityVerdict": "NOT_REACHED",
+    "reasoning": [
+      "the accepted LKG image uses WORKDIR /app and stores the package at /app/app",
+      "the workflow mounts the current smoke as /smoke.py and invokes python /smoke.py",
+      "the docker run passes DATABASE_URL and EXPECTED_SCHEMA_REVISION but does not pass PYTHONPATH=/app",
+      "Python therefore resolves /app as the namespace named app from script-root / and cannot import /app/app/models.py",
+      "the failure occurs before any database table/view compatibility query, so it does not prove schema incompatibility"
+    ]
+  },
+  "containment": {
+    "candidateBuildStepConclusion": "skipped",
+    "candidatePublicationStepConclusion": "skipped",
+    "manifestBuildStepConclusion": "skipped",
+    "artifactUploadStepConclusion": "skipped",
+    "runArtifactCount": 0,
+    "exactSourceTaggedGhcrVersionAfterRun": false,
+    "ghcrTaggedVersionCountAfterRun": 8,
+    "postRunGhcrDomSnapshotSha256": "7ec306daccfc5e049a9b9303c195e00438a9d8cf7b434cd6d653b27cd009508d",
+    "backendMasterAfterRun": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "githubProductionEnvironmentAbsent": true,
+    "repositoryRenderOrReleaseAuthorityNames": [],
+    "renderKeyCreated": false,
+    "renderProviderMutation": false,
+    "githubEnvironmentMutation": false,
+    "deploy": false,
+    "migration": false,
+    "rehearsal": false,
+    "cutover": false,
+    "stage1RuntimeAction": false,
+    "sourceWriteOrMerge": false,
+    "baselineRebuild": false,
+    "secondDispatch": false
+  },
+  "authorityResult": {
+    "candidateV3Published": false,
+    "operatorAuthorityConsumed": true,
+    "redispatchSameShaAuthorized": false,
+    "automaticRepairAuthorized": false,
+    "nextStep": "independently review this receipt and an exact source-fix disposition, then request a new operator decision; do not rerun 30845173288 or redispatch f2a840517956c4f480fc9d8aaf6f832ebde489d9"
+  },
+  "cost": {
+    "jobWallSeconds": 76,
+    "estimatedRoundedLinuxMinutes": 2,
+    "estimatedMaximumUsdAt0_006PerMinuteIfNoIncludedMinutesRemain": 0.02,
+    "renderSpendUsd": 0
+  }
+}
