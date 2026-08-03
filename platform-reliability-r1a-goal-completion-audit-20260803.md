@@ -66,3 +66,7 @@ local-preflight evidence is recorded in
 `platform-reliability-r1a-recovery-v3-pr-receipt-20260803.md`; CI and
 independent review remain incomplete, so no merge or production authority is
 implied.
+
+Independent recovery review is now GO with no P1/P2 at exact PR #52 head; its
+P3 preserves the future exact-OCI publication gate. Fresh GitHub CI is still a
+separate completion requirement.

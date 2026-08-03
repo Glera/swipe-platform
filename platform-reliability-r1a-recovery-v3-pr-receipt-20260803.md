@@ -50,3 +50,8 @@ merge/publication/deploy.
 
 No merge, workflow dispatch, image publication, GitHub environment, Render
 mutation, production migration, deploy or Mission runtime rollout occurred.
+
+Independent static review later returned GO with no P1/P2 at the same exact
+head. Its disposition is
+`platform-reliability-r1a-recovery-v3-review-20260803.md`; GitHub CI remains a
+separate authority and is not projected by that review.
