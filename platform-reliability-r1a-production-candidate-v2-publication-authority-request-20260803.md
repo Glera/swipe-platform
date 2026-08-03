@@ -41,6 +41,10 @@ Before dispatch, all exact branch, PR, CI, baseline-artifact, absence and
 Stage 1 freeze checks in the JSON companion must pass. The currently observed
 state has zero publishing runs for this head and no GitHub `production`
 environment, but those facts must be reread immediately before dispatch.
+The Stage 1 CAS values are backend PR #41 at
+`2029867495578310dda92c170a2e07c71203eefa` and client ref
+`claude/stage1-p4-mission-client` at
+`43f92693b55057d4c22652cbd81dad4ab67f0171`.
 
 ## Hard boundary
 

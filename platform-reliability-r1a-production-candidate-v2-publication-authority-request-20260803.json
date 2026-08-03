@@ -36,6 +36,13 @@
     "artifactExpired": false,
     "rebuildAuthorized": false
   },
+  "stage1Freeze": {
+    "backendPullRequest": 41,
+    "backendHeadSha": "2029867495578310dda92c170a2e07c71203eefa",
+    "clientRef": "claude/stage1-p4-mission-client",
+    "clientHeadSha": "43f92693b55057d4c22652cbd81dad4ab67f0171",
+    "mutationAuthorized": false
+  },
   "requiredPreflight": [
     "meta authority commit equals the operator-named packet commit",
     "remote backend master is exactly 7b41e96ad0d979863159ebdd356122af6295a203",
@@ -48,7 +55,7 @@
     "the workflow bytes at the exact ref expose the reviewed publisher and exact input contract",
     "the GitHub production environment remains absent",
     "repository-level RENDER_ secrets and variables remain absent",
-    "Stage 1 backend and client heads remain at their reviewed frozen identities"
+    "Stage 1 backend PR 41 and client ref remain at the exact 40-hex heads in stage1Freeze"
   ],
   "allowedActions": [
     "perform bounded read-only GitHub and git preflight checks",
