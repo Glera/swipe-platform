@@ -1,0 +1,32 @@
+{
+  "schema": "claude-independent-review-receipt.v1",
+  "source": "Claude Code local safe-mode session",
+  "sessionId": "ad9bb0c4-00ed-4596-bbdd-ea892e8c4923",
+  "model": "claude-sonnet-5",
+  "reviewedCommit": "f622ded7f3576e10d97c5e6ae93ff71f1f4212b9",
+  "verdict": "GO",
+  "p1Count": 0,
+  "p2Count": 0,
+  "p3Count": 1,
+  "permissionDenials": [],
+  "webSearchRequests": 0,
+  "webFetchRequests": 0,
+  "terminalEnvelope": {
+    "subtype": "success",
+    "isError": false,
+    "stopReason": "end_turn",
+    "terminalReason": "completed"
+  },
+  "usage": {
+    "durationMs": 35688,
+    "numTurns": 6,
+    "inputTokens": 10,
+    "cacheCreationInputTokens": 28567,
+    "cacheReadInputTokens": 86091,
+    "outputTokens": 2596,
+    "totalCostUsdInternalSubscriptionMeter": 0.2375523
+  },
+  "prompt": "platform-reliability-r1a-cutover-preparation-v2-concurrent-drift-review-20260803.prompt.md",
+  "verbatimResult": "platform-reliability-r1a-cutover-preparation-v2-concurrent-drift-review-20260803.raw.md",
+  "scope": "accepts contained-failure evidence only; grants no recovery or production authority"
+}
