@@ -24,9 +24,10 @@ production authority.
 
 The next authority request is exactly
 `platform-reliability-r1a-cutover-preparation-authority-request-20260803.md`
-and its JSON companion. Independent review returned GO. Until the operator
-names that request's committed SHA, no Render key, DB probe or GitHub
-`production` environment may be created.
+and its JSON companion. The executable runbook, two digest-bound GitHub
+payloads and both independent reviews returned GO. Until the operator names
+the resulting committed SHA, no Render key, DB probe or GitHub `production`
+environment may be created.
 
 After the bounded preparation passes, the final packet must bind its fresh
 capture digest/time, exact live deploy, database revision and environment

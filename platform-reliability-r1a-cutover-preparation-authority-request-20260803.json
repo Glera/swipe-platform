@@ -87,6 +87,16 @@
     },
     "repositoryRenderSecretsAndVariables": []
   },
+  "githubPayloads": {
+    "environment": {
+      "path": "platform-reliability-r1a-github-production-environment-payload-20260803.json",
+      "sha256": "49fdf38cb9513ef9aa6e6e4b5ac0312001beba6c4e28f1213be214cf042e53e5"
+    },
+    "branchPolicy": {
+      "path": "platform-reliability-r1a-github-production-branch-policy-payload-20260803.json",
+      "sha256": "81855b2e11d9c0acf9400c523d4609b4902417d9f7c58ad76620ef772d220cee"
+    }
+  },
   "stopConditions": [
     "any reviewed ref or immutable artifact identity differs",
     "PR 48 is not open, draft, unmerged, and exactly at the reviewed head",
@@ -110,6 +120,7 @@
     "final packet commit and independent GO or exact finding disposition"
   ],
   "failureCleanup": {
+    "decisionDeadlineMinutesAfterEnvironmentVerification": 60,
     "deleteProductionEnvironmentIfCreated": true,
     "revokeTemporaryRenderApiKey": true,
     "preserveDurableGhcrRegistryCredential": true,

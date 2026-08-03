@@ -89,6 +89,11 @@ and revoke only the temporary Render API key. Preserve the durable GHCR pull
 credential. No service rollback is needed because this window cannot mutate a
 service.
 
+The final cutover decision is attended and time-bounded: if the separate
+cutover GO is not received within 60 minutes after environment verification,
+delete the environment and revoke the temporary key. A later attempt repeats
+the entire fresh capture; it never reuses this packet as live authority.
+
 ## Exact operator wording
 
 The following is a request template, not authorization:
@@ -100,8 +105,14 @@ The following is a request template, not authorization:
 > the packet; produce receipts and independent review. Merge, cutover workflow
 > dispatch, Render service mutation, deploy, migration, image publication and
 > Stage 1 mutation remain forbidden. On failure, delete the created environment
-> and revoke the temporary key.
+> and revoke the temporary key. If the separate cutover GO is not received
+> within 60 minutes after environment verification, perform the same cleanup.
 
 After this preparation passes, the final packet will name its commit, capture
 digest/time, exact current deploy and database revision. A second, separate
 operator GO will be required for the attended merge and cutover sequence.
+
+The exact execution sequence and no-clobber payloads are frozen in
+`platform-reliability-r1a-cutover-preparation-runbook-20260803.md` and the two
+`platform-reliability-r1a-github-production-*-payload-20260803.json` files.
+They do not grant authority independently.
