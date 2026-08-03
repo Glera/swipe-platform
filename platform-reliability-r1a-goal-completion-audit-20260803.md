@@ -2,76 +2,65 @@
 
 Observed: 2026-08-03 UTC.
 
-Status: **ACTIVE — PRE-CUTOVER V2 FAIL CONTAINED; SUCCESSOR/IMAGE RECOVERY
-REQUIRED.** This audit records evidence; it grants no production authority.
+Status: **ACTIVE — RECOVERY SOURCE MERGED; CANDIDATE-V3 PUBLICATION PACKET
+READY; SEPARATE OPERATOR GO REQUIRED.** This audit records evidence; it grants
+no production authority.
 
 | Goal requirement | Current authority evidence | Assessment |
 | --- | --- | --- |
 | Play for Good Stage 0 fully accepted before R1-A | `play-for-good-stage0-final-acceptance.md`; clean T+24 receipt, final independent GO, backend/meta acceptance merges | PROVEN |
-| Existing R1-A branches/PRs recovered and rebased onto accepted Stage 0 | successor PR #48 at `11c9bce9891ae5b041215056ac4521551a056cb5`, base `a12ca7ecea0f47e8862b4ba91879dff63cb46bfc`; production baseline `cd6fb13ab222b8c6f93b2c9fed12d86820f368a3` | PROVEN |
+| Existing R1-A branches/PRs recovered and rebased onto accepted Stage 0 plus the author-owned default-off Stage 1 merge | recovery PR #52 merged as `f2a840517956c4f480fc9d8aaf6f832ebde489d9`, exact parents `f0cc933...`/`8ea6f1d...`, single linear graph through `0073_platform_release_receipts`; production baseline remains `cd6fb13ab222b8c6f93b2c9fed12d86820f368a3` | PROVEN |
 | Original independent verdict conditions 1–4 closed | exact production pin and policy receipts in `platform-reliability-r1a-production-precutover-capture-20260802.md`; exact-head image/PG CI and independent GO | PROVEN |
 | Mission architecture policy reconciled with Stage 1 without taking authorship | `platform-reliability-r1a-stage1-adapter-r4-disposition.md`; policy head `4bfc1d6868d3a41c5439972375292305e13a50c0`; exact Stage 1 replay PASS | PROVEN |
-| Fresh R1-A CI and independent review for each material package | successor/pin/baseline/publication review receipts and exact run IDs committed in PR #40 | PROVEN |
-| Disposable rehearsal exercises real migration, candidate, conflict paths and forward-only rollback | `platform-reliability-r1a-rehearsal-runtime-receipt-20260801.md` plus accepted final evidence packet | PROVEN |
+| Fresh R1-A CI and independent review for each material source package | recovery PR #52 CI plus corrective R1/R2 receipts; exact merge push runs `30839644353/1` and `30839644830/1` PASS | PROVEN FOR SOURCE; NEW IMAGE RECEIPT PENDING |
+| Disposable rehearsal exercises real migration, candidate, conflict paths and forward-only rollback | `platform-reliability-r1a-rehearsal-runtime-receipt-20260801.md` plus accepted final evidence packet | PROVEN FOR OLD `0070→0071` GRAPH; REFRESH REQUIRED FOR `0070→0073` |
 | Production immutable baseline/candidate pair published once and verified | `platform-reliability-r1a-production-image-publication-receipt-20260803.{json,md}`; evidence commit `e7d782bdac44198ca4ed63e7211eb8a0db37577f` | PROVEN FOR OLD GRAPH; STALE AS CURRENT CUTOVER AUTHORITY |
-| Stage 1 validator-parity and one-tap fixes stay author-owned; Codex reviews through closure | R1/R2 dispositions; R3 PR #41 comment `5150093650`; R4 GO comment `5151450107`; exact reviewed backend head `2029867495578310dda92c170a2e07c71203eefa`, client remains `43f92693b55057d4c22652cbd81dad4ab67f0171` | REVIEW PROVEN; PR #41 MERGED CONCURRENTLY |
-| No Stage 1 production rollout or history mixing | fresh provider evidence still shows old deploy IDs and DB `0070`, but PR #41 merged into backend master during pre-cutover | PRODUCTION NOT ROLLED OUT; HISTORY BOUNDARY VIOLATED |
+| Stage 1 validator-parity and one-tap fixes stay author-owned; Codex reviews through closure | backend PR #41 author head `2029867495578310dda92c170a2e07c71203eefa` merged as `cd7c665...`; client PR #21 author head `091a720...` merged as `b1a9e633...`; R1–R4 receipts retained | REVIEW/AUTHORSHIP BOUNDARY PROVEN |
+| No Stage 1 production rollout or runtime-scope mixing | recovery merge receipt proves provider isolation, no deploy/migration and database still at `0070`; Mission flags remain outside every R1-A operational request | PROVEN THROUGH SOURCE MERGE; MUST BE REPROVED AT REHEARSAL/CUTOVER |
 | Generative-feed scope not expanded | no open backend/client PR matches the generative-feed contour at this observation; no generative-feed mutation was made by this goal continuation | PROVEN FOR SCOPE BOUNDARY; no new deliverable inferred |
-| Exact production cutover packet ready for operator merge/deploy GO | preparation evidence was captured, then mandatory CAS detected concurrent master/Stage 1 drift and removed temporary authority | REFUSED; PACKET NON-EXECUTABLE |
+| Exact current immutable candidate request ready | candidate-v3 request/review packet `c5bfbef243e38f6c19f4f5ee53f8124e2aa37fb9`; accepted baseline run `30789375002/1`; exact source `f2a840...`; R1 and focused R2 both GO | READY FOR A SEPARATE ONE-DISPATCH OPERATOR GO |
+| Exact production cutover packet ready for operator merge/deploy GO | no current `production` GitHub environment or repository-level release authority; candidate-v3 is not yet published; refreshed rehearsal and action-time provider/database gate remain outstanding | NOT YET ACHIEVED |
 
 ## Current recovery boundary
 
-The first attended attempt failed closed during temporary-key handoff; the
-unused key was revoked and no provider request, database job or GitHub
-environment was created. The contained failure and hardened handoff are in
-`platform-reliability-r1a-cutover-preparation-failure-20260803.{json,md}` and
-the executable runbook. Independent R3 returned GO.
+The earlier preparation requests and candidate-v2 authority are consumed
+history and remain non-executable. Their failures were contained: temporary
+GitHub/Render authority was removed and no provider deploy or database
+migration occurred.
 
-The v2 request at `f40e526` was executed and is consumed. Stage 1 PR #41 and a
-direct Minesweeper policy commit advanced backend master during the window.
-Mandatory readback stopped execution; the GitHub environment and temporary
-Render key were removed. Exact receipt:
-`platform-reliability-r1a-cutover-preparation-v2-concurrent-drift-20260803.{json,md}`.
+The operator selected recovery option A. PR #52 linearized the already merged,
+default-off Mission storage graph and R1-A receipts, then merged under fresh
+provider-isolation evidence. Its exact source authority is
+`f2a840517956c4f480fc9d8aaf6f832ebde489d9`; backend `master` still resolves
+to that SHA at this observation.
 
-PR #51 branches R1-A's `0071_platform_release_receipts` from `0070`, while
-current master now branches `0071_mission_slice_core` from the same revision
-and continues to `0072_mission_ops_receipts`. Recovery is therefore a new
-design/review cycle, not another preparation retry: freeze current master,
-resolve the single-head migration graph and rollback compatibility, build a
-new successor, rerun CI/review, then request new publication and pre-cutover
-authority.
+The next authority is deliberately narrower than rehearsal or cutover:
+candidate-v3 packet
+`c5bfbef243e38f6c19f4f5ee53f8124e2aa37fb9` may, only after its exact
+operator GO, dispatch one immutable candidate build from exact `f2a840...`.
+It reuses accepted baseline run `30789375002/1`, proves that baseline image
+forward against candidate target `0073`, and forbids retry, merge, Render,
+environment, deploy, migration, rehearsal, cutover and Stage 1 runtime action.
 
-This goal must remain active until that final packet is produced and accepted;
-publication alone is not completion.
+No Platform release image run or tagged GHCR identity exists for `f2a840...`
+at this observation. No GitHub `production` environment and no repository-level
+`RENDER_`/`PLATFORM_RELEASE_` authority exists. All mutable facts require an
+action-time reread.
 
-The mechanically verified recovery and the resulting product-authority choice
-are specified in
-`platform-reliability-r1a-concurrent-master-recovery-plan-20260803.md`. No
-recovery branch or production action is authorized until the operator explicitly
-decides whether additive Stage 1 storage migrations may accompany R1-A while
-all Mission runtime surfaces remain off.
+After an independently accepted publication receipt, the remaining mandatory
+sequence is:
 
-The proposal received independent GO with no P1/P2; both P3 clarifications are
-incorporated in the plan and recorded in
-`platform-reliability-r1a-concurrent-master-recovery-review-20260803.md`.
+1. a separately authorized disposable rehearsal of candidate-v3 deployment,
+   `0070→0073`, replay/refusal paths and exact baseline forward-only rollback
+   while Mission runtime remains off;
+2. a fresh production provider/database capture and bounded GitHub environment
+   preparation;
+3. an exact independently reviewed production cutover packet and separate
+   operator GO;
+4. attended prepare/deploy/verify/rollback decision, final receipts and status
+   publication.
 
-A local-only implementation proof is pinned in
-`platform-reliability-r1a-concurrent-master-recovery-scratch-proof-20260803.md`.
-It proves the corrected one-step migration and exact-baseline source
-compatibility without creating external authority; PG16 and the accepted OCI
-image remain mandatory gates of any later authorized recovery PR/publication.
-
-Operator option A is now reflected in draft backend PR #52. Exact branch and
-local-preflight evidence is recorded in
-`platform-reliability-r1a-recovery-v3-pr-receipt-20260803.md`; CI and
-independent review remain incomplete, so no merge or production authority is
-implied.
-
-Independent recovery review is now GO with no P1/P2 at exact PR #52 head; its
-P3 preserves the future exact-OCI publication gate. Fresh GitHub CI is still a
-separate completion requirement.
-
-Fresh GitHub CI is now PASS at exact PR #52 head: 28/28 checks, including full
-PG16 acceptance and isolated `0071/0072/0073` roundtrips. The private exact-OCI
-LKG gate remains intentionally deferred to a separately authorized
-`publish=true` candidate window. The recovery PR is still draft and unmerged.
+This goal remains active until the current-graph rehearsal and production
+cutover are both completed and verified. Candidate publication alone is not
+completion. Historical draft PR #33 remains audit history and is not a merge
+vehicle.
