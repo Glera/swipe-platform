@@ -1,0 +1,156 @@
+{
+  "schema": "platform-release-image-publication-authority-request.v3",
+  "status": "DRAFT_REQUIRES_INDEPENDENT_REVIEW_AND_EXPLICIT_OPERATOR_GO",
+  "authority": "none",
+  "preparedAt": "2026-08-03T18:39:45Z",
+  "reason": "the accepted recovery-v3 source merge is newer than the historical candidate-v2 image and requires one separately reviewed immutable candidate publication while the accepted baseline remains reusable",
+  "repository": "Glera/swipe-backend",
+  "workflow": ".github/workflows/platform-release-image.yml",
+  "workflowSha256": "95d81d36dabbd6e901023ca40a62c041d2e60e991d889b54c130949a1640eb1d",
+  "dispatchLimit": 1,
+  "publication": {
+    "ref": "master",
+    "expectedRefSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "sourceAuthority": {
+      "mergeCommit": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+      "firstParent": "f0cc933fb813be2e4784200592efced196d74973",
+      "secondParent": "8ea6f1de6d2fe4bbb43b56698fd135649130d3c5",
+      "tree": "a7e4c6462d4d30d0af61eae4672792203739d832",
+      "pullRequest": 52
+    },
+    "inputs": {
+      "publish": true,
+      "feed_sha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+      "playables_sha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+      "swipe_platform_sha": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+      "code_min_revision": "0072_mission_ops_receipts",
+      "code_max_revision": "0073_platform_release_receipts",
+      "lkg_min_revision": "0069_arrows_runtime_variant",
+      "lkg_max_revision": "0073_platform_release_receipts",
+      "lkg_kind": "image",
+      "lkg_build_run_id": "30789375002",
+      "lkg_image_digest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+      "lkg_manifest_sha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88"
+    }
+  },
+  "acceptedBaseline": {
+    "sourceSha": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+    "buildRunId": 30789375002,
+    "buildAttempt": 1,
+    "imageDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+    "manifestSha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88",
+    "artifactId": 8846489671,
+    "artifactName": "platform-release-cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+    "artifactExpired": false,
+    "artifactExpiresAt": "2026-11-01T06:11:36Z",
+    "rebuildAuthorized": false
+  },
+  "frozenReleaseSources": {
+    "feedSha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+    "playablesSha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+    "swipePlatformSha": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+    "releaseJsonSchemaVersion": 2,
+    "releaseJsonFeedCommit": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+    "releaseJsonDeployToolingCommit": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+    "islandFrontendGates": false
+  },
+  "observedPreflight": {
+    "observedAt": "2026-08-03T18:39:45Z",
+    "backendMasterSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "workflowDispatchRunsForExactSource": [],
+    "ghcrTaggedSourceShaAbsent": true,
+    "githubProductionEnvironmentAbsent": true,
+    "repositoryRenderSecretsAndVariablesAbsent": true,
+    "baselineRunConclusion": "success",
+    "baselineArtifactExpired": false,
+    "pullRequest52Merged": true,
+    "sourcePushCi": [
+      {
+        "runId": 30839644353,
+        "name": "Browser E2E (real-backend feed closure)",
+        "attempt": 1,
+        "conclusion": "success"
+      },
+      {
+        "runId": 30839644830,
+        "name": "PostgreSQL acceptance",
+        "attempt": 1,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "requiredPreflight": [
+    "meta authority commit equals the exact operator-named candidate-v3 packet commit",
+    "remote backend master resolves to exactly f2a840517956c4f480fc9d8aaf6f832ebde489d9 twice: once before constructing the dispatch and once immediately before dispatch",
+    "merge f2a840517956c4f480fc9d8aaf6f832ebde489d9 still has exact parents and tree in publication.sourceAuthority",
+    "PR 52 remains merged with exact head, base and merge commit in publication.sourceAuthority",
+    "source push CI runs 30839644353/1 and 30839644830/1 remain successful at the exact source SHA",
+    "baseline run 30789375002/1 remains successful and artifact 8846489671 remains unexpired",
+    "the baseline artifact still contains exactly one manifest whose SHA-256 is b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88 and whose image digest is sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+    "there is no prior Platform release image run of any event for exact source f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "there is no existing GHCR tag or tagged package version for exact source f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "workflow bytes at exact source have SHA-256 95d81d36dabbd6e901023ca40a62c041d2e60e991d889b54c130949a1640eb1d and expose the reviewed publish/input contract",
+    "all three frozen release commits resolve and swipe-platform release.json still binds the exact feed and deploy-tooling commits",
+    "the exact migration graph is linear through 0071_mission_slice_core, 0072_mission_ops_receipts and target 0073_platform_release_receipts",
+    "the GitHub production environment remains absent",
+    "repository-level RENDER_ and PLATFORM_RELEASE_ secrets and variables remain absent",
+    "no Render key or provider action is needed or performed"
+  ],
+  "allowedActionsAfterSeparateGo": [
+    "perform bounded read-only git, GitHub, artifact and GHCR preflight checks",
+    "dispatch exactly one platform-release-image workflow on ref master only while it resolves to the exact expectedRefSha, with publish=true and the exact inputs in this request",
+    "observe that one run to terminal state",
+    "read package, artifact, manifest, provenance and attestation metadata produced by that run",
+    "commit exact publication receipts and obtain independent read-only review"
+  ],
+  "forbiddenActions": [
+    "rebuild or redispatch the production baseline",
+    "dispatch more than one image workflow",
+    "retry after a failed, cancelled, ambiguous or partial publication under the same GO",
+    "publish from any SHA other than f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "create, move or delete a Git branch or tag",
+    "merge any pull request or push any source repository",
+    "dispatch platform-release-cutover.yml",
+    "create or mutate the GitHub production environment",
+    "create or use a Render API key",
+    "mutate any Render resource",
+    "deploy, migrate, rehearse or cut over",
+    "enable, mutate or roll out Stage 1 runtime"
+  ],
+  "hardStops": [
+    "any exact source, parent, tree, PR, CI, baseline, artifact, workflow or cross-repository identity differs",
+    "backend master moves before dispatch",
+    "any workflow run or GHCR tagged identity already exists for the exact source",
+    "the production environment or repository-level Render authority exists unexpectedly",
+    "the workflow cannot prove the candidate manifest pins the exact accepted baseline",
+    "the single run fails, is cancelled, becomes ambiguous or publishes only a partial identity"
+  ],
+  "requiredReceipts": [
+    "action-time preflight identity and absence receipt",
+    "workflow run ID, attempt, event, exact head, exact inputs and terminal conclusion",
+    "OCI index and linux/amd64 digests plus provenance and SBOM attestations",
+    "candidate manifest exact bytes and SHA-256",
+    "proof that manifest backend source is exact recovery-v3 merge and LKG fields equal the accepted baseline",
+    "artifact ID, name, SHA-256, expiry and unexpired status",
+    "GHCR package version, exact source tag, repository link and private visibility",
+    "proof of zero baseline rebuild, source write, merge, cutover, Render, deploy, migration, rehearsal or Stage 1 runtime action",
+    "independent GO or exact finding disposition"
+  ],
+  "failurePolicy": {
+    "automaticRetry": false,
+    "secondDispatchUnderSameAuthority": false,
+    "sourceWrite": false,
+    "merge": false,
+    "deploy": false,
+    "preservePublishedEvidenceForDiagnosis": true,
+    "nextStep": "stop, publish the failure receipt and request a new exact operator decision"
+  },
+  "costCeiling": {
+    "githubWorkflowDispatches": 1,
+    "workflowTimeoutMinutes": 35,
+    "expectedRoundedLinuxMinutes": 5,
+    "estimatedExpectedUsdAt0_006PerMinuteIfNoIncludedMinutesRemain": 0.03,
+    "renderSpendUsd": 0
+  },
+  "nextAuthority": "After a successful independently accepted candidate-v3 receipt, prepare a new rehearsal authority packet. Rehearsal, GitHub production-environment mutation, Render access, migration, deploy and cutover remain later separate operator decisions."
+}
