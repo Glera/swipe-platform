@@ -54,3 +54,9 @@ all Mission runtime surfaces remain off.
 The proposal received independent GO with no P1/P2; both P3 clarifications are
 incorporated in the plan and recorded in
 `platform-reliability-r1a-concurrent-master-recovery-review-20260803.md`.
+
+A local-only implementation proof is pinned in
+`platform-reliability-r1a-concurrent-master-recovery-scratch-proof-20260803.md`.
+It proves the corrected one-step migration and exact-baseline source
+compatibility without creating external authority; PG16 and the accepted OCI
+image remain mandatory gates of any later authorized recovery PR/publication.
