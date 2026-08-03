@@ -70,3 +70,8 @@ implied.
 Independent recovery review is now GO with no P1/P2 at exact PR #52 head; its
 P3 preserves the future exact-OCI publication gate. Fresh GitHub CI is still a
 separate completion requirement.
+
+Fresh GitHub CI is now PASS at exact PR #52 head: 28/28 checks, including full
+PG16 acceptance and isolated `0071/0072/0073` roundtrips. The private exact-OCI
+LKG gate remains intentionally deferred to a separately authorized
+`publish=true` candidate window. The recovery PR is still draft and unmerged.

@@ -55,3 +55,8 @@ Independent static review later returned GO with no P1/P2 at the same exact
 head. Its disposition is
 `platform-reliability-r1a-recovery-v3-review-20260803.md`; GitHub CI remains a
 separate authority and is not projected by that review.
+
+Fresh CI later completed at the same exact head: 28/28 checks green after one
+failed-only rerun of an unrelated timing flake. Exact counts and run identities
+are recorded in
+`platform-reliability-r1a-recovery-v3-ci-receipt-20260803.md`.
