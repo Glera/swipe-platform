@@ -1,0 +1,171 @@
+{
+  "schema": "platform-release-lkg-smoke-source-merge-authority-request.v1",
+  "status": "DRAFT_REQUIRES_INDEPENDENT_REVIEW_AND_EXPLICIT_OPERATOR_GO",
+  "authority": "none",
+  "preparedAt": "2026-08-03T20:30:00Z",
+  "repository": "Glera/swipe-backend",
+  "acceptedSourceFixEvidenceCommit": "d635398c5e87b33fb40bfa66ea952528e9fda68f",
+  "pullRequest": {
+    "number": 53,
+    "url": "https://github.com/Glera/swipe-backend/pull/53",
+    "expectedState": "OPEN",
+    "expectedDraft": true,
+    "expectedMergeState": "CLEAN",
+    "baseRef": "master",
+    "baseSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "headRef": "codex/r1a-lkg-pythonpath-fix-20260803",
+    "headSha": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "headTree": "75dbd88045b5b301a903d9bc917c006cd2ceaffe",
+    "commitCount": 1,
+    "expectedSuccessfulChecks": 28
+  },
+  "acceptedReview": {
+    "verdict": "GO",
+    "p1p2": 0,
+    "session": "ed223f76-4e01-4652-b484-84c0321c9221",
+    "sourceEvidenceCommit": "dbbc5d1f3c6acca71c81784248a87cebd984ed8b",
+    "finalEvidenceCommit": "d635398c5e87b33fb40bfa66ea952528e9fda68f"
+  },
+  "ci": {
+    "imageRun": {
+      "id": 30849622831,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "success",
+      "headSha": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+      "artifactCount": 0
+    },
+    "postgresRun": {
+      "id": 30849622812,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "success",
+      "headSha": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+      "artifactCount": 0
+    }
+  },
+  "providerCapture": {
+    "ownerId": "tea-d1m4lmali9vc73euvelg",
+    "blueprintId": "exs-d95qo3q8qa3s73ea23p0",
+    "webServiceId": "srv-d95r3bfavr4c73aqsi4g",
+    "sequencingCronId": "crn-d9kej0u1egvs73engu7g",
+    "materializeCronId": "crn-d9e6vmtaeets73ai8cj0",
+    "expectedSourceBranch": "master",
+    "expectedDockerfilePath": "./Dockerfile.bake",
+    "expectedBlueprintAutoSync": false,
+    "expectedAllAutoDeploy": false,
+    "expectedActiveBlueprintSyncs": 0,
+    "expectedActiveDeploys": 0,
+    "expectedActiveJobs": 0,
+    "operations": [
+      "GET"
+    ],
+    "captureScriptGitBlob": "0198bf5d216c3a05efdd93445e698de6d3a6af4e",
+    "captureTestGitBlob": "2be064b24801343b361383fa10492dbfb2bfff4f",
+    "requirementsLockGitBlob": "5dbc2f0f5e0859d13a91f0ab4ce4543b2dd7d55a",
+    "settledBaselineAuthority": "platform-reliability-r1a-recovery-v3-merge-v2-corrective-acceptance-20260803.md"
+  },
+  "temporaryCredential": {
+    "maximumKeysCreated": 1,
+    "scope": "temporary account-wide Render API key",
+    "handoffRoot": "/Users/gleb",
+    "handoffMode": "0600",
+    "revealContract": "role=textbox DIV with value read only from textContent inside the final non-emitting block",
+    "finalRevealSequence": [
+      "submit",
+      "block-local shape validation without emission",
+      "read textContent to process memory",
+      "write",
+      "fsync",
+      "click Done",
+      "wait hidden"
+    ],
+    "forbiddenValueSurfaces": [
+      "argv",
+      "shell history",
+      "chat",
+      "clipboard",
+      "tool parameter",
+      "returned object",
+      "stdout",
+      "stderr",
+      "DOM snapshot",
+      "screenshot",
+      "receipt",
+      "git",
+      "hash"
+    ],
+    "revokeBeforeMerge": true,
+    "requireEmptyUiInventoryAfterRevoke": true,
+    "requireRevokedKeyHttpStatus": 401,
+    "replacementKeyAuthorized": false
+  },
+  "execution": {
+    "windowSeconds": 1800,
+    "createFreshReceiptDirectoryMode": "0700",
+    "precreateFreshHandoff": true,
+    "probeSharedHomeBidirectionallyBeforeKeyCreation": true,
+    "pinInterpreterAndDisposableVenvPackagesBeforeKeyCreation": true,
+    "finalGithubCasAfterProviderCaptureAndRevocation": true,
+    "markReady": true,
+    "mergeMethod": "merge commit",
+    "exactHeadMatch": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "expectedMergeFirstParent": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "expectedMergeSecondParent": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "expectedMergeTree": "75dbd88045b5b301a903d9bc917c006cd2ceaffe",
+    "observeAutomaticPushCi": true,
+    "manualWorkflowDispatches": 0,
+    "mergeAttempts": 1
+  },
+  "requiredPreflight": [
+    "the operator-named meta packet resolves exactly and contains accepted source-fix execution/review evidence at d635398c5e87b33fb40bfa66ea952528e9fda68f",
+    "backend master remains exactly f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "PR 53 remains open, draft, clean, with exact head/tree and exactly 28 completed successful checks",
+    "CI runs 30849622831/1 and 30849622812/1 remain successful pull_request runs on the exact head with zero artifacts",
+    "the source branch has exactly one commit and the reviewed two-file tree",
+    "GitHub environment production and repository-level RENDER_/PLATFORM_RELEASE_ secrets and variables remain absent",
+    "no active source-merge, cutover or candidate-publication workflow exists",
+    "the temporary-key reveal and handoff procedure can be executed exactly inside the 1800-second window"
+  ],
+  "hardStops": [
+    "any exact GitHub/meta/source/CI identity or absence check differs",
+    "shared-home bidirectional probe or 0600 handoff validation fails",
+    "temporary key value appears on any forbidden surface",
+    "provider capture is unreadable, non-GET, identity-mismatched, not master plus ./Dockerfile.bake, or reports Auto Sync/Deploy enabled",
+    "any active sync, deploy, preDeploy or job exists",
+    "key revocation is not proven by both empty UI inventory and exact HTTP 401 before merge",
+    "final GitHub CAS or 28-check success set differs",
+    "merge does not complete synchronously with exact head and expected parents/tree",
+    "deadline expires"
+  ],
+  "allowedActionsAfterSeparateGo": [
+    "perform exact read-only GitHub/meta/source/CI preflight",
+    "create and delete one non-secret shared-home mount probe",
+    "precreate one fresh 0600 shared-home handoff and one fresh 0700 receipt directory",
+    "create exactly one temporary account-wide Render API key using the non-emitting reveal contract",
+    "perform the committed canonical provider capture and bounded direct GET inventory only",
+    "revoke the temporary key, prove empty UI inventory and exact HTTP 401, then remove the handoff",
+    "repeat exact GitHub CAS, mark only PR 53 ready and merge its exact head once with merge-commit semantics",
+    "verify exact merge parents/tree and observe only automatically triggered push CI",
+    "commit bounded receipts without credential material"
+  ],
+  "forbiddenActions": [
+    "create a replacement Render key or use the key for any non-GET request",
+    "mutate any Render Blueprint, service, environment, source, image, deploy or job",
+    "create or mutate the GitHub production environment or repository secrets/variables",
+    "manually dispatch or rerun any workflow",
+    "publish, rebuild, delete or relabel any image/package version",
+    "merge any pull request other than exact PR 53 head",
+    "enable auto-merge or queue/retry a failed merge",
+    "deploy, migrate production, rehearse or cut over",
+    "enable, mutate or roll out Stage 1 runtime",
+    "expand generative-feed scope"
+  ],
+  "failurePolicy": {
+    "beforeMerge": "revoke the key, remove handoff/receipt temp material, restore PR 53 to draft if it was marked ready, preserve bounded evidence and stop",
+    "afterMergePostconditionMismatch": "do not revert or repair; revoke/cleanup, preserve evidence and stop for operator disposition",
+    "replacementKey": false,
+    "mergeRetry": false
+  },
+  "nextAuthority": "Only after exact merge proof, green automatic push CI and independent acceptance may a separately reviewed candidate-v4 publication request be prepared."
+}
