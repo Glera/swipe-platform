@@ -1,8 +1,16 @@
 # Platform Reliability R1-A — запрос pre-cutover authority
 
+> **BLOCKED / NON-EXECUTABLE.** The operator named packet `099f3de`, but its
+> first action-time CAS check found backend `master` at `7b41e96...` instead of
+> reviewed `a12ca7e...`. It stopped before creating a Render key, so the
+> 60-minute cleanup deadline never started. Exact receipt:
+> `platform-reliability-r1a-precutover-master-drift-20260803.{json,md}`. This
+> request must not be retried; successor v2 and a new immutable candidate are
+> required first.
+
 Prepared: 2026-08-03 UTC.
 
-Status: **READY FOR OPERATOR DECISION — AUTHORITY NOT GRANTED**.
+Status: **BLOCKED BY BACKEND MASTER DRIFT — NON-EXECUTABLE**.
 
 Immutable production pair is complete and accepted at evidence commit
 `e7d782bdac44198ca4ed63e7211eb8a0db37577f`. The remaining prerequisite for a

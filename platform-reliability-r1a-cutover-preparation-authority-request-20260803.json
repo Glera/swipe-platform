@@ -1,9 +1,23 @@
 {
   "schema": "platform-release-cutover-preparation-authority-request.v1",
-  "status": "READY_FOR_OPERATOR_DECISION",
-  "authority": "not-granted",
+  "status": "BLOCKED_BY_BACKEND_MASTER_DRIFT",
+  "authority": "consumed-by-contained-preflight-refusal",
   "preparedAt": "2026-08-03T12:57:08Z",
   "sourceEvidenceCommit": "e7d782bdac44198ca4ed63e7211eb8a0db37577f",
+  "blockedAt": "2026-08-03T13:06:00Z",
+  "blockingReceipt": "platform-reliability-r1a-precutover-master-drift-20260803.json",
+  "blockingCondition": {
+    "expectedBackendMasterSha": "a12ca7ecea0f47e8862b4ba91879dff63cb46bfc",
+    "actualBackendMasterSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "temporaryRenderApiKeyCreated": false,
+    "cleanupDeadlineStarted": false,
+    "externalMutation": false
+  },
+  "replacementSequence": [
+    "successor-v2 receipt platform-reliability-r1a-production-successor-v2-20260803.json",
+    "separately authorized one-run candidate-v2 publication",
+    "new pre-cutover authority packet bound to the resulting immutable candidate"
+  ],
   "previousFailedWindow": {
     "authorityCommit": "3d933b1f09ad621d9dfb584c612af9145c319f35",
     "status": "FAIL_CONTAINED",
@@ -153,5 +167,5 @@
     "merge": false,
     "deploy": false
   },
-  "nextAuthority": "A later operator GO must name the final packet commit, fresh capture digest/time, exact current deploy, database revision, successor PR/head, and the fixed baseline/candidate identities before any merge or cutover workflow dispatch."
+  "nextAuthority": "This request is no longer executable. First publish and independently accept exactly one successor-v2 candidate under a separately committed authority; then create a fresh pre-cutover request bound to PR 51 and the new immutable candidate."
 }

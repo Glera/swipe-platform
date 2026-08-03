@@ -1,20 +1,23 @@
 # Platform Reliability R1-A — production cutover packet
 
-Prepared: 2026-08-02 UTC; immutable-pair binding updated 2026-08-03 UTC.
+Prepared: 2026-08-02 UTC; successor-v2 recovery updated 2026-08-03 UTC.
 
-Status: **IMMUTABLE PRODUCTION PAIR PUBLISHED AND ACCEPTED; CUTOVER AUTHORITY
-NOT GRANTED**. Draft backend PR #48 is rebased, fully green and independently
-accepted at exact head
-`11c9bce9891ae5b041215056ac4521551a056cb5`. The exact baseline and candidate
-images are now published and bound below. This packet does not authorize a
-merge, GitHub production-environment mutation, provider source switch,
-deployment, rollback or Stage 1 action. The next external step remains blocked
-on a fresh attended provider capture and separate operator cutover GO.
+Status: **BASELINE RETAINED; OLD CANDIDATE STALE; SUCCESSOR V2 ACCEPTED;
+CUTOVER AUTHORITY NOT GRANTED**. Backend `master` advanced through PR #49
+after the old candidate publication. The action-time CAS correctly refused
+packet `099f3de` before any external authority was created. Draft PR #51 is
+the reviewed successor at exact head
+`4714e339b60e3af747d138486ad7eadadec72dac`; it is green and independently
+accepted, but has no immutable candidate image yet. This packet authorizes no
+publication, merge, GitHub production-environment mutation, provider source
+switch, deployment, rollback or Stage 1 action.
 
-The exact bounded request for that preparation is
+The previous preparation request
 `platform-reliability-r1a-cutover-preparation-authority-request-20260803.md`
-plus its machine-readable JSON companion. Its status is authority-not-granted;
-no step in that request may run until the operator names its committed SHA.
+is blocked and non-executable. The next bounded decision is the one-run
+candidate request
+`platform-reliability-r1a-production-candidate-v2-publication-authority-request-20260803.md`
+plus its machine-readable JSON companion.
 
 ## 1. Accepted rehearsal authority
 
@@ -74,7 +77,7 @@ the merge vehicle.
 
 No Stage 1 commit is rebased, renumbered, merged or deployed in this phase.
 
-### Completed successor and exact-pin receipts
+### Superseded successor-v1 receipts
 
 - draft PR: [backend #48](https://github.com/Glera/swipe-backend/pull/48),
   `DO NOT MERGE`;
@@ -103,24 +106,55 @@ No Stage 1 commit is rebased, renumbered, merged or deployed in this phase.
 - production capture and retry-window audit:
   `platform-reliability-r1a-production-precutover-capture-20260802.md`.
 
-Steps 1–5 above are complete for the exact pin head. PR #48 remains draft and
-unmerged. The production immutable pair was published under separate bounded
-authority and no service/deploy state changed.
+These receipts remain valid history for candidate v1, but PR #48 is no longer
+the merge vehicle because its base predates PR #49.
 
-## 4. Production immutable pair
+### Accepted successor v2
 
-Publication is complete and independently accepted. Full evidence:
+- draft PR: [backend #51](https://github.com/Glera/swipe-backend/pull/51),
+  `DO NOT MERGE`;
+- exact base: `7b41e96ad0d979863159ebdd356122af6295a203`;
+- exact head: `4714e339b60e3af747d138486ad7eadadec72dac`;
+- 29 R1-A commits replayed; old-to-new whole-tree delta is only two
+  operator-gated comment lines in `render.yaml`;
+- whole-tree diff SHA-256:
+  `677c41e20f66daddcad7cfa35d35e53c3c3feb7be528f348b52187460f57caf6`;
+- image/compact run `30817233456/1`: PASS, 1/1 jobs;
+- PostgreSQL acceptance run `30817235439/1`: PASS, 25/25 jobs;
+- independent review session
+  `6717e2e6-272b-4e1a-bd3d-c4465e29df38`: GO, no P1/P2;
+- exact receipt:
+  `platform-reliability-r1a-production-successor-v2-20260803.{json,md}`.
+
+PR #51 remains draft and unmerged. Steps 1–5 are complete again for the new
+base, but candidate publication and all production actions remain separately
+gated.
+
+## 4. Production immutable images
+
+The original pair publication completed and was independently accepted. Full
+historical evidence:
 `platform-reliability-r1a-production-image-publication-receipt-20260803.md`
 and its machine-readable JSON companion.
 
 | Role | Backend | Run | OCI index | Manifest SHA-256 |
 | --- | --- | ---: | --- | --- |
 | production baseline | `cd6fb13ab222b8c6f93b2c9fed12d86820f368a3` | `30789375002/1` | `sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb` | `b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88` |
-| production candidate | `11c9bce9891ae5b041215056ac4521551a056cb5` | `30789817457/1` | `sha256:1969bd9afeb948d9ab40432dd11e629d22ef37cc863204b97d6f45ef5ff6b8df` | `1e708f6418ddc88689ab0aae5cd67b7ce65ceb962cc50eaea81d7973b991613b` |
+| historical candidate v1 | `11c9bce9891ae5b041215056ac4521551a056cb5` | `30789817457/1` | `sha256:1969bd9afeb948d9ab40432dd11e629d22ef37cc863204b97d6f45ef5ff6b8df` | `1e708f6418ddc88689ab0aae5cd67b7ce65ceb962cc50eaea81d7973b991613b` |
 
-The candidate manifest pins the exact baseline run/image/manifest as its LKG.
-Each reviewed SHA has exactly one publishing dispatch; the two-run authority
-is exhausted and no redispatch is permitted.
+The old candidate manifest correctly pins the exact baseline as its LKG, but
+its source predates new `master` and cannot authorize deploying successor v2.
+It is now historical evidence only. Never redispatch that SHA.
+
+The baseline remains the accepted forward-only rollback image: its source and
+schema contract are unchanged, its Actions artifact is unexpired, and
+successor v2 retains the same reviewed LKG range. Rebuilding it is forbidden.
+
+Exactly one new candidate publication is now required. It must name source
+`4714e339b60e3af747d138486ad7eadadec72dac` and pin the existing baseline
+run/image/manifest above. The bounded request is
+`platform-reliability-r1a-production-candidate-v2-publication-authority-request-20260803.{json,md}`;
+its current status is authority-not-granted.
 
 ## 5. Action-time provider gate
 
@@ -170,6 +204,14 @@ The successor request uses a plan-compatible payload that retains the exact
 custom branch restriction and omits unsupported reviewer/wait fields. It still
 requires a fresh named operator authority before execution.
 
+A later authority named packet `099f3de`, but the first preflight observed
+backend `master` drift from `a12ca7e...` to `7b41e96...` and refused before
+creating a temporary key. No cleanup window started and no external mutation
+occurred. Receipt:
+`platform-reliability-r1a-precutover-master-drift-20260803.{json,md}`. The old
+preparation request is non-executable; it must be replaced only after the new
+candidate receipt is independently accepted.
+
 ## 6. Exact attended sequence after operator GO
 
 Each item has a stop point and its own receipt:
@@ -212,10 +254,12 @@ The operator GO must name one immutable packet revision containing:
 - rollback target and compatibility proof;
 - approved execution window and authorized operator.
 
-The production-image fields are now fixed by §4 and the accepted publication
-receipt. A later packet revision must add only the fresh provider/database
-capture, expected deploy identity, protected-environment receipt and execution
-window; it must not rebuild or redispatch either image.
+The baseline fields are fixed by §4. Candidate-v2 fields remain empty until
+the one separately authorized publication succeeds and is reviewed. A later
+packet revision must bind that new candidate, then add a fresh
+provider/database capture, expected deploy identity, protected-environment
+receipt and execution window. It must not rebuild the baseline or redispatch
+any already published SHA.
 
 Example form, not an authorization:
 

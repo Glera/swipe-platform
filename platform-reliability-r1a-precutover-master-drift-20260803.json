@@ -1,0 +1,57 @@
+{
+  "schema": "platform-release-precutover-drift-receipt.v1",
+  "status": "HARD_STOP_CONTAINED",
+  "observedAt": "2026-08-03T13:06:00Z",
+  "operatorAuthorityCommit": "099f3de71c25c19492f53c79194f850713ce22f2",
+  "preflight": {
+    "expectedBackendMasterSha": "a12ca7ecea0f47e8862b4ba91879dff63cb46bfc",
+    "actualBackendMasterSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "result": "REFUSED_BEFORE_EXTERNAL_AUTHORITY",
+    "reason": "backend_master_cas_mismatch"
+  },
+  "masterMovement": {
+    "pullRequest": 49,
+    "title": "R1: keep production auto-deploy disabled",
+    "sourceHead": "7a04bb74f29ca8373fe21e47a44d0d1e209dddf9",
+    "mergeCommit": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "mergedAt": "2026-08-03T13:03:58Z",
+    "baseBeforeMerge": "a12ca7ecea0f47e8862b4ba91879dff63cb46bfc",
+    "files": [
+      {
+        "path": "render.yaml",
+        "additions": 5,
+        "deletions": 0
+      }
+    ]
+  },
+  "unchangedReviewedInputs": {
+    "oldSuccessorPullRequest": 48,
+    "oldSuccessorHead": "11c9bce9891ae5b041215056ac4521551a056cb5",
+    "stage1BackendPullRequest": 41,
+    "stage1BackendHead": "2029867495578310dda92c170a2e07c71203eefa",
+    "stage1ClientHead": "43f92693b55057d4c22652cbd81dad4ab67f0171",
+    "baselineRunId": 30789375002,
+    "baselineArtifactId": 8846489671,
+    "baselineArtifactExpired": false,
+    "oldCandidateRunId": 30789817457
+  },
+  "mutations": {
+    "temporaryRenderApiKeyCreated": false,
+    "cleanupDeadlineStarted": false,
+    "providerCaptureRun": false,
+    "databaseJobCreated": false,
+    "githubProductionEnvironmentCreated": false,
+    "githubSecretOrVariableWritten": false,
+    "imagePublished": false,
+    "pullRequestMerged": false,
+    "renderServiceMutated": false,
+    "deployStarted": false,
+    "migrationStarted": false,
+    "stage1Mutated": false
+  },
+  "disposition": {
+    "oldCandidateStatus": "STALE_AS_DEPLOY_AUTHORITY",
+    "baselineStatus": "RETAINED_ACCEPTED_LKG",
+    "requiredRecovery": "review a successor on the new master and publish exactly one new candidate image bound to its exact source SHA before requesting pre-cutover authority again"
+  }
+}

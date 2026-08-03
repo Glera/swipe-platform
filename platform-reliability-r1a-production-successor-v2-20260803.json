@@ -1,0 +1,96 @@
+{
+  "schema": "platform-release-production-successor-receipt.v2",
+  "status": "ACCEPTED_FOR_CANDIDATE_PUBLICATION_ONLY",
+  "preparedAt": "2026-08-03T13:24:45Z",
+  "repository": "Glera/swipe-backend",
+  "pullRequest": {
+    "number": 51,
+    "url": "https://github.com/Glera/swipe-backend/pull/51",
+    "state": "OPEN",
+    "draft": true,
+    "merged": false,
+    "branch": "codex/r1a-production-cutover-v2-20260803",
+    "baseSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "headSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+    "mergeable": true,
+    "mergeState": "CLEAN"
+  },
+  "construction": {
+    "replayedR1aCommitCount": 29,
+    "oldCandidateHead": "11c9bce9891ae5b041215056ac4521551a056cb5",
+    "oldCandidateTree": "d65747222a909f389f7a622deab627912b4aec0f",
+    "newCandidateTree": "e53d6f9262a64d98712892a08ae06f1c9acef666",
+    "wholeTreeDiffPaths": [
+      "render.yaml"
+    ],
+    "wholeTreeDiffDescription": "two operator-gated Auto Deploy comment lines; all three autoDeployTrigger off pins preserved",
+    "wholeTreeDiffSha256": "677c41e20f66daddcad7cfa35d35e53c3c3feb7be528f348b52187460f57caf6",
+    "rangeDiffSha256": "3d6d15eb832c8bca3cf770151925d550f40051957c7b4e17a519fb21079255e2",
+    "renderYamlSha256": "6482cb71792fe4f3e7f9e5881c9bc75d5378eeed80e81705825bba70a54e282b",
+    "autoDeployOffCount": 3,
+    "compactDockerfilePathCount": 3
+  },
+  "localVerification": {
+    "imageGate": {
+      "passed": 86,
+      "failed": 0
+    },
+    "broaderRelease": {
+      "passed": 86,
+      "failed": 0,
+      "environmentGatedPostgresSkipped": 3
+    },
+    "missionArchitectureGuard": {
+      "result": "PASS",
+      "policySha256": "3469120fba269c3be44eb4de4d829d83249cf01bcc426319b660f7256c0a3cc5"
+    }
+  },
+  "continuousIntegration": {
+    "imageAndCompact": {
+      "runId": 30817233456,
+      "attempt": 1,
+      "event": "pull_request",
+      "headSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+      "jobs": 1,
+      "successfulJobs": 1,
+      "conclusion": "success",
+      "completedAt": "2026-08-03T13:18:38Z"
+    },
+    "postgresAcceptance": {
+      "runId": 30817235439,
+      "attempt": 1,
+      "event": "pull_request",
+      "headSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+      "jobs": 25,
+      "successfulJobs": 25,
+      "conclusion": "success",
+      "completedAt": "2026-08-03T13:23:45Z"
+    }
+  },
+  "independentReview": {
+    "sessionId": "6717e2e6-272b-4e1a-bd3d-c4465e29df38",
+    "verdict": "GO",
+    "p1Findings": 0,
+    "p2Findings": 0,
+    "authority": "push draft branch and run nonpublishing CI only"
+  },
+  "releaseBoundary": {
+    "existingBaselineBuildRunId": 30789375002,
+    "existingBaselineImageDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+    "existingBaselineManifestSha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88",
+    "existingBaselineArtifactId": 8846489671,
+    "existingBaselineArtifactExpired": false,
+    "candidateImagePublished": false,
+    "productionEnvironmentPresent": false,
+    "workflowDispatchRunsForSuccessorHead": 0
+  },
+  "notAuthorized": [
+    "merge pull request 51",
+    "publish an image without a separately committed operator authority",
+    "create or mutate the GitHub production environment",
+    "mutate Render",
+    "deploy",
+    "migrate production",
+    "mutate or roll out Stage 1"
+  ]
+}
