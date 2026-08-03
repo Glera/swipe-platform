@@ -1,0 +1,183 @@
+{
+  "schema": "platform-release-image-publication-receipt.v1",
+  "status": "PASS",
+  "capturedAt": "2026-08-03T06:35:25Z",
+  "committedAuthorityPacket": "ea0e0b300cdd9cdf508415d233f243cdaa01f73b",
+  "operatorAuthority": {
+    "maximumPublishTrueWorkflowDispatches": 2,
+    "order": [
+      "baseline",
+      "candidate-after-verified-baseline"
+    ],
+    "consumed": 2,
+    "remaining": 0,
+    "merge": false,
+    "deploy": false,
+    "renderMutation": false,
+    "githubProductionEnvironmentMutation": false,
+    "stage1Mutation": false
+  },
+  "sharedSources": {
+    "feed": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+    "playables": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+    "swipePlatform": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+    "releaseJsonV2Sha256": "47ef04a272f378be9cfcbba538f08203a11575c48cf281b4029e7cd46b478d0e",
+    "releaseProfileSha256": "4c8789cbff194662d450c536d8bd98071bbd44a4eb6c0484c6f36cadd340ac17"
+  },
+  "registryInventory": {
+    "before": {
+      "tagged": 5,
+      "untagged": 10,
+      "baselineTagPresent": false,
+      "candidateTagPresent": false
+    },
+    "after": {
+      "tagged": 7,
+      "untagged": 14,
+      "baselineTagPresent": true,
+      "candidateTagPresent": true
+    }
+  },
+  "baseline": {
+    "ref": "codex/r1a-production-baseline-v1-20260802",
+    "headSha": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+    "workflow": ".github/workflows/platform-release-image.yml",
+    "run": {
+      "id": 30789375002,
+      "attempt": 1,
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-08-03T06:11:35Z",
+      "updatedAt": "2026-08-03T06:14:16Z",
+      "jobId": 91609534606,
+      "jobStartedAt": "2026-08-03T06:11:40Z",
+      "jobCompletedAt": "2026-08-03T06:14:15Z"
+    },
+    "artifact": {
+      "id": 8846489671,
+      "name": "platform-release-cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+      "sizeBytes": 85929,
+      "expired": false,
+      "createdAt": "2026-08-03T06:13:55Z",
+      "expiresAt": "2026-11-01T06:11:36Z",
+      "archiveSha256FromUploadLog": "7d90775c8b303b9796dde35656ad1a467e6f0454adb2208994274f3afd828f74",
+      "files": {
+        "build-metadata.json": "0eac90dc483b7742fff38bafff395a1ac922a9ba3b1a372c9e709ea647174f9c",
+        "manifest-summary.json": "8749368974eaf0a2f16a567fa282275e46201a7ba1b875b8547a356a15e46a9d",
+        "platform-release-manifest.v1.json": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88",
+        "platform-schema-capability.v1.json": "4ace174a77957a81cdadeb07a9d29116f3e952e3b42e95afa4123bf06f836e0f"
+      }
+    },
+    "image": {
+      "repository": "ghcr.io/glera/swipe-backend",
+      "ociIndexDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+      "linuxAmd64Digest": "sha256:9002e9b2b5cb94eb50c68c170f9919ee4da9d51bc92cc3c54d0f402bec8edfe4",
+      "attestationDigest": "sha256:0abde2cbb1f29ff6c9797b5f93b97cbaab5fecc210eebe9395febb454d6c323a",
+      "packageVersionId": 1092313648,
+      "visibility": "private",
+      "linkedRepository": "Glera/swipe-backend"
+    },
+    "database": {
+      "postgresMajor": 16,
+      "targetRevision": "0070_published_test_delivery",
+      "expectedPredecessor": "0069_arrows_runtime_variant",
+      "codeCompatibility": [
+        "0069_arrows_runtime_variant",
+        "0070_published_test_delivery"
+      ],
+      "lkgKind": "bootstrap-root"
+    },
+    "machineVerification": "PASS",
+    "independentReview": {
+      "status": "GO",
+      "sessionId": "d0a332e9-e5d4-41e3-bb54-9664e2153258"
+    }
+  },
+  "candidate": {
+    "ref": "codex/r1a-production-cutover-v1-20260802",
+    "headSha": "11c9bce9891ae5b041215056ac4521551a056cb5",
+    "workflow": ".github/workflows/platform-release-image.yml",
+    "run": {
+      "id": 30789817457,
+      "attempt": 1,
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-08-03T06:19:24Z",
+      "updatedAt": "2026-08-03T06:21:49Z",
+      "jobId": 91610795922,
+      "jobStartedAt": "2026-08-03T06:19:36Z",
+      "jobCompletedAt": "2026-08-03T06:21:48Z"
+    },
+    "artifact": {
+      "id": 8846642394,
+      "name": "platform-release-11c9bce9891ae5b041215056ac4521551a056cb5",
+      "sizeBytes": 86667,
+      "expired": false,
+      "createdAt": "2026-08-03T06:21:43Z",
+      "expiresAt": "2026-11-01T06:19:25Z",
+      "archiveSha256FromUploadLog": "2851f4b25de3186a1f805abf8f399cfa4634e9bc3290436d02372646d2687d46",
+      "files": {
+        "build-metadata.json": "2f2384c3c9dfa05d2e74f13c192f7ef43214d9096c2ca66a4938e34f6f95c73c",
+        "manifest-summary.json": "78163c5345b82985ff57d3c0eb36738ab16246812768e32c80843ca80e9c3f36",
+        "platform-release-manifest.v1.json": "1e708f6418ddc88689ab0aae5cd67b7ce65ceb962cc50eaea81d7973b991613b",
+        "platform-schema-capability.v1.json": "e31eaf82a8386d20954002577e9b7ec63fe11f4626a2c2f1aab46df2e3fc72b0"
+      }
+    },
+    "image": {
+      "repository": "ghcr.io/glera/swipe-backend",
+      "ociIndexDigest": "sha256:1969bd9afeb948d9ab40432dd11e629d22ef37cc863204b97d6f45ef5ff6b8df",
+      "linuxAmd64Digest": "sha256:6c2443de972f681bfce5c5023037acb7206a26d8e8533c90de50ae19c15f7607",
+      "attestationDigest": "sha256:b3464cfaca24587f7a05ad68c85a4fbfff27a60c2efe626088117870a0d3d193",
+      "packageVersionId": 1092330826,
+      "visibility": "private",
+      "linkedRepository": "Glera/swipe-backend"
+    },
+    "database": {
+      "postgresMajor": 16,
+      "targetRevision": "0071_platform_release_receipts",
+      "expectedPredecessor": "0070_published_test_delivery",
+      "codeCompatibility": [
+        "0070_published_test_delivery",
+        "0071_platform_release_receipts"
+      ],
+      "lkgCompatibility": [
+        "0069_arrows_runtime_variant",
+        "0070_published_test_delivery"
+      ],
+      "lkgForwardCompatibility": [
+        "0069_arrows_runtime_variant",
+        "0070_published_test_delivery",
+        "0071_platform_release_receipts"
+      ]
+    },
+    "lastKnownGood": {
+      "kind": "image",
+      "buildRunId": 30789375002,
+      "imageDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+      "manifestSha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88"
+    },
+    "machineVerification": "PASS",
+    "independentReview": {
+      "status": "GO",
+      "sessionId": "79deb8fd-3875-4c7b-82a7-e33fae09bc90"
+    }
+  },
+  "postconditions": {
+    "exactPublishingRunsPerHead": 1,
+    "baselinePublishedBeforeCandidate": true,
+    "candidatePublishedAfterBaselineMachineAndIndependentReview": true,
+    "backendMasterSha": "a12ca7ecea0f47e8862b4ba91879dff63cb46bfc",
+    "successorPullRequest": {
+      "number": 48,
+      "state": "OPEN",
+      "draft": true,
+      "merged": false,
+      "headSha": "11c9bce9891ae5b041215056ac4521551a056cb5"
+    },
+    "githubProductionEnvironment": "absent",
+    "furtherPublicationDispatchAuthorized": false,
+    "cutoverAuthorized": false
+  }
+}

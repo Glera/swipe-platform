@@ -1,15 +1,15 @@
 # Platform Reliability R1-A — production cutover packet
 
-Prepared: 2026-08-02 UTC.
+Prepared: 2026-08-02 UTC; immutable-pair binding updated 2026-08-03 UTC.
 
-Status: **EXACT PRODUCTION CREDENTIAL PIN ACCEPTED; IMAGE PUBLICATION AND
-CUTOVER AUTHORITY NOT GRANTED**. Draft backend PR #48 is rebased, fully green
-and independently accepted at exact head
-`11c9bce9891ae5b041215056ac4521551a056cb5`. This packet does not authorize a
-merge, image publication, provider source switch, deployment, rollback or
-Stage 1 action. The next external step is deliberately blocked on separate
-operator authority to publish the immutable production baseline/candidate
-pair and complete the protected GitHub environment packet.
+Status: **IMMUTABLE PRODUCTION PAIR PUBLISHED AND ACCEPTED; CUTOVER AUTHORITY
+NOT GRANTED**. Draft backend PR #48 is rebased, fully green and independently
+accepted at exact head
+`11c9bce9891ae5b041215056ac4521551a056cb5`. The exact baseline and candidate
+images are now published and bound below. This packet does not authorize a
+merge, GitHub production-environment mutation, provider source switch,
+deployment, rollback or Stage 1 action. The next external step remains blocked
+on a fresh attended provider capture and separate operator cutover GO.
 
 ## 1. Accepted rehearsal authority
 
@@ -99,22 +99,23 @@ No Stage 1 commit is rebased, renumbered, merged or deployed in this phase.
   `platform-reliability-r1a-production-precutover-capture-20260802.md`.
 
 Steps 1–5 above are complete for the exact pin head. PR #48 remains draft and
-unmerged. No production image has been published and no service/deploy state
-changed. Publishing the production immutable pair is the next separately
-authorized phase.
+unmerged. The production immutable pair was published under separate bounded
+authority and no service/deploy state changed.
 
 ## 4. Production immutable pair
 
-After separate operator GO, publish each SHA at most once:
+Publication is complete and independently accepted. Full evidence:
+`platform-reliability-r1a-production-image-publication-receipt-20260803.md`
+and its machine-readable JSON companion.
 
-- **production baseline**: exact action-time backend `master`, including all
-  accepted production changes before R1-A;
-- **production candidate**: exact accepted successor PR head, pinning the
-  baseline's build run, image digest and manifest SHA-256 as LKG.
+| Role | Backend | Run | OCI index | Manifest SHA-256 |
+| --- | --- | ---: | --- | --- |
+| production baseline | `cd6fb13ab222b8c6f93b2c9fed12d86820f368a3` | `30789375002/1` | `sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb` | `b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88` |
+| production candidate | `11c9bce9891ae5b041215056ac4521551a056cb5` | `30789817457/1` | `sha256:1969bd9afeb948d9ab40432dd11e629d22ef37cc863204b97d6f45ef5ff6b8df` | `1e708f6418ddc88689ab0aae5cd67b7ce65ceb962cc50eaea81d7973b991613b` |
 
-For both builds record ref, head SHA, workflow run/attempt, OCI index digest,
-Linux/amd64 digest, manifest SHA-256, artifact ID/digest/expiry and package
-version ID. A failed SHA is not redispatched; use a reviewed successor SHA.
+The candidate manifest pins the exact baseline run/image/manifest as its LKG.
+Each reviewed SHA has exactly one publishing dispatch; the two-run authority
+is exhausted and no redispatch is permitted.
 
 ## 5. Action-time provider gate
 
@@ -148,10 +149,11 @@ most the one exact attended merge/cutover window and is never reused.
 
 The provider-state and registry-credential portions were captured at
 `2026-08-02T19:03:32.093657Z`; normalized state before and after credential
-creation was byte-identical. The GitHub `production` environment remained
-absent by construction and must be created and captured only inside the next
-separately authorized image-publication phase. The full gate is therefore not
-yet satisfied for merge or deploy.
+creation was byte-identical. The GitHub `production` environment remains
+absent by construction and may be created and captured only inside the next
+separately authorized cutover-preparation window. A fresh provider/database
+capture is also required. The full gate is therefore not yet satisfied for
+merge or deploy.
 
 ## 6. Exact attended sequence after operator GO
 
@@ -194,6 +196,11 @@ The operator GO must name one immutable packet revision containing:
 - verified Auto Sync/Deploy-Off result;
 - rollback target and compatibility proof;
 - approved execution window and authorized operator.
+
+The production-image fields are now fixed by §4 and the accepted publication
+receipt. A later packet revision must add only the fresh provider/database
+capture, expected deploy identity, protected-environment receipt and execution
+window; it must not rebuild or redispatch either image.
 
 Example form, not an authorization:
 
