@@ -54,6 +54,11 @@ Observe only the run created by the dispatch to terminal state. Require:
 - one private GHCR package version linked to `Glera/swipe-backend` and tagged
   by the exact backend SHA.
 
+Treat a created-run head different from
+`f2a840517956c4f480fc9d8aaf6f832ebde489d9` as an immediate hard stop and a
+consumed authority. Do not wait for that run as if it were the authorized
+candidate and do not create another run.
+
 Record the run URL, API identities and every digest. Do not expose package or
 repository credentials; the workflow uses its scoped `GITHUB_TOKEN`.
 

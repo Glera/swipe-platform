@@ -64,6 +64,10 @@ before dispatch:
 Any mismatch stops before dispatch. The accepted source branch is not moved,
 tagged or otherwise mutated by this request.
 
+The initial read-only corroboration is recorded in
+`platform-reliability-r1a-production-candidate-v3-preflight-observation-20260803.{json,md}`;
+all mutable facts in it must still be reread at action time.
+
 ## Hard boundary
 
 This request does **not** authorize a baseline rebuild, second dispatch,

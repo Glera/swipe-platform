@@ -1,0 +1,97 @@
+{
+  "schema": "platform-release-image-preflight-observation.v1",
+  "status": "READ_ONLY_INITIAL_OBSERVATION_NOT_ACTION_TIME_AUTHORITY",
+  "observedAt": "2026-08-03T18:50:15Z",
+  "authority": "none",
+  "source": {
+    "repository": "Glera/swipe-backend",
+    "ref": "master",
+    "sha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "parents": [
+      "f0cc933fb813be2e4784200592efced196d74973",
+      "8ea6f1de6d2fe4bbb43b56698fd135649130d3c5"
+    ],
+    "tree": "a7e4c6462d4d30d0af61eae4672792203739d832",
+    "pullRequest": 52,
+    "pullRequestMergedAt": "2026-08-03T18:04:53Z"
+  },
+  "workflow": {
+    "path": ".github/workflows/platform-release-image.yml",
+    "gitBlobSha": "a2befbfd7888ba69643a036159253c3ef2dceb66",
+    "sizeBytes": 16224,
+    "sha256": "95d81d36dabbd6e901023ca40a62c041d2e60e991d889b54c130949a1640eb1d",
+    "runsForExactSource": []
+  },
+  "sourcePushCi": [
+    {
+      "runId": 30839644353,
+      "name": "Browser E2E (real-backend feed closure)",
+      "event": "push",
+      "headSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "runId": 30839644830,
+      "name": "PostgreSQL acceptance",
+      "event": "push",
+      "headSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+      "attempt": 1,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "baseline": {
+    "runId": 30789375002,
+    "attempt": 1,
+    "event": "workflow_dispatch",
+    "sourceSha": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+    "status": "completed",
+    "conclusion": "success",
+    "artifactId": 8846489671,
+    "artifactName": "platform-release-cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+    "artifactExpired": false,
+    "artifactExpiresAt": "2026-11-01T06:11:36Z",
+    "imageDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+    "manifestSha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88"
+  },
+  "frozenRelease": {
+    "feedSha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+    "playablesSha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+    "swipePlatformSha": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+    "releaseJsonGitBlobSha": "f942d66ba1fb1df99aaabd5ca1dd1819cc7ab4e4",
+    "releaseJsonSizeBytes": 916,
+    "releaseJsonSchemaVersion": 2,
+    "releaseJsonFeedCommit": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+    "releaseJsonDeployToolingCommit": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+    "islandFrontendGates": {
+      "VITE_ISLAND_ENABLED": false,
+      "VITE_ISLAND_VISIT_AWARDS_ENABLED": false,
+      "VITE_ISLAND_NOTIFICATIONS_ENABLED": false
+    }
+  },
+  "migrationGraph": [
+    "0070_published_test_delivery",
+    "0071_mission_slice_core",
+    "0072_mission_ops_receipts",
+    "0073_platform_release_receipts"
+  ],
+  "absence": {
+    "exactSourceTaggedGhcrVersion": false,
+    "taggedGhcrVersionCountObserved": 8,
+    "ghcrObservationSurface": "signed-in private package versions UI",
+    "githubEnvironmentNames": [
+      "master - swipe-backend",
+      "master - swipe-db"
+    ],
+    "githubProductionEnvironment": false,
+    "repositoryRenderOrPlatformReleaseVariableNames": [],
+    "repositoryRenderOrPlatformReleaseSecretNames": []
+  },
+  "limitations": [
+    "this is an initial read-only observation and every mutable fact must be reread immediately before a separately authorized dispatch",
+    "GHCR absence was observed through the signed-in private package UI because the current gh CLI token lacks read:packages",
+    "no workflow dispatch, package publication or external mutation was performed"
+  ]
+}

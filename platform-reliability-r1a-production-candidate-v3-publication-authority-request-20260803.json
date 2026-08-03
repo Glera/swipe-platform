@@ -7,6 +7,7 @@
   "repository": "Glera/swipe-backend",
   "workflow": ".github/workflows/platform-release-image.yml",
   "workflowSha256": "95d81d36dabbd6e901023ca40a62c041d2e60e991d889b54c130949a1640eb1d",
+  "readOnlyObservationReceipt": "platform-reliability-r1a-production-candidate-v3-preflight-observation-20260803.json",
   "dispatchLimit": 1,
   "publication": {
     "ref": "master",
@@ -57,6 +58,8 @@
   "observedPreflight": {
     "observedAt": "2026-08-03T18:39:45Z",
     "backendMasterSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "workflowGitBlobSha": "a2befbfd7888ba69643a036159253c3ef2dceb66",
+    "releaseJsonGitBlobSha": "f942d66ba1fb1df99aaabd5ca1dd1819cc7ab4e4",
     "workflowDispatchRunsForExactSource": [],
     "ghcrTaggedSourceShaAbsent": true,
     "githubProductionEnvironmentAbsent": true,
@@ -120,6 +123,7 @@
   "hardStops": [
     "any exact source, parent, tree, PR, CI, baseline, artifact, workflow or cross-repository identity differs",
     "backend master moves before dispatch",
+    "the created workflow run head differs from f2a840517956c4f480fc9d8aaf6f832ebde489d9",
     "any workflow run or GHCR tagged identity already exists for the exact source",
     "the production environment or repository-level Render authority exists unexpectedly",
     "the workflow cannot prove the candidate manifest pins the exact accepted baseline",

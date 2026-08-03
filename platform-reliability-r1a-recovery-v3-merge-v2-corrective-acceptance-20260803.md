@@ -8,6 +8,12 @@ The operator accepted the independently reviewed corrective disposition at
 exact meta commit
 `f0811ed1c5f5f205f7c5da022557e8e6e8dbae79`:
 
+Independent review receipts are
+`platform-reliability-r1a-recovery-v3-merge-v2-corrective-review-20260803.*`
+and the focused review
+`platform-reliability-r1a-recovery-v3-merge-v2-corrective-r2-20260803.*`;
+the latter returned GO on exact `f0811ed1c5f5f205f7c5da022557e8e6e8dbae79`.
+
 - NC-1 is an authority-document defect; the settled pre-cutover production
   baseline is backend branch `master` with `./Dockerfile.bake`;
 - NC-2 is a contained process nonconformity without credential exposure;
