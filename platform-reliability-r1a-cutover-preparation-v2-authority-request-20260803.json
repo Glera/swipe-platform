@@ -1,0 +1,209 @@
+{
+  "schema": "platform-release-cutover-preparation-authority-request.v2",
+  "status": "READY_FOR_OPERATOR_DECISION",
+  "authority": "not-granted",
+  "preparedAt": "2026-08-03T14:08:29Z",
+  "sourceEvidenceCommit": "3ebc6f2c45c1d7e64d182ce9e20d7e9b325d0776",
+  "supersedes": {
+    "request": "platform-reliability-r1a-cutover-preparation-authority-request-20260803.json",
+    "status": "BLOCKED_NON_EXECUTABLE",
+    "reason": "the previous request names stale backend master, successor-v1 and historical candidate-v1 identities"
+  },
+  "immutableRelease": {
+    "backendMasterSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "successorPullRequest": 51,
+    "successorBaseSha": "7b41e96ad0d979863159ebdd356122af6295a203",
+    "successorHeadSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+    "successorRef": "codex/r1a-production-cutover-v2-20260803",
+    "acceptedCiRuns": [
+      {
+        "id": 30817233456,
+        "attempt": 1,
+        "workflow": "Platform release image",
+        "conclusion": "success"
+      },
+      {
+        "id": 30817235439,
+        "attempt": 1,
+        "workflow": "PostgreSQL acceptance",
+        "conclusion": "success"
+      }
+    ],
+    "baseline": {
+      "sourceSha": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+      "buildRunId": 30789375002,
+      "buildAttempt": 1,
+      "imageDigest": "sha256:39f354d8b22a221bf5f71ed912ca57d9bd16a8f8007958709e3e97f969b5eedb",
+      "manifestSha256": "b2ddb48a4c907b82b592a430336811a6514ec8a58c3c2cd8336f7e339a2bbc88",
+      "artifactId": 8846489671,
+      "rebuildAuthorized": false
+    },
+    "candidate": {
+      "sourceSha": "4714e339b60e3af747d138486ad7eadadec72dac",
+      "buildRunId": 30819666007,
+      "buildAttempt": 1,
+      "imageDigest": "sha256:d6aae406275945b30475aa6c797f73d52af6108a715f5c5a4bcfe109fddcd05b",
+      "manifestSha256": "a0e128be8ed3fa2484c74108cf324c8a6449be23daa7da5c25943b22b4c4e9e5",
+      "schemaCapabilitySha256": "e31eaf82a8386d20954002577e9b7ec63fe11f4626a2c2f1aab46df2e3fc72b0",
+      "artifactId": 8858370713,
+      "artifactExpiresAt": "2026-11-01T13:48:34Z",
+      "publicationReceipt": "platform-reliability-r1a-production-candidate-v2-publication-receipt-20260803.json",
+      "publicationReview": "platform-reliability-r1a-production-candidate-v2-publication-review-20260803.md",
+      "redispatchAuthorized": false
+    }
+  },
+  "productionTarget": {
+    "ownerId": "tea-d1m4lmali9vc73euvelg",
+    "blueprintId": "exs-d95qo3q8qa3s73ea23p0",
+    "webServiceId": "srv-d95r3bfavr4c73aqsi4g",
+    "sequencingCronId": "crn-d9kej0u1egvs73engu7g",
+    "materializeCronId": "crn-d9e6vmtaeets73ai8cj0",
+    "databaseId": "dpg-d95r32favr4c73aqs4d0-a",
+    "registryCredentialId": "rgc-d9np7tajnfac73bi5ib0",
+    "databaseIdentity": "swipe-production",
+    "expectedBlueprintBranch": "master",
+    "expectedDockerfilePath": "./Dockerfile.bake"
+  },
+  "lastConfirmedProviderState": {
+    "providerCaptureObservedAt": "2026-08-03T12:36:04.442227Z",
+    "providerCaptureSha256": "872bc6bf71a0aafe59609e1a684baa1bf2a7e4e5f6c4edc16166f0b8614c5947",
+    "inventoryObservedAt": "2026-08-03T12:42:23.587016Z",
+    "inventorySha256": "5fab84f51c103a66cc44bafe7dae66b81384246d6b4d801619c33a16eccecda6",
+    "blueprintAutoSync": false,
+    "allAutoDeploy": false,
+    "activeDeployCount": 0,
+    "activeJobCountBeforeRevisionJob": 0,
+    "databaseVersion": "16",
+    "databaseStatus": "available",
+    "databaseRevision": "0070_published_test_delivery",
+    "latestDeploys": {
+      "web": "dep-d9mtmabm8hqs73cighmg",
+      "sequencing": "dep-d9mtmabm8hqs73cigjk0",
+      "materialize": "dep-d9mtmajm8hqs73cigkc0"
+    },
+    "note": "comparison sentinels only; they must be recaptured and must not be replaced by newly discovered values after a mismatch"
+  },
+  "stage1Freeze": {
+    "backendPullRequest": 41,
+    "backendHeadSha": "2029867495578310dda92c170a2e07c71203eefa",
+    "clientRef": "claude/stage1-p4-mission-client",
+    "clientHeadSha": "43f92693b55057d4c22652cbd81dad4ab67f0171",
+    "mutationAuthorized": false
+  },
+  "requestedWindow": {
+    "kind": "attended-pre-cutover-preparation-v2",
+    "cleanupDeadlineMinutesAfterEnvironmentVerification": 60,
+    "accountWideRenderApiKey": "one-new-temporary-key",
+    "renderWebServiceJobs": 1,
+    "allowedActions": [
+      "perform exact action-time read-only git and GitHub preflight",
+      "create one temporary account-wide Render API key for this attended window",
+      "run the reviewed GET-only provider capture against the exact production IDs",
+      "create exactly one Render web-service job whose exact command is alembic current",
+      "create the GitHub production environment with the exact custom branch policy",
+      "write one environment secret named RENDER_API_KEY",
+      "write the six exact environment variables declared below",
+      "read back bounded key-name, variable-value and policy receipts without exposing secret values",
+      "commit exact preparation receipts and obtain independent read-only review"
+    ],
+    "forbiddenActions": [
+      "merge any pull request",
+      "dispatch platform-release-cutover.yml or any other workflow",
+      "invoke prepare-source, deploy, rollback or any persistent Render service configuration, source, image or environment mutation",
+      "create any Render job other than the single exact alembic current job",
+      "change Render service source, image, environment, Auto Deploy, Blueprint or registry credential state",
+      "run alembic upgrade or downgrade",
+      "publish, rebuild or redispatch any image",
+      "mutate, rebase, merge or roll out either Stage 1 implementation branch",
+      "perform any generative-feed scope change"
+    ]
+  },
+  "githubProductionEnvironment": {
+    "repository": "Glera/swipe-backend",
+    "name": "production",
+    "planGatedProtectionFieldsOmitted": [
+      "wait_timer",
+      "prevent_self_review",
+      "reviewers"
+    ],
+    "expectedProtectionRules": [
+      "branch_policy"
+    ],
+    "deploymentBranchPolicy": {
+      "protectedBranches": false,
+      "customBranchPolicies": true,
+      "allowedBranch": "codex/r1a-production-cutover-v2-20260803"
+    },
+    "secretNames": [
+      "RENDER_API_KEY"
+    ],
+    "variables": {
+      "PLATFORM_DATABASE_IDENTITY": "swipe-production",
+      "PLATFORM_RELEASE_AUTHORITY_SCOPE": "production",
+      "RENDER_BLUEPRINT_ID": "exs-d95qo3q8qa3s73ea23p0",
+      "RENDER_OWNER_ID": "tea-d1m4lmali9vc73euvelg",
+      "RENDER_REGISTRY_CREDENTIAL_ID": "rgc-d9np7tajnfac73bi5ib0",
+      "RENDER_SERVICE_ID": "srv-d95r3bfavr4c73aqsi4g"
+    },
+    "repositoryRenderSecretsAndVariables": []
+  },
+  "githubPayloads": {
+    "environment": {
+      "path": "platform-reliability-r1a-github-production-environment-payload-v2-20260803.json",
+      "sha256": "2a6cb895a3d98f5f17d7c36082cde31d6870476992d28a86f7950a95109cde1e"
+    },
+    "branchPolicy": {
+      "path": "platform-reliability-r1a-github-production-branch-policy-payload-v2-20260803.json",
+      "sha256": "caee59d6415c614dafda4fe6b4208e2acac761e358f576cc7604351761c7b9b0"
+    }
+  },
+  "requiredActionTimePreflight": [
+    "meta authority commit equals the exact commit named by the operator",
+    "backend master remains exactly 7b41e96ad0d979863159ebdd356122af6295a203",
+    "PR 51 remains open, draft, unmerged, mergeable, and exactly at the declared base and head",
+    "CI runs 30817233456/1 and 30817235439/1 remain successful at the exact successor head",
+    "candidate run 30819666007/1 remains successful, its artifact remains unexpired, and its GHCR tag resolves to the exact candidate OCI index",
+    "baseline run 30789375002/1 remains successful and its artifact remains unexpired",
+    "GitHub production environment remains absent",
+    "repository-level RENDER_ secrets and variables remain absent",
+    "there are zero cutover workflow dispatches for the candidate head",
+    "Stage 1 backend PR and client ref remain at the exact declared heads",
+    "the authenticated Render UI contains no temporary account API key from an earlier window"
+  ],
+  "stopConditions": [
+    "any reviewed ref, CI run, immutable artifact, manifest, schema capability or OCI identity differs",
+    "the production environment or any repository-level RENDER_ authority already exists",
+    "any production Render ID, owner membership, resource name, service type, source branch, Dockerfile path, consumer set or registry credential differs",
+    "Blueprint Auto Sync or any of the three Auto Deploy controls is enabled or unreadable",
+    "any deploy, sync, preDeploy, migration or unrelated web-service job is active",
+    "any latest production deploy differs from the declared comparison sentinel",
+    "database is unavailable, not PostgreSQL 16, or alembic current is not exactly 0070_published_test_delivery",
+    "the environment branch policy, secret-name set or variable key/value set does not equal this request",
+    "the temporary key value is observed by any receipt, transcript, command argument, stdout, stderr or clipboard"
+  ],
+  "requiredReceipts": [
+    "action-time git, PR, CI, image, artifact, environment-absence, repository-authority-absence and Stage 1 CAS receipt",
+    "fresh canonical provider capture with observation time and SHA-256",
+    "bounded production resource, deploy, database and registry-credential inventory digests",
+    "database revision job create, status and log digests plus exact bounded revision",
+    "GitHub production environment GET receipt and exact custom branch-policy receipt",
+    "environment secret-name and variable key/value receipts with no secret value",
+    "repository secret and variable name receipts proving no repository RENDER_ authority",
+    "temporary Render API-key lifecycle receipt without key value",
+    "proof of zero merge, workflow dispatch, persistent provider service mutation, deploy, migration, image publication and Stage 1 mutation, plus exactly one authorized revision job",
+    "final preparation evidence commit and independent GO or exact finding disposition"
+  ],
+  "failureCleanup": {
+    "deleteProductionEnvironmentIfCreatedByThisWindow": true,
+    "revokeTemporaryRenderApiKey": true,
+    "removeLocalSecretHandoff": true,
+    "proveEnvironmentGet404": true,
+    "proveRevokedKeyUnauthorized": true,
+    "preserveDurableGhcrRegistryCredential": true,
+    "renderServiceRollback": false,
+    "merge": false,
+    "deploy": false
+  },
+  "operatorGoTemplate": "GO R1-A pre-cutover preparation v2 for packet <exact-commit> only. Create one temporary account-wide Render API key; run exact GET-only production capture and one alembic current job; create GitHub environment production with the committed candidate-v2 branch policy, one secret and six variables; produce receipts and independent review. Merge, workflow dispatch, persistent Render service mutation, deploy, migration, image publication and Stage 1 mutation remain forbidden. On failure or deadline, delete only the environment created by this window and revoke the temporary key.",
+  "nextAuthority": "A successful reviewed preparation receipt still does not authorize merge or cutover. The final packet must bind the fresh provider/database/environment receipt and requires a separate exact operator GO before any merge, workflow dispatch or persistent provider service mutation."
+}
