@@ -1,6 +1,8 @@
 {
   "schema": "platform-release-image-publication-failure-receipt.v1",
-  "status": "FAIL_CONTAINED_NO_PUBLICATION_AUTHORITY_CONSUMED",
+  "status": "FAIL_CONTAINED",
+  "publicationOccurred": false,
+  "operatorAuthorityConsumed": true,
   "recordedAt": "2026-08-03T19:20:48Z",
   "operatorAuthority": {
     "packetCommit": "c5bfbef243e38f6c19f4f5ee53f8124e2aa37fb9",
@@ -15,12 +17,29 @@
     "packetRequestGitBlob": "7473709040b33677e6f5fc04c9ea129ec1890ab5",
     "reviewedRequestChangedAfterPacket": false,
     "backendMaster": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "sourceMerge": {
+      "parents": [
+        "f0cc933fb813be2e4784200592efced196d74973",
+        "8ea6f1de6d2fe4bbb43b56698fd135649130d3c5"
+      ],
+      "tree": "a7e4c6462d4d30d0af61eae4672792203739d832",
+      "pullRequest": 52,
+      "pullRequestMerged": true
+    },
     "exactSourceRunsBeforeDispatch": 0,
     "exactSourceTaggedGhcrVersionBeforeDispatch": false,
     "ghcrTaggedVersionCountBeforeDispatch": 8,
     "workflowGitBlob": "a2befbfd7888ba69643a036159253c3ef2dceb66",
     "workflowSizeBytes": 16224,
     "workflowSha256": "95d81d36dabbd6e901023ca40a62c041d2e60e991d889b54c130949a1640eb1d",
+    "frozenRelease": {
+      "feedSha": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+      "playablesSha": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872",
+      "swipePlatformSha": "28193c34ac461235ac42c5555ea9e870fac5fed1",
+      "releaseJsonGitBlob": "f942d66ba1fb1df99aaabd5ca1dd1819cc7ab4e4",
+      "releaseJsonFeedCommit": "1d05bb13acfaa08ec607f3b1fc0010902a91ece6",
+      "releaseJsonDeployToolingCommit": "45d5dc81a73184f6ebac1f5dcb197ec0f143f872"
+    },
     "sourcePushCi": [
       {
         "runId": 30839644353,
@@ -118,7 +137,26 @@
       "the docker run passes DATABASE_URL and EXPECTED_SCHEMA_REVISION but does not pass PYTHONPATH=/app",
       "Python therefore resolves /app as the namespace named app from script-root / and cannot import /app/app/models.py",
       "the failure occurs before any database table/view compatibility query, so it does not prove schema incompatibility"
-    ]
+    ],
+    "sourceEvidence": {
+      "baselineDockerfileSource": "cd6fb13ab222b8c6f93b2c9fed12d86820f368a3",
+      "baselineDockerfileGitBlob": "47cfc38f964aaf13b07c3426c2cd7bfc62cae294",
+      "baselineDockerfileSizeBytes": 1941,
+      "smokeSource": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+      "smokeGitBlob": "d16f23fed611074bfd712cecbbc93b5b8128f9e5",
+      "smokeSizeBytes": 1615,
+      "workflowGitBlob": "a2befbfd7888ba69643a036159253c3ef2dceb66",
+      "workflowSizeBytes": 16224,
+      "baselineDockerfileFacts": [
+        "WORKDIR /app",
+        "COPY app ./app"
+      ],
+      "workflowFacts": [
+        "mount current smoke at /smoke.py",
+        "invoke image with --entrypoint python and argument /smoke.py",
+        "do not pass PYTHONPATH into the container"
+      ]
+    }
   },
   "containment": {
     "candidateBuildStepConclusion": "skipped",
@@ -136,7 +174,8 @@
     "renderProviderMutation": false,
     "githubEnvironmentMutation": false,
     "deploy": false,
-    "migration": false,
+    "ephemeralCiDatabaseMigration": true,
+    "productionMigration": false,
     "rehearsal": false,
     "cutover": false,
     "stage1RuntimeAction": false,
@@ -153,6 +192,7 @@
   },
   "cost": {
     "jobWallSeconds": 76,
+    "runWallSeconds": 81,
     "estimatedRoundedLinuxMinutes": 2,
     "estimatedMaximumUsdAt0_006PerMinuteIfNoIncludedMinutesRemain": 0.02,
     "renderSpendUsd": 0

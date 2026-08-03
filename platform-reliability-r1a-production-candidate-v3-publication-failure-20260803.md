@@ -14,7 +14,8 @@ or repository-level release authority.
 
 The one dispatch created exact workflow run
 [`30845173288/1`](https://github.com/Glera/swipe-backend/actions/runs/30845173288)
-at exact head `f2a840...`. It failed after 76 seconds at step 17,
+at exact head `f2a840...`. Its job failed after 76 seconds (81 seconds from run
+creation to terminal update) at step 17,
 `Prove exact pinned LKG against candidate-head PG16`, with:
 
 ```text
@@ -32,7 +33,7 @@ The failure occurred before candidate build or publication:
 - backend `master` remained exact;
 - no GitHub `production` environment or repository-level Render/release
   authority appeared;
-- no Render key/provider mutation, deploy, migration, rehearsal, cutover,
+- no Render key/provider mutation, deploy, production migration, rehearsal, cutover,
   Stage 1 runtime action, source write, merge, baseline rebuild or second
   dispatch occurred.
 
@@ -53,6 +54,13 @@ baseline runtime is incompatible with schema `0073`:
 3. the `docker run` passes the database/revision and feature flags but not
    `PYTHONPATH=/app`;
 4. import therefore fails before any database compatibility query runs.
+
+The exact corroborating source identities are baseline Dockerfile blob
+`47cfc38f964aaf13b07c3426c2cd7bfc62cae294`, smoke blob
+`d16f23fed611074bfd712cecbbc93b5b8128f9e5` and workflow blob
+`a2befbfd7888ba69643a036159253c3ef2dceb66`. The workflow did upgrade only its
+ephemeral CI PostgreSQL service to `0073`; the production database was never a
+target.
 
 The minimal expected correction is to pass `PYTHONPATH=/app` into that exact
 container invocation and add a regression assertion for the runtime bootstrap.

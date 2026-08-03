@@ -38,6 +38,12 @@ The correction must not weaken the smoke, skip the old image, widen LKG
 compatibility, rebuild the baseline, change product/Stage 1 runtime behavior or
 modify Render/cutover authority.
 
+The future packet must pin baseline Dockerfile blob
+`47cfc38f964aaf13b07c3426c2cd7bfc62cae294`, current smoke blob
+`d16f23fed611074bfd712cecbbc93b5b8128f9e5` and failed-workflow blob
+`a2befbfd7888ba69643a036159253c3ef2dceb66`, so the repair is reviewed against
+the exact failure-producing bytes.
+
 ## Withheld actions
 
 This disposition grants no source edit, branch/ref write, PR, merge, workflow
