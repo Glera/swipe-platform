@@ -213,8 +213,9 @@ node scripts/platform-reliability-r1-evidence-scan.mjs \
 - Secret matches: `{{INTEGER}}`
 - Exact operator IPv4 captured: `{{TRUE_OR_FALSE}}`
 - Secrets captured: `{{TRUE_OR_FALSE}}`
-- Known Render Sync Hook incident `r1-prewindow-blueprint-sync-hook-dom-20260729` is not claimed rotated or invalidated. Its exact operator-accepted residual disposition is bound below with a review deadline, fixed mitigations, and reopen triggers.
+- The pre-window incident was accepted as a bounded residual at Gate A. The later in-window incident triggered the provider-supported Blueprint replacement; terminal replacement evidence invalidates the same old hook without rewriting the historical operator decision.
 - Secret-exposure incident `r1-prewindow-blueprint-sync-hook-dom-20260729`: `render_blueprint_sync_hook_dom_exposure` observed `2026-07-29T15:01:19Z`; target `render_blueprint_id` / `sha256:{{SHA256}}`; approval `{{DECISION_ID}}` / `{{UTC}}` / `approved`; disposition `operator_accepted_residual` / `{{ACTION_ID}}` / `{{UTC}}` / `{{UTC}}` / `accepted_residual` / risk `unauthorized_blueprint_sync` / environment `non_strategic_dogfood` / review by `{{UTC_WITHIN_31_DAYS}}` / mitigations `do_not_read_copy_or_use_hook,durable_empty_database_ip_allowlist_before_r1_completion,record_autosync_final_state,stop_on_unexpected_blueprint_sync` / reopen `before_cohort_expansion,before_triple_digit_dau,before_second_blueprint_operator_or_automation,before_render_strategic_commitment,on_unexpected_blueprint_sync`; before `{{UTC}}` / `{{RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / `sha256:{{SHA256}}` / after `{{UTC}}` / `{{RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / `sha256:{{SHA256}}` / continuity `equal` / acceptance `sha256:{{SHA256}}`; secrets captured `false`
+- Secret-exposure incident `r1-window-blueprint-sync-hook-dom-20260802-1`: `render_blueprint_sync_hook_dom_exposure` observed `2026-08-02T19:10:00Z`; target `render_blueprint_id` / `sha256:{{SHA256_OLD_BLUEPRINT_ID}}`; approval `{{DECISION_ID}}` / `{{UTC}}` / `approved`; disposition `{{ACTION_ID}}` / `{{UTC}}` / `{{UTC}}` / `invalidated` / `replace_blueprint` / `render_dashboard_terminal_observation` / `{{UTC}}` / `replace_blueprint` / `invalidated` / `sha256:{{SHA256_OLD_BLUEPRINT_ID}}` / `sha256:{{SHA256}}` / credential proof `none`; before `{{UTC}}` / `exs-d95qo3q8qa3s73ea23p0` / `Glera/swipe-backend` / `master` / `render.yaml` / source `{{FULL_SHA}}` / `sha256:{{SHA256}}` / after `{{UTC}}` / `{{NEW_RENDER_BLUEPRINT_ID}}` / `Glera/swipe-backend` / `master` / `render.yaml` / source `{{SAME_FULL_SHA_AS_BEFORE}}` / `sha256:{{SHA256}}` / services `sha256:{{SHA256}}` -> `sha256:{{SAME_SHA256_AS_BEFORE}}` / configuration `sha256:{{SHA256}}` -> `sha256:{{SAME_SHA256_AS_BEFORE}}` / auto sync `disabled` -> `disabled` / continuity `replaced_same_source_and_services` / terminal `sha256:{{SHA256}}`; secrets captured `false`
 
 ## 12. Independent final review
 
@@ -222,7 +223,8 @@ Independent final review starts only after the evidence and scan receipt are
 committed. Its exact-head verdict lives in the PR/review authority rather than
 self-referencing this pre-review artifact.
 
-R1 is complete with one explicitly accepted Render residual only when every
+R1 is complete only when every
 completion-matrix row is `PASS`, final review has no open condition, the
 recovery database is deleted, production external PostgreSQL ingress is empty,
-and the residual review deadline and reopen triggers remain visible.
+the historical residual decision remains visible, and the later replacement
+proves the old hook terminally invalidated.

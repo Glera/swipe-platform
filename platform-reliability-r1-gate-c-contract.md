@@ -4,7 +4,9 @@ Status: **BLOCKED, NOT APPLIED**
 
 Prepared: `2026-08-02`
 
-Authority: only an explicit operator `GO Gate C` permits Render **Approve**.
+Authority: only an explicit operator `GO Gate C0` permits deletion/recreation
+of the Blueprint object, and only a later explicit `GO Gate C` permits Render
+**Approve** of the reviewed credential-switch Preview.
 
 The first Preview is explicitly stale and must never be approved. It would
 have restored commit-triggered production deploys for the web service and both
@@ -61,11 +63,15 @@ Every item is mandatory before **Approve**:
    `secretsCaptured=false`. Auto Sync is rechecked immediately before the act.
    Both old and new credentials remain valid; deletion is not part of Gate C.
 10. Secret incident `r1-window-blueprint-sync-hook-dom-20260802-1` has terminal
-    provider-supported rotation/invalidation proof bound to Blueprint identity
+    provider-supported invalidation proof bound to old Blueprint identity
     digest
-    `sha256:556758c36536ddbc9a77c97faafcf68f7f89e34053a4e8721cd2ac938be0a19a`
-    and a separate operator approval. Auto Sync `No`, disconnect/reconnect or
-    another residual-risk acceptance do not satisfy this precondition.
+    `sha256:556758c36536ddbc9a77c97faafcf68f7f89e34053a4e8721cd2ac938be0a19a`.
+    For this incident the supported path is deletion of the old Blueprint and
+    creation of a new Blueprint. PASS requires a separate operator `GO Gate
+    C0`, terminal absence of the old Blueprint, a different new Blueprint ID,
+    unchanged service IDs/configuration, exact source continuity and Auto Sync
+    `No`. Merely disabling Auto Sync or disconnecting/reconnecting does not
+    satisfy this precondition.
 11. The operator has issued a fresh, explicit `GO Gate C` after reviewing this
     contract and all evidence artifacts.
 
@@ -87,21 +93,65 @@ Exact bounded evidence is in
 `platform-reliability-r1-gate-c-hook-incident-receipt.json`.
 
 The operator-authorized Render Support request was submitted without any
-secret value. Render's automated agent confirmed the public self-service gap
-and acknowledged escalation to a human agent. The request asks for terminal
-rotation/invalidation, disconnect/reconnect semantics, exact hook authority
-and a provider-side audit of non-Dashboard syncs over the prior 24 hours.
+secret value. On `2026-08-03`, a human Render Support agent supplied the
+provider-supported remediation: delete the old Blueprint and create a new
+one. Render states that deletion removes the current hook, the new Blueprint
+gets a new hook, and the existing services are not deleted and should be
+detected for relinking. Render also reports the last Blueprint sync at
+`2026-07-30T15:09:14Z`, before this incident. The exact bounded receipt is
+`platform-reliability-r1-gate-c-render-support-response.json`.
 
-Gate C and every later operator action are stopped. Current public Render API
-and Dashboard documentation expose no Blueprint Sync Hook regeneration or
-revocation control. A provider-supported terminal rotation/invalidation proof
-and explicit operator approval are mandatory before this contract can return
-to `PREPARED`. The historical 2026-07-29 accepted residual cannot be extended
-to this new incident.
+This response is a remediation contract, not terminal evidence: the old
+Blueprint still exists and its hook is not yet invalidated. Gate C and every
+later operator action therefore remain stopped. A separate `GO Gate C0`,
+terminal Blueprint replacement evidence and explicit later `GO Gate C` are
+mandatory before this contract can return to `PREPARED`. Replacing the old
+Blueprint will close both exposures of that same hook; the historical
+2026-07-29 residual is not treated as authority for the new incident.
+
+## Blueprint replacement sub-gate — Gate C0
+
+Status: **PREPARED, NOT AUTHORIZED**.
+
+Gate C0 is destructive only to the old Blueprint control object. It is not
+authorized to delete, recreate, resize, redeploy or reconfigure any service,
+cron or database. Before its operator confirmation:
+
+1. PR #49 must have an independent GO and be merged. The exact current backend
+   source must declare `autoDeployTrigger: "off"` for the web and both DB-backed
+   cron consumers.
+2. Capture a no-secret baseline of the old Blueprint ID, repo/branch/path,
+   Auto Sync `No`, last sync, and the exact service IDs, plans, schedules,
+   commands and database bindings that must survive unchanged.
+3. Recheck that web, both cron consumers and the source database are healthy;
+   both old and new database credentials remain valid.
+4. Show the operator the exact old Blueprint target and obtain a fresh
+   `GO Gate C0` immediately before deletion.
+
+After approval:
+
+1. Delete only old Blueprint `exs-d95qo3q8qa3s73ea23p0`.
+2. Prove the old Blueprint is absent while every baseline service keeps the
+   same ID and remains available.
+3. Start creation of a new Blueprint from the exact same repo, branch and
+   `render.yaml` path. Do not read or expose the new Sync Hook.
+4. Before any final create/apply action, inspect the provider Preview. It must
+   relink the existing service IDs and must not create/delete a service, change
+   plan/storage/schedule/command/source, or enable commit-triggered deploys.
+5. If Render cannot show that bounded Preview before a mutating final action,
+   stop; Blueprint deletion alone is containment, and recreation requires a
+   separately reviewed provider procedure.
+6. After creation, record the different new Blueprint ID, exact source SHA,
+   Auto Sync `No`, unchanged linked service IDs and terminal old-ID absence.
+
+Any duplicate resource proposal, unexpected deploy/sync, source drift or
+service-ID change is **NO-GO**. The old database credential remains available;
+no database user is deleted in Gate C0.
 
 ## Authorized action
 
-After all preconditions pass, the operator-authorized executor may click the
+After Gate C0 and all later Gate C preconditions pass, the
+operator-authorized executor may click the
 single **Approve** button on the exact Preview above. It must then record:
 
 - Blueprint sync ID, start/end UTC and terminal status;

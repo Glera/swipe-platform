@@ -21,6 +21,14 @@ const OPERATOR_RUNBOOK = path.join(
   ROOT,
   'platform-reliability-r1-operator-runbook.md',
 );
+const GATE_C_CONTRACT = path.join(
+  ROOT,
+  'platform-reliability-r1-gate-c-contract.md',
+);
+const RENDER_SUPPORT_RESPONSE = path.join(
+  ROOT,
+  'platform-reliability-r1-gate-c-render-support-response.json',
+);
 
 test('final evidence template preserves every completion requirement and gate', () => {
   const markdown = fs.readFileSync(FINAL_TEMPLATE, 'utf8');
@@ -39,8 +47,11 @@ test('final evidence template preserves every completion requirement and gate', 
   assert.match(markdown, /--base-ref origin\/master/);
   assert.match(
     markdown,
-    /R1 is complete with one explicitly accepted Render residual only when every/,
+    /R1 is complete only when every/,
   );
+  assert.match(markdown, /r1-window-blueprint-sync-hook-dom-20260802-1/);
+  assert.match(markdown, /replace_blueprint/);
+  assert.match(markdown, /replaced_same_source_and_services/);
 });
 
 test('operator receipt template is valid JSON with exact A-G confirmations', () => {
@@ -106,6 +117,19 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
     receipt.secretExposureIncidents[0].disposition.secretsCaptured,
     false,
   );
+  assert.equal(
+    receipt.secretExposureIncidents[1].incidentId,
+    'r1-window-blueprint-sync-hook-dom-20260802-1',
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[1].disposition.providerMethod,
+    'replace_blueprint',
+  );
+  assert.equal(
+    receipt.secretExposureIncidents[1].disposition
+      .blueprintContinuity.comparisonResult,
+    'replaced_same_source_and_services',
+  );
   assert.ok(Array.isArray(receipt.ingressClosure.internalFreshProofs));
   assert.ok(receipt.restoreDrill.beforeObservation.observedDbAt);
   assert.ok(receipt.restoreDrill.afterTerminalRun.runId);
@@ -142,8 +166,9 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
 test('operator runbook narrowly records the accepted Render residual', () => {
   const runbook = fs.readFileSync(OPERATOR_RUNBOOK, 'utf8');
 
-  assert.match(runbook, /operator window отложено решением оператора 2026-07-30/);
-  assert.match(runbook, /active multi-Mac development/);
+  assert.match(runbook, /Historical operator deferral 2026-07-30/);
+  assert.match(runbook, /Gate A и Gate B исполнены/);
+  assert.match(runbook, /Gate C остановлен новым Sync Hook incident/);
   assert.match(runbook, /R1 нельзя обозначать[\s\S]+complete/);
   assert.match(runbook, /не позже `2026-08-29`/);
   assert.match(runbook, /Старое[\s\S]+готов к operator window[\s\S]+не переносится/);
@@ -165,4 +190,33 @@ test('operator runbook narrowly records the accepted Render residual', () => {
   );
   assert.match(runbook, /Выключение Auto Sync не доказывает инвалидирование hook/);
   assert.match(runbook, /Ни новый Sync Hook incident[\s\S]+принять нельзя/);
+});
+
+test('Gate C records the human Render remediation without claiming completion', () => {
+  const response = JSON.parse(
+    fs.readFileSync(RENDER_SUPPORT_RESPONSE, 'utf8'),
+  );
+  const contract = fs.readFileSync(GATE_C_CONTRACT, 'utf8');
+
+  assert.equal(
+    response.schema,
+    'platform-reliability-r1-render-support-response.v1',
+  );
+  assert.equal(response.responseActorKind, 'human_render_support_agent');
+  assert.equal(
+    response.providerStatements.supportedRemediation,
+    'delete_existing_blueprint_then_create_new_blueprint',
+  );
+  assert.equal(
+    response.providerStatements.lastObservedSyncAt,
+    '2026-07-30T15:09:14Z',
+  );
+  assert.equal(response.evidenceLimits.oldHookTerminallyInvalidated, false);
+  assert.equal(response.secretValueCaptured, false);
+  assert.match(contract, /Status: \*\*BLOCKED, NOT APPLIED\*\*/);
+  assert.match(contract, /GO Gate C0/);
+  assert.match(contract, /PREPARED, NOT AUTHORIZED/);
+  assert.match(contract, /Delete only old Blueprint/);
+  assert.match(contract, /unchanged service IDs/);
+  assert.match(contract, /Do not read or expose the new Sync Hook/);
 });

@@ -1,8 +1,9 @@
 # Platform Reliability R1 — PostgreSQL operator runbook
 
-Статус: **operator window отложено решением оператора 2026-07-30 до Gate A;
-production не менялся**. Snapshot 2 и его independent review завершены, но
-этот документ не является разрешением на production-изменения. Каждый
+Статус: **operator window возобновлено 2026-08-01; Gate A и Gate B исполнены;
+Gate C остановлен новым Sync Hook incident**. Snapshot 2 и его independent
+review завершены. Финальный operator receipt ещё не опубликован, поэтому эта
+строка — рабочее состояние, а не completion evidence. Каждый следующий
 помеченный `OPERATOR` гейт требует нового присутствия и явного подтверждения
 оператора в текущей сессии.
 
@@ -15,7 +16,13 @@ production не менялся**. Snapshot 2 и его independent review зав
 5. доказать одновременно fresh internal connectivity и отказ нового
    PostgreSQL-запроса снаружи.
 
-### Operator deferral 2026-07-30: active multi-Mac development
+### Historical operator deferral 2026-07-30: superseded 2026-08-01
+
+Этот блок сохраняется как журнал решения, но больше не описывает текущий
+runtime-state: оператор позднее дал отдельный GO на окно, Gate A сузил ingress
+до одного `/32`, а Gate B создал новый default credential. Ни один из этих
+фактов сам по себе не закрывает R1; их terminal evidence входит только в
+финальный operator receipt.
 
 Оператор разрабатывает с нескольких Mac. При текущих динамических внешних
 адресах точный `/32` создаёт регулярный ручной churn и риск самоблокировки.
@@ -267,12 +274,23 @@ Typed-диспозиция обязана:
 - сохранить exact before/after continuity Blueprint/source и digest
   операторского решения.
 
-Выключение Auto Sync не доказывает инвалидирование hook. Disconnect/reconnect
-или создание нового Blueprint также не считаются инвалидированием. Если
-provider позже даст Regenerate/Revoke, предпочтительная диспозиция —
-настоящая rotation/invalidation; принятие риска разрешено только для этого
-исторического инцидента. Ни новый Sync Hook incident, ни любое раскрытие
-учётных данных базы так принять нельзя.
+Выключение Auto Sync не доказывает инвалидирование hook. Human Render Support
+`2026-08-03` подтвердил единственный provider-supported путь для этого
+Blueprint: удалить старый Blueprint и создать новый. По ответу провайдера это
+удаляет текущий hook, не удаляет существующие сервисы и выдаёт новому
+Blueprint новый hook; последний sync старого Blueprint был
+`2026-07-30T15:09:14Z`. Точный bounded receipt —
+`platform-reliability-r1-gate-c-render-support-response.json`.
+
+Ответ не является terminal proof: до фактической замены старый hook остаётся
+валидным. Удаление/recreation — отдельный destructive `OPERATOR GATE C0` по
+`platform-reliability-r1-gate-c-contract.md`. PASS требует отсутствия старого
+Blueprint, нового ID, сохранения exact service IDs/configuration/source и Auto
+Sync `No`; новый hook не читается и не сохраняется. Простое
+disconnect/reconnect не считается инвалидированием. Этот путь после
+исполнения закрывает оба incident того же старого hook, включая исторический
+residual. Ни новый Sync Hook incident, ни раскрытие учётных данных базы так
+принять нельзя.
 
 Если новый secret-exposure incident возникает уже в окне, текущий action
 останавливается/получает typed containment, и никакой следующий gate-action не

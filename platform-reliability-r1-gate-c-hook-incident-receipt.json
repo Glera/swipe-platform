@@ -8,6 +8,12 @@
     "channel": "render_dashboard_intercom",
     "acknowledgedAt": "2026-08-02T19:26:29Z",
     "humanEscalationAcknowledged": true,
+    "humanResponseObservedAt": "2026-08-03T06:42:17Z",
+    "humanResponseReceived": true,
+    "supportedRemediation": "delete_existing_blueprint_then_create_new_blueprint",
+    "providerSaysOldHookInvalidatedByRemediation": true,
+    "providerSaysExistingServicesAreNotDeleted": true,
+    "providerReportedLastSyncAt": "2026-07-30T15:09:14Z",
     "terminalInvalidation": false,
     "conversationIdAvailable": false,
     "requestedActions": [
@@ -32,6 +38,6 @@
     "affectedFileModeAfter": "0600",
     "contentDeletedOrRewritten": false
   },
-  "currentDisposition": "contained_pending_provider_invalidation",
+  "currentDisposition": "provider_remediation_confirmed_operator_action_pending",
   "secretsCaptured": false
 }
