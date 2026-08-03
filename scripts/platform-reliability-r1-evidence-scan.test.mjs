@@ -16,6 +16,9 @@ import {
   toMarkdown as deltaToMarkdown,
 } from './platform-reliability-r1-db-delta.mjs';
 import {
+  run as compareBlueprintReplacement,
+} from './platform-reliability-r1-blueprint-replacement-compare.mjs';
+import {
   makeValidFinalEvidence,
   makeValidOperatorReceipt,
 } from './platform-reliability-r1-operator-receipt-test-fixture.mjs';
@@ -143,6 +146,177 @@ function writeValidDeltaEvidence(root, { providerAfterOverrides = {} } = {}) {
   );
 }
 
+function writeValidBlueprintEvidence(root, receipt) {
+  const supportPath = path.join(
+    root,
+    'platform-reliability-r1-gate-c-render-support-response.json',
+  );
+  const support = JSON.parse(fs.readFileSync(supportPath, 'utf8'));
+  const oldBlueprintId = support.affectedBlueprintId;
+  const newBlueprintId = 'exs-replacement-blueprint';
+  const sourceSha = 'a'.repeat(40);
+  const services = receipt.consumerClosure.consumers.map((consumer, index) => ({
+    serviceId: consumer.serviceId,
+    kind: consumer.kind,
+    status: consumer.kind === 'web' ? 'live' : 'available',
+    plan: 'starter',
+    schedule: consumer.kind === 'web' ? null : `${index} * * * *`,
+    commandSha256: crypto.createHash('sha256')
+      .update(`command-${consumer.serviceId}`).digest('hex'),
+    databaseBindingSha256: crypto.createHash('sha256')
+      .update(`binding-${consumer.serviceId}`).digest('hex'),
+    environmentShapeSha256: crypto.createHash('sha256')
+      .update(`environment-${consumer.serviceId}`).digest('hex'),
+  }));
+  const common = {
+    schema: 'platform-reliability-r1-blueprint-replacement-observation.v1',
+    sourceDatabase: {
+      serviceId: receipt.sourceDatabaseServiceId,
+      status: 'available',
+      configurationSha256: 'a'.repeat(64),
+    },
+    services,
+    hookValueObserved: false,
+    secretsCaptured: false,
+  };
+  const before = {
+    ...structuredClone(common),
+    phase: 'before',
+    observedAt: '2026-08-03T07:01:30Z',
+    blueprint: {
+      id: oldBlueprintId,
+      sourceRepository: 'Glera/swipe-backend',
+      sourceBranch: 'master',
+      blueprintPath: 'render.yaml',
+      sourceSha,
+      autoSyncState: 'disabled',
+      lastSyncAt: support.providerStatements.lastObservedSyncAt,
+    },
+    oldBlueprintAbsence: null,
+  };
+  const after = {
+    ...structuredClone(common),
+    phase: 'after',
+    observedAt: '2026-08-03T07:05:00Z',
+    blueprint: {
+      ...structuredClone(before.blueprint),
+      id: newBlueprintId,
+      lastSyncAt: null,
+    },
+    oldBlueprintAbsence: {
+      blueprintId: oldBlueprintId,
+      observedAt: '2026-08-03T07:05:00Z',
+      terminalOutcome: 'not_found',
+      evidenceSha256: 'b'.repeat(64),
+    },
+  };
+  const beforePath = path.join(
+    root,
+    'platform-reliability-r1-gate-c0-blueprint-before.json',
+  );
+  const afterPath = path.join(
+    root,
+    'platform-reliability-r1-gate-c0-blueprint-after.json',
+  );
+  const comparisonPath = path.join(
+    root,
+    'platform-reliability-r1-gate-c0-blueprint-comparison.json',
+  );
+  fs.writeFileSync(beforePath, `${JSON.stringify(before, null, 2)}\n`);
+  fs.writeFileSync(afterPath, `${JSON.stringify(after, null, 2)}\n`);
+  const comparison = compareBlueprintReplacement([
+    '--before', beforePath,
+    '--after', afterPath,
+    '--support', supportPath,
+  ]);
+  fs.writeFileSync(comparisonPath, comparison.output);
+  const fileSha256 = (target) => crypto.createHash('sha256')
+    .update(fs.readFileSync(target)).digest('hex');
+  const beforeSha256 = fileSha256(beforePath);
+  const afterSha256 = fileSha256(afterPath);
+  const comparisonSha256 = fileSha256(comparisonPath);
+  const oldTargetSha256 = crypto.createHash('sha256')
+    .update(oldBlueprintId).digest('hex');
+
+  const knownIncident = receipt.secretExposureIncidents[0];
+  knownIncident.targetSha256 = oldTargetSha256;
+  knownIncident.operatorDecision.targetSha256 = oldTargetSha256;
+  knownIncident.disposition.providerReceipt.targetSha256 = oldTargetSha256;
+  knownIncident.disposition.blueprintContinuity.before.blueprintId =
+    oldBlueprintId;
+  knownIncident.disposition.blueprintContinuity.after.blueprintId =
+    oldBlueprintId;
+  for (const consumer of receipt.consumerClosure.consumers) {
+    consumer.blueprintReferenceId = newBlueprintId;
+    consumer.pinnedSourceSha = sourceSha;
+  }
+  receipt.ingressClosure.autoSyncControl.linkedBlueprintId = newBlueprintId;
+  receipt.window.completedAt = '2026-08-03T07:10:00Z';
+  receipt.secretExposureIncidents.push({
+    incidentId: 'r1-window-blueprint-sync-hook-dom-20260802-1',
+    kind: 'render_blueprint_sync_hook_dom_exposure',
+    observedAt: '2026-08-02T19:10:00Z',
+    targetIdentityKind: 'render_blueprint_id',
+    targetSha256: oldTargetSha256,
+    operatorDecision: {
+      decisionId: 'r1-decision-20260803-1',
+      confirmedAt: '2026-08-03T07:01:00Z',
+      decision: 'approved',
+      targetSha256: oldTargetSha256,
+    },
+    disposition: {
+      actionId: 'r1-secret-action-20260803-1',
+      startedAt: '2026-08-03T07:02:00Z',
+      completedAt: '2026-08-03T07:05:00Z',
+      terminalOutcome: 'invalidated',
+      providerMethod: 'replace_blueprint',
+      providerReceipt: {
+        kind: 'render_dashboard_terminal_observation',
+        observedAt: '2026-08-03T07:05:00Z',
+        action: 'replace_blueprint',
+        terminalOutcome: 'invalidated',
+        targetSha256: oldTargetSha256,
+        evidenceSha256: afterSha256,
+        secretsCaptured: false,
+      },
+      credentialNegativeProof: null,
+      blueprintContinuity: {
+        before: {
+          observedAt: before.observedAt,
+          blueprintId: oldBlueprintId,
+          sourceRepository: 'Glera/swipe-backend',
+          sourceBranch: 'master',
+          blueprintPath: 'render.yaml',
+          sourceSha,
+          evidenceSha256: beforeSha256,
+          linkedServiceIdsSha256:
+            comparison.result.linkedServiceIdsSha256,
+          linkedServiceConfigurationSha256:
+            comparison.result.linkedServiceConfigurationSha256,
+          autoSyncState: 'disabled',
+        },
+        after: {
+          observedAt: after.observedAt,
+          blueprintId: newBlueprintId,
+          sourceRepository: 'Glera/swipe-backend',
+          sourceBranch: 'master',
+          blueprintPath: 'render.yaml',
+          sourceSha,
+          evidenceSha256: afterSha256,
+          linkedServiceIdsSha256:
+            comparison.result.linkedServiceIdsSha256,
+          linkedServiceConfigurationSha256:
+            comparison.result.linkedServiceConfigurationSha256,
+          autoSyncState: 'disabled',
+        },
+        comparisonResult: 'replaced_same_source_and_services',
+      },
+      terminalProofSha256: comparisonSha256,
+      secretsCaptured: false,
+    },
+  });
+}
+
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-evidence-scan-'));
   git(root, ['init', '--initial-branch=master']);
@@ -151,6 +325,7 @@ function fixture() {
     'platform-reliability-r1-0-snapshot-baseline.json',
     'platform-reliability-r1-0-db-query-receipt.json',
     'platform-reliability-r1-0-render-receipt.json',
+    'platform-reliability-r1-gate-c-render-support-response.json',
   ]) {
     fs.copyFileSync(path.join(REPO_ROOT, filename), path.join(root, filename));
   }
@@ -158,6 +333,7 @@ function fixture() {
     'platform-reliability-r1-0-snapshot-baseline.json',
     'platform-reliability-r1-0-db-query-receipt.json',
     'platform-reliability-r1-0-render-receipt.json',
+    'platform-reliability-r1-gate-c-render-support-response.json',
   ]]);
   git(root, [
     '-c',
@@ -181,13 +357,15 @@ function fixture() {
     fs.writeFileSync(path.join(root, filename), content);
   }
   writeValidDeltaEvidence(root);
+  const operatorReceipt = makeValidOperatorReceipt();
+  writeValidBlueprintEvidence(root, operatorReceipt);
   fs.writeFileSync(
     path.join(root, 'platform-reliability-r1-operator-receipt.json'),
-    `${JSON.stringify(makeValidOperatorReceipt())}\n`,
+    `${JSON.stringify(operatorReceipt)}\n`,
   );
   fs.writeFileSync(
     path.join(root, 'platform-reliability-r1-final-evidence.md'),
-    makeValidFinalEvidence(),
+    makeValidFinalEvidence(operatorReceipt),
   );
   return {
     root,
@@ -226,6 +404,8 @@ test('scans the exact git patch manifest and emits only hashes', () => {
     assert.match(result.scannerSourceSha256, /^[a-f0-9]{64}$/);
     assert.match(result.operatorValidatorSourceSha256, /^[a-f0-9]{64}$/);
     assert.match(result.deltaAnalyzerSourceSha256, /^[a-f0-9]{64}$/);
+    assert.match(result.blueprintComparatorSourceSha256, /^[a-f0-9]{64}$/);
+    assert.equal(result.blueprintReplacementValidation.status, 'pass');
     for (const artifact of result.requiredFiles) {
       assert.match(artifact.sha256, /^[a-f0-9]{64}$/);
       assert.equal(Object.hasOwn(artifact, 'content'), false);
@@ -308,6 +488,68 @@ test('rejects stale or independently modified delta outputs and inputs', () => {
   }
 });
 
+test('rejects stale or unbound Blueprint replacement evidence', () => {
+  for (const mutate of [
+    (root) => {
+      const target = path.join(
+        root,
+        'platform-reliability-r1-gate-c0-blueprint-after.json',
+      );
+      const after = JSON.parse(fs.readFileSync(target, 'utf8'));
+      after.services[0].plan = 'different';
+      fs.writeFileSync(target, `${JSON.stringify(after, null, 2)}\n`);
+    },
+    (root) => {
+      const target = path.join(
+        root,
+        'platform-reliability-r1-gate-c0-blueprint-comparison.json',
+      );
+      const comparison = JSON.parse(fs.readFileSync(target, 'utf8'));
+      comparison.sourceSha = 'b'.repeat(40);
+      fs.writeFileSync(target, `${JSON.stringify(comparison, null, 2)}\n`);
+    },
+    (root) => {
+      const receiptPath = path.join(
+        root,
+        'platform-reliability-r1-operator-receipt.json',
+      );
+      const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+      receipt.secretExposureIncidents[1].disposition.terminalProofSha256 =
+        'f'.repeat(64);
+      fs.writeFileSync(receiptPath, `${JSON.stringify(receipt)}\n`);
+      fs.writeFileSync(
+        path.join(root, 'platform-reliability-r1-final-evidence.md'),
+        makeValidFinalEvidence(receipt),
+      );
+    },
+    (root) => {
+      const receiptPath = path.join(
+        root,
+        'platform-reliability-r1-operator-receipt.json',
+      );
+      const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+      receipt.secretExposureIncidents[1].disposition.providerReceipt
+        .evidenceSha256 = 'e'.repeat(64);
+      fs.writeFileSync(receiptPath, `${JSON.stringify(receipt)}\n`);
+      fs.writeFileSync(
+        path.join(root, 'platform-reliability-r1-final-evidence.md'),
+        makeValidFinalEvidence(receipt),
+      );
+    },
+  ]) {
+    const files = fixture();
+    try {
+      mutate(files.root);
+      assert.throws(
+        () => scan(files.root),
+        /published comparison|Blueprint replacement|operator receipt is not bound/,
+      );
+    } finally {
+      files.cleanup();
+    }
+  }
+});
+
 test('accepts complete operator evidence and the all-IPv4 sentinel', () => {
   const files = fixture();
   try {
@@ -319,7 +561,13 @@ test('accepts complete operator evidence and the all-IPv4 sentinel', () => {
     fs.writeFileSync(
       path.join(files.root, 'platform-reliability-r1-final-evidence.md'),
       [
-        makeValidFinalEvidence(),
+        makeValidFinalEvidence(JSON.parse(fs.readFileSync(
+          path.join(
+            files.root,
+            'platform-reliability-r1-operator-receipt.json',
+          ),
+          'utf8',
+        ))),
         'The previous all-IPv4 rule was replaced by a single-host rule and then',
         'an empty allowlist. Fresh internal database queries passed; a fresh',
         'external PostgreSQL protocol request was refused before SQL execution.',

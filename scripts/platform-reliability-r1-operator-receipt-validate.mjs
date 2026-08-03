@@ -1670,7 +1670,7 @@ export function validateOperatorEvidence(
         && candidate.continuityAfterBlueprintId === finalBlueprintId
       ),
     );
-    if (!incident.acceptedRenderResidual || !supersedingReplacement) {
+    if (!supersedingReplacement) {
       fail(
         'receipt.secretExposureIncidents',
         'does not bind the exact closed Blueprint target',

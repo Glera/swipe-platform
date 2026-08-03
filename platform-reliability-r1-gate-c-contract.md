@@ -143,6 +143,21 @@ After approval:
    separately reviewed provider procedure.
 6. After creation, record the different new Blueprint ID, exact source SHA,
    Auto Sync `No`, unchanged linked service IDs and terminal old-ID absence.
+7. Publish the no-secret observations as
+   `platform-reliability-r1-gate-c0-blueprint-before.json` and
+   `platform-reliability-r1-gate-c0-blueprint-after.json`, then generate
+   `platform-reliability-r1-gate-c0-blueprint-comparison.json` only with:
+
+   ```bash
+   node scripts/platform-reliability-r1-blueprint-replacement-compare.mjs \
+     --before platform-reliability-r1-gate-c0-blueprint-before.json \
+     --after platform-reliability-r1-gate-c0-blueprint-after.json \
+     --support platform-reliability-r1-gate-c-render-support-response.json
+   ```
+
+   A standalone rerun with `--verify-json` must PASS before Gate C is
+   prepared. The final evidence scanner replays this comparison from exact
+   bytes and cross-binds all three files to the operator receipt.
 
 Any duplicate resource proposal, unexpected deploy/sync, source drift or
 service-ID change is **NO-GO**. The old database credential remains available;

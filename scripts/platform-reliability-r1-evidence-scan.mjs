@@ -11,6 +11,9 @@ import {
   analyzeDeltaEvidence,
   toMarkdown as deltaToMarkdown,
 } from './platform-reliability-r1-db-delta.mjs';
+import {
+  run as compareBlueprintReplacement,
+} from './platform-reliability-r1-blueprint-replacement-compare.mjs';
 import { validateOperatorEvidence } from './platform-reliability-r1-operator-receipt-validate.mjs';
 
 const MAX_ARTIFACT_BYTES = 5 * 1024 * 1024;
@@ -22,11 +25,19 @@ const OPERATOR_VALIDATOR_SOURCE_PATH = fileURLToPath(
 const DELTA_ANALYZER_SOURCE_PATH = fileURLToPath(
   new URL('./platform-reliability-r1-db-delta.mjs', import.meta.url),
 );
+const BLUEPRINT_COMPARATOR_SOURCE_PATH = fileURLToPath(
+  new URL(
+    './platform-reliability-r1-blueprint-replacement-compare.mjs',
+    import.meta.url,
+  ),
+);
 const UTF8_DECODER = new TextDecoder('utf-8', { fatal: true });
 const SNAPSHOT_BASELINE =
   'platform-reliability-r1-0-snapshot-baseline.json';
 const PROVIDER_BASELINE =
   'platform-reliability-r1-0-render-receipt.json';
+const BLUEPRINT_SUPPORT_RESPONSE =
+  'platform-reliability-r1-gate-c-render-support-response.json';
 
 export const REQUIRED_EVIDENCE_FILES = Object.freeze([
   'platform-reliability-r1-0-snapshot-2.tsv',
@@ -34,6 +45,9 @@ export const REQUIRED_EVIDENCE_FILES = Object.freeze([
   'platform-reliability-r1-0-snapshot-2-render-receipt.json',
   'platform-reliability-r1-0-snapshot-delta.json',
   'platform-reliability-r1-0-snapshot-delta.md',
+  'platform-reliability-r1-gate-c0-blueprint-before.json',
+  'platform-reliability-r1-gate-c0-blueprint-after.json',
+  'platform-reliability-r1-gate-c0-blueprint-comparison.json',
   'platform-reliability-r1-operator-receipt.json',
   'platform-reliability-r1-final-evidence.md',
 ]);
@@ -368,6 +382,7 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   );
   const snapshotBaseline = readArtifact(root, SNAPSHOT_BASELINE);
   const providerBaseline = readArtifact(root, PROVIDER_BASELINE);
+  readArtifact(root, BLUEPRINT_SUPPORT_RESPONSE);
   const expectedDelta = analyzeDeltaEvidence({
     beforePath: path.join(root, SNAPSHOT_BASELINE),
     beforeBytes: snapshotBaseline.bytes,
@@ -401,10 +416,82 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   ) {
     fail('delta JSON/Markdown pair does not match the exact evidence inputs');
   }
+  const blueprintBeforePath = path.join(
+    root,
+    'platform-reliability-r1-gate-c0-blueprint-before.json',
+  );
+  const blueprintAfterPath = path.join(
+    root,
+    'platform-reliability-r1-gate-c0-blueprint-after.json',
+  );
+  const blueprintComparisonPath = path.join(
+    root,
+    'platform-reliability-r1-gate-c0-blueprint-comparison.json',
+  );
+  const blueprintValidation = compareBlueprintReplacement([
+    '--before', blueprintBeforePath,
+    '--after', blueprintAfterPath,
+    '--support', path.join(root, BLUEPRINT_SUPPORT_RESPONSE),
+    '--verify-json', blueprintComparisonPath,
+  ]).result;
+  if (!blueprintValidation.replacementSafe) {
+    fail('Blueprint replacement evidence is not terminal-safe');
+  }
   const operatorValidation = validateOperatorEvidence(
     byPath.get('platform-reliability-r1-operator-receipt.json').decoded,
     byPath.get('platform-reliability-r1-final-evidence.md').text,
   );
+  const operatorReceipt =
+    byPath.get('platform-reliability-r1-operator-receipt.json').decoded;
+  const replacementIncident = operatorReceipt.secretExposureIncidents.find(
+    (incident) => (
+      incident.incidentId
+        === 'r1-window-blueprint-sync-hook-dom-20260802-1'
+    ),
+  );
+  const replacementDisposition = replacementIncident?.disposition;
+  const beforeArtifact = byPath.get(
+    'platform-reliability-r1-gate-c0-blueprint-before.json',
+  );
+  const afterArtifact = byPath.get(
+    'platform-reliability-r1-gate-c0-blueprint-after.json',
+  );
+  const comparisonArtifact = byPath.get(
+    'platform-reliability-r1-gate-c0-blueprint-comparison.json',
+  );
+  if (
+    replacementDisposition?.providerMethod !== 'replace_blueprint'
+    || replacementDisposition.providerReceipt.evidenceSha256
+      !== afterArtifact.metadata.sha256
+    || replacementDisposition.terminalProofSha256
+      !== comparisonArtifact.metadata.sha256
+    || replacementDisposition.blueprintContinuity.before.evidenceSha256
+      !== beforeArtifact.metadata.sha256
+    || replacementDisposition.blueprintContinuity.after.evidenceSha256
+      !== afterArtifact.metadata.sha256
+    || replacementDisposition.blueprintContinuity.before.blueprintId
+      !== blueprintValidation.oldBlueprintId
+    || replacementDisposition.blueprintContinuity.after.blueprintId
+      !== blueprintValidation.newBlueprintId
+    || replacementDisposition.blueprintContinuity.before.sourceSha
+      !== blueprintValidation.sourceSha
+    || replacementDisposition.blueprintContinuity.after.sourceSha
+      !== blueprintValidation.sourceSha
+    || replacementDisposition.blueprintContinuity
+      .before.linkedServiceIdsSha256
+      !== blueprintValidation.linkedServiceIdsSha256
+    || replacementDisposition.blueprintContinuity
+      .after.linkedServiceIdsSha256
+      !== blueprintValidation.linkedServiceIdsSha256
+    || replacementDisposition.blueprintContinuity
+      .before.linkedServiceConfigurationSha256
+      !== blueprintValidation.linkedServiceConfigurationSha256
+    || replacementDisposition.blueprintContinuity
+      .after.linkedServiceConfigurationSha256
+      !== blueprintValidation.linkedServiceConfigurationSha256
+  ) {
+    fail('operator receipt is not bound to exact Blueprint replacement evidence');
+  }
   const files = artifacts.map((artifact) => artifact.metadata);
   const ruleDefinitions = {
     regexAndFunctionRules: SECRET_RULES.map((rule) => ({
@@ -419,6 +506,9 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
     deltaAnalyzerSourceSha256: sha256(
       fs.readFileSync(DELTA_ANALYZER_SOURCE_PATH),
     ),
+    blueprintComparatorSourceSha256: sha256(
+      fs.readFileSync(BLUEPRINT_COMPARATOR_SOURCE_PATH),
+    ),
   };
   return {
     schema: 'platform-reliability-r1-secret-scan-receipt.v2',
@@ -428,6 +518,8 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
       ruleDefinitions.operatorValidatorSourceSha256,
     deltaAnalyzerSourceSha256:
       ruleDefinitions.deltaAnalyzerSourceSha256,
+    blueprintComparatorSourceSha256:
+      ruleDefinitions.blueprintComparatorSourceSha256,
     ruleSetSha256: sha256(Buffer.from(JSON.stringify(ruleDefinitions))),
     patchClosure,
     operatorValidation,
@@ -435,6 +527,14 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
       schema: expectedDelta.schema,
       status: 'pass',
       provenance: expectedDelta.provenance,
+    },
+    blueprintReplacementValidation: {
+      schema: blueprintValidation.schema,
+      status: 'pass',
+      beforeSha256: blueprintValidation.beforeSha256,
+      afterSha256: blueprintValidation.afterSha256,
+      supportSha256: blueprintValidation.supportSha256,
+      comparisonSha256: comparisonArtifact.metadata.sha256,
     },
     requiredFiles: files,
     secretMatches: 0,

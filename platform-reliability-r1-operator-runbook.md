@@ -151,6 +151,9 @@ preview обязан явно сохранить действующий `/32`; �
 | `platform-reliability-r1-0-snapshot-2-render-receipt.json` | same-service Render storage/identity observation |
 | `platform-reliability-r1-0-snapshot-delta.json` | машинный analyzer output |
 | `platform-reliability-r1-0-snapshot-delta.md` | review view |
+| `platform-reliability-r1-gate-c0-blueprint-before.json` | no-secret old Blueprint/source/service baseline before replacement |
+| `platform-reliability-r1-gate-c0-blueprint-after.json` | no-secret new Blueprint observation + terminal old-ID absence |
+| `platform-reliability-r1-gate-c0-blueprint-comparison.json` | exact-byte replayed source/service/Auto Sync continuity proof |
 | `platform-reliability-r1-operator-receipt.json` | несекретный журнал operator window |
 | `platform-reliability-r1-final-evidence.md` | requirement-by-requirement synthesis |
 | `platform-reliability-r1-secret-scan-receipt.json` | SHA-256 всех обязательных артефактов + zero-match secret/IP scan |

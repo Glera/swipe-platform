@@ -31,6 +31,12 @@ IP/CIDR, raw database username или фрагменты stderr. Для адре
 | Delta JSON | `sha256:{{SHA256}}`, analyzer exit `{{INTEGER}}` |
 | Delta Markdown | `sha256:{{SHA256}}` |
 
+Gate C0 Blueprint replacement evidence:
+
+- `platform-reliability-r1-gate-c0-blueprint-before.json`: `sha256:{{SHA256}}`
+- `platform-reliability-r1-gate-c0-blueprint-after.json`: `sha256:{{SHA256}}`
+- `platform-reliability-r1-gate-c0-blueprint-comparison.json`: `sha256:{{SHA256}}`, exact-byte replay `{{PASS_OR_FAIL}}`
+
 Observation window: `{{SECONDS}}` seconds.
 
 | Surface | Before | After | Delta | Normalized rate | Disposition |
@@ -208,6 +214,7 @@ node scripts/platform-reliability-r1-evidence-scan.mjs \
 - Scanner status: `{{PASS_OR_FAIL}}`
 - Scanner source digest: `sha256:{{SHA256}}`
 - Operator validator source digest: `sha256:{{SHA256}}`
+- Blueprint replacement comparator source digest: `sha256:{{SHA256}}`
 - Rule-set digest: `sha256:{{SHA256}}`
 - Exact patch closure: `{{OBSERVED_PATH_LIST_OR_DIGEST}}`
 - Secret matches: `{{INTEGER}}`

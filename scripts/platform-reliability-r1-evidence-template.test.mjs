@@ -44,6 +44,11 @@ test('final evidence template preserves every completion requirement and gate', 
     assert.match(markdown, new RegExp(`\\| ${gate} —`));
   }
   assert.match(markdown, /platform-reliability-r1-evidence-scan\.mjs/);
+  assert.match(
+    markdown,
+    /platform-reliability-r1-gate-c0-blueprint-comparison\.json/,
+  );
+  assert.match(markdown, /Blueprint replacement comparator source digest/);
   assert.match(markdown, /--base-ref origin\/master/);
   assert.match(
     markdown,
