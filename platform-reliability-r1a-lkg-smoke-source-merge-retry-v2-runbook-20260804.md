@@ -22,13 +22,14 @@ directory, a unique empty `0600` handoff under `/Users/gleb`, a
 bidirectional non-secret shared-home probe and a recorded Python 3.13
 disposable environment with exact pinned packages.
 
-Before opening the create dialog, ground the exact empty-inventory anchor. Then
-open the dialog and ground and locally require uniqueness for every remaining
-entry in `preGroundedBeforeSubmitLocators`. Pin the eventual post-submit create
-and revoke contracts, but do not pretend their reveal/key-row/dialog elements
-exist before creation. Generate the exact non-secret key name once from the
-authority rule and record it in receipts. This is the last point at which a
-browser snapshot or broad DOM observation is allowed.
+Before opening the create dialog, ground the exact empty-inventory anchor and
+the page-level Create API Key button. Then use that button to open the dialog
+and ground and locally require uniqueness for every remaining entry in
+`preGroundedBeforeSubmitLocators`. Pin the eventual post-submit create and revoke
+contracts, but do not pretend their reveal/key-row/dialog elements exist before
+creation. Generate the exact non-secret key name once from the authority rule
+and record it in receipts. This is the last point at which a browser snapshot or
+broad DOM observation is allowed.
 
 ## 1. One key: non-emitting reveal block
 
@@ -93,7 +94,7 @@ provider exception string and stack locally; return only integer 0 or 1:
 - locate one role=dialog and click its unique Revoke API Key button;
 - wait for the dialog to be hidden;
 - require the exact temporary key name count to be zero;
-- require exact `No provisioned API keys.` to be visible exactly once.
+- require exact `No provisioned API keys` to be visible exactly once.
 
 The block returns no provider value or diagnostic. Render's masked representation may
 exist internally in the row and confirmation dialog, but it is never read or
@@ -120,10 +121,12 @@ gh pr merge 53 --repo Glera/swipe-backend --merge \
   --match-head-commit 223ab97cf6e24e0542337d2a39e1bce9529f5d00
 ```
 
-Do not enable or queue auto-merge. If the synchronous merge fails, execute only
-`gh pr ready --undo 53 --repo Glera/swipe-backend`, then stop without retry.
-Require ordered parents base then source and exact tree
-`75dbd88045b5b301a903d9bc917c006cd2ceaffe`.
+Do not enable auto-merge, queue a merge or retry a failed merge. If the
+synchronous merge fails, execute only
+`gh pr ready --undo 53 --repo Glera/swipe-backend`, then stop. If that exact
+restore-draft command fails, record only the bounded failure fact, leave PR state
+as-is, escalate and perform no further mutation. Require ordered parents base
+then source and exact tree `75dbd88045b5b301a903d9bc917c006cd2ceaffe`.
 
 ## 5. Automatic CI and receipts
 

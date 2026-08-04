@@ -57,6 +57,8 @@
     "expectedDockerfilePath": "./Dockerfile.bake",
     "expectedBlueprintAutoSync": false,
     "expectedAllAutoDeploy": false,
+    "expectedStatus": "PASS",
+    "expectedMergeSafe": true,
     "expectedActiveBlueprintSyncs": 0,
     "expectedActiveDeploysOrPreDeploys": 0,
     "expectedActiveJobs": 0,
@@ -120,6 +122,7 @@
       "the single validated reveal textContent read into process memory and direct fsync handoff write",
       "exact key-name absence and No provisioned API keys visibility checks after revoke",
       "block-local locator counts that are never emitted; this is the explicit non-emitting reconciliation of the accepted NC-2 diagnostic ban",
+      "block-local reveal tag, role and bounded credential-shape validation whose values never leave the create block",
       "fixed integer block status 0 or 1 after all provider exception text and stack data are suppressed"
     ],
     "preGroundedBeforeSubmitLocators": [
@@ -180,14 +183,14 @@
     "the temporary key value or any derivative appears on any forbiddenValueSurfaces entry",
     "any browser observation forbidden by browserNoObservationContract occurs after submit",
     "the reveal or revoke block cannot validate every locator count locally without emission",
-    "provider capture or inventory is non-GET, identity-mismatched, not master plus ./Dockerfile.bake, reports automation enabled or reports an active operation",
+    "provider capture or inventory is non-GET, identity-mismatched, not PASS with mergeSafe true, not master plus ./Dockerfile.bake, reports automation enabled or reports an active operation",
     "key revocation is not proven by empty unobserved UI inventory and exact HTTP 401 before merge",
     "final GitHub CAS or 28-check success set differs",
     "merge does not complete synchronously with exact head and expected parents/tree",
     "deadline expires"
   ],
   "failurePolicy": {
-    "beforeMerge": "attempt only the exception-suppressed pre-committed revoke block, prove 401, remove handoff and temp material, restore PR 53 to draft if it was marked ready, preserve bounded evidence and stop",
+    "beforeMerge": "attempt only the exception-suppressed pre-committed revoke block, prove 401, remove handoff and temp material, restore PR 53 to draft if it was marked ready, preserve bounded evidence and stop; if the exact restore-draft command itself fails, record that bounded fact, leave PR state as-is, escalate and perform no further mutation",
     "revokeBlockMismatch": "do not inspect key-list or dialog text and do not create another key; hand the existing signed-in tab to the attended operator for manual revocation by exact non-secret key name, then require 401, cleanup and terminal STOP without merge",
     "afterMergePostconditionMismatch": "do not revert or repair; cleanup, preserve evidence and stop for operator disposition",
     "replacementKey": false,

@@ -99,8 +99,8 @@ No replacement key, non-GET provider API request, post-submit browser
 observation, workflow dispatch/rerun, image action, GitHub-environment mutation,
 persistent Render mutation, deploy, production migration, rehearsal, cutover,
 Stage 1 runtime action or generative-feed expansion is authorized. No pull
-request other than exact PR #53 may merge; auto-merge and merge retry are
-forbidden.
+request other than exact PR #53 may merge; queueing a merge, auto-merge and
+merge retry are forbidden.
 
 Operator form, not an authorization:
 
