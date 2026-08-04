@@ -1,0 +1,12 @@
+{
+  "schema": "platform-reliability-r1a-lkg-smoke-source-merge-failure-cleanup.v1",
+  "observedAt": "2026-08-04T06:51:00Z",
+  "executionEvidenceCommit": "69430e3444497249ca4d623ea403431b511bda47",
+  "reviewedBySession": "f9bea6a7-c346-4d53-a2aa-7ca026ccf45e",
+  "receiptTempDirectoryRemoved": true,
+  "disposableVenvRemoved": true,
+  "sharedHomeHandoffInventoryEmpty": true,
+  "sharedHomeProbeInventoryEmpty": true,
+  "credentialMaterialRepeatedOrHashedInCleanupReceipt": false,
+  "operatorAuthorityGranted": false
+}
