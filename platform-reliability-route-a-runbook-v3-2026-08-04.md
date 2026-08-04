@@ -2,8 +2,8 @@
 
 **Дата решения:** 2026-08-04
 
-**Статус:** DRAFT v3 · findings P1/P2 и follow-up P1 внесены · требуется
-независимое review · не даёт execution authority
+**Статус:** DRAFT v3 · findings P1/P2, follow-up P1 и adversarial P1/P3 внесены ·
+требуется независимое review · не даёт execution authority
 
 **Авторы:** Claude (исходный маршрут), Codex (редакция v3).
 
@@ -64,6 +64,7 @@ R1-A выполняет:
 
 - patch A: fail-closed `preDeploy`, который принимает exact-пиннутый `0070`;
 - подготовку source-freeze-кандидата для Gate C0;
+- patch C после Gate C0: перепиновку coordinator на новый Blueprint ID;
 - публикацию одного exact candidate image после terminal revert Gate C0;
 - проверку manifest/schema-capability/LKG;
 - staging release-env, смену web source на exact image digest;
@@ -110,10 +111,14 @@ revert freeze.
 1. reviewed patch A;
 2. exact source-freeze PR #54, заново привязанный к then-current master;
 3. полный revert этого freeze merge.
+4. reviewed patch C, перепинивающий coordinator на новый Blueprint ID из
+   terminal C0 receipt.
 
 Никакой candidate image не публикуется между merge freeze и его полным revert.
-После revert backend master снова замораживается; новый candidate packet пинит
-его exact SHA и exact workflow bytes. Stage 1 runtime activation запрещена.
+После revert разрешён только patch C. Backend master окончательно замораживается
+после его merge и зелёного CI; новый candidate packet пинит этот exact SHA и
+exact workflow bytes. Patch C до candidate packet не является нарушением
+заморозки. Stage 1 runtime activation запрещена.
 
 ## 5. Phase A — patch A для `0070→0073`
 
@@ -209,11 +214,41 @@ Patch B и обновлённая immutable policy должны быть сли�
 считается недействительным только на основании terminal old-ID absence и нового
 Blueprint ID, а не по формулировке этого документа.
 
-## 7. Phase C — новый candidate packet
+## 7. Phase C — patch C и новый candidate packet
 
 Только после terminal Gate C0 + exact freeze-revert receipt:
 
-1. Зафиксировать финальный backend master SHA/tree и automatic CI.
+### C1. Patch C — новый Blueprint ID
+
+Gate C0 по построению удаляет старый Blueprint
+`exs-d95qo3q8qa3s73ea23p0` и создаёт новый ID. Существующий coordinator пинит
+старый ID константой `_PRODUCTION_BLUEPRINT_ID` и отклонит новый до первого HTTP
+с `production_target_identity_invalid`; rollback сломается тем же образом.
+
+После полного revert freeze, но до фиксации финального master, R1-A обязан:
+
+1. Взять новый Blueprint ID только из terminal C0 receipt и сверить его с
+   provider GET и regex `^exs-[0-9a-z]{20}$`.
+2. Создать минимальный patch C, который меняет
+   `_PRODUCTION_BLUEPRINT_ID`, соответствующий элемент
+   `_KNOWN_PRODUCTION_RENDER_IDS` и их тестовые ожидания со старого ID на новый.
+   Другие production identities и release semantics не меняются.
+3. Добавить негативный тест: старый ID после C0 отвергается; новый exact ID при
+   остальных production CAS принимается. Сетевых или production действий тест
+   не выполняет.
+4. Получить независимое review exact diff и content-addressed receipt, который
+   связывает old ID, terminal C0 receipt, new ID, patch head и ожидаемое значение
+   будущего `vars.RENDER_BLUEPRINT_ID`.
+5. По отдельному operator GO влить exact patch C, дождаться automatic CI и лишь
+   тогда объявить новый backend master финальным.
+
+Patch C ещё не пишется до C0: новый ID пока не существует. Текущая константа не
+лечится GitHub variable, поэтому одна перепиновка `vars.RENDER_BLUEPRINT_ID` без
+source patch не считается исправлением.
+
+### C2. Новый candidate packet
+
+1. Зафиксировать финальный post-patch-C backend master SHA/tree и automatic CI.
 2. Проверить, что migration graph/workflow bytes не менялись неожиданно.
 3. Пинить фактически опубликованные frontend identities:
 
@@ -254,24 +289,93 @@ Production остаётся на `0070` до preDeploy candidate. Dump/restore/r
 ## 9. Phase E — production source/deploy
 
 Требуется отдельное operator GO на exact candidate digest, manifest SHA,
-финальный backend SHA и R1 handoff. GitHub environment `production` не создаётся.
+финальный backend SHA, patch-C receipt и R1 handoff.
 
-1. Создать временный account-wide Render API key только на окно; проверить exact
-   owner/service/Blueprint/registry/live-deploy CAS и Auto Deploy off.
-2. Через Save-only установить exact manifest/deploy identity/operation env;
-   неожиданный deploy — STOP.
-3. Один раз переключить web source на exact GHCR digest с pull-only credential,
-   `python -m app.platform_release predeploy-env` и `/api/health`.
-4. Source switch считается deploy-triggering. Если deploy уже создан, второй
-   POST запрещён. Если bounded observation доказывает его отсутствие,
-   coordinator выполняет один deploy POST с тем же CAS.
-5. PreDeploy принимает production `0070`, под lock выполняет `0070→0073`,
-   сверяет capability и пишет одну release receipt.
-6. После `live` один `verify-applied-db` job доказывает exact applied identity.
-7. Наблюдением подтвердить exact image/source, DB `0073`, `/api/health=200`,
+Source switch, terminal deploy и rollback инициируются только через reviewed
+`.github/workflows/platform-release-cutover.yml` + exact coordinator из
+финального backend master. Provider может начать deploy как следствие source
+switch; это считается результатом того же authorized `prepare-source`, а не
+отдельным неучтённым путём. Так сохраняются LKG forward validation,
+release-manifest binding, serialized mutations и rollback. GitHub environment
+`production` создаётся временно только как transport для job secret/vars: без
+required reviewers, без wait timer и без самостоятельной approval authority.
+Fresh operator GO остаётся единственным authority.
+
+### E1. Полный preflight входов
+
+До source mutation и workflow dispatch:
+
+1. Создать один временный account-wide Render API key только на окно; не
+   показывать его значение. Проверить exact owner/service/new Blueprint/registry/
+   live-deploy CAS и Auto Deploy off.
+2. Создать ephemeral GitHub environment `production` с branch policy только для
+   exact финального `master`, без reviewers/wait timer. Установить один
+   environment secret `RENDER_API_KEY` с тем же временным ключом.
+3. Установить и затем read-back проверить ровно шесть environment vars:
+
+   | variable | exact value |
+   | --- | --- |
+   | `RENDER_SERVICE_ID` | `srv-d95r3bfavr4c73aqsi4g` |
+   | `RENDER_BLUEPRINT_ID` | новый exact ID из C0 + patch-C receipt |
+   | `RENDER_OWNER_ID` | `tea-d1m4lmali9vc73euvelg` |
+   | `RENDER_REGISTRY_CREDENTIAL_ID` | `rgc-d9np7tajnfac73bi5ib0` |
+   | `PLATFORM_DATABASE_IDENTITY` | `swipe-production` |
+   | `PLATFORM_RELEASE_AUTHORITY_SCOPE` | `production` |
+
+4. Проверить, что source constant `_PRODUCTION_BLUEPRINT_ID` в exact candidate
+   равна environment `RENDER_BLUEPRINT_ID`, а остальные пять vars совпадают с
+   финальным source и C0/provider receipts. Repository-level Actions variables
+   не используются как неявный fallback.
+5. Каждый exact operation packet обязан пинить workflow ref/SHA,
+   `operation`, `candidate_build_run_id`, `candidate_manifest_sha256`,
+   `lkg_build_run_id` и `expected_current_deploy`. Source switch использует
+   `operation=prepare-source`; deploy — `operation=deploy`; rollback всегда
+   требует нового отдельного GO.
+6. Сверить Render `environmentKeyNames` с terminal C0 observation: `DATABASE_URL`
+   и прежние ключи не исчезли; допускается только объявленный release-env delta.
+   До deploy `PLATFORM_ROLLBACK_AUTHORIZATION_B64` и
+   `PLATFORM_ROLLBACK_AUTHORIZATION_SHA256` обязаны отсутствовать. В GitHub
+   vars/secrets таких ключей также быть не должно.
+
+Отсутствующий environment, secret, var, несовпавший read-back или лишний
+protection rule — STOP до dispatch, не исправление внутри одноразового run.
+
+### E2. Source и deploy
+
+1. Через Save-only установить exact release env:
+   `PLATFORM_DATABASE_IDENTITY=swipe-production`, уникальный
+   `PLATFORM_DEPLOY_IDENTITY`, exact manifest B64/SHA и
+   `PLATFORM_RELEASE_OPERATION=deploy`; rollback authorization keys остаются
+   отсутствующими. Неожиданный deploy — STOP.
+2. По отдельному exact GO один раз dispatch workflow с
+   `operation=prepare-source`: coordinator переключает web source на exact GHCR
+   digest с pull-only credential, `python -m app.platform_release predeploy-env`
+   и `/api/health`.
+3. Source switch считается deploy-triggering. Если deploy уже создан, второй
+   POST запрещён. Если bounded observation доказывает его отсутствие, отдельное
+   exact GO разрешает один workflow dispatch с `operation=deploy`; coordinator
+   выполняет единственный deploy POST с тем же CAS.
+4. PreDeploy требует `PLATFORM_DATABASE_IDENTITY=swipe-production`, принимает
+   production `0070`, под lock выполняет `0070→0073`, сверяет capability и пишет
+   одну release receipt.
+5. После `live` coordinator запускает один `verify-applied-db` job и сохраняет
+   durable receipt. При source-triggered deploy без второго POST эквивалентный
+   one-off verify job и receipt требуют отдельного exact execution packet.
+6. Наблюдением подтвердить exact image/source, DB `0073`, `/api/health=200`,
    публичную ленту и `minesweeper-v1-swipe`; Stage 1 flags остаются off.
-8. Отозвать временный Render key и безэмиссионно доказать HTTP 401. Pull-only
-   registry credential и release manifest env остаются для restart exact image.
+
+### E3. Cleanup
+
+После terminal success либо terminal rollback:
+
+1. Удалить environment secret `RENDER_API_KEY` и API read-back доказать его
+   отсутствие.
+2. Зафиксировать names/digests шести non-secret vars, затем удалить ephemeral
+   environment `production` и доказать 404. Будущий rollback создаёт fresh
+   transport только по новому GO.
+3. Отозвать временный Render key и безэмиссионно доказать HTTP 401.
+4. Pull-only registry credential и exact release manifest env остаются на Render
+   для restart live immutable image.
 
 ## 10. STOP-условия
 
@@ -282,9 +386,14 @@ STOP без импровизации, если:
   before/after `sourceSha`;
 - C0 policy не пинит фактический after-patch-A master и PR #54;
 - Gate C0/revert receipt неполон либо старый Sync Hook не инвалидирован;
+- patch C отсутствует, его source constant/receipt/GitHub var не совпадают с
+  новым Blueprint ID или patch C пытаются выполнить до terminal C0;
 - backend master/workflow/migration graph изменился после candidate packet;
 - candidate workflow упал или artifacts неоднозначны;
 - R1 handoff не доказывает production=`0070` и capability parity;
+- ephemeral `production` environment, temporary secret, шесть vars или exact
+  workflow inputs отсутствуют/не совпадают;
+- rollback authorization keys присутствуют при `operation=deploy`;
 - Render CAS не совпал, env staging неожиданно создал deploy или source switch
   создал deploy не exact digest;
 - preDeploy/verify-applied-db не дал PASS;
@@ -297,8 +406,9 @@ STOP без импровизации, если:
 
 - post-C0 cron/`pg_stat_activity` closure и Gate D;
 - точный attended cutover packet прежнего маршрута;
-- GitHub production environment ceremony;
+- persistent GitHub production approval gate; ephemeral transport из §9 не
+  является approval gate;
 - schema downgrade;
 - append-only `BEFORE TRUNCATE` усиление.
 
-Gate C0, patch A и единая preDeploy receipt **не** отложены.
+Gate C0, patches A/B/C и единая preDeploy receipt **не** отложены.
