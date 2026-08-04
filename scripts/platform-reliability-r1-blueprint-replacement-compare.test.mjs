@@ -347,18 +347,56 @@ test('rejects unreviewed source transitions and altered Git-object policy', () =
     );
   }
 
-  for (const mutatePolicy of [
-    (policy) => {
-      policy.liveRenderSha256 = hash('f');
+  for (const { mutatePolicy, expectedError } of [
+    {
+      mutatePolicy(policy) {
+        policy.liveBlueprintSourceSha = policy.preFreezeMasterSha;
+      },
+      expectedError: /before Blueprint source SHA is not the reviewed live source/,
     },
-    (policy) => {
-      policy.sentinelDockerfileSha256 = hash('e');
+    {
+      mutatePolicy(policy) {
+        policy.preFreezeMasterTree = policy.freezeCandidateTree;
+        policy.requiredPostRevertTree = policy.freezeCandidateTree;
+      },
+      expectedError: /pre-freeze master tree does not match the reviewed source policy/,
     },
-    (policy) => {
-      policy.forbiddenRuntimePath = 'README.md';
+    {
+      mutatePolicy(policy) {
+        policy.freezeCandidateTree = policy.preFreezeMasterTree;
+        policy.expectedMergeTree = policy.preFreezeMasterTree;
+      },
+      expectedError: /freeze candidate tree does not match the reviewed source policy/,
     },
-    (policy) => {
-      policy.expectedMergeSecondParent = policy.expectedMergeFirstParent;
+    {
+      mutatePolicy(policy) {
+        policy.expectedMergeSecondParent = policy.expectedMergeFirstParent;
+      },
+      expectedError: /source policy merge identity is internally inconsistent/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.liveRenderSha256 = hash('f');
+      },
+      expectedError: /render\.yaml is not byte-identical across the reviewed source transition/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.freezeManifestSha256 = hash('d');
+      },
+      expectedError: /freeze manifest blob does not match the reviewed source policy/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.sentinelDockerfileSha256 = hash('e');
+      },
+      expectedError: /freeze sentinel blob does not match the reviewed source policy/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.forbiddenRuntimePath = 'README.md';
+      },
+      expectedError: /forbidden runtime migration path is present in the freeze merge/,
     },
   ]) {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
@@ -369,7 +407,7 @@ test('rejects unreviewed source transitions and altered Git-object policy', () =
       paths.sourcePolicy,
       `${JSON.stringify(policy, null, 2)}\n`,
     );
-    assert.throws(() => run(comparisonArgs(paths)));
+    assert.throws(() => run(comparisonArgs(paths)), expectedError);
   }
 
   {
