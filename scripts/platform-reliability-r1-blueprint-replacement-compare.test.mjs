@@ -93,6 +93,7 @@ function fixture() {
       maximumDurationSeconds: 900,
       cronExecutionState: 'suspended',
       webRestartObserved: false,
+      unexpectedSyncObserved: false,
       providerFromDatabaseContinuity:
         'provider_confirmed_existing_service_environment_and_schedule_continuity',
     },
@@ -281,6 +282,9 @@ test('fails closed on unsafe observation structure and stale comparison bytes', 
     },
     (candidate) => {
       candidate.after.safetyWindow.deadlineAt = '2026-08-03T07:15:01Z';
+    },
+    (candidate) => {
+      candidate.after.safetyWindow.unexpectedSyncObserved = true;
     },
     (candidate) => {
       candidate.after.services[0].databaseBinding.sourceDatabaseServiceId =

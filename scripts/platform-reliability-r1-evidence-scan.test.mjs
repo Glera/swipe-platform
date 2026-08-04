@@ -192,6 +192,7 @@ function writeValidBlueprintEvidence(root, receipt) {
       maximumDurationSeconds: 900,
       cronExecutionState: 'suspended',
       webRestartObserved: false,
+      unexpectedSyncObserved: false,
       providerFromDatabaseContinuity:
         'provider_confirmed_existing_service_environment_and_schedule_continuity',
     },

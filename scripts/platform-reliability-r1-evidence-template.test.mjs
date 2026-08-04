@@ -29,6 +29,10 @@ const RENDER_SUPPORT_RESPONSE = path.join(
   ROOT,
   'platform-reliability-r1-gate-c-render-support-response.json',
 );
+const GATE_C0_FREEZE_POLICY = path.join(
+  ROOT,
+  'platform-reliability-r1-gate-c0-source-freeze-policy.json',
+);
 
 test('final evidence template preserves every completion requirement and gate', () => {
   const markdown = fs.readFileSync(FINAL_TEMPLATE, 'utf8');
@@ -48,6 +52,12 @@ test('final evidence template preserves every completion requirement and gate', 
     markdown,
     /platform-reliability-r1-gate-c0-blueprint-comparison\.json/,
   );
+  assert.match(
+    markdown,
+    /platform-reliability-r1-gate-c0-source-freeze-policy\.json/,
+  );
+  assert.match(markdown, /post-revert tree/);
+  assert.match(markdown, /Gate C is forbidden until/);
   assert.match(markdown, /Blueprint replacement comparator source digest/);
   assert.match(markdown, /--base-ref origin\/master/);
   assert.match(
@@ -200,6 +210,12 @@ test('operator runbook narrowly records the accepted Render residual', () => {
   );
   assert.match(runbook, /Выключение Auto Sync не доказывает инвалидирование hook/);
   assert.match(runbook, /Ни новый Sync Hook incident[\s\S]+принять нельзя/);
+  assert.match(
+    runbook,
+    /terminal Gate C0 comparison[\s\S]{0,240}полный freeze revert/,
+  );
+  assert.match(runbook, /Gate C не начинается до terminal revert receipt/);
+  assert.match(runbook, /неожиданном sync/);
 });
 
 test('Gate C records the human Render remediation without claiming completion', () => {
@@ -207,6 +223,7 @@ test('Gate C records the human Render remediation without claiming completion', 
     fs.readFileSync(RENDER_SUPPORT_RESPONSE, 'utf8'),
   );
   const contract = fs.readFileSync(GATE_C_CONTRACT, 'utf8');
+  const freezePolicy = JSON.parse(fs.readFileSync(GATE_C0_FREEZE_POLICY, 'utf8'));
 
   assert.equal(
     response.schema,
@@ -265,10 +282,46 @@ test('Gate C records the human Render remediation without claiming completion', 
     contract,
     /dd250d08cfd65723532fd0f59d63064e88c38a24/,
   );
-  assert.match(contract, /guess and is not treated as[\s\S]+provider fact/);
+  assert.deepEqual(freezePolicy, {
+    schema: 'platform-reliability-r1-gate-c0-source-freeze-policy.v1',
+    status: 'reviewed_candidate_not_authorized',
+    backendRepository: 'Glera/swipe-backend',
+    backendPullRequest: 54,
+    preFreezeMasterSha: 'f2a840517956c4f480fc9d8aaf6f832ebde489d9',
+    preFreezeMasterTree: 'a7e4c6462d4d30d0af61eae4672792203739d832',
+    freezeCandidateHead: 'dd250d08cfd65723532fd0f59d63064e88c38a24',
+    freezeCandidateTree: 'f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac',
+    mergeMethod: 'merge_commit',
+    expectedMergeFirstParent: 'f2a840517956c4f480fc9d8aaf6f832ebde489d9',
+    expectedMergeSecondParent: 'dd250d08cfd65723532fd0f59d63064e88c38a24',
+    expectedMergeTree: 'f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac',
+    requiredPostRevertTree: 'a7e4c6462d4d30d0af61eae4672792203739d832',
+    maximumFreezeSeconds: 3600,
+    revertBeforeGateC: true,
+    expectedReplacementDeployOutcome:
+      'sentinel_exit_78_before_app_or_database_access',
+    successfulOrLiveDeployForbidden: true,
+    unexpectedSyncForbidden: true,
+    operatorAuthorityRequired: true,
+    secretsCaptured: false,
+  });
+  assert.match(
+    contract,
+    /guess and is not captured in the strict provider receipt or treated[\s\S]{0,40}provider fact/,
+  );
   assert.match(contract, /does not authorize[\s\S]+production deployment/);
   assert.match(contract, /reversion deadline no more than 60 minutes/);
   assert.match(contract, /sentinel failure with exit `78`/);
-  assert.match(contract, /successful\/Live deploy[\s\S]+immediate[\s\S]+NO-GO/);
-  assert.match(contract, /revert the complete freeze merge/);
+  assert.match(
+    contract,
+    /A successful\/Live deploy, application startup or database access[\s\S]{0,120}immediate[\s\S]{0,40}\*\*NO-GO\*\*/,
+  );
+  assert.match(
+    contract,
+    /Immediately after a terminal Gate C0 comparison[\s\S]{0,180}revert[\s\S]{0,80}complete backend PR #54 freeze merge/,
+  );
+  assert.match(contract, /post-revert tree is exactly[\s\S]{0,100}a7e4c646/);
+  assert.match(contract, /unexpectedSyncObserved=false/);
+  assert.match(contract, /sentinel freeze is never[\s\S]{0,40}active during Gate C/);
+  assert.doesNotMatch(contract, /freeze[\s\S]{0,80}active through[\s\S]{0,80}Gate C/);
 });

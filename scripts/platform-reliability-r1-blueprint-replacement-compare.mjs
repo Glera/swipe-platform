@@ -396,6 +396,7 @@ function parseObservation(value, expectedPhase, label) {
     'maximumDurationSeconds',
     'cronExecutionState',
     'webRestartObserved',
+    'unexpectedSyncObserved',
     'providerFromDatabaseContinuity',
   ], `${label}.safetyWindow`);
   const safetyWindow = {
@@ -422,6 +423,10 @@ function parseObservation(value, expectedPhase, label) {
       value.safetyWindow.webRestartObserved,
       `${label}.safetyWindow.webRestartObserved`,
     ),
+    unexpectedSyncObserved: booleanValue(
+      value.safetyWindow.unexpectedSyncObserved,
+      `${label}.safetyWindow.unexpectedSyncObserved`,
+    ),
     providerFromDatabaseContinuity: enumValue(
       value.safetyWindow.providerFromDatabaseContinuity,
       [PROVIDER_CONTINUITY_AUTHORITY],
@@ -430,6 +435,9 @@ function parseObservation(value, expectedPhase, label) {
   };
   if (safetyWindow.webRestartObserved) {
     fail(`${label}.safetyWindow.webRestartObserved must be false`);
+  }
+  if (safetyWindow.unexpectedSyncObserved) {
+    fail(`${label}.safetyWindow.unexpectedSyncObserved must be false`);
   }
   const startedAtMs = Date.parse(safetyWindow.startedAt);
   const deadlineAtMs = Date.parse(safetyWindow.deadlineAt);

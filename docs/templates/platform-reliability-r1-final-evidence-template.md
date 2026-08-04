@@ -33,6 +33,8 @@ IP/CIDR, raw database username или фрагменты stderr. Для адре
 
 Gate C0 Blueprint replacement evidence:
 
+- `platform-reliability-r1-gate-c0-source-freeze-policy.json`: `sha256:{{SHA256}}`, exact policy replay `{{PASS_OR_FAIL}}`
+- source-freeze execution receipt: pre-freeze master/tree `{{FULL_SHA}}` / `{{TREE_SHA}}`, freeze merge `{{FULL_SHA}}` with ordered parents/tree `{{FULL_SHA}}` / `{{FULL_SHA}}` / `{{TREE_SHA}}`, revert `{{FULL_SHA}}` / parent `{{FULL_SHA}}` / post-revert tree `{{TREE_SHA}}`, elapsed `{{SECONDS}}`, exact reversion `{{PASS_OR_FAIL}}`, independent review `{{REVIEW_ID}}`
 - `platform-reliability-r1-gate-c0-blueprint-before.json`: `sha256:{{SHA256}}`
 - `platform-reliability-r1-gate-c0-blueprint-after.json`: `sha256:{{SHA256}}`
 - `platform-reliability-r1-gate-c0-blueprint-comparison.json`: `sha256:{{SHA256}}`, exact-byte replay `{{PASS_OR_FAIL}}`
@@ -43,7 +45,9 @@ Provider continuity authority: Render confirmed materialized service
 environment variables and cron schedules remain on existing services;
 `providerConfirmedFromDatabaseContinuity={{PASS_OR_FAIL}}`, actual replacement
 evidence remains `operator_attested` and
-`providerVerifiedServiceContinuity=false`.
+`providerVerifiedServiceContinuity=false`; unexpected sync observed
+`{{TRUE_OR_FALSE}}` (PASS requires `false`). Gate C is forbidden until the
+source-freeze receipt proves the exact post-revert tree.
 
 | Surface | Before | After | Delta | Normalized rate | Disposition |
 |---|---:|---:|---:|---:|---|

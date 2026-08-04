@@ -1,0 +1,22 @@
+{
+  "schema": "platform-reliability-r1-gate-c0-source-freeze-policy.v1",
+  "status": "reviewed_candidate_not_authorized",
+  "backendRepository": "Glera/swipe-backend",
+  "backendPullRequest": 54,
+  "preFreezeMasterSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+  "preFreezeMasterTree": "a7e4c6462d4d30d0af61eae4672792203739d832",
+  "freezeCandidateHead": "dd250d08cfd65723532fd0f59d63064e88c38a24",
+  "freezeCandidateTree": "f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac",
+  "mergeMethod": "merge_commit",
+  "expectedMergeFirstParent": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+  "expectedMergeSecondParent": "dd250d08cfd65723532fd0f59d63064e88c38a24",
+  "expectedMergeTree": "f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac",
+  "requiredPostRevertTree": "a7e4c6462d4d30d0af61eae4672792203739d832",
+  "maximumFreezeSeconds": 3600,
+  "revertBeforeGateC": true,
+  "expectedReplacementDeployOutcome": "sentinel_exit_78_before_app_or_database_access",
+  "successfulOrLiveDeployForbidden": true,
+  "unexpectedSyncForbidden": true,
+  "operatorAuthorityRequired": true,
+  "secretsCaptured": false
+}
