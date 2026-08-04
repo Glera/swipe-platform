@@ -1,0 +1,282 @@
+<title>Play for Good — сезонный блок, этап 2</title>
+<style>
+  :root{
+    --paper:#F2EDE3; --paper-2:#E9E2D5; --ink:#2A2622; --ink-soft:#6B6259;
+    --stamp:#4A3F8F; --seal:#B8843A; --rule:#D8CFC0; --edge:#CFC5B4;
+    --shadow:rgba(42,38,34,.10);
+    --serif:ui-serif,"Iowan Old Style",Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#1C1917; --paper-2:#242019; --ink:#EDE6DA; --ink-soft:#A69B8C;
+      --stamp:#9A8CF0; --seal:#D9A85A; --rule:#3A342C; --edge:#3A342C;
+      --shadow:rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1C1917; --paper-2:#242019; --ink:#EDE6DA; --ink-soft:#A69B8C;
+    --stamp:#9A8CF0; --seal:#D9A85A; --rule:#3A342C; --edge:#3A342C;
+    --shadow:rgba(0,0,0,.5);
+  }
+  :root[data-theme="light"]{
+    --paper:#F2EDE3; --paper-2:#E9E2D5; --ink:#2A2622; --ink-soft:#6B6259;
+    --stamp:#4A3F8F; --seal:#B8843A; --rule:#D8CFC0; --edge:#CFC5B4;
+    --shadow:rgba(42,38,34,.10);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .sheet{max-width:1180px;margin:0 auto;padding:40px 20px 72px}
+  .sheet__head{max-width:64ch;margin:0 0 40px}
+  h1{
+    font-family:var(--serif); font-weight:600; font-size:clamp(26px,4vw,36px);
+    letter-spacing:-.015em; margin:0 0 10px; text-wrap:balance;
+  }
+  .sheet__head p{margin:0;color:var(--ink-soft);font-size:15px;max-width:60ch}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--stamp); margin:0 0 14px;
+  }
+
+  .row{display:grid;gap:34px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
+
+  figure{margin:0;display:flex;flex-direction:column;gap:12px}
+  figcaption{font-size:13px;color:var(--ink-soft);max-width:42ch}
+  figcaption b{color:var(--ink);font-weight:600}
+
+  /* ─── общий вид «телефона» ─────────────────────────────── */
+  .phone{
+    width:100%; max-width:378px; border:1px solid var(--edge); border-radius:22px;
+    background:var(--paper-2); padding:16px 14px 20px;
+    box-shadow:0 1px 0 var(--shadow),0 14px 34px -22px var(--shadow);
+  }
+
+  /* ─── карточка-бланк ───────────────────────────────────── */
+  .card{
+    background:var(--paper); border:1px solid var(--edge); border-radius:12px;
+    padding:18px 16px 16px; position:relative;
+  }
+  .card--ruled{
+    background-image:repeating-linear-gradient(var(--paper),var(--paper) 27px,var(--rule) 27px,var(--rule) 28px);
+    background-position:0 46px;
+  }
+
+  .stamp{
+    position:absolute; top:12px; right:12px; transform:rotate(-7deg);
+    border:2px solid var(--stamp); color:var(--stamp); border-radius:4px;
+    font-family:var(--mono); font-size:10px; letter-spacing:.12em;
+    text-transform:uppercase; padding:4px 7px; opacity:.9;
+  }
+  .stamp--seal{border-color:var(--seal);color:var(--seal)}
+
+  .case-title{font-family:var(--serif);font-size:21px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
+  .case-sub{font-family:var(--mono);font-size:11px;color:var(--ink-soft);letter-spacing:.06em;margin:0 0 16px}
+
+  /* ─── четыре числа как поля бланка ─────────────────────── */
+  .fields{display:flex;flex-direction:column;gap:0;margin:14px 0 4px}
+  .field{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule)}
+  .field:last-child{border-bottom:0}
+  .field__label{font-size:13px;color:var(--ink-soft);flex:1}
+  .field__value{font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;white-space:nowrap}
+  .field--delivered .field__value{color:var(--seal)}
+  .field--delivered .field__label{color:var(--ink)}
+
+  .note{
+    font-family:var(--serif); font-size:14px; line-height:1.55; color:var(--ink);
+    margin:14px 0 0; padding-top:12px; border-top:1px solid var(--rule);
+  }
+  .note em{font-style:italic;color:var(--ink-soft)}
+
+  /* ─── корешок-кипсейк ──────────────────────────────────── */
+  .stub{position:relative;background:var(--paper);border:1px solid var(--edge);border-radius:12px;overflow:hidden}
+  .stub__perf{
+    height:0;border-top:2px dashed var(--edge); margin:0 10px;
+    position:relative;
+  }
+  .stub__perf::before,.stub__perf::after{
+    content:"";position:absolute;top:-9px;width:16px;height:16px;border-radius:50%;
+    background:var(--paper-2);border:1px solid var(--edge);
+  }
+  .stub__perf::before{left:-19px}
+  .stub__perf::after{right:-19px}
+  .stub__top{padding:16px 16px 14px}
+  .stub__bottom{padding:14px 16px 16px;display:flex;flex-direction:column;gap:9px}
+  .keepsake-name{font-family:var(--serif);font-size:19px;font-weight:600;margin:0 0 3px}
+  .keepsake-line{
+    font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);
+    display:flex;justify-content:space-between;gap:12px;letter-spacing:.02em;
+  }
+  .keepsake-line b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+  .paw{
+    width:34px;height:34px;flex:none;border-radius:50%;
+    border:1.5px solid var(--stamp);display:grid;place-items:center;color:var(--stamp);
+  }
+  .paw svg{width:18px;height:18px;display:block}
+  .stub__id{
+    font-family:var(--mono);font-size:10px;color:var(--ink-soft);
+    letter-spacing:.08em;word-break:break-all;
+  }
+
+  /* ─── архив ────────────────────────────────────────────── */
+  .stack{display:flex;flex-direction:column;gap:9px}
+  .arch{
+    background:var(--paper);border:1px solid var(--edge);border-radius:10px;
+    padding:12px 14px;display:flex;align-items:center;gap:12px;
+  }
+  .arch__body{flex:1;min-width:0}
+  .arch__name{font-family:var(--serif);font-size:15px;font-weight:600;margin:0 0 2px}
+  .arch__meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);letter-spacing:.05em}
+  .chip{
+    font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    border:1px solid currentColor;border-radius:20px;padding:3px 8px;white-space:nowrap;
+  }
+  .chip--done{color:var(--seal)}
+  .chip--open{color:var(--stamp)}
+  .arch--open{border-color:var(--stamp);box-shadow:inset 0 0 0 1px var(--stamp)}
+  .progress{height:4px;background:var(--rule);border-radius:2px;margin-top:8px;overflow:hidden}
+  .progress i{display:block;height:100%;background:var(--stamp);border-radius:2px}
+  .btn{
+    margin-top:10px;width:100%;font-family:var(--sans);font-size:13.5px;font-weight:600;
+    color:var(--paper);background:var(--stamp);border:0;border-radius:9px;padding:10px;
+    cursor:pointer;
+  }
+  .btn:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+
+  .legend{margin:48px 0 0;padding-top:22px;border-top:1px solid var(--rule);max-width:66ch}
+  .legend h2{font-family:var(--serif);font-size:18px;margin:0 0 10px;font-weight:600}
+  .legend ul{margin:0;padding-left:18px;color:var(--ink-soft);font-size:14px}
+  .legend li{margin:0 0 7px}
+  .legend b{color:var(--ink)}
+</style>
+
+<div class="sheet">
+  <header class="sheet__head">
+    <p class="eyebrow">Play for Good · этап 2 · макет на вкус</p>
+    <h1>Сезонный блок: итог, кипсейк, архив коллекций</h1>
+    <p>Три поверхности, которые появляются, когда сезон заканчивается. Числа и формулировки — настоящие: те, что уже отдаёт бэкенд Stage 1. Ничего не придумано под картинку.</p>
+  </header>
+
+  <div class="row">
+
+    <!-- ИТОГ СЕЗОНА -->
+    <figure>
+      <div class="phone">
+        <div class="card card--ruled">
+          <span class="stamp stamp--seal">Передано</span>
+          <p class="case-title">Сезон Мурки</p>
+          <p class="case-sub">12 июня — 3 августа · приют «Тёплый дом»</p>
+
+          <div class="fields">
+            <div class="field">
+              <span class="field__label">Лапки сообщества</span>
+              <span class="field__value">48 210</span>
+            </div>
+            <div class="field">
+              <span class="field__label">Гарантировано платформой</span>
+              <span class="field__value">€ 60,00</span>
+            </div>
+            <div class="field">
+              <span class="field__label">Зарезервировано и открыто</span>
+              <span class="field__value">€ 104,00</span>
+            </div>
+            <div class="field field--delivered">
+              <span class="field__label">Передано приюту</span>
+              <span class="field__value">€ 104,00</span>
+            </div>
+          </div>
+
+          <p class="note">Корм на два месяца доехал 3 августа. Мурку забрали домой через неделю — приют прислал фотографию.<br><em>Ваш вклад в этом сезоне: 1 340 лапок, 27 серий.</em></p>
+        </div>
+      </div>
+      <figcaption><b>Итог сезона.</b> Четыре числа — те же, что на экране кейса, в том же порядке. «Передано» звучит только здесь: до FULFILLED этой строки нет вообще.</figcaption>
+    </figure>
+
+    <!-- КИПСЕЙК -->
+    <figure>
+      <div class="phone">
+        <div class="stub">
+          <div class="stub__top">
+            <span class="stamp">03.08.2026</span>
+            <p class="keepsake-name">Мурка</p>
+            <p class="case-sub" style="margin:0">Кипсейк сезона · 1 из 1</p>
+          </div>
+          <div class="stub__perf"></div>
+          <div class="stub__bottom">
+            <div style="display:flex;align-items:center;gap:11px">
+              <span class="paw" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.2" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.4c3 0 5.2 2.3 5.2 4.6 0 1.9-1.6 3-3.4 3-1 0-1.3-.4-1.8-.4s-.8.4-1.8.4c-1.8 0-3.4-1.1-3.4-3 0-2.3 2.2-4.6 5.2-4.6z"/></svg>
+              </span>
+              <div style="flex:1">
+                <div class="keepsake-line"><span>Передано</span><b>€ 104,00</b></div>
+                <div class="keepsake-line"><span>Ваши лапки</span><b>1 340</b></div>
+              </div>
+            </div>
+            <div class="keepsake-line"><span>Серий сыграно</span><b>27</b></div>
+            <div class="keepsake-line"><span>Участников</span><b>1 «человек» — вы</b></div>
+            <p class="stub__id">квитанция fc:9a41e0c7 · подтверждено сервером</p>
+          </div>
+        </div>
+      </div>
+      <figcaption><b>Кипсейк.</b> Не медаль, а корешок квитанции: он несёт факты сезона, а не «достижение». Оторванная половина остаётся у вас, вторая — у приюта. Если сезон не дошёл до FULFILLED, кипсейка не существует.</figcaption>
+    </figure>
+
+    <!-- АРХИВ -->
+    <figure>
+      <div class="phone">
+        <div class="card">
+          <p class="case-title" style="font-size:18px">Архив сезонов</p>
+          <p class="case-sub">Коллекции остаются вашими навсегда</p>
+
+          <div class="stack">
+            <div class="arch">
+              <div class="arch__body">
+                <p class="arch__name">Мурка</p>
+                <p class="arch__meta">июнь — август · 9 из 9 карточек</p>
+              </div>
+              <span class="chip chip--done">Собрано</span>
+            </div>
+
+            <div class="arch arch--open">
+              <div class="arch__body">
+                <p class="arch__name">Пёс Тишка</p>
+                <p class="arch__meta">март — май · 7 из 9 карточек</p>
+                <div class="progress"><i style="width:78%"></i></div>
+              </div>
+              <span class="chip chip--open">Можно дозакрыть</span>
+            </div>
+
+            <div class="arch">
+              <div class="arch__body">
+                <p class="arch__name">Котята с Луговой</p>
+                <p class="arch__meta">январь — февраль · 9 из 9 карточек</p>
+              </div>
+              <span class="chip chip--done">Собрано</span>
+            </div>
+          </div>
+
+          <button class="btn" type="button">Дозакрыть «Тишку» — 2 карточки</button>
+          <p class="note" style="font-size:13px">Прошлый сезон закрыт, но его коллекция — нет. Доиграть можно когда угодно: карточки никуда не денутся и ни на что не давят.</p>
+        </div>
+      </div>
+      <figcaption><b>Архив с дозакрытием.</b> Прошлые сезоны не «протухают». Незакрытая коллекция показана честно — прогрессом, а не упрёком.</figcaption>
+    </figure>
+
+  </div>
+
+  <section class="legend">
+    <h2>Что здесь держит инварианты</h2>
+    <ul>
+      <li><b>«Передали» только на FULFILLED.</b> На всех более ранних стадиях строки «Передано приюту» нет, а штамп показывает текущий этап, а не обещание.</li>
+      <li><b>Кипсейк доказательный.</b> Он собран из фактов сезона и несёт идентификатор серверной квитанции. Поэтому и нарисован квитанцией, а не наградой.</li>
+      <li><b>Без вины.</b> Незакрытая коллекция описана как возможность, а не как долг. Нигде нет «осталось совсем чуть-чуть» и обратного отсчёта.</li>
+      <li><b>Human-true.</b> Строка «Участников» различает людей и служебные аккаунты явно — если в сезоне были только вы, так и написано.</li>
+      <li><b>Никакой лотереи.</b> Подарок нигде не разыгрывается: сумма выводится из опубликованного правила и показана как результат, а не как выигрыш.</li>
+    </ul>
+  </section>
+</div>
