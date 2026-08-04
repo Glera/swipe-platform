@@ -210,18 +210,40 @@ test('Gate C records the human Render remediation without claiming completion', 
 
   assert.equal(
     response.schema,
-    'platform-reliability-r1-render-support-response.v1',
+    'platform-reliability-r1-render-support-response.v2',
   );
-  assert.equal(response.responseActorKind, 'human_render_support_agent');
   assert.equal(
-    response.providerStatements.supportedRemediation,
+    response.remediationResponse.responseActorKind,
+    'human_render_support_agent',
+  );
+  assert.equal(
+    response.remediationResponse.providerStatements.supportedRemediation,
     'delete_existing_blueprint_then_create_new_blueprint',
   );
   assert.equal(
-    response.providerStatements.lastObservedSyncAt,
+    response.remediationResponse.providerStatements.lastObservedSyncAt,
     '2026-07-30T15:09:14Z',
   );
+  assert.equal(
+    response.continuityResponse.providerStatements
+      .fromDatabaseMaterializesServiceEnvironmentVariables,
+    true,
+  );
+  assert.equal(
+    response.continuityResponse.providerStatements
+      .cronSchedulesStoredOnCronServices,
+    true,
+  );
+  assert.equal(
+    response.continuityResponse.providerStatements
+      .blueprintReplacementChangesExistingServices,
+    false,
+  );
   assert.equal(response.evidenceLimits.oldHookTerminallyInvalidated, false);
+  assert.equal(
+    response.evidenceLimits.providerHasNotObservedReplacementExecution,
+    true,
+  );
   assert.equal(response.secretValueCaptured, false);
   assert.match(contract, /Status: \*\*BLOCKED, NOT APPLIED\*\*/);
   assert.match(contract, /GO Gate C0/);
@@ -232,7 +254,11 @@ test('Gate C records the human Render remediation without claiming completion', 
   assert.match(contract, /fromDatabase\.connectionString/);
   assert.match(contract, /Suspend `swipe-seq-shadow-run`/);
   assert.match(contract, /hard deadline no more than 900 seconds/);
-  assert.match(contract, /unconfirmed_compensated_by_quiescence/);
+  assert.match(
+    contract,
+    /provider_confirmed_existing_service_environment_and_schedule_continuity/,
+  );
   assert.match(contract, /evidenceClass=operator_attested/);
   assert.match(contract, /providerVerifiedServiceContinuity=false/);
+  assert.match(contract, /providerConfirmedFromDatabaseContinuity=true/);
 });

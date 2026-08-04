@@ -39,6 +39,12 @@ Gate C0 Blueprint replacement evidence:
 
 Observation window: `{{SECONDS}}` seconds.
 
+Provider continuity authority: Render confirmed materialized service
+environment variables and cron schedules remain on existing services;
+`providerConfirmedFromDatabaseContinuity={{PASS_OR_FAIL}}`, actual replacement
+evidence remains `operator_attested` and
+`providerVerifiedServiceContinuity=false`.
+
 | Surface | Before | After | Delta | Normalized rate | Disposition |
 |---|---:|---:|---:|---:|---|
 | Provider storage | `{{VALUE}}` | `{{VALUE}}` | `{{VALUE}}` | `{{VALUE}}` | `{{PASS_OR_NOTE}}` |

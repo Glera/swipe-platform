@@ -76,7 +76,7 @@ function fixture() {
     },
   ];
   const common = {
-    schema: 'platform-reliability-r1-blueprint-replacement-observation.v2',
+    schema: 'platform-reliability-r1-blueprint-replacement-observation.v3',
     sourceDatabase: {
       serviceId: 'dpg-source',
       status: 'available',
@@ -93,7 +93,8 @@ function fixture() {
       maximumDurationSeconds: 900,
       cronExecutionState: 'suspended',
       webRestartObserved: false,
-      providerFromDatabaseContinuity: 'unconfirmed_compensated_by_quiescence',
+      providerFromDatabaseContinuity:
+        'provider_confirmed_existing_service_environment_and_schedule_continuity',
     },
     hookValueObserved: false,
     secretsCaptured: false,
@@ -130,29 +131,41 @@ function fixture() {
     },
   };
   const support = {
-    schema: 'platform-reliability-r1-render-support-response.v1',
-    observedAt: '2026-08-03T06:42:17Z',
+    schema: 'platform-reliability-r1-render-support-response.v2',
+    observedAt: '2026-08-04T06:34:25Z',
     channel: 'authenticated_render_dashboard_support_conversation',
-    responseActorKind: 'human_render_support_agent',
-    responseDate: '2026-08-03',
-    responseTimestampPrecision: 'date_only',
     affectedBlueprintId: oldBlueprintId,
     affectedBlueprintIdentitySha256: `sha256:${digest(oldBlueprintId)}`,
-    providerStatements: {
-      supportedRemediation: 'delete_existing_blueprint_then_create_new_blueprint',
-      oldHookInvalidatedByRemediation: true,
-      newBlueprintReceivesNewHook: true,
-      existingServicesDeletedWithBlueprint: false,
-      existingServicesExpectedToRelinkByDetection: true,
-      lastObservedSyncAt: '2026-07-30T15:09:14Z',
-      hookCanInitiateBlueprintSync: true,
-      hookAloneCanChangeConnectedRepository: false,
-      providerIncidentAssessment: 'fairly_minor',
+    remediationResponse: {
+      responseActorKind: 'human_render_support_agent',
+      responseDate: '2026-08-03',
+      responseTimestampPrecision: 'date_only',
+      providerStatements: {
+        supportedRemediation: 'delete_existing_blueprint_then_create_new_blueprint',
+        oldHookInvalidatedByRemediation: true,
+        newBlueprintReceivesNewHook: true,
+        existingServicesDeletedWithBlueprint: false,
+        existingServicesExpectedToRelinkByDetection: true,
+        lastObservedSyncAt: '2026-07-30T15:09:14Z',
+        hookCanInitiateBlueprintSync: true,
+        hookAloneCanChangeConnectedRepository: false,
+        providerIncidentAssessment: 'fairly_minor',
+      },
+    },
+    continuityResponse: {
+      responseActorKind: 'human_render_support_agent',
+      responseDate: '2026-08-04',
+      responseTimestampPrecision: 'date_only',
+      providerStatements: {
+        fromDatabaseMaterializesServiceEnvironmentVariables: true,
+        cronSchedulesStoredOnCronServices: true,
+        blueprintReplacementChangesExistingServices: false,
+      },
     },
     evidenceLimits: {
       providerHasNotExecutedRemediation: true,
       oldHookTerminallyInvalidated: false,
-      serviceRelinkContinuityObserved: false,
+      providerHasNotObservedReplacementExecution: true,
       providerSideActorAuditProvided: false,
       lastSyncTimestampImpliesNoPostExposureSync: true,
     },
@@ -187,6 +200,7 @@ test('proves a different Blueprint with exact source and service continuity', ()
   assert.equal(result.boundedReplacementConsistent, true);
   assert.equal(result.evidenceClass, 'operator_attested');
   assert.equal(result.providerVerifiedServiceContinuity, false);
+  assert.equal(result.providerConfirmedFromDatabaseContinuity, true);
   assert.equal(
     result.hookDispositionBasis,
     'provider_contract_plus_terminal_old_blueprint_absence',
@@ -226,7 +240,7 @@ test('reports source, service, database, identity, and absence drift', () => {
       candidate.support.affectedBlueprintIdentitySha256 = `sha256:${hash('d')}`;
     },
     (candidate) => {
-      candidate.support.providerStatements.lastObservedSyncAt =
+      candidate.support.remediationResponse.providerStatements.lastObservedSyncAt =
         '2026-08-03T07:00:00Z';
       candidate.before.blueprint.lastSyncAt = '2026-08-03T07:00:00Z';
     },
@@ -277,7 +291,7 @@ test('fails closed on unsafe observation structure and stale comparison bytes', 
     },
     (candidate) => {
       candidate.before.safetyWindow.providerFromDatabaseContinuity =
-        'provider_confirmed';
+        'unconfirmed_compensated_by_quiescence';
     },
   ];
   for (const mutate of structuralCases) {
@@ -311,7 +325,7 @@ test('fails closed on unsafe observation structure and stale comparison bytes', 
 test('rejects forged or broadened support authority', () => {
   for (const mutate of [
     (candidate) => {
-      candidate.support.responseActorKind = 'automated_bot_reply';
+      candidate.support.remediationResponse.responseActorKind = 'automated_bot_reply';
     },
     (candidate) => {
       candidate.support.channel = 'anonymous_forum_post';
@@ -326,13 +340,28 @@ test('rejects forged or broadened support authority', () => {
       candidate.support.observedAt = 'not-a-timestamp';
     },
     (candidate) => {
-      candidate.support.responseDate = '2026-02-31';
+      candidate.support.remediationResponse.responseDate = '2026-02-31';
     },
     (candidate) => {
-      candidate.support.providerStatements.unreviewedAuthority = true;
+      candidate.support.remediationResponse.providerStatements.unreviewedAuthority = true;
     },
     (candidate) => {
       candidate.support.evidenceLimits.providerSideActorAuditProvided = true;
+    },
+    (candidate) => {
+      candidate.support.continuityResponse.responseActorKind =
+        'automated_bot_reply';
+    },
+    (candidate) => {
+      candidate.support.continuityResponse.providerStatements
+        .fromDatabaseMaterializesServiceEnvironmentVariables = false;
+    },
+    (candidate) => {
+      candidate.support.continuityResponse.providerStatements
+        .unreviewedAuthority = true;
+    },
+    (candidate) => {
+      candidate.support.continuityResponse.responseDate = '2026-08-02';
     },
   ]) {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));

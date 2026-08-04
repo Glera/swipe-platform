@@ -175,7 +175,7 @@ function writeValidBlueprintEvidence(root, receipt) {
     },
   }));
   const common = {
-    schema: 'platform-reliability-r1-blueprint-replacement-observation.v2',
+    schema: 'platform-reliability-r1-blueprint-replacement-observation.v3',
     sourceDatabase: {
       serviceId: receipt.sourceDatabaseServiceId,
       status: 'available',
@@ -192,7 +192,8 @@ function writeValidBlueprintEvidence(root, receipt) {
       maximumDurationSeconds: 900,
       cronExecutionState: 'suspended',
       webRestartObserved: false,
-      providerFromDatabaseContinuity: 'unconfirmed_compensated_by_quiescence',
+      providerFromDatabaseContinuity:
+        'provider_confirmed_existing_service_environment_and_schedule_continuity',
     },
     hookValueObserved: false,
     secretsCaptured: false,
@@ -208,7 +209,8 @@ function writeValidBlueprintEvidence(root, receipt) {
       blueprintPath: 'render.yaml',
       sourceSha,
       autoSyncState: 'disabled',
-      lastSyncAt: support.providerStatements.lastObservedSyncAt,
+      lastSyncAt:
+        support.remediationResponse.providerStatements.lastObservedSyncAt,
     },
     oldBlueprintAbsence: null,
   };
@@ -432,6 +434,11 @@ test('scans the exact git patch manifest and emits only hashes', () => {
     assert.equal(
       result.blueprintReplacementValidation.providerVerifiedServiceContinuity,
       false,
+    );
+    assert.equal(
+      result.blueprintReplacementValidation
+        .providerConfirmedFromDatabaseContinuity,
+      true,
     );
     for (const artifact of result.requiredFiles) {
       assert.match(artifact.sha256, /^[a-f0-9]{64}$/);

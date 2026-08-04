@@ -285,13 +285,15 @@ Blueprint новый hook; последний sync старого Blueprint бы
 `2026-07-30T15:09:14Z`. Точный bounded receipt —
 `platform-reliability-r1-gate-c-render-support-response.json`.
 
-Ответ не устанавливает судьбу уже разрешённых `fromDatabase` env bindings во
-время отсутствия Blueprint. Перед Gate C0 вопрос задаётся повторно в том же
-support thread. Пока provider continuity не подтверждена, оба DB-backed cron
-обязаны быть suspended на всё окно, web не должен рестартовать, а один active
-attempt ограничен 900 секундами. Deadline, pause state и отсутствие web
-restart входят в v2 before/after observations; истечение deadline оставляет
-cron suspended и требует нового baseline + нового operator GO.
+Human Render Support `2026-08-04` подтвердил, что `fromDatabase` создаёт
+реальные environment variables на существующих сервисах, cron schedules
+хранятся на самих cron-сервисах, а удаление/recreation Blueprint не меняет эти
+сервисы. Это provider-confirmed semantics, но не provider-observed execution.
+Поэтому оба DB-backed cron всё равно suspended на всё окно, web не должен
+рестартовать, а один active attempt ограничен 900 секундами. Deadline, pause
+state, отсутствие web restart и typed provider authority входят в v3
+before/after observations; истечение deadline оставляет cron suspended и
+требует нового baseline + нового operator GO.
 
 Ответ не является terminal proof: до фактической замены старый hook остаётся
 валидным. Удаление/recreation — отдельный destructive `OPERATOR GATE C0` по
@@ -304,7 +306,8 @@ residual. Ни новый Sync Hook incident, ни раскрытие учётн
 принять нельзя.
 
 Service/database continuity в Gate C0 имеет evidence class
-`operator_attested`, не provider-verified. Observation v2 сохраняет raw
+`operator_attested`, не provider-verified; отдельно фиксируется
+`providerConfirmedFromDatabaseContinuity=true`. Observation v3 сохраняет raw
 bounded non-secret projections (service ID/kind/status/plan/schedule/runtime,
 command, environment key names, structured DB binding and DB configuration),
 а comparator сам вычисляет stable code-point-ordered digests. Caller-supplied
@@ -388,9 +391,9 @@ receipt фиксируются отдельным reviewable-пакетом. Д�
 состава предусловий.
 
 Если старый Sync Hook ещё не инвалидирован, сначала исполняется отдельный
-`OPERATOR GATE C0`: fresh GO → suspend обоих cron → v2 before observation →
+`OPERATOR GATE C0`: fresh GO → suspend обоих cron → v3 before observation →
 удаление только старого Blueprint → bounded relink Preview → создание нового
-Blueprint → v2 after observation до 900-second deadline. Cron остаются
+Blueprint → v3 after observation до 900-second deadline. Cron остаются
 suspended до terminal comparison и отдельного Gate C; при deadline, web
 restart или неожиданном runnable cron окно останавливается без удаления
 какой-либо DB credential. Точная последовательность и stop rules живут в
