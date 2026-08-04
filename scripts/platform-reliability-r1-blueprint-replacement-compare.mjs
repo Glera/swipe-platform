@@ -6,12 +6,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const OBSERVATION_SCHEMA =
-  'platform-reliability-r1-blueprint-replacement-observation.v2';
+  'platform-reliability-r1-blueprint-replacement-observation.v3';
 const COMPARISON_SCHEMA =
-  'platform-reliability-r1-blueprint-replacement-comparison.v2';
-const SUPPORT_SCHEMA = 'platform-reliability-r1-render-support-response.v1';
+  'platform-reliability-r1-blueprint-replacement-comparison.v3';
+const SUPPORT_SCHEMA = 'platform-reliability-r1-render-support-response.v2';
 const INCIDENT_OBSERVED_AT = '2026-08-02T19:10:00Z';
 const MAXIMUM_REPLACEMENT_WINDOW_SECONDS = 15 * 60;
+const PROVIDER_CONTINUITY_AUTHORITY =
+  'provider_confirmed_existing_service_environment_and_schedule_continuity';
 const SHA256_RE = /^[a-f0-9]{64}$/;
 const GIT_SHA_RE = /^[a-f0-9]{40}$/;
 const SAFE_ID_RE = /^[a-z0-9][a-z0-9._:-]{0,127}$/;
@@ -422,7 +424,7 @@ function parseObservation(value, expectedPhase, label) {
     ),
     providerFromDatabaseContinuity: enumValue(
       value.safetyWindow.providerFromDatabaseContinuity,
-      ['unconfirmed_compensated_by_quiescence'],
+      [PROVIDER_CONTINUITY_AUTHORITY],
       `${label}.safetyWindow.providerFromDatabaseContinuity`,
     ),
   };
@@ -494,36 +496,43 @@ function parseSupport(value) {
     'schema',
     'observedAt',
     'channel',
-    'responseActorKind',
-    'responseDate',
-    'responseTimestampPrecision',
     'affectedBlueprintId',
     'affectedBlueprintIdentitySha256',
-    'providerStatements',
+    'remediationResponse',
+    'continuityResponse',
     'evidenceLimits',
     'nextAuthorizedBoundary',
     'secretValueSubmitted',
     'secretValueCaptured',
   ], 'support response');
   if (value.schema !== SUPPORT_SCHEMA) fail('support response schema is unsupported');
-  utcValue(value.observedAt, 'support response observedAt');
+  const observedAt = utcValue(value.observedAt, 'support response observedAt');
   enumValue(
     value.channel,
     ['authenticated_render_dashboard_support_conversation'],
     'support response channel',
   );
+  exactKeys(value.remediationResponse, [
+    'responseActorKind',
+    'responseDate',
+    'responseTimestampPrecision',
+    'providerStatements',
+  ], 'support response remediationResponse');
   enumValue(
-    value.responseActorKind,
+    value.remediationResponse.responseActorKind,
     ['human_render_support_agent'],
-    'support response responseActorKind',
+    'support response remediationResponse responseActorKind',
   );
-  utcDateValue(value.responseDate, 'support response responseDate');
+  const remediationResponseDate = utcDateValue(
+    value.remediationResponse.responseDate,
+    'support response remediationResponse responseDate',
+  );
   enumValue(
-    value.responseTimestampPrecision,
+    value.remediationResponse.responseTimestampPrecision,
     ['date_only'],
-    'support response responseTimestampPrecision',
+    'support response remediationResponse responseTimestampPrecision',
   );
-  exactKeys(value.providerStatements, [
+  exactKeys(value.remediationResponse.providerStatements, [
     'supportedRemediation',
     'oldHookInvalidatedByRemediation',
     'newBlueprintReceivesNewHook',
@@ -533,12 +542,44 @@ function parseSupport(value) {
     'hookCanInitiateBlueprintSync',
     'hookAloneCanChangeConnectedRepository',
     'providerIncidentAssessment',
-  ], 'support response providerStatements');
-  const statements = value.providerStatements;
+  ], 'support response remediationResponse providerStatements');
+  const statements = value.remediationResponse.providerStatements;
+  exactKeys(value.continuityResponse, [
+    'responseActorKind',
+    'responseDate',
+    'responseTimestampPrecision',
+    'providerStatements',
+  ], 'support response continuityResponse');
+  enumValue(
+    value.continuityResponse.responseActorKind,
+    ['human_render_support_agent'],
+    'support response continuityResponse responseActorKind',
+  );
+  const continuityResponseDate = utcDateValue(
+    value.continuityResponse.responseDate,
+    'support response continuityResponse responseDate',
+  );
+  enumValue(
+    value.continuityResponse.responseTimestampPrecision,
+    ['date_only'],
+    'support response continuityResponse responseTimestampPrecision',
+  );
+  exactKeys(value.continuityResponse.providerStatements, [
+    'fromDatabaseMaterializesServiceEnvironmentVariables',
+    'cronSchedulesStoredOnCronServices',
+    'blueprintReplacementChangesExistingServices',
+  ], 'support response continuityResponse providerStatements');
+  const continuity = value.continuityResponse.providerStatements;
+  if (
+    continuityResponseDate < remediationResponseDate
+    || continuityResponseDate > observedAt.slice(0, 10)
+  ) {
+    fail('support response chronology is invalid');
+  }
   exactKeys(value.evidenceLimits, [
     'providerHasNotExecutedRemediation',
     'oldHookTerminallyInvalidated',
-    'serviceRelinkContinuityObserved',
+    'providerHasNotObservedReplacementExecution',
     'providerSideActorAuditProvided',
     'lastSyncTimestampImpliesNoPostExposureSync',
   ], 'support response evidenceLimits');
@@ -553,9 +594,12 @@ function parseSupport(value) {
     || statements.hookCanInitiateBlueprintSync !== true
     || statements.hookAloneCanChangeConnectedRepository !== false
     || statements.providerIncidentAssessment !== 'fairly_minor'
+    || continuity.fromDatabaseMaterializesServiceEnvironmentVariables !== true
+    || continuity.cronSchedulesStoredOnCronServices !== true
+    || continuity.blueprintReplacementChangesExistingServices !== false
     || limits.providerHasNotExecutedRemediation !== true
     || limits.oldHookTerminallyInvalidated !== false
-    || limits.serviceRelinkContinuityObserved !== false
+    || limits.providerHasNotObservedReplacementExecution !== true
     || limits.providerSideActorAuditProvided !== false
     || limits.lastSyncTimestampImpliesNoPostExposureSync !== true
     || value.nextAuthorizedBoundary
@@ -578,6 +622,7 @@ function parseSupport(value) {
       return candidate;
     })(),
     lastSyncAt: utcValue(statements.lastObservedSyncAt, 'support response lastSyncAt'),
+    providerFromDatabaseContinuity: PROVIDER_CONTINUITY_AUTHORITY,
   };
 }
 
@@ -625,6 +670,14 @@ export function compareBlueprintReplacement({
   if (canonical(before.safetyWindow) !== canonical(after.safetyWindow)) {
     difference('safetyWindow');
   }
+  if (
+    before.safetyWindow.providerFromDatabaseContinuity
+      !== support.providerFromDatabaseContinuity
+    || after.safetyWindow.providerFromDatabaseContinuity
+      !== support.providerFromDatabaseContinuity
+  ) {
+    difference('providerFromDatabaseContinuityAuthority');
+  }
   const linkedServiceIdsSha256 = sha256(Buffer.from(
     before.services.map((service) => service.serviceId).join('\n'),
   ));
@@ -639,6 +692,8 @@ export function compareBlueprintReplacement({
     schema: COMPARISON_SCHEMA,
     evidenceClass: 'operator_attested',
     providerVerifiedServiceContinuity: false,
+    providerConfirmedFromDatabaseContinuity:
+      !differences.includes('providerFromDatabaseContinuityAuthority'),
     beforeObservedAt: before.observedAt,
     afterObservedAt: after.observedAt,
     oldBlueprintId: before.blueprint.id,

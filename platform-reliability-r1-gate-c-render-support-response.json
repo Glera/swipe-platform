@@ -1,27 +1,39 @@
 {
-  "schema": "platform-reliability-r1-render-support-response.v1",
-  "observedAt": "2026-08-03T06:42:17Z",
+  "schema": "platform-reliability-r1-render-support-response.v2",
+  "observedAt": "2026-08-04T06:34:25Z",
   "channel": "authenticated_render_dashboard_support_conversation",
-  "responseActorKind": "human_render_support_agent",
-  "responseDate": "2026-08-03",
-  "responseTimestampPrecision": "date_only",
   "affectedBlueprintId": "exs-d95qo3q8qa3s73ea23p0",
   "affectedBlueprintIdentitySha256": "sha256:556758c36536ddbc9a77c97faafcf68f7f89e34053a4e8721cd2ac938be0a19a",
-  "providerStatements": {
-    "supportedRemediation": "delete_existing_blueprint_then_create_new_blueprint",
-    "oldHookInvalidatedByRemediation": true,
-    "newBlueprintReceivesNewHook": true,
-    "existingServicesDeletedWithBlueprint": false,
-    "existingServicesExpectedToRelinkByDetection": true,
-    "lastObservedSyncAt": "2026-07-30T15:09:14Z",
-    "hookCanInitiateBlueprintSync": true,
-    "hookAloneCanChangeConnectedRepository": false,
-    "providerIncidentAssessment": "fairly_minor"
+  "remediationResponse": {
+    "responseActorKind": "human_render_support_agent",
+    "responseDate": "2026-08-03",
+    "responseTimestampPrecision": "date_only",
+    "providerStatements": {
+      "supportedRemediation": "delete_existing_blueprint_then_create_new_blueprint",
+      "oldHookInvalidatedByRemediation": true,
+      "newBlueprintReceivesNewHook": true,
+      "existingServicesDeletedWithBlueprint": false,
+      "existingServicesExpectedToRelinkByDetection": true,
+      "lastObservedSyncAt": "2026-07-30T15:09:14Z",
+      "hookCanInitiateBlueprintSync": true,
+      "hookAloneCanChangeConnectedRepository": false,
+      "providerIncidentAssessment": "fairly_minor"
+    }
+  },
+  "continuityResponse": {
+    "responseActorKind": "human_render_support_agent",
+    "responseDate": "2026-08-04",
+    "responseTimestampPrecision": "date_only",
+    "providerStatements": {
+      "fromDatabaseMaterializesServiceEnvironmentVariables": true,
+      "cronSchedulesStoredOnCronServices": true,
+      "blueprintReplacementChangesExistingServices": false
+    }
   },
   "evidenceLimits": {
     "providerHasNotExecutedRemediation": true,
     "oldHookTerminallyInvalidated": false,
-    "serviceRelinkContinuityObserved": false,
+    "providerHasNotObservedReplacementExecution": true,
     "providerSideActorAuditProvided": false,
     "lastSyncTimestampImpliesNoPostExposureSync": true
   },

@@ -437,6 +437,7 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   if (
     blueprintValidation.evidenceClass !== 'operator_attested'
     || blueprintValidation.providerVerifiedServiceContinuity !== false
+    || blueprintValidation.providerConfirmedFromDatabaseContinuity !== true
     || blueprintValidation.hookDispositionBasis
       !== 'provider_contract_plus_terminal_old_blueprint_absence'
     || !blueprintValidation.boundedReplacementConsistent
@@ -533,6 +534,8 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
       evidenceClass: blueprintValidation.evidenceClass,
       providerVerifiedServiceContinuity:
         blueprintValidation.providerVerifiedServiceContinuity,
+      providerConfirmedFromDatabaseContinuity:
+        blueprintValidation.providerConfirmedFromDatabaseContinuity,
       beforeSha256: blueprintValidation.beforeSha256,
       afterSha256: blueprintValidation.afterSha256,
       supportSha256: blueprintValidation.supportSha256,
