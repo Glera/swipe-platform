@@ -358,6 +358,18 @@ test('rejects forged or broadened support authority', () => {
     },
     (candidate) => {
       candidate.support.continuityResponse.providerStatements
+        .cronSchedulesStoredOnCronServices = false;
+    },
+    (candidate) => {
+      candidate.support.continuityResponse.providerStatements
+        .blueprintReplacementChangesExistingServices = true;
+    },
+    (candidate) => {
+      candidate.support.evidenceLimits.providerHasNotObservedReplacementExecution =
+        false;
+    },
+    (candidate) => {
+      candidate.support.continuityResponse.providerStatements
         .unreviewedAuthority = true;
     },
     (candidate) => {
