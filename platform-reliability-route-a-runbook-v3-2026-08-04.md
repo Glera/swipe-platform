@@ -2,8 +2,8 @@
 
 **Дата решения:** 2026-08-04
 
-**Статус:** DRAFT v3 · findings P1/P2 внесены · требуется независимое review ·
-не даёт execution authority
+**Статус:** DRAFT v3 · findings P1/P2 и follow-up P1 внесены · требуется
+независимое review · не даёт execution authority
 
 **Авторы:** Claude (исходный маршрут), Codex (редакция v3).
 
@@ -51,6 +51,8 @@ R1 выполняет и подтверждает:
 
 - production dump и полный restore на PostgreSQL 16;
 - migration rehearsal `0070→0073` на восстановленной копии;
+- patch B для Gate C0 comparator: ожидаемый source transition + равенство
+  reviewed `render.yaml` вместо недостижимого буквального равенства source SHA;
 - свежий pre-deploy data handoff и последующее закрытие external ingress.
 
 R1 **не** выполняет ручной production-догон `0070→0072`. Он обошёл бы advisory
@@ -141,15 +143,51 @@ revision, multi-head и подменённого policy/manifest digest; Postgre
 Gate C0 выполняется до публикации candidate image, одним attended окном и по
 отдельному exact operator GO.
 
+### B1. Patch B — обязательное предусловие
+
+Текущий comparator в meta PR #57 по-прежнему содержит:
+
+```js
+if (before.blueprint.sourceSha !== after.blueprint.sourceSha) {
+  difference('sourceSha');
+}
+```
+
+При relink старый Blueprint закономерно указывает на SHA своей последней
+синхронизации, а новый — на exact source-freeze merge. Поэтому буквальное
+равенство недостижимо по построению: корректный C0 завершится
+`differences=['sourceSha']`, exit 2.
+
+До Gate C0 поток R1 обязан внести и независимо отревьюить patch B:
+
+1. Удалить требование равенства `before.sourceSha === after.sourceSha`.
+2. Fail closed проверить обе стороны ожидаемого перехода: before SHA равен
+   зафиксированному старому Blueprint source, after SHA равен exact freeze merge
+   из immutable policy.
+3. Отдельно доказать byte-identical SHA-256 `render.yaml` между reviewed live
+   source и freeze candidate; совпадение содержимого не выводится из commit SHA.
+4. Сохранить проверки new Blueprint ID, unchanged service IDs/configuration,
+   `unexpectedSyncObserved=false` и все существующие stop rules.
+5. Добавить тест, где разные ожидаемые source SHA при одинаковом exact
+   `render.yaml` дают PASS, и негативные тесты для неверного before/after SHA,
+   изменённого `render.yaml` и unexpected sync.
+
+Patch B и обновлённая immutable policy должны быть слиты либо исполняться из
+явно content-addressed reviewed meta commit. Текущий head PR #57 без patch B не
+является исполнимым предусловием C0.
+
 Перед GO:
 
 1. Patch A уже влит, backend master и tree зафиксированы, CI зелёный.
 2. Backend PR #54 пересобран или перебазирован на этот exact master. Sentinel
    обязан падать с exit `78` до application startup и database access.
-3. Контракт/immutable policy из meta PR #57 обновлены: они пинят новый
+3. Patch B реализован, его позитивные/негативные тесты зелёные, exact bytes
+   независимо отревьюены.
+4. Контракт/immutable policy из meta PR #57 обновлены: они пинят новый
    pre-freeze master/tree, exact PR #54 head/tree, ordered merge parents/tree и
-   required post-revert tree. Старые пины `f2a8405…` использовать нельзя.
-4. Exact backend/meta diffs независимо отревьюены. Reviewer GO является только
+   required post-revert tree, expected before/after source transition и exact
+   `render.yaml` digest. Старые пины `f2a8405…` использовать нельзя.
+5. Exact backend/meta diffs независимо отревьюены. Reviewer GO является только
    evidence; merge и Render action он не разрешает.
 
 После отдельного `GO Gate C0`:
@@ -240,6 +278,8 @@ Production остаётся на `0070` до preDeploy candidate. Dump/restore/r
 STOP без импровизации, если:
 
 - patch A или его независимое review отсутствует;
+- patch B отсутствует либо comparator всё ещё требует буквального равенства
+  before/after `sourceSha`;
 - C0 policy не пинит фактический after-patch-A master и PR #54;
 - Gate C0/revert receipt неполон либо старый Sync Hook не инвалидирован;
 - backend master/workflow/migration graph изменился после candidate packet;
