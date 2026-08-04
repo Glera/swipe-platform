@@ -1,0 +1,120 @@
+{
+  "schema": "platform-reliability-r1a-lkg-smoke-source-merge-failure.v1",
+  "status": "FAIL_CONTAINED_NO_MERGE",
+  "preparedAt": "2026-08-04T06:45:00Z",
+  "operatorAuthority": {
+    "packetMetaCommit": "c7aa22eef03e5290aa73919bd02671c42ec2c212",
+    "windowSeconds": 1800,
+    "consumed": true,
+    "mergeRetryAuthorized": false
+  },
+  "preflight": {
+    "metaHead": "c7aa22eef03e5290aa73919bd02671c42ec2c212",
+    "backendMaster": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "pullRequest": 53,
+    "pullRequestState": "OPEN",
+    "pullRequestDraft": true,
+    "pullRequestMergeState": "CLEAN",
+    "head": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "tree": "75dbd88045b5b301a903d9bc917c006cd2ceaffe",
+    "commitCount": 1,
+    "successfulChecks": 28,
+    "totalChecks": 28,
+    "githubProductionEnvironmentAbsent": true,
+    "repositoryReleaseAuthorityAbsent": true,
+    "activeWorkflowRuns": 0
+  },
+  "localPreparation": {
+    "receiptDirectoryMode": "0700",
+    "handoffMode": "0600",
+    "pythonExecutable": "/private/tmp/p4g-r1a-lkg-merge.Psdr8r/venv/bin/python",
+    "pythonVersion": "Python 3.13.7",
+    "packages": [
+      "Mako==1.3.12",
+      "MarkupSafe==3.0.3",
+      "SQLAlchemy==2.0.36",
+      "alembic==1.14.0",
+      "pip==25.2",
+      "rfc8785==0.1.4",
+      "typing_extensions==4.16.0"
+    ],
+    "imports": "PASS",
+    "bidirectionalSharedHomeProbe": "PASS",
+    "probeRemoved": true,
+    "preKeyProbeCursorCorrection": true,
+    "preKeyHttpRequests": 0
+  },
+  "providerEvidence": {
+    "captureFile": "platform-reliability-r1a-lkg-smoke-source-merge-failure-provider-capture-20260804.json",
+    "canonicalCaptureReceiptSha256": "d23c4efa1784c9f0128870aec072b432b212ae4b77a7e337565f341db37b9f8e",
+    "trackedCaptureFileSha256": "2a5cabcc9556bbd07bfdb0a3f51d1526078aeeefedf7d0d941566cf2f9f76f45",
+    "captureObservedAt": "2026-08-04T06:40:22.449755Z",
+    "captureStatus": "PASS",
+    "mergeSafe": true,
+    "sourceBranch": "master",
+    "dockerfilePath": "./Dockerfile.bake",
+    "blueprintAutoSync": false,
+    "allServiceAutoDeploy": false,
+    "inventoryFile": "platform-reliability-r1a-lkg-smoke-source-merge-failure-provider-inventory-20260804.json",
+    "inventoryFileSha256": "dc8a748f8d5cf36acdb1c3377f92301e093809ccd3f311f785182d5bb91247f0",
+    "inventoryObservedAt": "2026-08-04T06:41:49.697316+00:00",
+    "activeBlueprintSyncs": 0,
+    "activeDeploysOrPreDeploys": 0,
+    "activeJobs": 0,
+    "operations": [
+      "GET"
+    ],
+    "authenticatedGetCountBeforeRevoke": 13,
+    "revokedCredentialGetCount": 1,
+    "inventoryBootstrap": {
+      "firstProjectionStoppedOnSyncStateFieldWithoutWritingAReceipt": true,
+      "fieldNameOnlyShapeProbeGetCount": 3,
+      "finalProjection": "PASS"
+    }
+  },
+  "hardStop": {
+    "code": "masked_credential_prefix_entered_forbidden_browser_output",
+    "detectedAfter": "2026-08-04T06:41:49.697316+00:00",
+    "detectedBefore": "2026-08-04T06:44:29Z",
+    "surface": [
+      "DOM snapshot",
+      "targeted revoke-dialog text observation"
+    ],
+    "credentialMaterialRepeatedInThisReceipt": false,
+    "credentialHashed": false,
+    "productionImpact": false
+  },
+  "credentialContainment": {
+    "temporaryRenderKeysCreated": 1,
+    "replacementKeyCreated": false,
+    "keyRevokedBeforeMerge": true,
+    "emptyUiInventoryAfterRevoke": true,
+    "revokedKeyHttpStatus": 401,
+    "handoffRemoved": true,
+    "persistentCredentialRemaining": false
+  },
+  "sourceMerge": {
+    "markReadyAttempted": false,
+    "mergeAttempted": false,
+    "pullRequestRemainsDraft": true,
+    "backendMasterUnchanged": true,
+    "postContainmentMaster": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "postContainmentHead": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "postContainmentSuccessfulChecks": 28,
+    "postContainmentActiveWorkflowRuns": 0
+  },
+  "forbiddenActions": {
+    "workflowDispatchOrRerun": false,
+    "imageAction": false,
+    "githubEnvironmentMutation": false,
+    "persistentRenderServiceMutation": false,
+    "deploy": false,
+    "productionMigration": false,
+    "rehearsal": false,
+    "cutover": false,
+    "stage1RuntimeAction": false,
+    "generativeFeedExpansion": false
+  },
+  "failurePolicyConformed": true,
+  "nextBoundary": "No replacement key or merge retry is authorized. Independent disposition and a new exact operator authority are required before another source-merge attempt."
+}
