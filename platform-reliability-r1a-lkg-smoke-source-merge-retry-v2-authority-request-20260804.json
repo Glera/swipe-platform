@@ -1,0 +1,195 @@
+{
+  "schema": "platform-release-lkg-smoke-source-merge-retry-v2-authority-request.v1",
+  "status": "DRAFT_REQUIRES_INDEPENDENT_REVIEW_AND_EXPLICIT_OPERATOR_GO",
+  "authority": "none",
+  "preparedAt": "2026-08-04T07:05:00Z",
+  "repository": "Glera/swipe-backend",
+  "acceptedFailureEvidence": {
+    "executionCommit": "69430e3444497249ca4d623ea403431b511bda47",
+    "acceptedReviewCommit": "29d184e458509e37d7caec72b07d5b3d9a9f4e9c",
+    "reviewVerdict": "GO",
+    "reviewP1P2": 0,
+    "reviewSession": "f9bea6a7-c346-4d53-a2aa-7ca026ccf45e",
+    "failureCode": "masked_credential_prefix_entered_forbidden_browser_output",
+    "priorAuthorityConsumed": true
+  },
+  "pullRequest": {
+    "number": 53,
+    "url": "https://github.com/Glera/swipe-backend/pull/53",
+    "expectedState": "OPEN",
+    "expectedDraft": true,
+    "expectedMergeState": "CLEAN",
+    "baseRef": "master",
+    "baseSha": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "headRef": "codex/r1a-lkg-pythonpath-fix-20260803",
+    "headSha": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "headTree": "75dbd88045b5b301a903d9bc917c006cd2ceaffe",
+    "commitCount": 1,
+    "expectedSuccessfulChecks": 28
+  },
+  "ci": {
+    "imageRun": {
+      "id": 30849622831,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "success",
+      "headSha": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+      "artifactCount": 0
+    },
+    "postgresRun": {
+      "id": 30849622812,
+      "attempt": 1,
+      "event": "pull_request",
+      "conclusion": "success",
+      "headSha": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+      "artifactCount": 0
+    }
+  },
+  "providerCapture": {
+    "ownerId": "tea-d1m4lmali9vc73euvelg",
+    "blueprintId": "exs-d95qo3q8qa3s73ea23p0",
+    "webServiceId": "srv-d95r3bfavr4c73aqsi4g",
+    "sequencingCronId": "crn-d9kej0u1egvs73engu7g",
+    "materializeCronId": "crn-d9e6vmtaeets73ai8cj0",
+    "expectedSourceBranch": "master",
+    "expectedDockerfilePath": "./Dockerfile.bake",
+    "expectedBlueprintAutoSync": false,
+    "expectedAllAutoDeploy": false,
+    "expectedActiveBlueprintSyncs": 0,
+    "expectedActiveDeploysOrPreDeploys": 0,
+    "expectedActiveJobs": 0,
+    "operations": [
+      "GET"
+    ],
+    "captureScriptGitBlob": "0198bf5d216c3a05efdd93445e698de6d3a6af4e",
+    "captureTestGitBlob": "2be064b24801343b361383fa10492dbfb2bfff4f",
+    "requirementsLockGitBlob": "5dbc2f0f5e0859d13a91f0ab4ce4543b2dd7d55a"
+  },
+  "temporaryCredential": {
+    "maximumKeysCreated": 1,
+    "scope": "temporary account-wide Render API key",
+    "initialUiInventoryMustBeEmpty": true,
+    "handoffRoot": "/Users/gleb",
+    "handoffMode": "0600",
+    "revealContract": "role=textbox DIV; one non-emitting textContent transfer to the precreated handoff",
+    "revokeBeforeMerge": true,
+    "requireEmptyUiInventoryAfterRevoke": true,
+    "requireRevokedKeyHttpStatus": 401,
+    "replacementKeyAuthorized": false
+  },
+  "browserNoObservationContract": {
+    "begins": "immediately before the Create API Key submit click",
+    "ends": "only after the revoke dialog is hidden, the exact temporary key name is absent and No provisioned API keys is visible",
+    "unavoidableProviderState": "Render internally renders a masked key representation in the key-list row and revoke confirmation dialog",
+    "allowedInterpretation": "the masked representation may exist only in unobserved provider DOM; it may never be returned, emitted, snapshotted, screenshotted, logged, copied, hashed or written",
+    "forbiddenAfterSubmitUntilEnd": [
+      "DOM snapshot",
+      "screenshot",
+      "innerText",
+      "textContent except the single reveal-to-handoff read",
+      "inputValue or value read",
+      "attribute or tag diagnostics",
+      "page or locator evaluate returning DOM text",
+      "browser dev logs",
+      "clipboard read or write",
+      "CUA or DOM-CUA observation",
+      "any tool output derived from the key-list row or revoke dialog"
+    ],
+    "allowedNonEmittingOperations": [
+      "count or visibility checks on pre-grounded create/empty anchors or the pre-committed revoke selector contract",
+      "click and waitFor on pre-grounded create anchors or the pre-committed revoke selector contract",
+      "the single validated reveal textContent read into process memory and direct fsync handoff write",
+      "exact key-name absence and No provisioned API keys visibility checks after revoke"
+    ],
+    "preGroundedCreateLocators": [
+      "button Create API Key",
+      "dialog Create API Key",
+      "textbox API key name",
+      "dialog-scoped button Create API Key",
+      "post-submit div[role=textbox]",
+      "dialog-scoped button Done"
+    ],
+    "preCommittedRevokeLocatorContract": [
+      "li.border-b.border-primary filtered by the exact non-secret temporary key name",
+      "row-scoped button Menu",
+      "unique role=menu",
+      "menuitem Revoke",
+      "unique role=dialog",
+      "dialog-scoped button Revoke API Key",
+      "exact temporary key-name text",
+      "exact No provisioned API keys text"
+    ],
+    "revokeBlock": "one non-emitting browser-runtime block performs all live locator counts, Menu/Revoke/confirm clicks, waits for hidden/absence/empty inventory and returns no observation",
+    "noDiagnosticFallback": true,
+    "structuralMismatchFallback": "make no DOM observation; expose the existing signed-in tab only for attended manual operator revocation by exact non-secret key name; after operator confirmation require exact HTTP 401, cleanup and terminal STOP with no merge"
+  },
+  "execution": {
+    "windowSeconds": 1800,
+    "freshReceiptDirectoryMode": "0700",
+    "precreateFreshHandoff": true,
+    "probeSharedHomeBeforeKeyCreation": true,
+    "pinInterpreterAndDisposableVenvPackagesBeforeKeyCreation": true,
+    "repeatGithubCasAfterProviderCaptureRevocationAnd401": true,
+    "markReady": true,
+    "mergeMethod": "merge commit",
+    "exactHeadMatch": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "expectedMergeFirstParent": "f2a840517956c4f480fc9d8aaf6f832ebde489d9",
+    "expectedMergeSecondParent": "223ab97cf6e24e0542337d2a39e1bce9529f5d00",
+    "expectedMergeTree": "75dbd88045b5b301a903d9bc917c006cd2ceaffe",
+    "observeAutomaticPushCi": true,
+    "manualWorkflowDispatches": 0,
+    "mergeAttempts": 1
+  },
+  "requiredPreflight": [
+    "the operator names the final independently reviewed retry-v2 meta commit exactly",
+    "the accepted contained-failure execution and review commits resolve exactly",
+    "backend master and PR 53 still equal every pinned base/head/tree/check/CI fact",
+    "GitHub production environment and repository release authority remain absent",
+    "no active source-merge, publication, cutover, deploy or job workflow exists",
+    "Render API-key inventory is empty before creation",
+    "all live create locators and empty-inventory anchors are grounded before submit; the reviewed revoke selector contract is pinned but its live counts occur only inside the post-submit non-emitting block",
+    "shared-home, 0600 handoff, 0700 receipt directory and pinned Python 3.13 environment pass before key creation"
+  ],
+  "hardStops": [
+    "any exact GitHub/meta/source/CI identity or absence check differs",
+    "any browser observation forbidden by browserNoObservationContract occurs after submit",
+    "the reveal or revoke block cannot validate every locator count locally without emission",
+    "provider capture or inventory is non-GET, identity-mismatched, not master plus ./Dockerfile.bake, reports automation enabled or reports an active operation",
+    "key revocation is not proven by empty unobserved UI inventory and exact HTTP 401 before merge",
+    "final GitHub CAS or 28-check success set differs",
+    "merge does not complete synchronously with exact head and expected parents/tree",
+    "deadline expires"
+  ],
+  "failurePolicy": {
+    "beforeMerge": "attempt only the pre-committed non-emitting revoke block, prove 401, remove handoff and temp material, preserve bounded evidence and stop",
+    "revokeBlockMismatch": "do not inspect key-list or dialog text and do not create another key; hand the existing signed-in tab to the attended operator for manual revocation by exact non-secret key name, then require 401, cleanup and terminal STOP without merge",
+    "afterMergePostconditionMismatch": "do not revert or repair; cleanup, preserve evidence and stop for operator disposition",
+    "replacementKey": false,
+    "mergeRetry": false
+  },
+  "allowedActionsAfterSeparateGo": [
+    "perform exact read-only GitHub/meta/source/CI preflight",
+    "create and delete one non-secret shared-home probe",
+    "precreate one 0600 handoff, one 0700 receipt directory and one pinned disposable Python environment",
+    "ground live create and empty-inventory anchors before submit and pin the reviewed revoke selector contract",
+    "create exactly one temporary account-wide Render API key through the one-block reveal contract",
+    "perform only the committed GET-only provider capture and bounded inventory",
+    "revoke through the non-emitting structural block, prove exact 401 and remove all temporary material",
+    "repeat exact GitHub CAS, mark only PR 53 ready and merge its exact head once with merge-commit semantics",
+    "observe only automatic push CI and publish bounded receipts"
+  ],
+  "forbiddenActions": [
+    "create a replacement Render key or use the key for a non-GET API request",
+    "perform any post-submit browser snapshot, screenshot, text read, diagnostic or clipboard action outside the single secret handoff read",
+    "mutate any Render Blueprint, service, environment, source, image, deploy or job",
+    "create or mutate the GitHub production environment or repository secrets or variables",
+    "manually dispatch or rerun any workflow",
+    "publish, rebuild, delete or relabel any image or package version",
+    "merge any pull request other than exact PR 53 head",
+    "enable auto-merge or retry a failed merge",
+    "deploy, migrate production, rehearse or cut over",
+    "enable, mutate or roll out Stage 1 runtime",
+    "expand generative-feed scope"
+  ],
+  "nextAuthority": "Only after exact merge proof, green automatic push CI and independent acceptance may a separately reviewed candidate-v4 publication request be prepared."
+}
