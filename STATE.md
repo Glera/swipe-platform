@@ -21,6 +21,12 @@
   деталь патча C: GitHub var `RENDER_BLUEPRINT_ID` и константа
   `scripts/platform-release-coordinator.py:47` меняются ОДНИМ шагом между
   терминальным C0 и финальным master (`HANDOFF-P4G-STAGE1-2-2026-08-04.md` §4).
+- Прогресс поздний вечер 04.08: R1 закрыл P2 (PR #57, exact head `578366c`,
+  focused 8/8 + exact-head CI PASS) — ждёт diff-only re-review хаба; R1-A
+  выполнил GitHub preflight (environment + 5 vars, PR #58 head `9095892`,
+  патч C = один bounded post-C0 шаг) — ждёт re-review. ⚠️ R1-A анонсировал
+  «следующий пакет — patch A» при отозванном патче A (`0c3fbc6`) — передано
+  хабу на явный вердикт при re-review.
 
 ### 2. Портфель + P4G (Stage 2 на паузе)
 - Владелец: frontier-сессия (Fable).
