@@ -116,7 +116,7 @@
     ],
     "allowedNonEmittingOperations": [
       "count or visibility checks on pre-grounded create/empty anchors or the pre-committed revoke selector contract",
-      "click and waitFor on pre-grounded create anchors or the pre-committed revoke selector contract",
+      "click and waitFor on pre-grounded create anchors, the post-submit create locator contract or the pre-committed revoke selector contract",
       "the single validated reveal textContent read into process memory and direct fsync handoff write",
       "exact key-name absence and No provisioned API keys visibility checks after revoke",
       "block-local locator counts that are never emitted; this is the explicit non-emitting reconciliation of the accepted NC-2 diagnostic ban",
@@ -212,7 +212,7 @@
     "manually dispatch or rerun any workflow",
     "publish, rebuild, delete or relabel any image or package version",
     "merge any pull request other than exact PR 53 head",
-    "enable auto-merge or retry a failed merge",
+    "enable auto-merge, queue a merge or retry a failed merge",
     "deploy, migrate production, rehearse or cut over",
     "enable, mutate or roll out Stage 1 runtime",
     "expand generative-feed scope"
