@@ -41,6 +41,8 @@ const PROVIDER_BASELINE =
   'platform-reliability-r1-0-render-receipt.json';
 const BLUEPRINT_SUPPORT_RESPONSE =
   'platform-reliability-r1-gate-c-render-support-response.json';
+const BLUEPRINT_SOURCE_POLICY =
+  'platform-reliability-r1-gate-c0-source-freeze-policy.json';
 
 export const REQUIRED_EVIDENCE_FILES = Object.freeze([
   'platform-reliability-r1-0-snapshot-2.tsv',
@@ -371,7 +373,7 @@ function readArtifact(root, relativePath) {
   }
 }
 
-export function scanEvidence(rootInput, { baseRef } = {}) {
+export function scanEvidence(rootInput, { baseRef, backendRepo } = {}) {
   if (typeof baseRef !== 'string' || !baseRef.trim()) {
     fail('baseRef is required');
   }
@@ -386,6 +388,7 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
   const snapshotBaseline = readArtifact(root, SNAPSHOT_BASELINE);
   const providerBaseline = readArtifact(root, PROVIDER_BASELINE);
   const blueprintSupport = readArtifact(root, BLUEPRINT_SUPPORT_RESPONSE);
+  const blueprintSourcePolicy = readArtifact(root, BLUEPRINT_SOURCE_POLICY);
   const expectedDelta = analyzeDeltaEvidence({
     beforePath: path.join(root, SNAPSHOT_BASELINE),
     beforeBytes: snapshotBaseline.bytes,
@@ -432,6 +435,8 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
     beforeBytes: beforeArtifact.bytes,
     afterBytes: afterArtifact.bytes,
     supportBytes: blueprintSupport.bytes,
+    sourcePolicyBytes: blueprintSourcePolicy.bytes,
+    backendRepo,
     publishedComparisonBytes: comparisonArtifact.bytes,
   }).result;
   if (
@@ -474,9 +479,9 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
     || replacementDisposition.blueprintContinuity.after.blueprintId
       !== blueprintValidation.newBlueprintId
     || replacementDisposition.blueprintContinuity.before.sourceSha
-      !== blueprintValidation.sourceSha
+      !== blueprintValidation.beforeSourceSha
     || replacementDisposition.blueprintContinuity.after.sourceSha
-      !== blueprintValidation.sourceSha
+      !== blueprintValidation.afterSourceSha
     || replacementDisposition.blueprintContinuity
       .before.linkedServiceIdsSha256
       !== blueprintValidation.linkedServiceIdsSha256
@@ -540,6 +545,16 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
       afterSha256: blueprintValidation.afterSha256,
       supportSha256: blueprintValidation.supportSha256,
       comparisonSha256: comparisonArtifact.metadata.sha256,
+      sourcePolicySha256:
+        blueprintValidation.sourceTransition.sourcePolicySha256,
+      sourceTransitionAuthority:
+        blueprintValidation.sourceTransition.authority,
+      beforeSourceSha: blueprintValidation.beforeSourceSha,
+      afterSourceSha: blueprintValidation.afterSourceSha,
+      renderBytesEqual:
+        blueprintValidation.sourceTransition.renderBytesEqual,
+      forbiddenRuntimePathAbsent:
+        blueprintValidation.sourceTransition.forbiddenRuntimePathAbsent,
     },
     requiredFiles: files,
     secretMatches: 0,
@@ -550,24 +565,30 @@ export function scanEvidence(rootInput, { baseRef } = {}) {
 
 function parseArgs(argv) {
   if (
-    argv.length !== 4
+    argv.length !== 6
     || argv[0] !== '--root'
     || !argv[1]
     || argv[2] !== '--base-ref'
     || !argv[3]
+    || argv[4] !== '--backend-repo'
+    || !argv[5]
   ) {
     fail(
       'usage: platform-reliability-r1-evidence-scan.mjs '
-      + '--root <directory> --base-ref <git-ref>',
+      + '--root <directory> --base-ref <git-ref> '
+      + '--backend-repo <swipe-backend-git-worktree>',
     );
   }
-  return { root: argv[1], baseRef: argv[3] };
+  return { root: argv[1], baseRef: argv[3], backendRepo: argv[5] };
 }
 
 export function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   process.stdout.write(
-    `${JSON.stringify(scanEvidence(args.root, { baseRef: args.baseRef }), null, 2)}\n`,
+    `${JSON.stringify(scanEvidence(args.root, {
+      baseRef: args.baseRef,
+      backendRepo: args.backendRepo,
+    }), null, 2)}\n`,
   );
 }
 

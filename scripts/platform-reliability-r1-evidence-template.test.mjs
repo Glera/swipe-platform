@@ -66,7 +66,10 @@ test('final evidence template preserves every completion requirement and gate', 
   );
   assert.match(markdown, /r1-window-blueprint-sync-hook-dom-20260802-1/);
   assert.match(markdown, /replace_blueprint/);
-  assert.match(markdown, /replaced_same_source_and_services/);
+  assert.match(
+    markdown,
+    /replaced_reviewed_source_transition_and_same_services/,
+  );
 });
 
 test('operator receipt template is valid JSON with exact A-G confirmations', () => {
@@ -143,7 +146,7 @@ test('operator receipt template is valid JSON with exact A-G confirmations', () 
   assert.equal(
     receipt.secretExposureIncidents[1].disposition
       .blueprintContinuity.comparisonResult,
-    'replaced_same_source_and_services',
+    'replaced_reviewed_source_transition_and_same_services',
   );
   assert.equal(
     receipt.secretExposureIncidents[1].disposition
@@ -283,10 +286,23 @@ test('Gate C records the human Render remediation without claiming completion', 
     /dd250d08cfd65723532fd0f59d63064e88c38a24/,
   );
   assert.deepEqual(freezePolicy, {
-    schema: 'platform-reliability-r1-gate-c0-source-freeze-policy.v1',
+    schema: 'platform-reliability-r1-gate-c0-source-freeze-policy.v2',
     status: 'reviewed_candidate_not_authorized',
     backendRepository: 'Glera/swipe-backend',
     backendPullRequest: 54,
+    blueprintSourceBranch: 'master',
+    blueprintPath: 'render.yaml',
+    liveBlueprintSourceSha: '7b41e96ad0d979863159ebdd356122af6295a203',
+    liveRenderSha256:
+      'd661199516dae5290e2bdc7399153bf95415cff10f29c310ccb5066b9a5c690f',
+    freezeManifestPath:
+      'deploy/platform-reliability-r1-gate-c0-freeze.v1.json',
+    freezeManifestSha256:
+      '6295d471046fc6e151a7d6b1148a7f8200f5977f4cfbf5ae8dbdef97db465325',
+    sentinelDockerfilePath: 'Dockerfile.bake',
+    sentinelDockerfileSha256:
+      '9d86b119dfc22b8dc41ca7a7d4bd80b945476cb0c36e3169b1030c44364453e1',
+    forbiddenRuntimePath: 'scripts/start-bake-runtime.sh',
     preFreezeMasterSha: 'f2a840517956c4f480fc9d8aaf6f832ebde489d9',
     preFreezeMasterTree: 'a7e4c6462d4d30d0af61eae4672792203739d832',
     freezeCandidateHead: 'dd250d08cfd65723532fd0f59d63064e88c38a24',

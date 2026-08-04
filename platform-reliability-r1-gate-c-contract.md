@@ -73,8 +73,9 @@ Every item is mandatory before **Approve**:
     For this incident the supported path is deletion of the old Blueprint and
     creation of a new Blueprint. PASS requires a separate operator `GO Gate
     C0`, terminal absence of the old Blueprint, a different new Blueprint ID,
-    unchanged service IDs/configuration, exact source continuity and Auto Sync
-    `No`. Merely disabling Auto Sync or disconnecting/reconnecting does not
+    unchanged service IDs/configuration, the exact policy-bound live-source →
+    freeze-merge transition and Auto Sync `No`. Merely disabling Auto Sync or
+    disconnecting/reconnecting does not
     satisfy this precondition.
 11. Gate C0 source-freeze evidence proves that backend master was exact
     `f2a840517956c4f480fc9d8aaf6f832ebde489d9` / tree
@@ -172,6 +173,10 @@ cron or database. Before its operator confirmation:
    ordered parents and candidate tree. Its `render.yaml` must be byte-identical
    to reviewed live source `7b41e96ad0d979863159ebdd356122af6295a203`,
    and its sentinel must fail before application startup or database access.
+   The policy also pins the exact Git-object digests for live `render.yaml`,
+   the freeze manifest and sentinel, plus absence of
+   `scripts/start-bake-runtime.sh`; observation JSON cannot supply or override
+   those hashes.
    Backend PR #54 remains draft and unmerged before operator authorization.
 6. Show the operator the exact backend PR #54 head, old Blueprint target, both cron
    targets, the 15-minute replacement deadline, a separate source-freeze
@@ -241,18 +246,26 @@ After approval:
     node scripts/platform-reliability-r1-blueprint-replacement-compare.mjs \
       --before platform-reliability-r1-gate-c0-blueprint-before.json \
       --after platform-reliability-r1-gate-c0-blueprint-after.json \
-      --support platform-reliability-r1-gate-c-render-support-response.json
+      --support platform-reliability-r1-gate-c-render-support-response.json \
+      --source-policy platform-reliability-r1-gate-c0-source-freeze-policy.json \
+      --backend-repo /absolute/path/to/clean/swipe-backend-worktree
     ```
 
-    A standalone rerun with `--verify-json` must PASS before Gate C is
-    prepared. The comparator emits `evidenceClass=operator_attested`,
+    A standalone rerun with the same policy and backend worktree plus
+    `--verify-json` must PASS before Gate C is prepared. The comparator reads
+    both source commits, the ordered merge parents/tree, live/freeze
+    `render.yaml`, the freeze manifest, sentinel and forbidden runtime path
+    directly from the exact Git objects. It emits
+    `sourceTransition.authority=exact_git_objects_bound_by_reviewed_freeze_policy`,
+    `evidenceClass=operator_attested`,
     `providerVerifiedServiceContinuity=false`,
     `providerConfirmedFromDatabaseContinuity=true` and derives
     service/database digests from raw bounded projections with code-point
     ordering and stable object-key ordering. It rejects either observation when
     `unexpectedSyncObserved` is true. The final evidence scanner replays the
-    comparison from the exact bytes it scanned and cross-binds all three files
-    to the operator receipt.
+    comparison from the exact bytes it scanned and the same exact backend Git
+    objects, then cross-binds both source SHAs and all three evidence files to
+    the operator receipt.
 
 Any duplicate resource proposal, unexpected sync, source drift, service-ID
 change or deploy outcome other than the bounded sentinel failure above is

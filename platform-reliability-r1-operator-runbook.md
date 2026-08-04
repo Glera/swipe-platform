@@ -323,7 +323,12 @@ Service/database continuity в Gate C0 имеет evidence class
 bounded non-secret projections (service ID/kind/status/plan/schedule/runtime,
 command, environment key names, structured DB binding and DB configuration),
 а comparator сам вычисляет stable code-point-ordered digests. Caller-supplied
-configuration hashes в observation запрещены. После terminal old-Blueprint
+configuration hashes в observation запрещены. До terminal comparison source
+transition проверяется отдельным comparator v4: разные before/after `sourceSha`
+допустимы только как exact merge с ordered parents/tree из reviewed freeze
+policy. SHA-256 `render.yaml`, freeze-manifest и sentinel вычисляются из Git
+objects чистого backend worktree; operator observation не является authority
+для этих digest. После terminal old-Blueprint
 absence локальная сохранённая копия hook становится inert, но не исчезает:
 она удаляется отдельным cleanup receipt либо получает явного owner/deadline.
 
@@ -681,7 +686,7 @@ fresh internal proof и `/32` снова удаляется. Если external r
 | RPO/RTO observed | requested point, Start, Available и validation timestamps + вычисленные seconds |
 | External ingress closed | merged Blueprint `ipAllowList: []` identity + sync receipt + empty allowlist + post-change protocol rejection |
 | Internal remains green | post-closure fresh DB proof каждого consumer |
-| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; любой новый typed secret-exposure incident имеет operator-approved terminal rotation/invalidation proof; известный pre-window Sync Hook либо реально ротирован/отозван, либо представлен единственным exact `operator_accepted_residual` с review deadline и reopen triggers; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master > platform-reliability-r1-secret-scan-receipt.json` PASS |
+| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; любой новый typed secret-exposure incident имеет operator-approved terminal rotation/invalidation proof; известный pre-window Sync Hook либо реально ротирован/отозван, либо представлен единственным exact `operator_accepted_residual` с review deadline и reopen triggers; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master --backend-repo /absolute/path/to/clean/swipe-backend-worktree > platform-reliability-r1-secret-scan-receipt.json` PASS |
 
 Цель R1 считается выполненной только после независимого review всего пакета,
 а не после последнего клика в Render. При `operator_accepted_residual` итог

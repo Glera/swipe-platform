@@ -1562,11 +1562,11 @@ export function validateOperatorEvidence(
       || continuityObservations.before.linkedServiceConfigurationSha256
         !== continuityObservations.after.linkedServiceConfigurationSha256
       || continuityObservations.before.sourceSha
-        !== continuityObservations.after.sourceSha
+        === continuityObservations.after.sourceSha
       || consumerSourceShas.size !== 1
-      || !consumerSourceShas.has(continuityObservations.before.sourceSha)
+      || !consumerSourceShas.has(continuityObservations.after.sourceSha)
       || blueprintContinuity.comparisonResult
-        !== 'replaced_same_source_and_services'
+        !== 'replaced_reviewed_source_transition_and_same_services'
     );
     const sameBlueprintContinuityInvalid = !replacement && (
       JSON.stringify({
@@ -1590,7 +1590,7 @@ export function validateOperatorEvidence(
       fail(
         `${location}.disposition.blueprintContinuity`,
         replacement
-          ? 'must prove a different Blueprint with equal source and linked services'
+          ? 'must prove a different Blueprint with a reviewed source transition and equal linked services'
           : 'must prove equal dated observations before and after disposition',
       );
     }

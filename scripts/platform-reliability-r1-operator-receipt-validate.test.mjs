@@ -132,10 +132,11 @@ function addBlueprintReplacementIncident(receipt) {
   const targetSha256 = digest(oldBlueprintId);
   const linkedServiceIdsSha256 = digest('srv-cron\nsrv-web');
   const linkedServiceConfigurationSha256 = digest('stable-service-config');
-  const sourceSha = 'a'.repeat(40);
+  const beforeSourceSha = 'a'.repeat(40);
+  const afterSourceSha = 'b'.repeat(40);
   for (const consumer of receipt.consumerClosure.consumers) {
     consumer.blueprintReferenceId = newBlueprintId;
-    consumer.pinnedSourceSha = sourceSha;
+    consumer.pinnedSourceSha = afterSourceSha;
   }
   receipt.ingressClosure.autoSyncControl.linkedBlueprintId = newBlueprintId;
   receipt.secretExposureIncidents.push({
@@ -174,7 +175,7 @@ function addBlueprintReplacementIncident(receipt) {
           sourceRepository: 'Glera/swipe-backend',
           sourceBranch: 'master',
           blueprintPath: 'render.yaml',
-          sourceSha,
+          sourceSha: beforeSourceSha,
           evidenceSha256: digest('old-blueprint-evidence'),
           linkedServiceIdsSha256,
           linkedServiceConfigurationSha256,
@@ -186,13 +187,14 @@ function addBlueprintReplacementIncident(receipt) {
           sourceRepository: 'Glera/swipe-backend',
           sourceBranch: 'master',
           blueprintPath: 'render.yaml',
-          sourceSha,
+          sourceSha: afterSourceSha,
           evidenceSha256: digest('new-blueprint-evidence'),
           linkedServiceIdsSha256,
           linkedServiceConfigurationSha256,
           autoSyncState: 'disabled',
         },
-        comparisonResult: 'replaced_same_source_and_services',
+        comparisonResult:
+          'replaced_reviewed_source_transition_and_same_services',
       },
       terminalProofSha256: digest('blueprint-replacement-terminal-proof'),
       secretsCaptured: false,
@@ -710,7 +712,7 @@ test('accepts provider-supported Blueprint replacement and rejects continuity sh
     },
     (candidate) => {
       candidate.secretExposureIncidents[1].disposition
-        .blueprintContinuity.after.sourceSha = 'b'.repeat(40);
+        .blueprintContinuity.after.sourceSha = 'c'.repeat(40);
     },
     (candidate) => {
       const continuity = candidate.secretExposureIncidents[1].disposition
