@@ -28,11 +28,12 @@ creation and again after provider capture, key revocation and exact HTTP 401.
 
 ## Corrected browser boundary
 
-Before submit, while no key exists, the executor grounds every live create and
-empty-inventory anchor and pins the reviewed revoke selector contract. The
-key-row and revoke-dialog locators cannot exist yet; their live counts run only
-inside the later non-emitting block. After the Create API Key submit click, a
-strict browser no-observation zone begins and remains active through revoke and
+Before submit, while no key exists, the executor grounds the Create button,
+create dialog, key-name textbox, submit button and exact empty-inventory text.
+The eventual reveal/Done and key-row/revoke-dialog locators cannot exist yet;
+they are pinned as contracts and their live counts run only inside later
+exception-suppressed blocks. After the Create API Key submit click, a strict
+browser no-observation zone begins and remains active through revoke and
 empty-inventory verification.
 
 Render necessarily renders a masked representation inside the unobserved key
@@ -45,10 +46,19 @@ The only permitted value read is the unique post-submit
 tag/role/shape locally, writes and fsyncs the precreated `0600` handoff,
 clicks Done, waits hidden and emits nothing.
 
+Every locator resolution, count, click and wait inside both post-submit blocks
+is caught locally. Provider exception text, element markup, DOM text and stack
+data may not escape through stdout, stderr or tool output. A block reports only
+fixed integer status 0 or 1. Block-local counts are the explicit non-emitting
+exception to the accepted NC-2 ban on post-submit diagnostics; they are never
+returned or logged.
+
 After the GET-only provider capture, one separate non-emitting revoke block:
 
 1. finds the unique key-list item by the exact non-secret key name and the
-   pre-committed reviewed `li.border-b.border-primary` structure;
+   pre-committed `li.border-b.border-primary` structure observed in the
+   contained operator cleanup session (session evidence, not an independently
+   live-validated provider contract);
 2. clicks its Menu, the unique Revoke menuitem and the dialog-scoped
    Revoke API Key button;
 3. waits for the dialog to hide, the exact key name to be absent and the exact
@@ -70,6 +80,13 @@ the committed canonical capture and bounded GET inventory. Require exact
 production identities, `master + ./Dockerfile.bake`, Auto Sync and every Auto
 Deploy off, and zero active sync/deploy/preDeploy/job.
 
+The credential may exist only in browser process memory for the single reveal,
+the `0600` handoff and the child-process environment. It may never enter argv,
+shell history, chat, clipboard, tool parameters, returned objects except the
+fixed integer block status, stdout, stderr, snapshots, screenshots, receipts,
+git or hashes. After the reveal write, the host validates only regular-file
+type, mode `0600` and non-zero bounded size without printing that size.
+
 Revoke before merge, prove exact HTTP 401, remove the handoff and disposable
 material, then repeat every GitHub CAS. Only then may the executor mark PR #53
 ready and make one synchronous merge-commit attempt with exact head
@@ -81,7 +98,9 @@ tree `75dbd88…`. Observe only automatic push CI.
 No replacement key, non-GET provider API request, post-submit browser
 observation, workflow dispatch/rerun, image action, GitHub-environment mutation,
 persistent Render mutation, deploy, production migration, rehearsal, cutover,
-Stage 1 runtime action or generative-feed expansion is authorized.
+Stage 1 runtime action or generative-feed expansion is authorized. No pull
+request other than exact PR #53 may merge; auto-merge and merge retry are
+forbidden.
 
 Operator form, not an authorization:
 

@@ -5,6 +5,8 @@
   "preparedAt": "2026-08-04T07:05:00Z",
   "repository": "Glera/swipe-backend",
   "acceptedFailureEvidence": {
+    "acceptedSourceFixEvidenceCommit": "d635398c5e87b33fb40bfa66ea952528e9fda68f",
+    "acceptedSourceFixReviewSession": "ed223f76-4e01-4652-b484-84c0321c9221",
     "executionCommit": "69430e3444497249ca4d623ea403431b511bda47",
     "acceptedReviewCommit": "29d184e458509e37d7caec72b07d5b3d9a9f4e9c",
     "reviewVerdict": "GO",
@@ -63,7 +65,8 @@
     ],
     "captureScriptGitBlob": "0198bf5d216c3a05efdd93445e698de6d3a6af4e",
     "captureTestGitBlob": "2be064b24801343b361383fa10492dbfb2bfff4f",
-    "requirementsLockGitBlob": "5dbc2f0f5e0859d13a91f0ab4ce4543b2dd7d55a"
+    "requirementsLockGitBlob": "5dbc2f0f5e0859d13a91f0ab4ce4543b2dd7d55a",
+    "settledBaselineAuthority": "platform-reliability-r1a-recovery-v3-merge-v2-corrective-acceptance-20260803.md"
   },
   "temporaryCredential": {
     "maximumKeysCreated": 1,
@@ -75,7 +78,23 @@
     "revokeBeforeMerge": true,
     "requireEmptyUiInventoryAfterRevoke": true,
     "requireRevokedKeyHttpStatus": 401,
-    "replacementKeyAuthorized": false
+    "replacementKeyAuthorized": false,
+    "keyNameRule": "codex-r1a-lkg-source-merge-retry-v2-<UTC-YYYYMMDDTHHMMSSZ>; generated once in-window before submit and recorded in non-secret receipts",
+    "forbiddenValueSurfaces": [
+      "argv",
+      "shell history",
+      "chat",
+      "clipboard",
+      "tool parameter",
+      "returned object other than fixed integer block status",
+      "stdout",
+      "stderr",
+      "DOM snapshot",
+      "screenshot",
+      "receipt",
+      "git",
+      "hash"
+    ]
   },
   "browserNoObservationContract": {
     "begins": "immediately before the Create API Key submit click",
@@ -99,27 +118,32 @@
       "count or visibility checks on pre-grounded create/empty anchors or the pre-committed revoke selector contract",
       "click and waitFor on pre-grounded create anchors or the pre-committed revoke selector contract",
       "the single validated reveal textContent read into process memory and direct fsync handoff write",
-      "exact key-name absence and No provisioned API keys visibility checks after revoke"
+      "exact key-name absence and No provisioned API keys visibility checks after revoke",
+      "block-local locator counts that are never emitted; this is the explicit non-emitting reconciliation of the accepted NC-2 diagnostic ban",
+      "fixed integer block status 0 or 1 after all provider exception text and stack data are suppressed"
     ],
-    "preGroundedCreateLocators": [
+    "preGroundedBeforeSubmitLocators": [
       "button Create API Key",
       "dialog Create API Key",
       "textbox API key name",
       "dialog-scoped button Create API Key",
-      "post-submit div[role=textbox]",
-      "dialog-scoped button Done"
+      "exact No provisioned API keys text"
+    ],
+    "postSubmitCreateLocatorContract": [
+      "eventual div[role=textbox] reveal validated block-locally after submit",
+      "eventual dialog-scoped button Done"
     ],
     "preCommittedRevokeLocatorContract": [
-      "li.border-b.border-primary filtered by the exact non-secret temporary key name",
+      "li.border-b.border-primary filtered internally by the exact non-secret temporary key name; selector provenance is the contained 2026-08-04 operator cleanup session and it has not been independently live-validated",
       "row-scoped button Menu",
       "unique role=menu",
       "menuitem Revoke",
       "unique role=dialog",
       "dialog-scoped button Revoke API Key",
-      "exact temporary key-name text",
-      "exact No provisioned API keys text"
+      "exact temporary key-name text"
     ],
-    "revokeBlock": "one non-emitting browser-runtime block performs all live locator counts, Menu/Revoke/confirm clicks, waits for hidden/absence/empty inventory and returns no observation",
+    "blockErrorSuppression": "every locator resolution, count, click and wait in both create and revoke blocks is wrapped locally; provider exception text, element markup, DOM text and stack data are never rethrown or emitted; the only outward result is fixed integer 0 for success or 1 for mismatch",
+    "revokeBlock": "one browser-runtime block performs all live locator counts, Menu/Revoke/confirm clicks and hidden/absence/empty-inventory waits; it suppresses all exception text and returns only fixed integer status 0 or 1",
     "noDiagnosticFallback": true,
     "structuralMismatchFallback": "make no DOM observation; expose the existing signed-in tab only for attended manual operator revocation by exact non-secret key name; after operator confirmation require exact HTTP 401, cleanup and terminal STOP with no merge"
   },
@@ -144,14 +168,16 @@
     "the operator names the final independently reviewed retry-v2 meta commit exactly",
     "the accepted contained-failure execution and review commits resolve exactly",
     "backend master and PR 53 still equal every pinned base/head/tree/check/CI fact",
-    "GitHub production environment and repository release authority remain absent",
+    "GitHub production environment and repository-level RENDER_* and PLATFORM_RELEASE_* secrets and variables remain absent",
     "no active source-merge, publication, cutover, deploy or job workflow exists",
     "Render API-key inventory is empty before creation",
-    "all live create locators and empty-inventory anchors are grounded before submit; the reviewed revoke selector contract is pinned but its live counts occur only inside the post-submit non-emitting block",
-    "shared-home, 0600 handoff, 0700 receipt directory and pinned Python 3.13 environment pass before key creation"
+    "all preGroundedBeforeSubmitLocators are live-grounded before submit; postSubmitCreateLocatorContract and preCommittedRevokeLocatorContract are pinned as eventual contracts whose live counts occur only inside exception-suppressed post-submit blocks",
+    "shared-home, regular 0600 handoff, 0700 receipt directory and pinned Python 3.13 environment pass before key creation"
   ],
   "hardStops": [
     "any exact GitHub/meta/source/CI identity or absence check differs",
+    "shared-home probe, regular-file handoff, 0600 mode, post-write non-zero-size validation, 0700 receipt directory or pinned Python environment differs",
+    "the temporary key value or any derivative appears on any forbiddenValueSurfaces entry",
     "any browser observation forbidden by browserNoObservationContract occurs after submit",
     "the reveal or revoke block cannot validate every locator count locally without emission",
     "provider capture or inventory is non-GET, identity-mismatched, not master plus ./Dockerfile.bake, reports automation enabled or reports an active operation",
@@ -161,7 +187,7 @@
     "deadline expires"
   ],
   "failurePolicy": {
-    "beforeMerge": "attempt only the pre-committed non-emitting revoke block, prove 401, remove handoff and temp material, preserve bounded evidence and stop",
+    "beforeMerge": "attempt only the exception-suppressed pre-committed revoke block, prove 401, remove handoff and temp material, restore PR 53 to draft if it was marked ready, preserve bounded evidence and stop",
     "revokeBlockMismatch": "do not inspect key-list or dialog text and do not create another key; hand the existing signed-in tab to the attended operator for manual revocation by exact non-secret key name, then require 401, cleanup and terminal STOP without merge",
     "afterMergePostconditionMismatch": "do not revert or repair; cleanup, preserve evidence and stop for operator disposition",
     "replacementKey": false,
@@ -171,12 +197,12 @@
     "perform exact read-only GitHub/meta/source/CI preflight",
     "create and delete one non-secret shared-home probe",
     "precreate one 0600 handoff, one 0700 receipt directory and one pinned disposable Python environment",
-    "ground live create and empty-inventory anchors before submit and pin the reviewed revoke selector contract",
+    "ground live pre-submit anchors and pin the eventual create/revoke selector contracts",
     "create exactly one temporary account-wide Render API key through the one-block reveal contract",
     "perform only the committed GET-only provider capture and bounded inventory",
     "revoke through the non-emitting structural block, prove exact 401 and remove all temporary material",
     "repeat exact GitHub CAS, mark only PR 53 ready and merge its exact head once with merge-commit semantics",
-    "observe only automatic push CI and publish bounded receipts"
+    "observe only automatic push CI and publish bounded receipts containing no credential material or derivative"
   ],
   "forbiddenActions": [
     "create a replacement Render key or use the key for a non-GET API request",
