@@ -295,6 +295,14 @@ state, отсутствие web restart и typed provider authority входят
 before/after observations; истечение deadline оставляет cron suspended и
 требует нового baseline + нового operator GO.
 
+Follow-up про Sync Hook apply-versus-Preview пока не является provider fact:
+последний ответ агента был явно помечен как guess. До factual-ответа рунбук
+fail-closed предполагает немедленное применение текущего `render.yaml` без
+Dashboard Approve. Поэтому Gate C0 начинается с exact-reviewed source freeze
+backend PR #54 @`dd250d08cfd65723532fd0f59d63064e88c38a24`; reviewer GO не
+разрешает его merge. Freeze merge, cron suspension и Blueprint replacement
+разрешает только fresh operator `GO Gate C0`, привязанный к exact head.
+
 Ответ не является terminal proof: до фактической замены старый hook остаётся
 валидным. Удаление/recreation — отдельный destructive `OPERATOR GATE C0` по
 `platform-reliability-r1-gate-c-contract.md`. PASS требует отсутствия старого
@@ -391,13 +399,19 @@ receipt фиксируются отдельным reviewable-пакетом. Д�
 состава предусловий.
 
 Если старый Sync Hook ещё не инвалидирован, сначала исполняется отдельный
-`OPERATOR GATE C0`: fresh GO → suspend обоих cron → v3 before observation →
+`OPERATOR GATE C0`: fresh GO, явно разрешающий exact PR #54 merge → merge
+fail-closed source freeze → suspend обоих cron → v3 before observation →
 удаление только старого Blueprint → bounded relink Preview → создание нового
 Blueprint → v3 after observation до 900-second deadline. Cron остаются
-suspended до terminal comparison и отдельного Gate C; при deadline, web
+suspended до terminal comparison и отдельного Gate C. Freeze живёт только в
+одном attended operator window, не дольше 60 минут от merge, и запрещает любой
+production deploy. Срочный hotfix требует сначала abort + полный revert freeze.
+Если replacement сам запускает deploy, ожидаем только terminal sentinel exit
+`78` до app/DB; successful/Live deploy — немедленный NO-GO. При deadline, web
 restart или неожиданном runnable cron окно останавливается без удаления
-какой-либо DB credential. Точная последовательность и stop rules живут в
-Gate C contract.
+какой-либо DB credential. После terminal Gate C или любого abort полный freeze
+revert обязан побайтно восстановить reviewed R1-A source до 60-minute deadline.
+Точная последовательность и stop rules живут в Gate C contract.
 
 До sync новый user должен пройти не только `SELECT 1`, но и read-only
 capability audit:

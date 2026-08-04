@@ -261,4 +261,14 @@ test('Gate C records the human Render remediation without claiming completion', 
   assert.match(contract, /evidenceClass=operator_attested/);
   assert.match(contract, /providerVerifiedServiceContinuity=false/);
   assert.match(contract, /providerConfirmedFromDatabaseContinuity=true/);
+  assert.match(
+    contract,
+    /dd250d08cfd65723532fd0f59d63064e88c38a24/,
+  );
+  assert.match(contract, /guess and is not treated as[\s\S]+provider fact/);
+  assert.match(contract, /does not authorize[\s\S]+production deployment/);
+  assert.match(contract, /reversion deadline no more than 60 minutes/);
+  assert.match(contract, /sentinel failure with exit `78`/);
+  assert.match(contract, /successful\/Live deploy[\s\S]+immediate[\s\S]+NO-GO/);
+  assert.match(contract, /revert the complete freeze merge/);
 });
