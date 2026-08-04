@@ -1,16 +1,18 @@
 # AR-R: reference packet — Arrows
 
-- Дата среза: **29.07.2026**
-- Статус: **approved-for-prototype** — A1–A3 из
+- Дата среза: **30.07.2026**
+- Статус: **operator-revision v3 / re-review-required** — A1–A2 из
   [`REVIEW-3-INDEPENDENT-2026-07-29.md`](REVIEW-3-INDEPENDENT-2026-07-29.md)
-  закрыты
+  сохраняются; A3 camera/input, A4 manual auto-move и A5
+  launch/presentation boundary пересмотрены
 - Вкусовой эталон: **Arrows – Puzzle Escape**
 - Целевой диапазон: **уровни 10–15**
 - Связанный brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 
 > Документ фиксирует наблюдаемые свойства референса и отделяет их от
 > продуктовых решений прототипа. Review 3 закрыт решениями оператора и
-> нативной записью от 29.07.2026.
+> нативной записью от 29.07.2026. Operator correction 30.07.2026 имеет
+> приоритет над прежним bounded-prototype исключением manual pan/pinch.
 
 ## Решение оператора
 
@@ -22,7 +24,11 @@
 4. чистый и простой дизайн;
 5. сложность и проходимость уровня как самостоятельное качество;
 6. генерацию уровней с обратной раскладкой и solver-проверкой;
-7. haptic на любой tap по стрелке и отдельный haptic ошибки.
+7. haptic на любой tap по стрелке и отдельный haptic ошибки;
+8. manual camera pan и pinch-to-zoom после takeover;
+9. manual auto-move control, выполняющий один legal move с расходом жизни;
+10. reference HUD structure: hearts сверху слева и pill `HINT · −1 ♥`;
+11. blocked path-following travel до препятствия и exact return.
 
 ### Утверждённые defaults
 
@@ -38,6 +44,14 @@
 - blocked wash блокирует input на `533 ms`; повторный blocked tap после wash
   снова отнимает жизнь;
 - все пять prototype levels используют однофазный `450 ms` camera fit;
+- после takeover manual mode поддерживает one-finger pan и pinch-to-zoom;
+- camera transform сохраняется между ходами; restart возвращает initial fit;
+- manual auto-move выполняет один deterministic legal solver move и расходует
+  одну жизнь; last-life policy закрывается A4 до admission;
+- autoplay стартует только по явному Swipe-host entry request; standalone
+  factory sample всегда manual;
+- Lab/proof labels и controls живут вне gameplay viewport;
+- следующий принятый tap по другой live arrow очищает предыдущий red state;
 - таймера нет.
 
 Ранее утверждённый default «простые единичные стрелки» заменён явным решением
@@ -52,6 +66,7 @@ Review 3: выбранный эталон использует ортогона�
 | `AR-R-S2` | [Gameplay walkthrough, levels 1–30](https://www.youtube.com/watch?v=yePg-DPqfeA) | layout, успешные ходы, Level 15, exit motion, camera framing, win | публичный монтаж; touch/haptic не видны; есть реклама |
 | `AR-R-S3` | описание оператора | target 10–15, обязательный juice, haptic semantics | нет чисел интенсивности/длительности |
 | `AR-R-S4` | operator recording `2026-07-29 13.13.06.mp4` | native path-following polyline exit, blocked feedback, lives, fail, adaptive intro camera | Level 43 Hard; не используется как difficulty target |
+| `AR-R-S5` | operator corrections 30.07.2026 | host-only launch autoplay, manual pan/pinch, manual auto-move, immutable HUD, blocked travel/return | gesture thresholds, last-life policy и presentation parity требуют отдельного proof/verdict |
 
 На дату среза App Store показывает разработчика Lessmore GmbH и версию
 `0.20.1`; точная версия приложения в ролике неизвестна. В случае расхождения
@@ -117,8 +132,10 @@ Typed-контракт:
   пересекать её же хвост;
 - касание чужого vertex, пересечение чужого unit edge и движение вдоль него
   считаются blocked;
-- на blocked tap stroke не продвигается ни на один пиксель и получает
-  persistent error-state.
+- на blocked tap видимый stroke тем же path-following окном доезжает head до
+  ближайшего чужого blocker, затем возвращается точно на authored path;
+- coral/red state принадлежит только последней принятой blocked selection и
+  очищается следующим принятым tap по другой live arrow.
 
 Следствие для solver: не нужно симулировать rigid swept-body. Нужен
 детерминированный lattice ray/occupancy intersection перед head. Stroke width,
@@ -134,13 +151,13 @@ target, проверяемый на Review 4.
 | Параметр | Target | Статус | Основание |
 | --- | ---: | :---: | --- |
 | Начало видимого ответа после tap | `≤33 ms` | `R/P` | native: состояние меняется в первом 30-fps frame после принятого tap |
-| Screen-space скорость ухода | nominal `1.20` gameplay-card heights/s после acceleration; target `1.05–1.35` | `R/P` | native: screen-projected distance / `~433 ms` и `~667 ms`; скорость не зависит от camera grid scale |
-| Длительность ухода | `screenProjected(pathArcLength + headExitDistance) / screenSpeed`; reference samples `375–700 ms` | `R` | public Level 15 `~375 ms`; native `15.8667–16.3000` и `17.1667–17.8333` |
-| Траектория ухода | tail следует исходному path, head продолжает прямой `exitDir`; `0` остаточных px после clip | `R` | native U-polyline `17.1667–17.8333` |
+| Screen-space скорость ухода | постоянная линейная nominal `1.20` gameplay-card heights/s без easing; target `1.05–1.35` | `R/P` | native: screen-projected distance / `~433 ms` и `~667 ms`; скорость не зависит от camera grid scale |
+| Длительность ухода | `screenProjected(pathArcLength + расстояние до фактической device viewport clip-границы + full-tail clearance) / screenSpeed`; reference samples `375–700 ms` | `R/P` | public Level 15 `~375 ms`; native `15.8667–16.3000` и `17.1667–17.8333`; operator correction 2026-07-30 запрещает обрезать по одному лишь `viewBox` |
+| Траектория ухода | tail следует исходному path, head продолжает прямой `exitDir`; кончик хвоста целиком пересекает фактическую clip-границу, `0` остаточных px на любом device aspect ratio и camera transform | `R/P` | native U-polyline `17.1667–17.8333`; operator correction 2026-07-30 |
 | Прозрачность во время ухода | `100%` до выхода, без dissolve | `R` | видимая линия сохраняет контраст; исчезает за границей |
 | Selected exit color | вся polyline переходит в cold blue accent в первый frame; accent decays к base stroke за `160–233 ms` | `R` | native `15.8667–16.0667`, `17.1667–17.4000` |
 | Tap ripple | `200–333 ms`, полупрозрачный круг у точки tap/head | `R` | native success/error frame sequences |
-| Motion character | быстрое ускорение, directional blur/anti-alias trail, без overshoot назад | `R/P` | native + public Level 15 |
+| Motion character | постоянная линейная скорость без ramp/easing и overshoot назад; directional blur/anti-alias trail допустим только без изменения скорости | `P` | operator correction 2026-07-30 уточняет native feel |
 | Small-board load fit | `450 ± 80 ms` | `R` | public Level 15: появление/fit `424.541–425.040` |
 | Large-board intro: reveal -> overview | `1,967 ± 67 ms` | `R` | native Level 43: `3.533–5.500` |
 | Large-board intro: overview -> play scale | `2,233 ± 67 ms` | `R` | native Level 43: `5.500–7.733` |
@@ -151,9 +168,10 @@ target, проверяемый на Review 4.
 | Контраст grid dots | opacity `6–10%` относительно линии | `R/P` | визуальный анализ central crop |
 | Tap haptic | в пределах `0–20 ms` от принятого tap; semantic `selection/light` | `O/P` | событие утверждено оператором; профиль требует device-review |
 | Blocked haptic | вслед за tap haptic, `0–33 ms` от visual error onset; semantic `error/rigid` | `O/P` | событие утверждено оператором; физический профиль — Review 4 |
-| Blocked response onset | `≤33 ms`; geometry displacement `0 px` | `R` | native: stable `23.5333`, первый error frame `23.5667` |
+| Blocked response onset | `≤33 ms`; начинается path-following travel к ближайшему blocker | `O/P` | operator correction 30.07.2026; exact motion требует нового proof |
 | Blocked card wash | total `533 ± 33 ms`; peak первые `100–133 ms`, затем decay | `R` | native: `23.5667–24.1000` |
-| Blocked arrow state | coral/red stroke сохраняется до удаления arrow или restart | `R` | native: одна и та же blocked arrow остаётся красной при camera movement |
+| Blocked travel/return | head доходит до ближайшего чужого stroke без overlap, затем exact return на authored path | `O/P` | operator correction 30.07.2026; reference implementation contract |
+| Blocked arrow state | только последняя принятая blocked selection остаётся coral/red; принятый tap по другой live arrow очищает её | `O/P` | operator correction 30.07.2026 |
 | Life decrement | одно сердце сереет в первый error frame (`≤33 ms`) | `R/O` | native `23.5667`; policy утверждена оператором |
 | Потеря жизни | `1` за один завершённый blocked tap | `O` | утверждённый default |
 | Manual chaining во время exit | logical removal происходит при старте exit; следующий tap принимается в следующем engine step, visual exits могут перекрываться | `P` | native не содержит однозначного overlap-case; Review 3 resolution устраняет global exit lock |
@@ -173,12 +191,18 @@ overview, затем увеличивается до читаемого play sca
 
 1. все пять уровней обязаны целиком помещаться при readable scale;
 2. все пять используют только однофазный `450 ms` fit (`370–530 ms`);
-3. первый autoplay tap принимается не позднее `650 ms` от первого live frame;
-4. первый autoplay exit полностью завершается не позднее `1,350 ms` от
+3. когда Swipe host явно запросил launch autoplay, первый tap принимается не
+   позднее `650 ms` от первого live frame;
+4. в том же host-entry режиме первый autoplay exit полностью завершается не
+   позднее `1,350 ms` от
    первого live frame — это числовой `time-to-rule`;
-5. двухфазная choreography `1.97 s + 2.23 s`, manual pan/pinch и reframe после
+5. после takeover manual mode обязан поддерживать one-finger pan и
+   pinch-to-zoom без изменения logical state;
+6. camera transform сохраняется между ходами и при pause/resume, а restart
+   возвращает initial fit;
+7. двухфазная choreography `1.97 s + 2.23 s` и принудительный reframe после
    хода не входят в bounded prototype;
-6. future large-board policy может использовать производный порог
+8. future large-board policy может использовать производный порог
    `playScale / overviewScale < 1.15` со статусом `P`, но не является
    authority для первых пяти уровней.
 
@@ -201,6 +225,9 @@ overview, затем увеличивается до читаемого play sca
 - [ ] Повторный tap по той же красной blocked arrow после wash снова отнимает
       ровно одну жизнь.
 - [ ] После третьей ошибки раунд переходит в fail.
+- [ ] Один принятый manual auto-move выполняет ровно один deterministic legal
+      move и расходует ровно одну жизнь.
+- [ ] Last-life policy manual auto-move совпадает с отдельным A4 verdict.
 - [ ] Победа наступает только при `remainingArrowCount === 0`.
 - [ ] Несколько корректных порядков удаления принимаются одинаково.
 - [ ] Restart возвращает exact initial state, lives и camera state.
@@ -222,10 +249,12 @@ overview, затем увеличивается до читаемого play sca
 - [ ] Tap haptic вызывается один раз на каждый принятый tap.
 - [ ] Blocked tap вызывает обычный tap haptic и один семантически более сильный
       error haptic.
-- [ ] Blocked geometry сдвигается на `0 px`.
+- [ ] Blocked head доезжает до ближайшего чужого blocker без overlap, после
+      чего stroke возвращается точно на authored path.
 - [ ] Card wash длится `500–566 ms`, достигая peak за `100–133 ms`.
 - [ ] Tap во время card wash отбрасывается без queue и без потери жизни.
-- [ ] Blocked polyline остаётся coral/red до удаления или restart.
+- [ ] Только последняя принятая blocked polyline остаётся coral/red; следующий
+      принятый tap по другой live arrow очищает предыдущую отметку.
 - [ ] Одно сердце сереет за `≤33 ms`; cue различим не только цветом.
 - [ ] После третьей ошибки modal начинается через `966–1,100 ms` и settles за
       `167–233 ms`.
@@ -238,12 +267,21 @@ overview, затем увеличивается до читаемого play sca
       основной линии.
 - [ ] Основные линии используют единый stroke `0.11–0.14` cell.
 - [ ] Каждый из пяти prototype levels fit-ится за `370–530 ms` одним phase.
-- [ ] Первый autoplay tap принят за `≤650 ms`, первый exit завершён за
-      `≤1,350 ms` от первого live frame.
+- [ ] Без явного Swipe-host entry request sample остаётся manual и не делает
+      скрытых ходов.
+- [ ] При явном launch-autoplay request первый tap принят за `≤650 ms`, первый
+      exit завершён за `≤1,350 ms` от первого live frame.
 - [ ] Ни одна initial arrow не обрезана, stroke/cell не мельче readable
       minimum.
 - [ ] Двухфазная large-board choreography отсутствует в пяти prototype levels.
-- [ ] Bounded prototype не требует manual pan/pinch или reframe после хода.
+- [ ] После takeover one-finger pan перемещает camera без gameplay action и
+      без случайного feed swipe.
+- [ ] После takeover pinch-to-zoom меняет scale вокруг focal point, остаётся в
+      readable bounds и не создаёт gameplay action.
+- [ ] Camera transform сохраняется между ходами и при pause/resume; restart
+      возвращает initial fit.
+- [ ] Принудительный post-move reframe отсутствует; пользовательский pan/pinch
+      не откатывается скрыто.
 - [ ] Gameplay layout не содержит размытую боковую заливку и сторонние
       рекламные баннеры из ролика.
 - [ ] Compact и tall portrait используют одну геометрию уровня, меняя только
@@ -251,8 +289,14 @@ overview, затем увеличивается до читаемого play sca
 
 ### Platform behavior
 
-- [ ] Autoplay использует deterministic legal trace.
+- [ ] Standalone factory sample стартует manual; autoplay использует
+      deterministic legal trace только после явного Swipe-host request.
+- [ ] Lab/proof title, status, counters и start/stop/reset controls находятся
+      вне gameplay viewport.
+- [ ] Hearts и `HINT · −1 ♥` сохраняют утверждённые структуру и положение.
 - [ ] Takeover продолжает exact autoplay state без restart или скрытого хода.
+- [ ] Manual auto-move использует тот же versioned solver authority, исполняет
+      один ход и никогда не запускает скрытую последовательность autoplay.
 - [ ] Manual legal tap принимается в следующем engine step при активном exit;
       logical state уже не содержит exiting arrow.
 - [ ] Два и более visual exits могут перекрываться без потери tap events.
@@ -330,7 +374,8 @@ overview, затем увеличивается до читаемого play sca
 - правило порядка освобождения;
 - темп и направление exit-motion;
 - минималистичную информационную иерархию;
-- auto-fit как функцию читаемости; live reframe отложен за bounded prototype;
+- auto-fit как функцию читаемости; manual pan/pinch после takeover без
+  принудительного post-move reframe;
 - сложностной диапазон, но не конкретные карты.
 
 Собственная visual identity создаётся через SkinSpec; baseline skin остаётся
@@ -342,9 +387,14 @@ theme-neutral и не встраивается в engine.
 - Polyline path-following/ray rule: **утверждён**.
 - Успешный exit, blocked feedback, lives и adaptive intro camera:
   **измерены по native evidence**.
-- Collision authority, tap chaining и prototype camera budget:
-  **зафиксированы после independent Review 3**.
+- Collision authority и tap chaining: **зафиксированы после independent
+  Review 3**.
+- Camera/input: **пересмотрены operator correction 30.07.2026** — manual
+  pan/pinch обязательны; требуется gesture/clamp proof.
+- Manual auto-move: **обязателен и расходует жизнь**; last-life policy требует
+  отдельного A4 verdict.
 - Reverse-construction: **готова для AR-S/F design**.
 - Haptic semantics: **утверждены**; физическая интенсивность остаётся
   acceptance-параметром Review 4.
-- AR-R disposition: **ready for parallel implementation**.
+- AR-R disposition: **re-review-required before affected implementation and
+  factory admission**.

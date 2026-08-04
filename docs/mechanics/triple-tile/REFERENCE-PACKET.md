@@ -8,6 +8,8 @@
 - Связанный brief: [`CLASS-BRIEF.md`](CLASS-BRIEF.md)
 - Независимое ревью:
   [`REVIEW-INDEPENDENT-2026-07-29.md`](REVIEW-INDEPENDENT-2026-07-29.md)
+- Native Zen capture receipt:
+  [`CAPTURE-MANIFEST-ZEN-2026-07-30.md`](CAPTURE-MANIFEST-ZEN-2026-07-30.md)
 
 > Пакет фиксирует taxonomy boundary и утверждённый эталон. Он не
 > разрешает gameplay-код, presentation work, rollout или копирование
@@ -75,6 +77,7 @@ tap exposed tile
 | `TT-R-S13` | [Tile Family — App Store](https://apps.apple.com/us/app/tile-family-match-puzzle-game/id6444056676) | three identical, seven-tile fail, no timer, hint, strong market proxy | narrative/meta wrapper; нет feel timings |
 | `TT-R-S14` | [Tile Family Levels 27–30](https://www.youtube.com/watch?v=zwwVZA7m8wM) | early-band cadence and public aggregate duration | third-party recording; old/unknown build |
 | `TT-R-S15` | Operator-provided Zen Match Level 17 recording, SHA-256 `18101e019f8a2b2f6241bff67f16d9b16eae1ddf2fac9e126651d3e96e4e68fb` | current-build grouped insertion, concurrent flights, seven visible slots, successful win and Level 18 entry | secondary reference; no fail, touch indicator, audible audio or haptic evidence |
+| `TT-R-S16` | [Agent-operated Zen Match Levels 6–10 native capture](CAPTURE-MANIFEST-ZEN-2026-07-30.md), manifest SHA-256 `70960297ef9308d3fbe537d708f63b442a92c0f4a4de357918a3ee10172febfa` | exact build/device/cohort, goal-based and clear-all rounds, seventh-slot boundary, Undo, Magnet, coin continue, wins with non-goal tiles remaining | secondary reference; segmented video has declared gaps, no audio/haptic authority |
 
 Store snapshot на дату среза:
 
@@ -178,6 +181,21 @@ rule, отклонение фиксируется evidence и band возвра�
 - Audio track фактически silent; haptics screen recording не фиксирует.
 - Намеренного fail нет, поэтому запись не доказывает reference boundary;
   operator authority утвердил для v1 fail-on-7th (`O`).
+
+### Что закрыла agent-operated сессия (`TT-R-S16`)
+
+- Levels `6`, `7`, `8` и `10` завершаются по target counters; очистка всех
+  нецелевых tiles не требуется.
+- Level `9` требует clear всех `36` tiles и вводит mandatory free Magnet
+  tutorial после forced center opening.
+- Седьмая non-resolving tile вызывает fail; седьмая tile, немедленно
+  закрывающая triple, безопасна.
+- Undo возвращает последнюю tile и откатывает соответствующий goal counter.
+- `Play On 300` возвращает три holder tiles на board; Magnet извлекает с board
+  две matching tiles для type последней holder tile.
+- Эти факты повышают confidence rule/state semantics Zen Match, но не
+  разблокируют primary Triple Tile presentation timings: recording gaps,
+  audio и haptic явно остаются вне authority.
 
 ## Конкретный recording plan
 

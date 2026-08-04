@@ -8,6 +8,33 @@ dev-loop: [docs/specs/dev-loop.md](docs/specs/dev-loop.md).
 Cross-repo research каталога игровых классов и шаблон декомпозиции:
 [docs/mechanics/README.md](docs/mechanics/README.md). Это proposal для выбора
 и подготовки прототипов, не implementation status и не product authority.
+Канонический fidelity-процесс:
+[docs/mechanics/REFERENCE-REPLICATION-PROCESS.md](docs/mechanics/REFERENCE-REPLICATION-PROCESS.md);
+самостоятельный mobile capture агента:
+[docs/mechanics/REFERENCE-DEVICE-LAB.md](docs/mechanics/REFERENCE-DEVICE-LAB.md).
+Они задают process/invariant, но не implementation status и не rollout
+authority.
+
+## Роли моделей и оркестрация (операторское решение 04.08.2026)
+
+- Оркестрация инициатив, архитектура, вкусовые решения и финальное ревью —
+  только frontier-модели (Claude Fable / Codex Sol max effort). Opus 5 —
+  исполнитель bounded-задач с критериями приёмки; Opus не оркестрирует
+  frontier-агентов и не принимает vision-решений.
+- Маршрутизация вниз — ответственность frontier-оркестратора, не оператора:
+  frontier сам решает, какие задачи отдать Opus-субагентам, и сам ревьюит
+  результат. Оператор не управляет выбором модели и не получает «даунгрейд»
+  оркестрирующей сессии.
+- Один владелец на контур в каждый момент; смена владельца — только через
+  письменный хэндофф. Второй frontier — адверсариальный ревьюер, не
+  со-владелец.
+- Необратимые шаги (контур «ядро» в [CLAUDE.md](CLAUDE.md)) исполняются
+  только со второй подписью: оператор или frontier-сессия поверх вердикта
+  владельца контура.
+- Транспорт заданий и фидбека между машинами/агентами — файлы в git
+  (ТЗ/квитанции/хэндоффы), не пересказ оператором.
+- Контрольный док портфеля: `STATE.md` в корне — каждая оркестрирующая
+  сессия читает его первым и обновляет последним.
 
 ## Репозитории
 

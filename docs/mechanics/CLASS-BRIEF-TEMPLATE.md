@@ -7,7 +7,9 @@
 - Независимый reviewer:
 
 > Шаблон описывает один класс механики до параллельной разработки. Он не
-> заменяет playable release brief и не даёт authority на публикацию.
+> заменяет playable release brief и не даёт authority на публикацию. Process
+> authority:
+> [`REFERENCE-REPLICATION-PROCESS.md`](REFERENCE-REPLICATION-PROCESS.md).
 
 ## VISION-триаж
 
@@ -35,10 +37,14 @@
 ### Primary reference
 
 - Название:
+- Package ID / store identity:
 - Версия/дата:
 - Ссылка:
-- Screen recording:
+- Taste authority: `exact app build | exact captured session`:
+- Capture mode: `agent device lab | operator fallback recording`:
+- Capture manifest:
 - Диапазон уровней:
+- Account/cohort label, если применимо:
 
 ### Secondary references
 
@@ -54,6 +60,18 @@
 | --- | --- | --- |
 | | | |
 
+### Reference Twin (обязателен до baseline Engine)
+
+- Internal-only fixture IDs:
+- Exact reference levels/scenarios:
+- Neutral asset policy:
+- Captured action traces:
+- Canonical state/geometry comparison:
+- Timing tolerances:
+- Solver/replay receipts:
+- Production import deny-gate:
+- Visual side-by-side disposition:
+
 ### Reference parity checklist
 
 ~20 наблюдаемых свойств; каждое проверяемо формулировкой вида «X происходит
@@ -64,8 +82,11 @@
 
 ### Rights boundary
 
-- Не копируем:
+- Разрешено только в internal non-shipping Reference Twin:
+- Не копируем в Production Original:
 - Собственные replacements (visual identity — через SkinSpec-пайплайн):
+- Near-duplicate policy для production layouts:
+- Условие, при котором exact layout требует license/legal disposition:
 - Открытые IP/taste-вопросы:
 
 ## Core fantasy
@@ -243,6 +264,7 @@ interface LevelSpec {
 | ID | Workstream | Scope | Inputs | Outputs | Не трогает | Reviewer |
 | --- | --- | --- | --- | --- | --- | --- |
 | `[id]-R` | Reference | | | | | |
+| `[id]-RT` | Reference Twin | | | | production content | |
 | `[id]-E` | Engine | | | | | |
 | `[id]-S` | Solver | | | | | |
 | `[id]-F` | Factory | | | | | |
@@ -307,10 +329,15 @@ interface LevelSpec {
 
 ### Fidelity
 
+- [ ] Agent/device capture manifest либо disposition fallback-записи приложен.
+- [ ] Reference Twin воспроизводит exact reference state/action traces.
+- [ ] Reference Twin недоступен production build/manifest.
 - [ ] Feel-таблица была заполнена числами до старта Engine.
+- [ ] В must-match нет недиспозированных `B`.
 - [ ] Parity checklist пройден (несоответствия — в reference delta list).
 - [ ] Side-by-side клип отсмотрен оператором на устройстве в реальном темпе.
 - [ ] Before/after GIF (AutoCursor) приложены к каждой feel-итерации.
+- [ ] Production layouts прошли provenance и near-duplicate gate.
 
 ### Evidence
 

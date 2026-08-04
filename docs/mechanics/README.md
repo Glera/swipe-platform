@@ -34,11 +34,17 @@
 ## Связанные документы
 
 - [`VISION.md`](../../VISION.md) — продуктовый authority.
-- [`feed-prototype/README.md`](../../../feed-prototype/README.md) — устройство
+- [`REFERENCE-REPLICATION-PROCESS.md`](REFERENCE-REPLICATION-PROCESS.md) —
+  канонический процесс `Reference Twin → Production Original → Factory`.
+- [`REFERENCE-DEVICE-LAB.md`](REFERENCE-DEVICE-LAB.md) — самостоятельная
+  мобильная наигровка и сбор evidence агентом.
+- [`RECOVERY-ZEN-MATCH-BLOCK-OUT.md`](RECOVERY-ZEN-MATCH-BLOCK-OUT.md) —
+  bounded recovery без полного greenfield restart.
+- [`feed-prototype/README.md`](../../feed-prototype/README.md) — устройство
   swipe-ленты и staged boot.
-- [`playables/docs/BRIEF_TEMPLATE.md`](../../../playables/docs/BRIEF_TEMPLATE.md)
+- [`playables/docs/BRIEF_TEMPLATE.md`](../../playables/docs/BRIEF_TEMPLATE.md)
   — бриф конкретного playable.
-- [`playables/docs/SPEC.md`](../../../playables/docs/SPEC.md) — общие стандарты
+- [`playables/docs/SPEC.md`](../../playables/docs/SPEC.md) — общие стандарты
   короткого playable.
 - [`CLASS-BRIEF-TEMPLATE.md`](CLASS-BRIEF-TEMPLATE.md) — шаблон глубокого
   исследования и разработки одного класса.
@@ -924,24 +930,32 @@ runtime-документации feed/playables.
 ## Fidelity contract — как попадать в референс
 
 Точность к референсу решается подготовкой и критерием приёмки, а не объёмом
-разработки. Три обязательных правила для каждого класса:
+разработки. Полная process authority:
+[`REFERENCE-REPLICATION-PROCESS.md`](REFERENCE-REPLICATION-PROCESS.md).
+Три обязательных правила для каждого класса:
 
-1. **Reference packet с числами, а не ссылками.** До старта Engine feel-таблица
-   заполнена конкретными значениями (мс, px, доли экрана, easing); спорные
-   значения — blocking-вопросы brief, как и спорные правила.
-2. **Цель формулируется как различимость, а не функциональность.** Итоговый
+1. **Agent-owned evidence и Reference Twin до baseline Engine.** Агент сам
+   играет через
+   [`REFERENCE-DEVICE-LAB.md`](REFERENCE-DEVICE-LAB.md), а затем строит
+   internal-only exact neutral fixtures. Ручная запись оператора — fallback.
+2. **Reference packet с числами, а не ссылками.** До старта Engine feel-таблица
+   заполнена конкретными значениями (мс, px, доли экрана, easing); `B` в
+   must-match остаётся блокером и не превращается молча в `P`.
+3. **Цель формулируется как различимость, а не функциональность.** Итоговый
    критерий: оператор смотрит 30-секундный side-by-side клип прототипа и
    референса и не может назвать, чем прототип хуже по ощущению. Функциональная
    цель («механика работает») достигается в первой итерации и даёт мёртвый
    прототип; цель-различимость заставляет доводить feel. Parity checklist —
    объективная половина критерия, side-by-side — вкусовая.
-3. **Приёмка — на устройстве, в темпе реального игрока.** Не в devtools и не
+4. **Приёмка — на устройстве, в темпе реального игрока.** Не в devtools и не
    ускоренным прогоном. Каждая feel-итерация сопровождается before/after GIF
    (AutoCursor), чтобы разница была видна в ревью без запуска.
 
 Визуальная идентичность: референс воспроизводится по ощущению, арт — свой
 через SkinSpec-пайплайн (одновременно rights-гигиена и вход в фабрику
-сеттингов).
+сеттингов). Exact level design разрешён только в изолированном non-shipping
+Reference Twin; Production Original использует собственные layouts и
+near-duplicate gate.
 
 # Карта параллельной разработки
 
@@ -953,9 +967,11 @@ runtime-документации feed/playables.
 
 Содержимое:
 
+- agent-owned device capture; ручная запись оператора — fallback;
+- exact app/build/device/session manifest;
 - запись полного успешного раунда;
 - запись ошибки/fail;
-- запись restart/hint/undo;
+- запись restart/hint/undo и class-specific probes;
 - покадровая последовательность первых 10–15 секунд;
 - **числовой feel-разбор**: из покадрового анализа — таблица параметров
   ощущения с числами (длительности анимаций в мс, easing, скорости и
@@ -972,8 +988,10 @@ runtime-документации feed/playables.
 - список того, что нельзя копировать: бренд, тексты, арт, музыка;
 - решение, какой конкретный вариант правила является эталоном.
 
-Не зависит от реализации и может идти первым либо параллельно общему runtime
-spike.
+Следующий обязательный выход — internal-only Reference Twin. Reference
+research не зависит от production implementation и идёт первым; общий runtime
+shell-spike может идти параллельно, но class Engine/Solver/Factory не начинают
+baseline до закрытия must-match evidence и twin.
 
 ## Workstream G — Gameplay specification
 
@@ -1250,11 +1268,13 @@ contract)?
 
 На каждый кандидат:
 
-1. один полный screen recording;
-2. один fail/error recording;
-3. список из 3–7 принципиальных ощущений;
-4. список допустимых упрощений;
-5. ответ, что должно остаться тем же после смены темы и арта.
+1. agent-owned capture manifest exact app/build/device/session;
+2. один полный успешный run и один fail/error run;
+3. class-specific probe matrix;
+4. список из `3–7` принципиальных ощущений;
+5. список допустимых упрощений;
+6. ответ, что должно остаться тем же после смены темы и арта;
+7. exact neutral Reference Twin для target fixtures.
 
 После этого заполняются три class brief, и priority review сравнивает уже
 конкретные bounded-прототипы, а не названия жанров.
