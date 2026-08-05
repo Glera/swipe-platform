@@ -2,8 +2,8 @@
 
 - Дата: 05.08.2026.
 - Автор: Codex / R1-A. Ревьюер: отдельная хаб-сессия Claude.
-- Статус: **DRAFT v2 — короткий путь подготовлен; исполнение запрещено до
-  независимого Claude-review и отдельных operator GO.**
+- Статус: **CLAUDE REVIEW GO на пакет SHA-256 `0c3af338…6d330`; исполнение
+  запрещено до PASS deploy B и отдельных operator GO.**
 - Цель: после принятого deploy-среза B добавить `minesweeper-v1-swipe` в
   server-owned roster так, чтобы `/session` возвращал его на позиции 5 и после
   двух перезапусков мини-аппа сапёр был виден в ленте.
@@ -83,10 +83,11 @@ print(mapping[0].mapping_digest())
 print(roster.roster_hash())
 print(hashlib.sha256(mapping_path.read_bytes()).hexdigest())
 print(hashlib.sha256(roster_path.read_bytes()).hexdigest())
+print(len(roster.entries))
 PY
 ```
 
-Ожидаются ровно четыре значения из таблицы выше и `len(entries) == 15`.
+Ожидаются ровно четыре значения из таблицы выше и пятое значение `15`.
 
 ## 3. Baseline snapshot — evidence, не CAS на исполнение
 
@@ -184,8 +185,9 @@ source          = auto
 ```
 
 Если её нет, direct SQL запрещён. Выполнить обычную reviewed Minesweeper
-сессию через `/runs`/`/results`, которая использует штатный `ensure_variant`,
-затем повторить read-only запрос. Любое несовпадение существующей row — STOP.
+сессию через authenticated `/runs` → `/results` (напрямую либо через
+challenge deep-link), которая использует штатный `ensure_variant`, затем
+повторить read-only запрос. Любое несовпадение существующей row — STOP.
 
 ### 5.2 Mapping dry-run, затем отдельный GO на apply
 
@@ -220,6 +222,7 @@ fresh roster равен §3. Minesweeper добавляется на позиц�
 mapping IDs и их относительный порядок не меняются.
 
 ```bash
+ENABLE_FEED_ROSTER_CONFIG=true \
 python -m app.feed_roster register \
   --entries /path/minesweeper-feed-roster-v1.json \
   --actor telegram:42692410
@@ -230,7 +233,8 @@ mapping ID, `removed=[]`, target roster hash равен §2.
 
 После отдельного operator GO повторить с `--apply`. Сохранить `rosterId`,
 `rosterHash` и receipt. Registration apply и activation apply — два разных
-operator GO, не один.
+operator GO, не один. `ENABLE_FEED_ROSTER_CONFIG=true` должен быть виден
+процессу явно; persistent Render env этим пакетом не меняется.
 
 ### 5.4 CAS activation dry-run, затем отдельный GO на apply
 
@@ -238,6 +242,7 @@ operator GO, не один.
 exact deployed `versions.json`; его bytes обязаны хэшироваться в §1 digest.
 
 ```bash
+ENABLE_FEED_ROSTER_CONFIG=true \
 python -m app.feed_roster activate \
   --roster <registered-roster-id> \
   --expected-current <fresh-current-activation-id> \
@@ -251,7 +256,8 @@ Acceptance dry-run: `wouldReplay=false`, `added` содержит ровно Min
 
 Снова перечитать current activation. Если ID сместился — старый dry-run и GO
 сгорели; новый draft/review обязателен. После отдельного operator GO выполнить
-тот же вызов с `--apply` и сохранить activation/intervention/request IDs.
+тот же вызов с `--apply`, сохранив тот же process-local flag, и сохранить
+activation/intervention/request IDs.
 
 ## 6. Приёмка и наблюдаемый критерий
 
