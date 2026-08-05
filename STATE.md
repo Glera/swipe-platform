@@ -15,9 +15,12 @@
   только при новой существенной находке или изменении executable authority.
 - Gate C0 окончательно снят с критического пути. Текущий маршрут — Variant B:
   publish image → prepare-source → exact GET-only projection → deploy.
-  Редакция 3 подготовлена в
-  `platform-reliability-variant-b-deploy-slice-v3-2026-08-05.md`; dispatch и
-  Render mutation ещё не выполнялись.
+  Редакция 3 в
+  `platform-reliability-variant-b-deploy-slice-v3-2026-08-05.md` получила
+  независимый Claude **GO** на exact bytes `269c0400…0f69` против backend
+  `0e9e940`; новых P1/P2 нет. Dispatch и Render mutation ещё не выполнялись;
+  следующий акт — отдельный operator GO на фазу 1, которая только публикует
+  immutable image и не имеет доступа к Render.
 - Короткий путь Minesweeper подтверждён на локально восстановленном
   production dump: mapping → roster register → CAS activation проходит без
   ontology activation и второго backend deploy. Пакет обновлён в

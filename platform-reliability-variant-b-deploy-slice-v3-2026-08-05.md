@@ -5,8 +5,8 @@
 - Независимый ревьюер: Claude, один delta-проход перед production-окном.
 - Заменяет редакцию 2 (`abc3f8f`) после NO-GO
   `platform-reliability-variant-b-deploy-slice-v2-review-2026-08-05.md`.
-- Статус: **DRAFT — ни одного dispatch или Render-изменения до Claude GO и
-  отдельного operator GO.**
+- Статус: **CLAUDE REVIEW GO на exact bytes `269c0400…0f69`; ни одного
+  dispatch или Render-изменения до отдельного operator GO.**
 
 ## 1. Цель и сознательное упрощение
 
