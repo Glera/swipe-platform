@@ -370,8 +370,9 @@ available — DB revision and release receipt.
 | phase 2 failed; service is exact §7 prepared image and old deploy live | STOP; preserve state; continuation needs fresh operator GO |
 | phase 2 failed; service is partial, different or unreadable | terminal NO-GO; no deploy; preserve evidence; cleanup |
 | pre-window sync capture, Capture A or Capture B contains a new/unknown sync, a disallowed known-residual transition, or incomplete enumeration | STOP; no next phase; preserve provider evidence; cleanup |
-| Capture A reports a latest-deploy identity/status mismatch or any new deploy after prepare-source | terminal STOP; no phase 3; preserve service/deploy/sync state and coordinator receipt; cleanup credentials only |
+| Capture A or B reports a latest-deploy identity/status mismatch or any new deploy after prepare-source | terminal STOP; no phase 3; preserve service/deploy/sync state and coordinator receipt; cleanup credentials only |
 | Capture A or B reports prepared image/registry/health/preDeploy mismatch or an unreadable required projection | STOP; no phase 3; preserve the partially prepared service and exact error; cleanup credentials only; correction needs a new reviewed route |
+| Capture A or B reports any other non-sync mismatch or provider read failure | STOP; no phase 3; preserve the exact error and provider state; cleanup credentials only; correction or continuation needs a new reviewed route and GO |
 | Capture B reports `equal_capture_projection_mismatch` or lacks an `equalCaptureSha256` bound to Capture A | STOP; no phase 3; preserve both captures; cleanup credentials only; a fresh GO is required after disposition |
 | any capture reports `rollback_authorization_present` | STOP; no next phase; preserve env-key-name evidence without values; removal or restoration requires a separate reviewed decision |
 | phase 3 failed; no new deploy exists and old deploy remains live | STOP; no retry; capture env-key names; cleanup |
