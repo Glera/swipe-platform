@@ -28,8 +28,10 @@
 - Короткий путь Minesweeper подтверждён на локально восстановленном
   production dump: mapping → roster register → CAS activation проходит без
   ontology activation и второго backend deploy. Пакет обновлён в
-  `minesweeper-feed-roster-packet-2026-08-05.md`; production writes ещё не
-  выполнялись.
+  `minesweeper-feed-roster-packet-2026-08-05.md` и получил независимый Claude
+  **GO** на meta `330fb4f` против backend `0e9e940`, feed `c1681d8` и
+  swipe-platform `12033fa`; все identity/digests/CLI/CAS воспроизведены.
+  Production writes ещё не выполнялись.
 - Pending preview `exe-d9pg7s3m8hqs73fguv80` не одобрять никогда.
 
 ## ⇄ ХЭНДОФФ FRONTIER-ОРКЕСТРАЦИИ → Codex Sol (05.08 ~19:00)
