@@ -8,9 +8,11 @@
 - Phase 1 завершена и принята в
   `platform-reliability-variant-b-phase1-publication-receipt-2026-08-05.md`
   (`981db1531556958eb91b3a3863cc6c5a7896482d`).
-- Статус: **CLAUDE R2 GO на exact content head
-  `7506a670a5260a9a2b4d0749dafd66be96afb12f`; Phase 1 PASS; ни одного
-  внешнего действия до отдельного двойного GO.**
+- Исторический статус до pre-Phase-2 поправок: **CLAUDE R2 GO на exact content
+  head `7506a670a5260a9a2b4d0749dafd66be96afb12f`; Phase 1 PASS.**
+- Текущий статус: **DRAFT — второй preview и executable capture-path внесены;
+  credential preparation и Phase 2 запрещены до отдельной независимой
+  Claude-review квитанции exact bytes и нового двойного GO.**
 
 ## 1. Цель и сознательное упрощение
 
@@ -80,23 +82,47 @@ mutation, repeat every mutable observation below:
    `PLATFORM_RELEASE_AUTHORITY_SCOPE`. `RENDER_BLUEPRINT_ID` is deliberately
    added only immediately before phase 2 and must equal the live Blueprint in
    §2.
-4. `secrets.RENDER_API_KEY` was not used or changed by Phase 1. Independent
-   receipt review observed that the name already exists in environment
-   `production`, with GitHub metadata `created_at=2026-08-05T09:26:22Z`.
-   Its plaintext and Render-key identity are not recoverable from GitHub.
-   Before any credential-preparation GO this pre-existing secret must be
-   dispositioned under §5; it must never be silently overwritten.
+4. Conditional containment is complete under
+   `platform-reliability-variant-b-old-key-containment-receipt-2026-08-05.md`:
+   the old Render key is absent, environment `production` contains no
+   `RENDER_API_KEY`, and the cutover job therefore fails closed before any
+   provider call. Re-observe those two absences before credential preparation.
+   The next window creates exactly one new temporary key and one new GitHub
+   secret; it does not update or reuse the contained credential.
 5. Current production is observed read-only: live backend `09fa0cd`, DB
    `0070`, and the sole live deploy is `dep-d9mtmabm8hqs73cighmg`. If these
    changed, stop and rebuild the packet.
-6. Pending Blueprint preview `exe-d9pg7s3m8hqs73fguv80` is never opened for
-   approval and never approved.
+6. Two exact unapproved Blueprint previews are known residuals and are never
+   opened for approval or approved:
+   - `exe-d9nercqjnfac73aunbvg`, captured
+     `2026-08-02T17:54:51.176Z` from stale source `a12ca7e` with
+     `approved=false`, `stale=true` and an enabled Approve action;
+   - `exe-d9pg7s3m8hqs73fguv80`, created by the unapproved manual sync on
+     `2026-08-05` and left pending.
+   The first preview is dispositioned as an exact stale residual rather than
+   silently omitted: either preview may be absent, remain `created|pending`, or
+   become terminal `error`; either becoming `running|success` is STOP.
 7. The complete Blueprint-sync instrument is the official paginated endpoint
    `GET /v1/blueprints/exs-d95qo3q8qa3s73ea23p0/syncs?limit=100`, following
    every returned cursor until exhaustion. Normalize every item to
    `(id, state, commit.id, startedAt, completedAt)`, sort by `id`, and hash the
    canonical array. The OpenAPI states are `created`, `pending`, `running`,
    `error` and `success`; no dashboard inference substitutes for this API.
+8. The executable read-only instrument is
+   `scripts/platform-reliability-variant-b-provider-capture.mjs`, SHA-256
+   `dc8f1d46cda2f173df1cabb70457c099cf25da8d5aff847e144d6d523870a25f`.
+   It performs GET only; exhausts cursor pagination for `/syncs` and
+   `/env-vars`; reads the exact Blueprint, service and latest deploy; emits RFC
+   8785 canonical JSON with no API key or env values; and fails closed on an
+   unknown nonterminal sync, unsafe known-preview state, forbidden rollback
+   authorization name, pagination failure or unreadable projection. At
+   `pre-window` it additionally requires the exact source state
+   `runtime=docker` and `imagePath=null` before any mutation.
+9. The Blueprint Sync Hook recorded by the containment receipt remains a live
+   credential outside this route. Never invoke it. A hook-triggered sync would
+   be caught only at the three sampled captures; a residual gap remains after
+   Capture B and before the Phase 3 coordinator POST. Any observed new sync or
+   source/runtime drift is STOP, not an invitation to continue.
 
 ## 4. Phase 1 — completed immutable candidate publication
 
@@ -138,37 +164,49 @@ No rerun or second image dispatch is authorized.
 
 Only after a separate credential-preparation double GO:
 
-1. Resolve the pre-existing GitHub secret from §3 before changing anything:
-   - if its exact plaintext is still held and its Render key identity is known,
-     pin that identity and those same retained bytes as the **only** window key;
-     creating a second key in this branch is forbidden;
-   - otherwise STOP. Do not overwrite or delete the GitHub secret. A conditional
-     old-key-containment double GO must first enumerate the complete active-key
-     table in Render Account Settings, identify the exact old row by its retained
-     creation receipt, revoke that row, capture the complete table again with the
-     row absent, then delete the GitHub secret and confirm its absence. If the row
-     cannot be identified exactly, containment is unresolved and no new key may
-     be created.
-2. The selected window key must have one pinned Render key identity and exact
-   bytes in one non-emitting local secure holder. It is either the proven
-   retained key from step 1 or one newly created temporary key after the
-   conditional containment branch completed.
+1. Reconfirm the completed containment state from §3: the old Render key is
+   absent and environment `production` has no `RENDER_API_KEY`. Any mismatch is
+   STOP; do not create or overwrite a credential.
+2. Create exactly one temporary window key with one pinned Render key identity
+   and exact bytes in one non-emitting local secure holder. No other Render key
+   or GitHub secret is reused.
 3. With those exact retained bytes, exact
    `GET https://api.render.com/v1/users` returns 200.
-4. Before any GitHub or production-service mutation, call the complete
-   paginated sync endpoint defined in §3. Persist the normalized canonical array
-   and its SHA-256 as `<pre_window_syncs>` / `<pre_window_syncs_sha256>`. Its
-   nonterminal subset must be either empty or the sole known residual
-   `exe-d9pg7s3m8hqs73fguv80` in `created|pending`; `running` is always STOP.
-   Any other nonterminal sync, incomplete pagination or unreadable field is
-   STOP while production remains untouched; revoke/clean the selected key.
+4. Before any GitHub or production-service mutation, run the exact §3 tool from
+   its reviewed meta commit and verify its file SHA-256. The pre-window command
+   is literal (the key exists only in the non-emitting environment):
+
+   ```bash
+   test "$(shasum -a 256 scripts/platform-reliability-variant-b-provider-capture.mjs | awk '{print $1}')" = \
+     dc8f1d46cda2f173df1cabb70457c099cf25da8d5aff847e144d6d523870a25f
+   node scripts/platform-reliability-variant-b-provider-capture.mjs \
+     --stage pre-window \
+     --blueprint-id exs-d95qo3q8qa3s73ea23p0 \
+     --service-id srv-d95r3bfavr4c73aqsi4g \
+     --expected-owner-id tea-d1m4lmali9vc73euvelg \
+     --expected-current-deploy dep-d9mtmabm8hqs73cighmg \
+     --known-preview-id exe-d9nercqjnfac73aunbvg \
+     --known-preview-id exe-d9pg7s3m8hqs73fguv80 \
+     --output variant-b-pre-window-provider-capture.v1.json
+   ```
+
+   Persist its complete JCS receipt and `syncsSha256` as
+   `<pre_window_syncs>` / `<pre_window_syncs_sha256>`. The nonterminal subset
+   may be any subset of the two exact §3 residuals in `created|pending`;
+   `running|success` for either known preview is STOP. Any other nonterminal
+   sync, pagination failure or unreadable field is STOP while production
+   remains untouched; revoke/clean the selected key. The receipt must also show
+   `service.runtime=docker`, `service.imagePath=null`, the exact old live deploy,
+   and no rollback-authorization env-key names.
 5. Operator writes the same bytes to environment secret `RENDER_API_KEY` and
    records the GitHub secret update timestamp. GitHub cannot return plaintext;
    the local holder remains mandatory.
 6. Set repository variable `RENDER_BLUEPRINT_ID` to
    `exs-d95qo3q8qa3s73ea23p0` and re-read all six variables.
-7. Confirm there is no concurrent Render UI/API deploy and no other
-   `platform-production-release` workflow in progress.
+7. Confirm there is no concurrent Render UI/API deploy, no other
+   `platform-production-release` workflow in progress, and no intentional use
+   of the still-live Blueprint Sync Hook. The sampled capture cannot prove the
+   hook was unused in the interval after it was taken.
 8. Re-read `dep-d9mtmabm8hqs73cighmg`; it must still be live. This exact ID is the
    `expected_current_deploy` for both cutover dispatches.
 
@@ -213,6 +251,36 @@ Use the retained key for two distinct GET-only captures:
   Phase 3 GO. It must equal Capture A byte-for-byte after removing only the
   capture timestamp. Reusing Capture A as Capture B is forbidden.
 
+Capture A executes the §3 tool with these exact arguments:
+
+```bash
+node scripts/platform-reliability-variant-b-provider-capture.mjs \
+  --stage prepared \
+  --blueprint-id exs-d95qo3q8qa3s73ea23p0 \
+  --service-id srv-d95r3bfavr4c73aqsi4g \
+  --expected-owner-id tea-d1m4lmali9vc73euvelg \
+  --expected-current-deploy dep-d9mtmabm8hqs73cighmg \
+  --known-preview-id exe-d9nercqjnfac73aunbvg \
+  --known-preview-id exe-d9pg7s3m8hqs73fguv80 \
+  --expected-image-path ghcr.io/glera/swipe-backend@sha256:d7db27136b117c45158f40f9cc261d6807aae413f53ef2d649e4d23079e1b8b4 \
+  --expected-registry-credential-id rgc-d9np7tajnfac73bi5ib0 \
+  --expected-health-check-path /api/health \
+  --expected-predeploy-command "python -m app.platform_release predeploy-env" \
+  --baseline variant-b-pre-window-provider-capture.v1.json \
+  --output variant-b-capture-a-provider-capture.v1.json
+```
+
+Capture B repeats fresh GETs with the same arguments, changes only `--output`
+to `variant-b-capture-b-provider-capture.v1.json`, and adds:
+
+```text
+--equal-capture variant-b-capture-a-provider-capture.v1.json
+```
+
+The executable verifier excludes only `observedAt` (and the derived
+`equalCaptureSha256`) from A/B equality. Every provider projection, sync row,
+pagination count, forbidden-key result and immutable pin must otherwise match.
+
 Each capture must prove all facts at once:
 
 ```text
@@ -229,7 +297,8 @@ service.healthCheckPath       = /api/health
 service.preDeployCommand      = python -m app.platform_release predeploy-env
 latest deploy.id             = dep-d9mtmabm8hqs73cighmg
 latest deploy.status         = live
-pending Blueprint previews   = [] | [exe-d9pg7s3m8hqs73fguv80]
+pending Blueprint previews   = any subset of [exe-d9nercqjnfac73aunbvg,
+                               exe-d9pg7s3m8hqs73fguv80]
 Blueprint sync-set SHA-256   = <capture_syncs_sha256>
 new Blueprint sync IDs       = []
 ```
@@ -243,23 +312,24 @@ Each capture compares the complete normalized sync array to
 `<pre_window_syncs>`:
 
 - no new sync ID may appear;
-- every baseline item other than `exe-d9pg7s3m8hqs73fguv80` is byte-identical;
-- the known residual may be absent, remain `created|pending`, or become terminal
-  `error`; it may never be `running|success`;
-- therefore `pending Blueprint previews` is valid as either `[]` or the sole
-  known residual, never as any other set.
+- every baseline item other than the two exact §3 residuals is byte-identical;
+- either known residual may be absent, remain `created|pending`, or move
+  monotonically to terminal `error`; neither may become `running|success`;
+- therefore `pending Blueprint previews` is valid as any subset of the two
+  named residuals, never as any other set.
 
 Capture B must equal Capture A under the same normalization. Any unknown or new
-sync, a disallowed state transition, incomplete pagination, or inability to
+sync, a disallowed state transition, pagination failure, or inability to
 enumerate the complete set is STOP.
 If the API does not expose any required association (especially registry
 credential or preDeploy command), this is **not** treated as PASS by
 assumption: STOP before phase 3 and obtain an observable exact proof or patch
 the coordinator under a separately reviewed commit.
 
-Also GET the names (not values) of `PLATFORM_ROLLBACK_AUTHORIZATION_B64` and
-`PLATFORM_ROLLBACK_AUTHORIZATION_SHA256`. Both must be absent before a deploy
-operation. No secret or environment value is printed.
+The same tool exhausts `/v1/services/{id}/env-vars` pagination, projects names
+only in memory, and fails if `PLATFORM_ROLLBACK_AUTHORIZATION_B64` or
+`PLATFORM_ROLLBACK_AUTHORIZATION_SHA256` exists. It never serializes or prints
+an environment value.
 
 ## 8. Phase 3 — deploy
 
@@ -295,10 +365,16 @@ available — DB revision and release receipt.
 
 | Observed state | Disposition |
 | --- | --- |
+| pre-window capture reports source-runtime/image drift, latest-deploy mismatch/not-live, forbidden rollback key, provider read failure or any other non-sync mismatch | STOP before GitHub/service mutation; preserve the receipt/error code; revoke the temporary key and remove any holder created in the window |
 | phase 2 failed; service remains exact source configuration and old deploy live | STOP; no retry; cleanup |
 | phase 2 failed; service is exact §7 prepared image and old deploy live | STOP; preserve state; continuation needs fresh operator GO |
 | phase 2 failed; service is partial, different or unreadable | terminal NO-GO; no deploy; preserve evidence; cleanup |
 | pre-window sync capture, Capture A or Capture B contains a new/unknown sync, a disallowed known-residual transition, or incomplete enumeration | STOP; no next phase; preserve provider evidence; cleanup |
+| Capture A or B reports a latest-deploy identity/status mismatch or any new deploy after prepare-source | terminal STOP; no phase 3; preserve service/deploy/sync state and coordinator receipt; cleanup credentials only |
+| Capture A or B reports prepared image/registry/health/preDeploy mismatch or an unreadable required projection | STOP; no phase 3; preserve the partially prepared service and exact error; cleanup credentials only; correction needs a new reviewed route |
+| Capture A or B reports any other non-sync mismatch or provider read failure | STOP; no phase 3; preserve the exact error and provider state; cleanup credentials only; correction or continuation needs a new reviewed route and GO |
+| Capture B reports `equal_capture_projection_mismatch` or lacks an `equalCaptureSha256` bound to Capture A | STOP; no phase 3; preserve both captures; cleanup credentials only; a fresh GO is required after disposition |
+| any capture reports `rollback_authorization_present` | STOP; no next phase; preserve env-key-name evidence without values; removal or restoration requires a separate reviewed decision |
 | phase 3 failed; no new deploy exists and old deploy remains live | STOP; no retry; capture env-key names; cleanup |
 | new deploy is queued/building/pre-deploy/in-progress | wait read-only until terminal; no retry and no second deploy |
 | new deploy is terminal failed | STOP; capture DB revision/receipt and config; no roster work |
@@ -367,14 +443,18 @@ Only after cleanup PASS is the deploy window closed. The next package is
 
 ## 11. GO boundary
 
-One independent Claude delta-review covers this file against the exact
-workflow/coordinator at `0e9e940`. Phase 1 GO is exhausted. The remaining
-route requires three mandatory double-GO boundaries and one conditional
-containment boundary:
+One independent Claude delta-review must cover this file and the exact capture
+tool against the workflow/coordinator at `0e9e940`. Its separate committed
+artifact is
+`platform-reliability-variant-b-v4-claude-review-2026-08-05.md`; it must bind
+the reviewed route SHA-256, capture-tool SHA-256 and exact git head, and must
+precede merge. A status line inside this route is not a review receipt. Phase 1
+GO is exhausted. The remaining route requires three mandatory double-GO
+boundaries; conditional containment boundary 0 is historical PASS:
 
-0. only if the pre-existing key cannot be positively bound to retained bytes:
-   enumerate and revoke that exact old key, then remove its GitHub secret
-   holder;
+0. historical PASS: the unretained pre-existing key was revoked and its GitHub
+   secret holder removed under
+   `platform-reliability-variant-b-old-key-containment-receipt-2026-08-05.md`;
 1. credential preparation: bind/create/probe the one exact window key, perform
    the pre-window sync capture, write `RENDER_API_KEY`, and set
    `RENDER_BLUEPRINT_ID`;
