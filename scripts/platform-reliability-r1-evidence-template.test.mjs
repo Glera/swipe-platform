@@ -283,7 +283,7 @@ test('Gate C records the human Render remediation without claiming completion', 
   assert.match(contract, /providerConfirmedFromDatabaseContinuity=true/);
   assert.match(
     contract,
-    /dd250d08cfd65723532fd0f59d63064e88c38a24/,
+    /739d5b78ab0262dc7e97a9096d8067c92fc8a424/,
   );
   assert.deepEqual(freezePolicy, {
     schema: 'platform-reliability-r1-gate-c0-source-freeze-policy.v2',
@@ -303,15 +303,15 @@ test('Gate C records the human Render remediation without claiming completion', 
     sentinelDockerfileSha256:
       '9d86b119dfc22b8dc41ca7a7d4bd80b945476cb0c36e3169b1030c44364453e1',
     forbiddenRuntimePath: 'scripts/start-bake-runtime.sh',
-    preFreezeMasterSha: 'f2a840517956c4f480fc9d8aaf6f832ebde489d9',
-    preFreezeMasterTree: 'a7e4c6462d4d30d0af61eae4672792203739d832',
-    freezeCandidateHead: 'dd250d08cfd65723532fd0f59d63064e88c38a24',
-    freezeCandidateTree: 'f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac',
+    preFreezeMasterSha: '0e9e940a2a762f0e35f93c3e35f3afcfea6baaa4',
+    preFreezeMasterTree: '7b6f8955eb081fd7110a469d078a54ea786db1cc',
+    freezeCandidateHead: '739d5b78ab0262dc7e97a9096d8067c92fc8a424',
+    freezeCandidateTree: '32c8fd38a829389c788bd833ba96e39b7e330f55',
     mergeMethod: 'merge_commit',
-    expectedMergeFirstParent: 'f2a840517956c4f480fc9d8aaf6f832ebde489d9',
-    expectedMergeSecondParent: 'dd250d08cfd65723532fd0f59d63064e88c38a24',
-    expectedMergeTree: 'f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac',
-    requiredPostRevertTree: 'a7e4c6462d4d30d0af61eae4672792203739d832',
+    expectedMergeFirstParent: '0e9e940a2a762f0e35f93c3e35f3afcfea6baaa4',
+    expectedMergeSecondParent: '739d5b78ab0262dc7e97a9096d8067c92fc8a424',
+    expectedMergeTree: '32c8fd38a829389c788bd833ba96e39b7e330f55',
+    requiredPostRevertTree: '7b6f8955eb081fd7110a469d078a54ea786db1cc',
     maximumFreezeSeconds: 3600,
     revertBeforeGateC: true,
     expectedReplacementDeployOutcome:
@@ -336,7 +336,7 @@ test('Gate C records the human Render remediation without claiming completion', 
     contract,
     /Immediately after a terminal Gate C0 comparison[\s\S]{0,180}revert[\s\S]{0,80}complete backend PR #54 freeze merge/,
   );
-  assert.match(contract, /post-revert tree is exactly[\s\S]{0,100}a7e4c646/);
+  assert.match(contract, /post-revert tree is exactly[\s\S]{0,100}7b6f8955/);
   assert.match(contract, /unexpectedSyncObserved=false/);
   assert.match(contract, /sentinel freeze is never[\s\S]{0,40}active during Gate C/);
   assert.doesNotMatch(contract, /freeze[\s\S]{0,80}active through[\s\S]{0,80}Gate C/);

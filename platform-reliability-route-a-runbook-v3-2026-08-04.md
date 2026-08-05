@@ -75,9 +75,12 @@ R1-A выполняет:
 
 На момент этой редакции:
 
-- backend `master` — `1b145d441378b884e17938632378542ac3bf2069`;
-- PostgreSQL acceptance `30892649576` и Browser E2E `30892649700` для него
-  завершились `success`;
+- backend `master` — `0e9e940a2a762f0e35f93c3e35f3afcfea6baaa4`;
+- это merge patch A с ordered parents
+  `1b145d441378b884e17938632378542ac3bf2069` и
+  `9eebe3b0b40f335a848de19711ee93593e97cc6d`; его дерево побайтово равно
+  независимо проверенной голове PR #55, все 28 check-runs завершились
+  `success`;
 - production database находится на `0070_published_test_delivery`;
 - migration graph заканчивается
   `0071_mission_slice_core → 0072_mission_ops_receipts →
@@ -95,9 +98,9 @@ R1-A выполняет:
   `67fedba6901cf492bc0d60ac051560e89d443f3b`;
 - публичные `versions.json` и playable URL уже показывают Minesweeper.
 
-SHA backend `1b145d…` — входная точка для patch A, не будущий candidate SHA.
-Финальный source SHA станет известен только после patch A, Gate C0 и полного
-revert freeze.
+SHA backend `0e9e940…` — post-patch-A pre-freeze master и база перепривязки
+PR #54, не будущий candidate SHA. Финальный source SHA станет известен только
+после Gate C0, полного revert freeze и patch C.
 
 ## 4. Merge-граница
 

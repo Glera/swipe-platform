@@ -78,11 +78,11 @@ Every item is mandatory before **Approve**:
     disconnecting/reconnecting does not
     satisfy this precondition.
 11. Gate C0 source-freeze evidence proves that backend master was exact
-    `f2a840517956c4f480fc9d8aaf6f832ebde489d9` / tree
-    `a7e4c6462d4d30d0af61eae4672792203739d832` immediately before the freeze,
+    `0e9e940a2a762f0e35f93c3e35f3afcfea6baaa4` / tree
+    `7b6f8955eb081fd7110a469d078a54ea786db1cc` immediately before the freeze,
     that the bounded replacement completed or aborted, and that the complete
     freeze merge was reverted before Gate C. The post-revert backend tree must
-    again equal `a7e4c6462d4d30d0af61eae4672792203739d832`; a later reviewed source
+    again equal `7b6f8955eb081fd7110a469d078a54ea786db1cc`; a later reviewed source
     change is separate and must be pinned by the fresh Gate C Preview.
 12. The operator has issued a fresh, explicit `GO Gate C` after reviewing this
     contract and all evidence artifacts, including the terminal freeze-revert
@@ -166,11 +166,13 @@ cron or database. Before its operator confirmation:
 5. The immutable policy
    `platform-reliability-r1-gate-c0-source-freeze-policy.json` must parse exactly
    and still bind backend PR #54 to base
-   `f2a840517956c4f480fc9d8aaf6f832ebde489d9` / tree
-   `a7e4c6462d4d30d0af61eae4672792203739d832`, independently reviewed all-green
-   head `dd250d08cfd65723532fd0f59d63064e88c38a24` / tree
-   `f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac`, and a merge commit with those
-   ordered parents and candidate tree. Its `render.yaml` must be byte-identical
+   `0e9e940a2a762f0e35f93c3e35f3afcfea6baaa4` / tree
+   `7b6f8955eb081fd7110a469d078a54ea786db1cc`, candidate head
+   `739d5b78ab0262dc7e97a9096d8067c92fc8a424` / tree
+   `32c8fd38a829389c788bd833ba96e39b7e330f55`, and a merge commit with those
+   ordered parents and candidate tree. This exact rebound head and its checks
+   must be independently reviewed all-green before operator authorization. Its
+   `render.yaml` must be byte-identical
    to reviewed live source `7b41e96ad0d979863159ebdd356122af6295a203`,
    and its sentinel must fail before application startup or database access.
    The policy also pins the exact Git-object digests for live `render.yaml`,
@@ -192,7 +194,7 @@ After approval:
    checks against the immutable policy. Merge only that reviewed candidate with
    merge-commit semantics. Before any Render action, require the merge commit's
    ordered parents to equal the policy's base and candidate head and its tree to
-   equal `f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac`; otherwise stop and revert
+   equal `32c8fd38a829389c788bd833ba96e39b7e330f55`; otherwise stop and revert
    before continuing. Record the merge SHA and a source-freeze reversion deadline
    no more than 60 minutes after merge. The freeze is one attended operator
    window: do not pause work, merge unrelated source or initiate a production
@@ -277,7 +279,7 @@ the complete backend PR #54 freeze merge before the recorded 60-minute deadline
 and before preparing Gate C. The revert receipt must pin the freeze merge SHA,
 its ordered parents/tree, the revert commit and parent, elapsed seconds, and the
 post-revert tree. It passes only when the post-revert tree is exactly
-`a7e4c6462d4d30d0af61eae4672792203739d832`, no unrelated commit entered the
+`7b6f8955eb081fd7110a469d078a54ea786db1cc`, no unrelated commit entered the
 window, and `unexpectedSyncObserved=false`. A partial revert, an expired
 source-freeze deadline, a frozen source left unattended or any attempt to begin
 Gate C before this proof is **NO-GO**. Gate C then requires a fresh Preview

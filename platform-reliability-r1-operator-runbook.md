@@ -300,7 +300,7 @@ Follow-up про Sync Hook apply-versus-Preview пока не является p
 provider receipt. До factual-ответа рунбук fail-closed предполагает
 немедленное применение текущего `render.yaml` без
 Dashboard Approve. Поэтому Gate C0 начинается с exact-reviewed source freeze
-backend PR #54 @`dd250d08cfd65723532fd0f59d63064e88c38a24`; immutable policy
+backend PR #54 @`739d5b78ab0262dc7e97a9096d8067c92fc8a424`; immutable policy
 дополнительно пинит pre-freeze master/tree, candidate tree, ordered merge
 parents/tree и exact post-revert tree. Reviewer GO не разрешает merge. Freeze
 merge, cron suspension и Blueprint replacement разрешает только fresh operator
