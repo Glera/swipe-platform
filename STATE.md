@@ -1,5 +1,33 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ CODEX ПРИНЯЛ FRONTIER-ОРКЕСТРАЦИЮ (05.08, вечер)
+
+- Оператор передал Codex владение маршрутом, реализацией, коммитами и
+  финальной приёмкой до наблюдаемого результата: backend master в production,
+  БД на `0073`, Minesweeper виден и играется в ленте.
+- Процесс возвращён к двухконтурной норме `CLAUDE.md`: инфраструктура
+  заканчивается после этого результата; следующий приоритет — механики и
+  game feel, а не дальнейшая достройка recovery-церемоний для нулевой
+  аудитории.
+- Claude сохраняется как независимый ревьюер только в двух осмысленных
+  точках: один delta-review production deploy/migration-пакета и один review
+  mapping/roster/CAS-пакета перед активацией. Дополнительные раунды возникают
+  только при новой существенной находке или изменении executable authority.
+- Gate C0 окончательно снят с критического пути. Текущий маршрут — Variant B:
+  publish image → prepare-source → exact GET-only projection → deploy.
+  Редакция 3 в
+  `platform-reliability-variant-b-deploy-slice-v3-2026-08-05.md` получила
+  независимый Claude **GO** на exact bytes `269c0400…0f69` против backend
+  `0e9e940`; новых P1/P2 нет. Dispatch и Render mutation ещё не выполнялись;
+  следующий акт — отдельный operator GO на фазу 1, которая только публикует
+  immutable image и не имеет доступа к Render.
+- Короткий путь Minesweeper подтверждён на локально восстановленном
+  production dump: mapping → roster register → CAS activation проходит без
+  ontology activation и второго backend deploy. Пакет обновлён в
+  `minesweeper-feed-roster-packet-2026-08-05.md`; production writes ещё не
+  выполнялись.
+- Pending preview `exe-d9pg7s3m8hqs73fguv80` не одобрять никогда.
+
 ## ⇄ ХЭНДОФФ FRONTIER-ОРКЕСТРАЦИИ → Codex Sol (05.08 ~19:00)
 
 Claude-клиент повторно даунгрейдит эту сессию на Opus вопреки пину модели.
