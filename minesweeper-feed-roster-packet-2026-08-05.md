@@ -2,8 +2,8 @@
 
 - Дата: 05.08.2026.
 - Автор: Codex / R1-A. Ревьюер: отдельная хаб-сессия Claude.
-- Статус: **DRAFT — подготовка завершена частично, исполнение запрещено до
-  независимого ревью и отдельных operator GO.**
+- Статус: **DRAFT v2 — короткий путь подготовлен; исполнение запрещено до
+  независимого Claude-review и отдельных operator GO.**
 - Цель: после принятого deploy-среза B добавить `minesweeper-v1-swipe` в
   server-owned roster так, чтобы `/session` возвращал его на позиции 5 и после
   двух перезапусков мини-аппа сапёр был виден в ленте.
@@ -14,7 +14,7 @@
 
 | Контур | Pin | Что доказано |
 | --- | --- | --- |
-| backend | `0e9e940a2a762f0e35f93c3e35f3afcfea6baaa4`, tree `7b6f8955eb081fd7110a469d078a54ea786db1cc` | CLI mapping/roster и текущая sequencing closure |
+| backend | `0e9e940a2a762f0e35f93c3e35f3afcfea6baaa4`, tree `7b6f8955eb081fd7110a469d078a54ea786db1cc` | CLI mapping/roster; ontology не участвует в этом writer-path |
 | feed | `c1681d8044c28124be6d8e099a9a73849b59921e`, tree `3178575fbd150cc8bd7d2711c61e92142b303b0a` | baked roster: сапёр стоит после Arrows, на позиции 5 |
 | swipe-platform | `12033fa72d0dfaba4bde49264e2d543bf19e928a`, tree `1b5cf0d5e6b4b3a1a20f8d02d22cdc5a64523327` | exact production export |
 | playables source | `67fedba6901cf492bc0d60ac051560e89d443f3b` | `versions.json` связывает с ним Minesweeper export |
@@ -119,59 +119,53 @@ Snapshot:
 При исполнении всё это перечитывается заново. Ни один snapshot ID не
 подставляется в apply без свежей CAS-сверки.
 
-## 4. Блокирующая code-предпосылка: successor ontology closure
+## 4. Ontology не блокирует путь ростера
 
 `minesweeper` — новая family. Присвоить сапёру `sort`, `pins` или другую
 существующую family ради обхода шага запрещено: это ложная catalog identity и
 загрязнение affinity.
 
-Backend `0e9e940` не может безопасно провести это изменение как есть:
+Но ontology не является gate фактического production-пути этого пакета.
+Проверка `0e9e940` зафиксирована в
+`ontology-gate-finding-2026-08-05.md` (`e837257`):
 
-1. bootstrap пиннит только четыре family;
-2. его code-ontology уже `...2026-07.v2`, а зависимые affinity/cold-start/slot
-   всё ещё используют версии `...2026-07.v1`; новые bytes под теми же версиями
-   дадут immutable version conflict;
-3. bootstrap считает любую live cold/slot version, не равную текущей code-pin,
-   «console head». При обычном successor bundle это дало бы ложный
-   `bootstrap_supersedes_console`;
-4. slot activation pointer в baseline отсутствует. Если он появится до
-   исполнения, новая ontology closure обязана включить и CAS-перевод slot
-   pointer в той же транзакции; оставлять active slot на старой ontology
-   нельзя.
+- `feed_mapping_registry` не импортирует и не читает ontology;
+- mapping contract валидирует `mechanicFamily` как строковую identity и
+  равенство prefix `catalogMechanic`, а не membership активной ontology;
+- `feed_roster` при register/activate проверяет существование и active-state
+  mapping, но не sequencing closure;
+- `/session` строит roster projection из activation/config/mapping rows;
+- sequencing/ontology-контур запаркован и не участвует в player route.
 
-До любых DB apply требуется отдельный reviewed backend PR и его deployment.
-Минимальный source-scope PR:
+Следовательно, critical path — **variant → mapping → roster registration →
+CAS activation**. Successor ontology остаётся отдельным follow-up перед
+включением feed-sequencing для независимых игроков; этот пакет её не меняет и
+не требует второго backend deployment.
 
-- добавить `PinnedFamily("minesweeper", "Minesweeper", ("logic", "deduction"),
-  ("minesweeper-v1-swipe",))`; cold-start slate не менять;
-- выпустить новые версии ontology, affinity, cold-start, slot и policy — ни
-  один immutable version не переиспользовать для других bytes;
-- распознавать exact predecessor bundle по version+digest и отражать его в
-  receipt как predecessor, а не требовать/симулировать
-  `--supersede-console`;
-- сохранить один общий bundle lock и одну транзакцию;
-- если свежий preflight увидит slot pointer, добавить в manifest его exact
-  expected activation и CAS-активацию нового slot config; если pointer всё ещё
-  отсутствует, явно проверить и зафиксировать adoption-candidate semantics;
-- тест на prod-like predecessor: dry-run и apply дают complete coverage,
-  новую family, новые immutable refs и не меняют порядок cold-start probes;
-- негативные тесты: stale ontology/cold/slot CAS, version reuse, missing mapping,
-  mapping/ontology coverage regression и попытка назваться predecessor с
-  другим digest.
+Короткий путь дополнительно прогнан локально на восстановленном production
+dump из §3, без production writes, на exact backend `0e9e940` и
+swipe-platform `12033fa`:
 
-Этот PR не входит в deploy-срез B и не должен менять его pin. Он готовится и
-ревьюируется сейчас, но мержится/деплоится только после фазы 4 варианта B и
-отдельных GO. Пакет ниже не executable, пока эта closure не стала живым кодом.
+- после локального upgrade до `0073` штатно создана exact auto-variant;
+- mapping dry-run дал `create=1` и digest §2, apply создал ровно одну row;
+- roster dry-run дал `entryCount=15`, `added=[c47b75ff…]`, `removed=[]`,
+  `reordered=false` и roster hash §2; apply прошёл;
+- activation dry-run с current activation
+  `123ad86c-df97-4f9f-872b-6255fce36f4f` и exact production
+  `versions.json` прошёл;
+- ни один шаг не потребовал ontology activation или второго deploy.
+
+Это reachability-evidence, а не production CAS: все current IDs и manifests
+всё равно перечитываются заново в §5.0.
 
 ## 5. Исполнение — строгий порядок и отдельные GO
 
 ### 5.0 Fresh read-only preflight
 
-После PASS фазы 4 и deployment code-предпосылки:
+После PASS фазы 4 deploy-среза B:
 
 1. подтвердить deployed backend SHA и SHA-256 live `versions.json`;
-2. перечитать active roster projection, mapping registry, ontology, cold-start
-   и slot pointers;
+2. перечитать active roster projection и mapping registry;
 3. перечитать variant row;
 4. сохранить receipt с row identities/digests и timestamp;
 5. если roster отличается от §3 — STOP, пересобрать ordered roster manifest и
@@ -219,27 +213,7 @@ python -m app.feed_mapping_registry register \
 Флаг задаётся только этому процессу; persistent env сервиса не меняется.
 Сохранить stdout receipt и немедленно сделать read-only `list`.
 
-### 5.3 Successor ontology bundle: draft → review → dry-run → отдельный GO
-
-Только после committed mapping:
-
-1. `python -m app.feed_sequencing_bootstrap preflight`;
-2. создать новый operation UUID;
-3. `draft` exact manifest из свежих DB identities;
-4. независимое review manifest bytes, всех config digests, predecessor refs и
-   activation CAS;
-5. dry-run **тех же bytes** без `--apply`;
-6. убедиться, что `coverageBefore.complete=true` и
-   `coverageAfter.complete=true`, Minesweeper membership ровно одно, slate
-   неизменен, `supersededConsoleHeads=[]`;
-7. запросить отдельный operator GO;
-8. применить теми же bytes с одноразовым
-   `ENABLE_FEED_SEQUENCING_BOOTSTRAP=true`.
-
-`--accept-coverage-regression` и `--supersede-console` в этом пакете
-запрещены. Их необходимость означает новую authority-развилку и STOP.
-
-### 5.4 Roster registration dry-run, затем отдельный GO на apply
+### 5.3 Roster registration dry-run, затем отдельный GO на apply
 
 Использовать подготовленный `minesweeper-feed-roster-v1.json` только если
 fresh roster равен §3. Minesweeper добавляется на позиции 5; остальные 14
@@ -258,7 +232,7 @@ mapping ID, `removed=[]`, target roster hash равен §2.
 `rosterHash` и receipt. Registration apply и activation apply — два разных
 operator GO, не один.
 
-### 5.5 CAS activation dry-run, затем отдельный GO на apply
+### 5.4 CAS activation dry-run, затем отдельный GO на apply
 
 Непосредственно перед dry-run заново прочитать current activation ID. Взять
 exact deployed `versions.json`; его bytes обязаны хэшироваться в §1 digest.
@@ -288,8 +262,6 @@ Acceptance dry-run: `wouldReplay=false`, `added` содержит ровно Min
 3. Первый перезапуск мини-аппа завершает старую session; второй получает новую.
 4. После второго перезапуска сапёр виден сразу после Arrows и запускается.
 5. Нет `roster_entry_unavailable` для Minesweeper и нет `roster_fallback`.
-6. Sequencing coverage остаётся complete; новая family видна в ontology
-   projection.
 
 Только после этих наблюдений критерий **«сапёр виден в ленте»** считается
 закрытым.
@@ -302,24 +274,20 @@ STOP без импровизации при любом из условий:
 - variant отсутствует после штатной сессии или имеет другие immutable поля;
 - mapping dry-run не `create=1`/exact replay;
 - current roster/activation меняется между snapshot, dry-run и apply;
-- ontology bundle требует coverage-regression/supersede флаг;
-- coverage становится incomplete либо slot/ontology closure расходится;
 - `/session` не воспроизводит activation receipt или клиент уходит в fallback.
 
 Rollback не удаляет immutable rows. Он регистрирует/переиспользует предыдущий
 14-entry roster и создаёт **новую** CAS activation с current Minesweeper
 activation как `expected-current`, exact deploy manifest и отдельным operator
-GO. Ontology и mapping остаются исторически проверяемыми; их retire/смена —
-отдельный пакет, не аварийный шаг этого акта.
+GO. Mapping остаётся исторически проверяемым; его retire/смена — отдельный
+пакет, не аварийный шаг этого акта.
 
 ## 8. Матрица authority
 
 | Акт | До deploy B phase 4 | После phase 4 | Нужен отдельный GO |
 | --- | --- | --- | --- |
-| подготовка manifests и source PR closure | можно | можно | нет для локальной подготовки/ревью |
-| merge/deploy successor ontology code | нельзя | можно после review | да, на merge/deploy |
+| подготовка manifests | можно | можно | нет для локальной подготовки/ревью |
 | обычная Minesweeper session для variant | нельзя как часть пакета | можно | не DB apply, но фиксируется evidence |
-| mapping `--apply` | нельзя | после code/variant preflight | да |
-| ontology bundle `--apply` | нельзя | после mapping | да |
-| roster register `--apply` | нельзя | после ontology | да |
+| mapping `--apply` | нельзя | после variant preflight | да |
+| roster register `--apply` | нельзя | после mapping | да |
 | roster activation `--apply` | нельзя | последним | да |
