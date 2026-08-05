@@ -18,9 +18,11 @@
   Редакция 3 в
   `platform-reliability-variant-b-deploy-slice-v3-2026-08-05.md` получила
   независимый Claude **GO** на exact bytes `269c0400…0f69` против backend
-  `0e9e940`; новых P1/P2 нет. Dispatch и Render mutation ещё не выполнялись;
-  следующий акт — отдельный operator GO на фазу 1, которая только публикует
-  immutable image и не имеет доступа к Render.
+  `0e9e940`; новых P1/P2 нет. Последняя read-only сверка поймала одну
+  исполнимую формальность: GitHub `workflow_dispatch.ref` — branch/tag, поэтому
+  Phase 1 уточнена до `ref=master` с непосредственным CAS
+  `master==0e9e940`; это единственная delta, ждёт короткий Claude delta-GO.
+  Dispatch и Render mutation ещё не выполнялись.
 - Короткий путь Minesweeper подтверждён на локально восстановленном
   production dump: mapping → roster register → CAS activation проходит без
   ontology activation и второго backend deploy. Пакет обновлён в
