@@ -5,8 +5,9 @@
 - Независимый ревьюер: Claude, один delta-проход перед production-окном.
 - Заменяет редакцию 2 (`abc3f8f`) после NO-GO
   `platform-reliability-variant-b-deploy-slice-v2-review-2026-08-05.md`.
-- Статус: **CLAUDE REVIEW GO на exact bytes `269c0400…0f69`; ни одного
-  dispatch или Render-изменения до отдельного operator GO.**
+- Статус: **CLAUDE REVIEW GO, включая corrective `ref=master` delta на exact
+  bytes `6afd7020…b456`; ни одного dispatch или Render-изменения до отдельного
+  operator GO.**
 
 ## 1. Цель и сознательное упрощение
 
@@ -79,8 +80,11 @@ Before the first dispatch:
 
 ## 4. Phase 1 — publish immutable candidate
 
-Exactly one `workflow_dispatch` of `platform-release-image.yml` on exact ref
-`0e9e940`:
+Immediately re-read `swipe-backend/master`; it must equal exact
+`0e9e940a2a762f0e35f93c3e35f3afcfea6baaa4`. Then perform exactly one
+`workflow_dispatch` of `platform-release-image.yml` with `ref=master`.
+GitHub's dispatch API accepts a branch or tag ref, not a raw commit SHA; the
+pre-dispatch CAS plus the resulting `head_sha` bind execution to the commit.
 
 ```text
 publish             = true
