@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import crypto from 'node:crypto';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +9,9 @@ import { fileURLToPath } from 'node:url';
 const OBSERVATION_SCHEMA =
   'platform-reliability-r1-blueprint-replacement-observation.v3';
 const COMPARISON_SCHEMA =
-  'platform-reliability-r1-blueprint-replacement-comparison.v3';
+  'platform-reliability-r1-blueprint-replacement-comparison.v4';
+const SOURCE_POLICY_SCHEMA =
+  'platform-reliability-r1-gate-c0-source-freeze-policy.v2';
 const SUPPORT_SCHEMA = 'platform-reliability-r1-render-support-response.v2';
 const INCIDENT_OBSERVED_AT = '2026-08-02T19:10:00Z';
 const MAXIMUM_REPLACEMENT_WINDOW_SECONDS = 15 * 60;
@@ -18,6 +21,9 @@ const SHA256_RE = /^[a-f0-9]{64}$/;
 const GIT_SHA_RE = /^[a-f0-9]{40}$/;
 const SAFE_ID_RE = /^[a-z0-9][a-z0-9._:-]{0,127}$/;
 const ENVIRONMENT_KEY_RE = /^[A-Z][A-Z0-9_]{0,127}$/;
+const SAFE_GIT_PATH_RE = /^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9._/-]{1,256}$/;
+const MAX_GIT_OBJECT_BYTES = 5 * 1024 * 1024;
+const GIT_EXECUTABLE = '/usr/bin/git';
 
 function fail(message) {
   throw new Error(message);
@@ -166,6 +172,345 @@ function utcDateValue(value, label) {
 
 function sha256(bytes) {
   return crypto.createHash('sha256').update(bytes).digest('hex');
+}
+
+function gitPathValue(value, label) {
+  if (typeof value !== 'string' || !SAFE_GIT_PATH_RE.test(value)) {
+    fail(`${label} must be a bounded repository-relative path`);
+  }
+  return value;
+}
+
+function parseSourcePolicy(bytes) {
+  if (!Buffer.isBuffer(bytes)) fail('source policy bytes must be a Buffer');
+  const input = parseJsonBytes(bytes, 'source policy');
+  const value = input.value;
+  exactKeys(value, [
+    'schema',
+    'status',
+    'backendRepository',
+    'backendPullRequest',
+    'blueprintSourceBranch',
+    'blueprintPath',
+    'liveBlueprintSourceSha',
+    'liveRenderSha256',
+    'freezeManifestPath',
+    'freezeManifestSha256',
+    'sentinelDockerfilePath',
+    'sentinelDockerfileSha256',
+    'forbiddenRuntimePath',
+    'preFreezeMasterSha',
+    'preFreezeMasterTree',
+    'freezeCandidateHead',
+    'freezeCandidateTree',
+    'mergeMethod',
+    'expectedMergeFirstParent',
+    'expectedMergeSecondParent',
+    'expectedMergeTree',
+    'requiredPostRevertTree',
+    'maximumFreezeSeconds',
+    'revertBeforeGateC',
+    'expectedReplacementDeployOutcome',
+    'successfulOrLiveDeployForbidden',
+    'unexpectedSyncForbidden',
+    'operatorAuthorityRequired',
+    'secretsCaptured',
+  ], 'source policy');
+  if (value.schema !== SOURCE_POLICY_SCHEMA) {
+    fail(`source policy schema must be ${SOURCE_POLICY_SCHEMA}`);
+  }
+  if (value.status !== 'reviewed_candidate_not_authorized') {
+    fail('source policy status must remain reviewed_candidate_not_authorized');
+  }
+  if (value.backendRepository !== 'Glera/swipe-backend') {
+    fail('source policy backendRepository is not authorized');
+  }
+  integerValue(value.backendPullRequest, 'source policy backendPullRequest', 1, 1_000_000);
+  if (value.blueprintSourceBranch !== 'master') {
+    fail('source policy blueprintSourceBranch must be master');
+  }
+  if (value.mergeMethod !== 'merge_commit') {
+    fail('source policy mergeMethod must be merge_commit');
+  }
+  if (
+    value.expectedMergeFirstParent !== value.preFreezeMasterSha
+    || value.expectedMergeSecondParent !== value.freezeCandidateHead
+    || value.expectedMergeTree !== value.freezeCandidateTree
+    || value.requiredPostRevertTree !== value.preFreezeMasterTree
+  ) {
+    fail('source policy merge identity is internally inconsistent');
+  }
+  if (
+    value.revertBeforeGateC !== true
+    || value.expectedReplacementDeployOutcome
+      !== 'sentinel_exit_78_before_app_or_database_access'
+    || value.successfulOrLiveDeployForbidden !== true
+    || value.unexpectedSyncForbidden !== true
+    || value.operatorAuthorityRequired !== true
+    || value.secretsCaptured !== false
+  ) {
+    fail('source policy weakens the reviewed fail-closed boundary');
+  }
+  integerValue(
+    value.maximumFreezeSeconds,
+    'source policy maximumFreezeSeconds',
+    1,
+    3600,
+  );
+  return {
+    ...value,
+    blueprintPath: gitPathValue(value.blueprintPath, 'source policy blueprintPath'),
+    freezeManifestPath: gitPathValue(
+      value.freezeManifestPath,
+      'source policy freezeManifestPath',
+    ),
+    sentinelDockerfilePath: gitPathValue(
+      value.sentinelDockerfilePath,
+      'source policy sentinelDockerfilePath',
+    ),
+    forbiddenRuntimePath: gitPathValue(
+      value.forbiddenRuntimePath,
+      'source policy forbiddenRuntimePath',
+    ),
+    liveBlueprintSourceSha: gitShaValue(
+      value.liveBlueprintSourceSha,
+      'source policy liveBlueprintSourceSha',
+    ),
+    liveRenderSha256: sha256Value(
+      value.liveRenderSha256,
+      'source policy liveRenderSha256',
+    ),
+    freezeManifestSha256: sha256Value(
+      value.freezeManifestSha256,
+      'source policy freezeManifestSha256',
+    ),
+    sentinelDockerfileSha256: sha256Value(
+      value.sentinelDockerfileSha256,
+      'source policy sentinelDockerfileSha256',
+    ),
+    preFreezeMasterSha: gitShaValue(
+      value.preFreezeMasterSha,
+      'source policy preFreezeMasterSha',
+    ),
+    preFreezeMasterTree: gitShaValue(
+      value.preFreezeMasterTree,
+      'source policy preFreezeMasterTree',
+    ),
+    freezeCandidateHead: gitShaValue(
+      value.freezeCandidateHead,
+      'source policy freezeCandidateHead',
+    ),
+    freezeCandidateTree: gitShaValue(
+      value.freezeCandidateTree,
+      'source policy freezeCandidateTree',
+    ),
+    expectedMergeFirstParent: gitShaValue(
+      value.expectedMergeFirstParent,
+      'source policy expectedMergeFirstParent',
+    ),
+    expectedMergeSecondParent: gitShaValue(
+      value.expectedMergeSecondParent,
+      'source policy expectedMergeSecondParent',
+    ),
+    expectedMergeTree: gitShaValue(
+      value.expectedMergeTree,
+      'source policy expectedMergeTree',
+    ),
+    requiredPostRevertTree: gitShaValue(
+      value.requiredPostRevertTree,
+      'source policy requiredPostRevertTree',
+    ),
+    policySha256: sha256(bytes),
+  };
+}
+
+function gitEnvironment() {
+  const environment = { ...process.env };
+  delete environment.GIT_DIR;
+  delete environment.GIT_WORK_TREE;
+  delete environment.GIT_INDEX_FILE;
+  delete environment.GIT_OBJECT_DIRECTORY;
+  delete environment.GIT_ALTERNATE_OBJECT_DIRECTORIES;
+  environment.GIT_CONFIG_GLOBAL = '/dev/null';
+  environment.GIT_CONFIG_SYSTEM = '/dev/null';
+  environment.GIT_NO_REPLACE_OBJECTS = '1';
+  environment.GIT_OPTIONAL_LOCKS = '0';
+  return environment;
+}
+
+function gitObject(repository, args, label) {
+  try {
+    return execFileSync(GIT_EXECUTABLE, ['-C', repository, ...args], {
+      encoding: null,
+      env: gitEnvironment(),
+      maxBuffer: MAX_GIT_OBJECT_BYTES,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch {
+    fail(`could not read ${label} from the exact backend Git objects`);
+  }
+}
+
+function gitObjectExists(repository, objectExpression) {
+  const result = spawnSync(
+    GIT_EXECUTABLE,
+    ['-C', repository, 'cat-file', '-e', objectExpression],
+    {
+      encoding: null,
+      env: gitEnvironment(),
+      maxBuffer: MAX_GIT_OBJECT_BYTES,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
+  );
+  if (result.error) fail('could not execute git for object existence proof');
+  if (result.status === 0) return true;
+  if (result.status === 1 || result.status === 128) return false;
+  fail('git returned an unexpected status for object existence proof');
+}
+
+function parseCommit(repository, sha, label) {
+  const raw = gitObject(repository, ['cat-file', '-p', `${sha}^{commit}`], label);
+  const header = raw.toString('utf8').split('\n\n', 1)[0].split('\n');
+  const tree = header.find((line) => line.startsWith('tree '))?.slice(5);
+  const parents = header
+    .filter((line) => line.startsWith('parent '))
+    .map((line) => line.slice(7));
+  return {
+    tree: gitShaValue(tree, `${label} tree`),
+    parents: parents.map((parent, index) => (
+      gitShaValue(parent, `${label} parent ${index}`)
+    )),
+  };
+}
+
+function normalizedRepositoryFromRemote(remote) {
+  const trimmed = remote.trim().replace(/\.git$/, '');
+  const match = trimmed.match(
+    /^(?:https:\/\/github\.com\/|git@github\.com:|ssh:\/\/git@github\.com\/)([^/]+\/[^/]+)$/,
+  );
+  return match?.[1] ?? null;
+}
+
+function verifySourceTransition({ before, after, policy, backendRepo }) {
+  if (typeof backendRepo !== 'string' || !backendRepo.trim()) {
+    fail('backendRepo is required for exact Git-object source proof');
+  }
+  let repository;
+  try {
+    repository = fs.realpathSync(path.resolve(backendRepo));
+  } catch {
+    fail('backendRepo does not resolve to a readable path');
+  }
+  const remote = gitObject(
+    repository,
+    ['remote', 'get-url', 'origin'],
+    'backend origin URL',
+  ).toString('utf8');
+  if (normalizedRepositoryFromRemote(remote) !== policy.backendRepository) {
+    fail('backend Git origin does not match the reviewed source policy');
+  }
+
+  const beforeCommit = parseCommit(
+    repository,
+    before.blueprint.sourceSha,
+    'before Blueprint source commit',
+  );
+  const preFreezeCommit = parseCommit(
+    repository,
+    policy.preFreezeMasterSha,
+    'pre-freeze master commit',
+  );
+  const candidateCommit = parseCommit(
+    repository,
+    policy.freezeCandidateHead,
+    'freeze candidate commit',
+  );
+  const afterCommit = parseCommit(
+    repository,
+    after.blueprint.sourceSha,
+    'after Blueprint source commit',
+  );
+  if (before.blueprint.sourceSha !== policy.liveBlueprintSourceSha) {
+    fail('before Blueprint source SHA is not the reviewed live source');
+  }
+  if (preFreezeCommit.tree !== policy.preFreezeMasterTree) {
+    fail('pre-freeze master tree does not match the reviewed source policy');
+  }
+  if (candidateCommit.tree !== policy.freezeCandidateTree) {
+    fail('freeze candidate tree does not match the reviewed source policy');
+  }
+  if (
+    afterCommit.tree !== policy.expectedMergeTree
+    || afterCommit.parents.length !== 2
+    || afterCommit.parents[0] !== policy.expectedMergeFirstParent
+    || afterCommit.parents[1] !== policy.expectedMergeSecondParent
+  ) {
+    fail('after Blueprint source is not the exact reviewed freeze merge');
+  }
+
+  const beforeRender = gitObject(
+    repository,
+    ['cat-file', 'blob', `${before.blueprint.sourceSha}:${policy.blueprintPath}`],
+    'before render.yaml blob',
+  );
+  const afterRender = gitObject(
+    repository,
+    ['cat-file', 'blob', `${after.blueprint.sourceSha}:${policy.blueprintPath}`],
+    'after render.yaml blob',
+  );
+  const manifest = gitObject(
+    repository,
+    ['cat-file', 'blob', `${after.blueprint.sourceSha}:${policy.freezeManifestPath}`],
+    'freeze manifest blob',
+  );
+  const sentinel = gitObject(
+    repository,
+    ['cat-file', 'blob', `${after.blueprint.sourceSha}:${policy.sentinelDockerfilePath}`],
+    'freeze sentinel blob',
+  );
+  const beforeRenderSha256 = sha256(beforeRender);
+  const afterRenderSha256 = sha256(afterRender);
+  const freezeManifestSha256 = sha256(manifest);
+  const sentinelDockerfileSha256 = sha256(sentinel);
+  if (
+    beforeRenderSha256 !== policy.liveRenderSha256
+    || afterRenderSha256 !== policy.liveRenderSha256
+    || !beforeRender.equals(afterRender)
+  ) {
+    fail('render.yaml is not byte-identical across the reviewed source transition');
+  }
+  if (freezeManifestSha256 !== policy.freezeManifestSha256) {
+    fail('freeze manifest blob does not match the reviewed source policy');
+  }
+  if (sentinelDockerfileSha256 !== policy.sentinelDockerfileSha256) {
+    fail('freeze sentinel blob does not match the reviewed source policy');
+  }
+  if (
+    gitObjectExists(
+      repository,
+      `${after.blueprint.sourceSha}:${policy.forbiddenRuntimePath}`,
+    )
+  ) {
+    fail('forbidden runtime migration path is present in the freeze merge');
+  }
+  return {
+    authority: 'exact_git_objects_bound_by_reviewed_freeze_policy',
+    repository: policy.backendRepository,
+    branch: policy.blueprintSourceBranch,
+    blueprintPath: policy.blueprintPath,
+    beforeSourceSha: before.blueprint.sourceSha,
+    beforeSourceTree: beforeCommit.tree,
+    afterSourceSha: after.blueprint.sourceSha,
+    afterSourceTree: afterCommit.tree,
+    afterSourceParents: afterCommit.parents,
+    beforeRenderSha256,
+    afterRenderSha256,
+    renderBytesEqual: true,
+    freezeManifestSha256,
+    sentinelDockerfileSha256,
+    forbiddenRuntimePathAbsent: true,
+    sourcePolicySha256: policy.policySha256,
+  };
 }
 
 function parseJsonBytes(bytes, label) {
@@ -396,6 +741,7 @@ function parseObservation(value, expectedPhase, label) {
     'maximumDurationSeconds',
     'cronExecutionState',
     'webRestartObserved',
+    'unexpectedSyncObserved',
     'providerFromDatabaseContinuity',
   ], `${label}.safetyWindow`);
   const safetyWindow = {
@@ -422,6 +768,10 @@ function parseObservation(value, expectedPhase, label) {
       value.safetyWindow.webRestartObserved,
       `${label}.safetyWindow.webRestartObserved`,
     ),
+    unexpectedSyncObserved: booleanValue(
+      value.safetyWindow.unexpectedSyncObserved,
+      `${label}.safetyWindow.unexpectedSyncObserved`,
+    ),
     providerFromDatabaseContinuity: enumValue(
       value.safetyWindow.providerFromDatabaseContinuity,
       [PROVIDER_CONTINUITY_AUTHORITY],
@@ -430,6 +780,9 @@ function parseObservation(value, expectedPhase, label) {
   };
   if (safetyWindow.webRestartObserved) {
     fail(`${label}.safetyWindow.webRestartObserved must be false`);
+  }
+  if (safetyWindow.unexpectedSyncObserved) {
+    fail(`${label}.safetyWindow.unexpectedSyncObserved must be false`);
   }
   const startedAtMs = Date.parse(safetyWindow.startedAt);
   const deadlineAtMs = Date.parse(safetyWindow.deadlineAt);
@@ -634,6 +987,7 @@ export function compareBlueprintReplacement({
   before,
   after,
   support,
+  sourceTransition,
   beforeSha256,
   afterSha256,
   supportSha256,
@@ -646,8 +1000,23 @@ export function compareBlueprintReplacement({
       !== support.blueprintIdentitySha256.replace(/^sha256:/, '')
   ) difference('oldBlueprintIdentitySha256');
   if (before.blueprint.id === after.blueprint.id) difference('newBlueprintId');
-  if (before.blueprint.sourceSha !== after.blueprint.sourceSha) {
-    difference('sourceSha');
+  if (
+    before.blueprint.sourceRepository !== sourceTransition.repository
+    || after.blueprint.sourceRepository !== sourceTransition.repository
+  ) {
+    difference('sourceRepository');
+  }
+  if (
+    before.blueprint.sourceBranch !== sourceTransition.branch
+    || after.blueprint.sourceBranch !== sourceTransition.branch
+  ) {
+    difference('sourceBranch');
+  }
+  if (
+    before.blueprint.blueprintPath !== sourceTransition.blueprintPath
+    || after.blueprint.blueprintPath !== sourceTransition.blueprintPath
+  ) {
+    difference('blueprintPath');
   }
   if (
     before.blueprint.lastSyncAt !== support.lastSyncAt
@@ -698,7 +1067,9 @@ export function compareBlueprintReplacement({
     afterObservedAt: after.observedAt,
     oldBlueprintId: before.blueprint.id,
     newBlueprintId: after.blueprint.id,
-    sourceSha: before.blueprint.sourceSha,
+    beforeSourceSha: sourceTransition.beforeSourceSha,
+    afterSourceSha: sourceTransition.afterSourceSha,
+    sourceTransition,
     linkedServiceIdsSha256,
     linkedServiceConfigurationSha256,
     sourceDatabaseConfigurationSha256,
@@ -722,12 +1093,15 @@ export function compareBlueprintReplacementEvidence({
   beforeBytes,
   afterBytes,
   supportBytes,
+  sourcePolicyBytes,
+  backendRepo,
   publishedComparisonBytes = null,
 }) {
   for (const [bytes, label] of [
     [beforeBytes, 'before observation'],
     [afterBytes, 'after observation'],
     [supportBytes, 'support response'],
+    [sourcePolicyBytes, 'source policy'],
   ]) {
     if (!Buffer.isBuffer(bytes)) fail(`${label} bytes must be a Buffer`);
   }
@@ -743,10 +1117,18 @@ export function compareBlueprintReplacementEvidence({
   const before = parseObservation(beforeInput.value, 'before', 'before observation');
   const after = parseObservation(afterInput.value, 'after', 'after observation');
   const support = parseSupport(supportInput.value);
+  const sourcePolicy = parseSourcePolicy(sourcePolicyBytes);
+  const sourceTransition = verifySourceTransition({
+    before,
+    after,
+    policy: sourcePolicy,
+    backendRepo,
+  });
   const result = compareBlueprintReplacement({
     before,
     after,
     support,
+    sourceTransition,
     beforeSha256: sha256(beforeBytes),
     afterSha256: sha256(afterBytes),
     supportSha256: sha256(supportBytes),
@@ -762,7 +1144,14 @@ export function compareBlueprintReplacementEvidence({
 }
 
 function parseArgs(argv) {
-  const allowed = new Set(['--before', '--after', '--support', '--verify-json']);
+  const allowed = new Set([
+    '--before',
+    '--after',
+    '--support',
+    '--source-policy',
+    '--backend-repo',
+    '--verify-json',
+  ]);
   const values = new Map();
   if (argv.length % 2 !== 0) fail('every option requires a value');
   for (let index = 0; index < argv.length; index += 2) {
@@ -773,13 +1162,21 @@ function parseArgs(argv) {
     if (!value || value.startsWith('--')) fail(`${key} requires a value`);
     values.set(key, value);
   }
-  for (const key of ['--before', '--after', '--support']) {
+  for (const key of [
+    '--before',
+    '--after',
+    '--support',
+    '--source-policy',
+    '--backend-repo',
+  ]) {
     if (!values.has(key)) fail(`missing required option ${key}`);
   }
   return {
     beforePath: values.get('--before'),
     afterPath: values.get('--after'),
     supportPath: values.get('--support'),
+    sourcePolicyPath: values.get('--source-policy'),
+    backendRepo: values.get('--backend-repo'),
     verifyJsonPath: values.get('--verify-json') ?? null,
   };
 }
@@ -790,6 +1187,8 @@ export function run(argv) {
     beforeBytes: fs.readFileSync(options.beforePath),
     afterBytes: fs.readFileSync(options.afterPath),
     supportBytes: fs.readFileSync(options.supportPath),
+    sourcePolicyBytes: fs.readFileSync(options.sourcePolicyPath),
+    backendRepo: options.backendRepo,
     publishedComparisonBytes: options.verifyJsonPath === null
       ? null
       : fs.readFileSync(options.verifyJsonPath),

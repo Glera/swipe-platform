@@ -194,13 +194,13 @@
             "sourceRepository": "Glera/swipe-backend",
             "sourceBranch": "master",
             "blueprintPath": "render.yaml",
-            "sourceSha": "{{SAME_FULL_SHA_AS_BEFORE}}",
+            "sourceSha": "{{REVIEWED_FREEZE_MERGE_FULL_SHA}}",
             "evidenceSha256": "{{SHA256}}",
             "linkedServiceIdsSha256": "{{SAME_SHA256_AS_BEFORE}}",
             "linkedServiceConfigurationSha256": "{{SAME_SHA256_AS_BEFORE}}",
             "autoSyncState": "disabled"
           },
-          "comparisonResult": "replaced_same_source_and_services"
+          "comparisonResult": "replaced_reviewed_source_transition_and_same_services"
         },
         "terminalProofSha256": "{{SHA256}}",
         "secretsCaptured": false

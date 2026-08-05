@@ -19,6 +19,9 @@ import {
   run as compareBlueprintReplacement,
 } from './platform-reliability-r1-blueprint-replacement-compare.mjs';
 import {
+  createBlueprintGitFixture,
+} from './platform-reliability-r1-blueprint-git-fixture.test-helper.mjs';
+import {
   makeValidFinalEvidence,
   makeValidOperatorReceipt,
 } from './platform-reliability-r1-operator-receipt-test-fixture.mjs';
@@ -29,6 +32,11 @@ const SCRIPT = path.join(
 );
 const REPO_ROOT = path.resolve(path.dirname(SCRIPT), '..');
 const BASE_REF = 'master';
+const BACKEND_REPOS = new Map();
+const SHARED_BACKEND_PARENT = fs.mkdtempSync(
+  path.join(os.tmpdir(), 'r1-evidence-backend-'),
+);
+const SHARED_GIT_FIXTURE = createBlueprintGitFixture(SHARED_BACKEND_PARENT);
 
 function git(root, args) {
   return execFileSync('git', ['-C', root, ...args], {
@@ -146,7 +154,7 @@ function writeValidDeltaEvidence(root, { providerAfterOverrides = {} } = {}) {
   );
 }
 
-function writeValidBlueprintEvidence(root, receipt) {
+function writeValidBlueprintEvidence(root, receipt, gitFixture) {
   const supportPath = path.join(
     root,
     'platform-reliability-r1-gate-c-render-support-response.json',
@@ -154,7 +162,8 @@ function writeValidBlueprintEvidence(root, receipt) {
   const support = JSON.parse(fs.readFileSync(supportPath, 'utf8'));
   const oldBlueprintId = support.affectedBlueprintId;
   const newBlueprintId = 'exs-replacement-blueprint';
-  const sourceSha = 'a'.repeat(40);
+  const beforeSourceSha = gitFixture.liveBlueprintSourceSha;
+  const afterSourceSha = gitFixture.afterSourceSha;
   const services = receipt.consumerClosure.consumers.map((consumer, index) => ({
     serviceId: consumer.serviceId,
     kind: consumer.kind,
@@ -192,6 +201,7 @@ function writeValidBlueprintEvidence(root, receipt) {
       maximumDurationSeconds: 900,
       cronExecutionState: 'suspended',
       webRestartObserved: false,
+      unexpectedSyncObserved: false,
       providerFromDatabaseContinuity:
         'provider_confirmed_existing_service_environment_and_schedule_continuity',
     },
@@ -207,7 +217,7 @@ function writeValidBlueprintEvidence(root, receipt) {
       sourceRepository: 'Glera/swipe-backend',
       sourceBranch: 'master',
       blueprintPath: 'render.yaml',
-      sourceSha,
+      sourceSha: beforeSourceSha,
       autoSyncState: 'disabled',
       lastSyncAt:
         support.remediationResponse.providerStatements.lastObservedSyncAt,
@@ -221,6 +231,7 @@ function writeValidBlueprintEvidence(root, receipt) {
     blueprint: {
       ...structuredClone(before.blueprint),
       id: newBlueprintId,
+      sourceSha: afterSourceSha,
       lastSyncAt: null,
     },
     oldBlueprintAbsence: {
@@ -248,6 +259,11 @@ function writeValidBlueprintEvidence(root, receipt) {
     '--before', beforePath,
     '--after', afterPath,
     '--support', supportPath,
+    '--source-policy', path.join(
+      root,
+      'platform-reliability-r1-gate-c0-source-freeze-policy.json',
+    ),
+    '--backend-repo', gitFixture.repository,
   ]);
   fs.writeFileSync(comparisonPath, comparison.output);
   const fileSha256 = (target) => crypto.createHash('sha256')
@@ -268,7 +284,7 @@ function writeValidBlueprintEvidence(root, receipt) {
     oldBlueprintId;
   for (const consumer of receipt.consumerClosure.consumers) {
     consumer.blueprintReferenceId = newBlueprintId;
-    consumer.pinnedSourceSha = sourceSha;
+    consumer.pinnedSourceSha = afterSourceSha;
   }
   receipt.ingressClosure.autoSyncControl.linkedBlueprintId = newBlueprintId;
   receipt.window.completedAt = '2026-08-03T07:10:00Z';
@@ -308,7 +324,7 @@ function writeValidBlueprintEvidence(root, receipt) {
           sourceRepository: 'Glera/swipe-backend',
           sourceBranch: 'master',
           blueprintPath: 'render.yaml',
-          sourceSha,
+          sourceSha: beforeSourceSha,
           evidenceSha256: beforeSha256,
           linkedServiceIdsSha256:
             comparison.result.linkedServiceIdsSha256,
@@ -322,7 +338,7 @@ function writeValidBlueprintEvidence(root, receipt) {
           sourceRepository: 'Glera/swipe-backend',
           sourceBranch: 'master',
           blueprintPath: 'render.yaml',
-          sourceSha,
+          sourceSha: afterSourceSha,
           evidenceSha256: afterSha256,
           linkedServiceIdsSha256:
             comparison.result.linkedServiceIdsSha256,
@@ -330,7 +346,8 @@ function writeValidBlueprintEvidence(root, receipt) {
             comparison.result.linkedServiceConfigurationSha256,
           autoSyncState: 'disabled',
         },
-        comparisonResult: 'replaced_same_source_and_services',
+        comparisonResult:
+          'replaced_reviewed_source_transition_and_same_services',
       },
       terminalProofSha256: comparisonSha256,
       secretsCaptured: false,
@@ -340,6 +357,7 @@ function writeValidBlueprintEvidence(root, receipt) {
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-evidence-scan-'));
+  const gitFixture = SHARED_GIT_FIXTURE;
   git(root, ['init', '--initial-branch=master']);
   fs.writeFileSync(path.join(root, 'README.md'), 'fixture baseline\n');
   for (const filename of [
@@ -350,11 +368,19 @@ function fixture() {
   ]) {
     fs.copyFileSync(path.join(REPO_ROOT, filename), path.join(root, filename));
   }
+  fs.copyFileSync(
+    gitFixture.policyPath,
+    path.join(
+      root,
+      'platform-reliability-r1-gate-c0-source-freeze-policy.json',
+    ),
+  );
   git(root, ['add', 'README.md', ...[
     'platform-reliability-r1-0-snapshot-baseline.json',
     'platform-reliability-r1-0-db-query-receipt.json',
     'platform-reliability-r1-0-render-receipt.json',
     'platform-reliability-r1-gate-c-render-support-response.json',
+    'platform-reliability-r1-gate-c0-source-freeze-policy.json',
   ]]);
   git(root, [
     '-c',
@@ -379,7 +405,7 @@ function fixture() {
   }
   writeValidDeltaEvidence(root);
   const operatorReceipt = makeValidOperatorReceipt();
-  writeValidBlueprintEvidence(root, operatorReceipt);
+  writeValidBlueprintEvidence(root, operatorReceipt, gitFixture);
   fs.writeFileSync(
     path.join(root, 'platform-reliability-r1-operator-receipt.json'),
     `${JSON.stringify(operatorReceipt)}\n`,
@@ -388,16 +414,22 @@ function fixture() {
     path.join(root, 'platform-reliability-r1-final-evidence.md'),
     makeValidFinalEvidence(operatorReceipt),
   );
+  BACKEND_REPOS.set(root, gitFixture.repository);
   return {
     root,
+    backendRepo: gitFixture.repository,
     cleanup() {
+      BACKEND_REPOS.delete(root);
       fs.rmSync(root, { recursive: true, force: true });
     },
   };
 }
 
 function scan(root) {
-  return scanEvidence(root, { baseRef: BASE_REF });
+  return scanEvidence(root, {
+    baseRef: BASE_REF,
+    backendRepo: BACKEND_REPOS.get(root),
+  });
 }
 
 test('scans the exact git patch manifest and emits only hashes', () => {
@@ -440,6 +472,22 @@ test('scans the exact git patch manifest and emits only hashes', () => {
         .providerConfirmedFromDatabaseContinuity,
       true,
     );
+    assert.equal(
+      result.blueprintReplacementValidation.sourceTransitionAuthority,
+      'exact_git_objects_bound_by_reviewed_freeze_policy',
+    );
+    assert.notEqual(
+      result.blueprintReplacementValidation.beforeSourceSha,
+      result.blueprintReplacementValidation.afterSourceSha,
+    );
+    assert.equal(
+      result.blueprintReplacementValidation.renderBytesEqual,
+      true,
+    );
+    assert.equal(
+      result.blueprintReplacementValidation.forbiddenRuntimePathAbsent,
+      true,
+    );
     for (const artifact of result.requiredFiles) {
       assert.match(artifact.sha256, /^[a-f0-9]{64}$/);
       assert.equal(Object.hasOwn(artifact, 'content'), false);
@@ -447,7 +495,12 @@ test('scans the exact git patch manifest and emits only hashes', () => {
 
     const cli = JSON.parse(execFileSync(
       process.execPath,
-      [SCRIPT, '--root', files.root, '--base-ref', BASE_REF],
+      [
+        SCRIPT,
+        '--root', files.root,
+        '--base-ref', BASE_REF,
+        '--backend-repo', files.backendRepo,
+      ],
       { encoding: 'utf8' },
     ));
     assert.deepEqual(cli, result);
@@ -539,7 +592,7 @@ test('rejects stale or unbound Blueprint replacement evidence', () => {
         'platform-reliability-r1-gate-c0-blueprint-comparison.json',
       );
       const comparison = JSON.parse(fs.readFileSync(target, 'utf8'));
-      comparison.sourceSha = 'b'.repeat(40);
+      comparison.afterSourceSha = 'b'.repeat(40);
       fs.writeFileSync(target, `${JSON.stringify(comparison, null, 2)}\n`);
     },
     (root) => {
@@ -644,6 +697,11 @@ test('rejects an exact but inconsistent Blueprint comparison before receipt bind
       '--before', beforePath,
       '--after', afterPath,
       '--support', supportPath,
+      '--source-policy', path.join(
+        files.root,
+        'platform-reliability-r1-gate-c0-source-freeze-policy.json',
+      ),
+      '--backend-repo', files.backendRepo,
     ]);
     assert.equal(comparison.result.boundedReplacementConsistent, false);
     fs.writeFileSync(comparisonPath, comparison.output);

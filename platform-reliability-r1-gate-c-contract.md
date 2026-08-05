@@ -4,9 +4,11 @@ Status: **BLOCKED, NOT APPLIED**
 
 Prepared: `2026-08-02`
 
-Authority: only an explicit operator `GO Gate C0` permits deletion/recreation
-of the Blueprint object, and only a later explicit `GO Gate C` permits Render
-**Approve** of the reviewed credential-switch Preview.
+Authority: only an explicit operator `GO Gate C0` bound to the exact reviewed
+freeze candidate permits merging that candidate and deletion/recreation of the
+Blueprint object. Only a later explicit `GO Gate C` permits Render **Approve**
+of the reviewed credential-switch Preview. Reviewer GO is evidence, not either
+operator authorization.
 
 The first Preview is explicitly stale and must never be approved. It would
 have restored commit-triggered production deploys for the web service and both
@@ -71,11 +73,20 @@ Every item is mandatory before **Approve**:
     For this incident the supported path is deletion of the old Blueprint and
     creation of a new Blueprint. PASS requires a separate operator `GO Gate
     C0`, terminal absence of the old Blueprint, a different new Blueprint ID,
-    unchanged service IDs/configuration, exact source continuity and Auto Sync
-    `No`. Merely disabling Auto Sync or disconnecting/reconnecting does not
+    unchanged service IDs/configuration, the exact policy-bound live-source →
+    freeze-merge transition and Auto Sync `No`. Merely disabling Auto Sync or
+    disconnecting/reconnecting does not
     satisfy this precondition.
-11. The operator has issued a fresh, explicit `GO Gate C` after reviewing this
-    contract and all evidence artifacts.
+11. Gate C0 source-freeze evidence proves that backend master was exact
+    `f2a840517956c4f480fc9d8aaf6f832ebde489d9` / tree
+    `a7e4c6462d4d30d0af61eae4672792203739d832` immediately before the freeze,
+    that the bounded replacement completed or aborted, and that the complete
+    freeze merge was reverted before Gate C. The post-revert backend tree must
+    again equal `a7e4c6462d4d30d0af61eae4672792203739d832`; a later reviewed source
+    change is separate and must be pinned by the fresh Gate C Preview.
+12. The operator has issued a fresh, explicit `GO Gate C` after reviewing this
+    contract and all evidence artifacts, including the terminal freeze-revert
+    receipt.
 
 Any mismatch is **NO-GO**. Do not approve a regenerated or changed Preview
 under this contract; capture and review a new one.
@@ -113,6 +124,14 @@ services, forbids a web restart and bounds one active replacement attempt to
 15 minutes. Both human responses are captured without connection values in
 the strict v2 support receipt.
 
+The follow-up note about Sync Hook apply-versus-Preview authority was explicitly
+framed as a guess and is not captured in the strict provider receipt or treated
+as provider fact. Until Render supplies a factual answer, Gate C0 assumes the
+stronger behavior: a private Sync Hook invocation can apply current
+`render.yaml` without a separate Dashboard **Approve**. The source freeze below
+makes that assumption fail-closed; Gate C0 does not depend on the unanswered
+question becoming favorable.
+
 This response is a remediation contract, not terminal evidence: the old
 Blueprint still exists and its hook is not yet invalidated. Gate C and every
 later operator action therefore remain stopped. A separate `GO Gate C0`,
@@ -144,64 +163,126 @@ cron or database. Before its operator confirmation:
    that service environment variables and cron schedules are materialized on
    the existing services and remain unchanged by Blueprint replacement. It
    must also retain `providerHasNotObservedReplacementExecution=true`.
-5. Show the operator the exact old Blueprint target, both cron targets, the
-   15-minute deadline and rollback boundary, then obtain a fresh `GO Gate C0`.
-   That GO authorizes cron suspension and Blueprint replacement in this one
-   window; it does not authorize credential deletion.
+5. The immutable policy
+   `platform-reliability-r1-gate-c0-source-freeze-policy.json` must parse exactly
+   and still bind backend PR #54 to base
+   `f2a840517956c4f480fc9d8aaf6f832ebde489d9` / tree
+   `a7e4c6462d4d30d0af61eae4672792203739d832`, independently reviewed all-green
+   head `dd250d08cfd65723532fd0f59d63064e88c38a24` / tree
+   `f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac`, and a merge commit with those
+   ordered parents and candidate tree. Its `render.yaml` must be byte-identical
+   to reviewed live source `7b41e96ad0d979863159ebdd356122af6295a203`,
+   and its sentinel must fail before application startup or database access.
+   The policy also pins the exact Git-object digests for live `render.yaml`,
+   the freeze manifest and sentinel, plus absence of
+   `scripts/start-bake-runtime.sh`; observation JSON cannot supply or override
+   those hashes.
+   Backend PR #54 remains draft and unmerged before operator authorization.
+6. Show the operator the exact backend PR #54 head, old Blueprint target, both cron
+   targets, the 15-minute replacement deadline, a separate source-freeze
+   reversion deadline no more than 60 minutes after merge, and the rollback
+   boundary. Then obtain a fresh `GO Gate C0`. That GO authorizes exactly the
+   backend PR #54 merge, cron suspension and Blueprint replacement in this one
+   attended window; it does not authorize credential deletion or any
+   production deployment.
 
 After approval:
 
-1. Suspend `swipe-seq-shadow-run` and `swipe-c1-materialize`; capture their
+1. Recheck backend master and tree, backend PR #54 exact head/tree and required
+   checks against the immutable policy. Merge only that reviewed candidate with
+   merge-commit semantics. Before any Render action, require the merge commit's
+   ordered parents to equal the policy's base and candidate head and its tree to
+   equal `f34eff150cd5a63fc57c85f800f08cf5fa0ea0ac`; otherwise stop and revert
+   before continuing. Record the merge SHA and a source-freeze reversion deadline
+   no more than 60 minutes after merge. The freeze is one attended operator
+   window: do not pause work, merge unrelated source or initiate a production
+   deployment while it is active. If an urgent hotfix is needed, abort Gate C0,
+   revert the complete freeze merge first, prove the exact pre-freeze tree is
+   restored, and only then use the normal separately authorized deploy path.
+2. Suspend `swipe-seq-shadow-run` and `swipe-c1-materialize`; capture their
    provider state and prove that no scheduled run can start in the window.
    Record a start time and hard deadline no more than 900 seconds later.
-2. Capture the v3 `before` observation after suspension. It must show web
-   `live/running`, both cron services `suspended`, no observed web restart and
+3. Capture the v3 `before` observation after suspension. It must show web
+   `live/running`, both cron services `suspended`, no observed web restart, no
+   unexpected sync and
    `provider_confirmed_existing_service_environment_and_schedule_continuity`.
    The comparator cross-binds that typed value to the strict Render Support
    receipt; an operator-authored observation cannot upgrade itself to
    provider-confirmed.
-3. Delete only old Blueprint `exs-d95qo3q8qa3s73ea23p0`.
-4. Prove the old Blueprint is absent while every baseline service keeps the
+4. Delete only old Blueprint `exs-d95qo3q8qa3s73ea23p0`.
+5. Prove the old Blueprint is absent while every baseline service keeps the
    same ID and remains available.
-5. Start creation of a new Blueprint from the exact same repo, branch and
+6. Start creation of a new Blueprint from the exact same repo, branch and
    `render.yaml` path. Do not read or expose the new Sync Hook.
-6. Before any final create/apply action, inspect the provider Preview. It must
+7. Before any final create/apply action, inspect the provider Preview. It must
    relink the existing service IDs and must not create/delete a service, change
    plan/storage/schedule/command/source, or enable commit-triggered deploys.
-7. If Render cannot show that bounded Preview, if the web restarts, if either
+8. If Blueprint replacement automatically starts a build/deploy, a terminal
+   sentinel failure with exit `78` before application or database access is
+   the expected containment result. Record the deploy identity and continue
+   only if the previous Live deployment remains serving and the web has not
+   restarted. A successful/Live deploy, application startup or database access
+   by that candidate proves the freeze did not bind and is an immediate
+   **NO-GO** incident.
+9. If Render cannot show that bounded Preview, if the web restarts, if either
    cron becomes runnable, or if the 900-second deadline expires, stop. Leave
    both cron services suspended, retain both database credentials, alert the
    operator and require a new baseline plus a new explicit GO for any later
    recreation attempt. Blueprint deletion alone remains containment.
-8. After creation, record the different new Blueprint ID, exact source SHA,
-   Auto Sync `No`, unchanged linked service IDs and terminal old-ID absence.
-   Capture the v3 `after` observation before the deadline and while both cron
-   services remain suspended. Do not resume them in Gate C0.
-9. Publish the no-secret observations as
-   `platform-reliability-r1-gate-c0-blueprint-before.json` and
-   `platform-reliability-r1-gate-c0-blueprint-after.json`, then generate
-   `platform-reliability-r1-gate-c0-blueprint-comparison.json` only with:
+10. After creation, record the different new Blueprint ID, exact source SHA,
+    Auto Sync `No`, unchanged linked service IDs and terminal old-ID absence.
+    Capture every sync identity observed since the window start; each must be
+    attributable to the single bounded replacement operation. Any other sync,
+    or any sync after the terminal `after` observation, is unexpected. Capture
+    the v3 `after` observation before the deadline and while both cron services
+    remain suspended; it must set `unexpectedSyncObserved=false`. Do not resume
+    them in Gate C0.
+11. Publish the no-secret observations as
+    `platform-reliability-r1-gate-c0-blueprint-before.json` and
+    `platform-reliability-r1-gate-c0-blueprint-after.json`, then generate
+    `platform-reliability-r1-gate-c0-blueprint-comparison.json` only with:
 
-   ```bash
-   node scripts/platform-reliability-r1-blueprint-replacement-compare.mjs \
-     --before platform-reliability-r1-gate-c0-blueprint-before.json \
-     --after platform-reliability-r1-gate-c0-blueprint-after.json \
-     --support platform-reliability-r1-gate-c-render-support-response.json
-   ```
+    ```bash
+    node scripts/platform-reliability-r1-blueprint-replacement-compare.mjs \
+      --before platform-reliability-r1-gate-c0-blueprint-before.json \
+      --after platform-reliability-r1-gate-c0-blueprint-after.json \
+      --support platform-reliability-r1-gate-c-render-support-response.json \
+      --source-policy platform-reliability-r1-gate-c0-source-freeze-policy.json \
+      --backend-repo /absolute/path/to/clean/swipe-backend-worktree
+    ```
 
-   A standalone rerun with `--verify-json` must PASS before Gate C is
-   prepared. The comparator emits `evidenceClass=operator_attested`,
-   `providerVerifiedServiceContinuity=false`,
-   `providerConfirmedFromDatabaseContinuity=true` and derives
-   service/database digests from raw bounded projections with code-point
-   ordering and stable object-key ordering. The final evidence scanner replays
-   the comparison
-   from the exact bytes it scanned and cross-binds all three files to the
-   operator receipt.
+    A standalone rerun with the same policy and backend worktree plus
+    `--verify-json` must PASS before Gate C is prepared. The comparator reads
+    both source commits, the ordered merge parents/tree, live/freeze
+    `render.yaml`, the freeze manifest, sentinel and forbidden runtime path
+    directly from the exact Git objects. It emits
+    `sourceTransition.authority=exact_git_objects_bound_by_reviewed_freeze_policy`,
+    `evidenceClass=operator_attested`,
+    `providerVerifiedServiceContinuity=false`,
+    `providerConfirmedFromDatabaseContinuity=true` and derives
+    service/database digests from raw bounded projections with code-point
+    ordering and stable object-key ordering. It rejects either observation when
+    `unexpectedSyncObserved` is true. The final evidence scanner replays the
+    comparison from the exact bytes it scanned and the same exact backend Git
+    objects, then cross-binds both source SHAs and all three evidence files to
+    the operator receipt.
 
-Any duplicate resource proposal, unexpected deploy/sync, source drift or
-service-ID change is **NO-GO**. The old database credential remains available;
-no database user is deleted in Gate C0.
+Any duplicate resource proposal, unexpected sync, source drift, service-ID
+change or deploy outcome other than the bounded sentinel failure above is
+**NO-GO**. The old database credential remains available; no database user is
+deleted in Gate C0.
+
+Immediately after a terminal Gate C0 comparison, and also on any abort, revert
+the complete backend PR #54 freeze merge before the recorded 60-minute deadline
+and before preparing Gate C. The revert receipt must pin the freeze merge SHA,
+its ordered parents/tree, the revert commit and parent, elapsed seconds, and the
+post-revert tree. It passes only when the post-revert tree is exactly
+`a7e4c6462d4d30d0af61eae4672792203739d832`, no unrelated commit entered the
+window, and `unexpectedSyncObserved=false`. A partial revert, an expired
+source-freeze deadline, a frozen source left unattended or any attempt to begin
+Gate C before this proof is **NO-GO**. Gate C then requires a fresh Preview
+pinned to the then-current reviewed backend source; the sentinel freeze is never
+active during Gate C.
 
 After terminal replacement, the exposed old hook is inert by the combination
 of Render's human remediation contract and observed terminal absence of the

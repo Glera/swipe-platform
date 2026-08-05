@@ -295,6 +295,17 @@ state, отсутствие web restart и typed provider authority входят
 before/after observations; истечение deadline оставляет cron suspended и
 требует нового baseline + нового operator GO.
 
+Follow-up про Sync Hook apply-versus-Preview пока не является provider fact:
+неавторитетная заметка была помечена как guess и намеренно не включена в strict
+provider receipt. До factual-ответа рунбук fail-closed предполагает
+немедленное применение текущего `render.yaml` без
+Dashboard Approve. Поэтому Gate C0 начинается с exact-reviewed source freeze
+backend PR #54 @`dd250d08cfd65723532fd0f59d63064e88c38a24`; immutable policy
+дополнительно пинит pre-freeze master/tree, candidate tree, ordered merge
+parents/tree и exact post-revert tree. Reviewer GO не разрешает merge. Freeze
+merge, cron suspension и Blueprint replacement разрешает только fresh operator
+`GO Gate C0`, привязанный к exact policy и head.
+
 Ответ не является terminal proof: до фактической замены старый hook остаётся
 валидным. Удаление/recreation — отдельный destructive `OPERATOR GATE C0` по
 `platform-reliability-r1-gate-c-contract.md`. PASS требует отсутствия старого
@@ -307,11 +318,17 @@ residual. Ни новый Sync Hook incident, ни раскрытие учётн
 
 Service/database continuity в Gate C0 имеет evidence class
 `operator_attested`, не provider-verified; отдельно фиксируется
-`providerConfirmedFromDatabaseContinuity=true`. Observation v3 сохраняет raw
+`providerConfirmedFromDatabaseContinuity=true`. Observation v3 сохраняет
+`unexpectedSyncObserved=false` и raw
 bounded non-secret projections (service ID/kind/status/plan/schedule/runtime,
 command, environment key names, structured DB binding and DB configuration),
 а comparator сам вычисляет stable code-point-ordered digests. Caller-supplied
-configuration hashes в observation запрещены. После terminal old-Blueprint
+configuration hashes в observation запрещены. До terminal comparison source
+transition проверяется отдельным comparator v4: разные before/after `sourceSha`
+допустимы только как exact merge с ordered parents/tree из reviewed freeze
+policy. SHA-256 `render.yaml`, freeze-manifest и sentinel вычисляются из Git
+objects чистого backend worktree; operator observation не является authority
+для этих digest. После terminal old-Blueprint
 absence локальная сохранённая копия hook становится inert, но не исчезает:
 она удаляется отдельным cleanup receipt либо получает явного owner/deadline.
 
@@ -391,13 +408,22 @@ receipt фиксируются отдельным reviewable-пакетом. Д�
 состава предусловий.
 
 Если старый Sync Hook ещё не инвалидирован, сначала исполняется отдельный
-`OPERATOR GATE C0`: fresh GO → suspend обоих cron → v3 before observation →
+`OPERATOR GATE C0`: fresh GO, явно разрешающий exact backend PR #54 merge → merge
+fail-closed source freeze → suspend обоих cron → v3 before observation →
 удаление только старого Blueprint → bounded relink Preview → создание нового
-Blueprint → v3 after observation до 900-second deadline. Cron остаются
-suspended до terminal comparison и отдельного Gate C; при deadline, web
-restart или неожиданном runnable cron окно останавливается без удаления
-какой-либо DB credential. Точная последовательность и stop rules живут в
-Gate C contract.
+Blueprint → v3 after observation до 900-second deadline → terminal comparison →
+полный revert freeze → exact post-revert tree proof. Cron остаются suspended до
+terminal comparison и отдельного Gate C. Freeze живёт только в одном attended
+operator window, не дольше 60 минут от merge, и запрещает любой production
+deploy. Срочный hotfix требует сначала abort + полный revert freeze. Если
+replacement сам запускает deploy, ожидаем только terminal sentinel exit `78` до
+app/DB; successful/Live deploy — немедленный NO-GO. При deadline, web restart,
+неожиданном sync или неожиданном runnable cron окно останавливается без удаления
+какой-либо DB credential. После terminal Gate C0 comparison или любого abort
+полный freeze revert обязан восстановить exact pre-freeze tree до 60-minute
+deadline. Gate C не начинается до terminal revert receipt и использует fresh
+Preview на then-current reviewed source; sentinel freeze во время Gate C уже не
+активен. Точная последовательность и stop rules живут в Gate C contract.
 
 До sync новый user должен пройти не только `SELECT 1`, но и read-only
 capability audit:
@@ -660,7 +686,7 @@ fresh internal proof и `/32` снова удаляется. Если external r
 | RPO/RTO observed | requested point, Start, Available и validation timestamps + вычисленные seconds |
 | External ingress closed | merged Blueprint `ipAllowList: []` identity + sync receipt + empty allowlist + post-change protocol rejection |
 | Internal remains green | post-closure fresh DB proof каждого consumer |
-| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; любой новый typed secret-exposure incident имеет operator-approved terminal rotation/invalidation proof; известный pre-window Sync Hook либо реально ротирован/отозван, либо представлен единственным exact `operator_accepted_residual` с review deadline и reopen triggers; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master > platform-reliability-r1-secret-scan-receipt.json` PASS |
+| Secret hygiene | exact git patch equals the approved evidence manifest (plus its own output receipt), no credentials/operator IP in decoded or raw artifacts; любой новый typed secret-exposure incident имеет operator-approved terminal rotation/invalidation proof; известный pre-window Sync Hook либо реально ротирован/отозван, либо представлен единственным exact `operator_accepted_residual` с review deadline и reopen triggers; `node scripts/platform-reliability-r1-evidence-scan.mjs --root . --base-ref origin/master --backend-repo /absolute/path/to/clean/swipe-backend-worktree > platform-reliability-r1-secret-scan-receipt.json` PASS |
 
 Цель R1 считается выполненной только после независимого review всего пакета,
 а не после последнего клика в Render. При `operator_accepted_residual` итог

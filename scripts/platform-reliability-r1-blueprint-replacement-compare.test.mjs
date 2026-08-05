@@ -10,6 +10,9 @@ import { fileURLToPath } from 'node:url';
 import {
   run,
 } from './platform-reliability-r1-blueprint-replacement-compare.mjs';
+import {
+  createBlueprintGitFixture,
+} from './platform-reliability-r1-blueprint-git-fixture.test-helper.mjs';
 
 const SCRIPT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -93,6 +96,7 @@ function fixture() {
       maximumDurationSeconds: 900,
       cronExecutionState: 'suspended',
       webRestartObserved: false,
+      unexpectedSyncObserved: false,
       providerFromDatabaseContinuity:
         'provider_confirmed_existing_service_environment_and_schedule_continuity',
     },
@@ -177,11 +181,20 @@ function fixture() {
 }
 
 function writeFixture(root, candidate = fixture()) {
+  const gitFixture = createBlueprintGitFixture(root);
+  if (candidate.before.blueprint.sourceSha === 'a'.repeat(40)) {
+    candidate.before.blueprint.sourceSha = gitFixture.liveBlueprintSourceSha;
+  }
+  if (candidate.after.blueprint.sourceSha === 'a'.repeat(40)) {
+    candidate.after.blueprint.sourceSha = gitFixture.afterSourceSha;
+  }
   const paths = {
     before: path.join(root, 'before.json'),
     after: path.join(root, 'after.json'),
     support: path.join(root, 'support.json'),
     comparison: path.join(root, 'comparison.json'),
+    sourcePolicy: gitFixture.policyPath,
+    backendRepo: gitFixture.repository,
   };
   fs.writeFileSync(paths.before, `${JSON.stringify(candidate.before, null, 2)}\n`);
   fs.writeFileSync(paths.after, `${JSON.stringify(candidate.after, null, 2)}\n`);
@@ -189,14 +202,21 @@ function writeFixture(root, candidate = fixture()) {
   return paths;
 }
 
-test('proves a different Blueprint with exact source and service continuity', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
-  const paths = writeFixture(root);
-  const { result, output } = run([
+function comparisonArgs(paths, extra = []) {
+  return [
     '--before', paths.before,
     '--after', paths.after,
     '--support', paths.support,
-  ]);
+    '--source-policy', paths.sourcePolicy,
+    '--backend-repo', paths.backendRepo,
+    ...extra,
+  ];
+}
+
+test('proves a different Blueprint with reviewed source transition and service continuity', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
+  const paths = writeFixture(root);
+  const { result, output } = run(comparisonArgs(paths));
   assert.equal(result.boundedReplacementConsistent, true);
   assert.equal(result.evidenceClass, 'operator_attested');
   assert.equal(result.providerVerifiedServiceContinuity, false);
@@ -208,14 +228,18 @@ test('proves a different Blueprint with exact source and service continuity', ()
   assert.deepEqual(result.differences, []);
   assert.equal(result.oldBlueprintAbsent, true);
   assert.equal(result.executionQuiescenceObserved, true);
+  assert.notEqual(result.beforeSourceSha, result.afterSourceSha);
+  assert.equal(
+    result.sourceTransition.authority,
+    'exact_git_objects_bound_by_reviewed_freeze_policy',
+  );
+  assert.equal(result.sourceTransition.renderBytesEqual, true);
+  assert.equal(result.sourceTransition.forbiddenRuntimePathAbsent, true);
   assert.equal(result.secretsCaptured, false);
   fs.writeFileSync(paths.comparison, output);
-  const verified = run([
-    '--before', paths.before,
-    '--after', paths.after,
-    '--support', paths.support,
+  const verified = run(comparisonArgs(paths, [
     '--verify-json', paths.comparison,
-  ]);
+  ]));
   assert.equal(verified.result.boundedReplacementConsistent, true);
 });
 
@@ -223,9 +247,6 @@ test('reports source, service, database, identity, and absence drift', () => {
   for (const mutate of [
     (candidate) => {
       candidate.after.blueprint.id = candidate.before.blueprint.id;
-    },
-    (candidate) => {
-      candidate.after.blueprint.sourceSha = 'b'.repeat(40);
     },
     (candidate) => {
       candidate.after.services[0].plan = 'pro';
@@ -249,11 +270,7 @@ test('reports source, service, database, identity, and absence drift', () => {
     const candidate = fixture();
     mutate(candidate);
     const paths = writeFixture(root, candidate);
-    const { result } = run([
-      '--before', paths.before,
-      '--after', paths.after,
-      '--support', paths.support,
-    ]);
+    const { result } = run(comparisonArgs(paths));
     assert.equal(result.boundedReplacementConsistent, false);
     assert.ok(result.differences.length >= 1);
   }
@@ -283,6 +300,9 @@ test('fails closed on unsafe observation structure and stale comparison bytes', 
       candidate.after.safetyWindow.deadlineAt = '2026-08-03T07:15:01Z';
     },
     (candidate) => {
+      candidate.after.safetyWindow.unexpectedSyncObserved = true;
+    },
+    (candidate) => {
       candidate.after.services[0].databaseBinding.sourceDatabaseServiceId =
         'dpg-foreign';
     },
@@ -300,11 +320,7 @@ test('fails closed on unsafe observation structure and stale comparison bytes', 
     mutate(candidate);
     const paths = writeFixture(root, candidate);
     assert.throws(
-      () => run([
-        '--before', paths.before,
-        '--after', paths.after,
-        '--support', paths.support,
-      ]),
+      () => run(comparisonArgs(paths)),
     );
   }
 
@@ -312,14 +328,100 @@ test('fails closed on unsafe observation structure and stale comparison bytes', 
   const paths = writeFixture(root);
   fs.writeFileSync(paths.comparison, '{}\n');
   assert.throws(
-    () => run([
-      '--before', paths.before,
-      '--after', paths.after,
-      '--support', paths.support,
-      '--verify-json', paths.comparison,
-    ]),
+    () => run(comparisonArgs(paths, ['--verify-json', paths.comparison])),
     /published comparison/,
   );
+});
+
+test('rejects unreviewed source transitions and altered Git-object policy', () => {
+  {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
+    const paths = writeFixture(root);
+    const after = JSON.parse(fs.readFileSync(paths.after, 'utf8'));
+    const before = JSON.parse(fs.readFileSync(paths.before, 'utf8'));
+    after.blueprint.sourceSha = before.blueprint.sourceSha;
+    fs.writeFileSync(paths.after, `${JSON.stringify(after, null, 2)}\n`);
+    assert.throws(
+      () => run(comparisonArgs(paths)),
+      /exact reviewed freeze merge/,
+    );
+  }
+
+  for (const { mutatePolicy, expectedError } of [
+    {
+      mutatePolicy(policy) {
+        policy.liveBlueprintSourceSha = policy.preFreezeMasterSha;
+      },
+      expectedError: /before Blueprint source SHA is not the reviewed live source/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.preFreezeMasterTree = policy.freezeCandidateTree;
+        policy.requiredPostRevertTree = policy.freezeCandidateTree;
+      },
+      expectedError: /pre-freeze master tree does not match the reviewed source policy/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.freezeCandidateTree = policy.preFreezeMasterTree;
+        policy.expectedMergeTree = policy.preFreezeMasterTree;
+      },
+      expectedError: /freeze candidate tree does not match the reviewed source policy/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.expectedMergeSecondParent = policy.expectedMergeFirstParent;
+      },
+      expectedError: /source policy merge identity is internally inconsistent/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.liveRenderSha256 = hash('f');
+      },
+      expectedError: /render\.yaml is not byte-identical across the reviewed source transition/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.freezeManifestSha256 = hash('d');
+      },
+      expectedError: /freeze manifest blob does not match the reviewed source policy/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.sentinelDockerfileSha256 = hash('e');
+      },
+      expectedError: /freeze sentinel blob does not match the reviewed source policy/,
+    },
+    {
+      mutatePolicy(policy) {
+        policy.forbiddenRuntimePath = 'README.md';
+      },
+      expectedError: /forbidden runtime migration path is present in the freeze merge/,
+    },
+  ]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
+    const paths = writeFixture(root);
+    const policy = JSON.parse(fs.readFileSync(paths.sourcePolicy, 'utf8'));
+    mutatePolicy(policy);
+    fs.writeFileSync(
+      paths.sourcePolicy,
+      `${JSON.stringify(policy, null, 2)}\n`,
+    );
+    assert.throws(() => run(comparisonArgs(paths)), expectedError);
+  }
+
+  {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
+    const paths = writeFixture(root);
+    execFileSync(
+      'git',
+      ['-C', paths.backendRepo, 'remote', 'set-url', 'origin', 'https://example.invalid/forged.git'],
+    );
+    assert.throws(
+      () => run(comparisonArgs(paths)),
+      /origin does not match/,
+    );
+  }
 });
 
 test('rejects forged or broadened support authority', () => {
@@ -381,11 +483,7 @@ test('rejects forged or broadened support authority', () => {
     mutate(candidate);
     const paths = writeFixture(root, candidate);
     assert.throws(
-      () => run([
-        '--before', paths.before,
-        '--after', paths.after,
-        '--support', paths.support,
-      ]),
+      () => run(comparisonArgs(paths)),
       /support response|canonical UTC/,
     );
   }
@@ -406,6 +504,8 @@ test('derives locale-independent service digests from raw projections', () => {
       '--before', paths.before,
       '--after', paths.after,
       '--support', paths.support,
+      '--source-policy', paths.sourcePolicy,
+      '--backend-repo', paths.backendRepo,
     ],
     {
       encoding: 'utf8',
@@ -427,25 +527,42 @@ test('derives locale-independent service digests from raw projections', () => {
   assert.equal(resultB.boundedReplacementConsistent, true);
 });
 
+test('does not trust a PATH-shadowed git executable for source proof', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
+  const paths = writeFixture(root);
+  const fakeBin = path.join(root, 'fake-bin');
+  fs.mkdirSync(fakeBin);
+  const fakeGit = path.join(fakeBin, 'git');
+  fs.writeFileSync(fakeGit, '#!/bin/sh\nexit 99\n');
+  fs.chmodSync(fakeGit, 0o755);
+  const output = execFileSync(
+    process.execPath,
+    [SCRIPT, ...comparisonArgs(paths)],
+    {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: fakeBin },
+    },
+  );
+  assert.equal(JSON.parse(output).boundedReplacementConsistent, true);
+});
+
 test('CLI exits 0 for continuity, 2 for drift, and rejects unknown options', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
   const paths = writeFixture(root);
-  const output = execFileSync(process.execPath, [
-    SCRIPT,
-    '--before', paths.before,
-    '--after', paths.after,
-    '--support', paths.support,
-  ], { encoding: 'utf8' });
+  const output = execFileSync(
+    process.execPath,
+    [SCRIPT, ...comparisonArgs(paths)],
+    { encoding: 'utf8' },
+  );
   assert.equal(JSON.parse(output).boundedReplacementConsistent, true);
 
   const drift = fixture();
   drift.after.services[0].plan = 'pro';
-  const driftPaths = writeFixture(root, drift);
+  const driftRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-blueprint-'));
+  const driftPaths = writeFixture(driftRoot, drift);
   const driftRun = spawnSync(process.execPath, [
     SCRIPT,
-    '--before', driftPaths.before,
-    '--after', driftPaths.after,
-    '--support', driftPaths.support,
+    ...comparisonArgs(driftPaths),
   ], { encoding: 'utf8' });
   assert.equal(driftRun.status, 2);
   assert.equal(JSON.parse(driftRun.stdout).boundedReplacementConsistent, false);
