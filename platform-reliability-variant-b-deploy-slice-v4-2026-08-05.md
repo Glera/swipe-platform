@@ -8,8 +8,9 @@
 - Phase 1 завершена и принята в
   `platform-reliability-variant-b-phase1-publication-receipt-2026-08-05.md`
   (`981db1531556958eb91b3a3863cc6c5a7896482d`).
-- Статус: **DRAFT — Phase 1 PASS; поправки Phase 2–3 ждут независимого
-  Claude-review и нового двойного GO.**
+- Статус: **CLAUDE R2 GO на exact content head
+  `7506a670a5260a9a2b4d0749dafd66be96afb12f`; Phase 1 PASS; ни одного
+  внешнего действия до отдельного двойного GO.**
 
 ## 1. Цель и сознательное упрощение
 
