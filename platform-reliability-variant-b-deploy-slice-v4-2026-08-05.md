@@ -90,6 +90,12 @@ mutation, repeat every mutable observation below:
    changed, stop and rebuild the packet.
 6. Pending Blueprint preview `exe-d9pg7s3m8hqs73fguv80` is never opened for
    approval and never approved.
+7. The complete Blueprint-sync instrument is the official paginated endpoint
+   `GET /v1/blueprints/exs-d95qo3q8qa3s73ea23p0/syncs?limit=100`, following
+   every returned cursor until exhaustion. Normalize every item to
+   `(id, state, commit.id, startedAt, completedAt)`, sort by `id`, and hash the
+   canonical array. The OpenAPI states are `created`, `pending`, `running`,
+   `error` and `success`; no dashboard inference substitutes for this API.
 
 ## 4. Phase 1 — completed immutable candidate publication
 
@@ -133,24 +139,36 @@ Only after a separate credential-preparation double GO:
 
 1. Resolve the pre-existing GitHub secret from §3 before changing anything:
    - if its exact plaintext is still held and its Render key identity is known,
-     pin that identity and those same retained bytes to this window;
-   - otherwise STOP. Do not overwrite or delete the GitHub secret. First obtain
-     a separately authorized Render-side revocation/absence receipt for the
-     unknown old key, then delete the GitHub secret and confirm its absence.
+     pin that identity and those same retained bytes as the **only** window key;
+     creating a second key in this branch is forbidden;
+   - otherwise STOP. Do not overwrite or delete the GitHub secret. A conditional
+     old-key-containment double GO must first enumerate the complete active-key
+     table in Render Account Settings, identify the exact old row by its retained
+     creation receipt, revoke that row, capture the complete table again with the
+     row absent, then delete the GitHub secret and confirm its absence. If the row
+     cannot be identified exactly, containment is unresolved and no new key may
+     be created.
 2. The selected window key must have one pinned Render key identity and exact
-   bytes in one non-emitting local secure holder. It may be the proven retained
-   key from step 1 or one newly created temporary key after the old-key
-   disposition is complete.
+   bytes in one non-emitting local secure holder. It is either the proven
+   retained key from step 1 or one newly created temporary key after the
+   conditional containment branch completed.
 3. With those exact retained bytes, exact
    `GET https://api.render.com/v1/users` returns 200.
-4. Operator writes the same bytes to environment secret `RENDER_API_KEY` and
+4. Before any GitHub or production-service mutation, call the complete
+   paginated sync endpoint defined in §3. Persist the normalized canonical array
+   and its SHA-256 as `<pre_window_syncs>` / `<pre_window_syncs_sha256>`. Its
+   nonterminal subset must be either empty or the sole known residual
+   `exe-d9pg7s3m8hqs73fguv80` in `created|pending`; `running` is always STOP.
+   Any other nonterminal sync, incomplete pagination or unreadable field is
+   STOP while production remains untouched; revoke/clean the selected key.
+5. Operator writes the same bytes to environment secret `RENDER_API_KEY` and
    records the GitHub secret update timestamp. GitHub cannot return plaintext;
    the local holder remains mandatory.
-5. Set repository variable `RENDER_BLUEPRINT_ID` to
+6. Set repository variable `RENDER_BLUEPRINT_ID` to
    `exs-d95qo3q8qa3s73ea23p0` and re-read all six variables.
-6. Confirm there is no concurrent Render UI/API deploy and no other
+7. Confirm there is no concurrent Render UI/API deploy and no other
    `platform-production-release` workflow in progress.
-7. Re-read `dep-d9mtmabm8hqs73cighmg`; it must still be live. This exact ID is the
+8. Re-read `dep-d9mtmabm8hqs73cighmg`; it must still be live. This exact ID is the
    `expected_current_deploy` for both cutover dispatches.
 
 The window ends only after §10 cleanup, regardless of success or failure.
@@ -210,17 +228,29 @@ service.healthCheckPath       = /api/health
 service.preDeployCommand      = python -m app.platform_release predeploy-env
 latest deploy.id             = dep-d9mtmabm8hqs73cighmg
 latest deploy.status         = live
-pending Blueprint previews   = [exe-d9pg7s3m8hqs73fguv80]
-approved/new Blueprint syncs = []
+pending Blueprint previews   = [] | [exe-d9pg7s3m8hqs73fguv80]
+Blueprint sync-set SHA-256   = <capture_syncs_sha256>
+new Blueprint sync IDs       = []
 ```
 
 GET sources are `/v1/blueprints/{id}`, `/v1/services/{id}` and
-`/v1/services/{id}/deploys?limit=1`. The receipt stores only the normalized
-projection, timestamp and SHA-256; it never stores the API key or env values.
-Each capture enumerates **all** pending Blueprint previews/sync attempts, not
-only the known ID. The sole tolerated residual is the unapproved manual preview
-`exe-d9pg7s3m8hqs73fguv80`; it must remain unapproved and unapplied. Any other
-pending preview/sync, or inability to enumerate the complete set, is STOP.
+`/v1/services/{id}/deploys?limit=1`, plus every page of the exact Blueprint
+sync endpoint from §3. The receipt stores only normalized projections,
+timestamps and SHA-256 values; it never stores the API key or env values.
+
+Each capture compares the complete normalized sync array to
+`<pre_window_syncs>`:
+
+- no new sync ID may appear;
+- every baseline item other than `exe-d9pg7s3m8hqs73fguv80` is byte-identical;
+- the known residual may be absent, remain `created|pending`, or become terminal
+  `error`; it may never be `running|success`;
+- therefore `pending Blueprint previews` is valid as either `[]` or the sole
+  known residual, never as any other set.
+
+Capture B must equal Capture A under the same normalization. Any unknown or new
+sync, a disallowed state transition, incomplete pagination, or inability to
+enumerate the complete set is STOP.
 If the API does not expose any required association (especially registry
 credential or preDeploy command), this is **not** treated as PASS by
 assumption: STOP before phase 3 and obtain an observable exact proof or patch
@@ -267,7 +297,7 @@ available — DB revision and release receipt.
 | phase 2 failed; service remains exact source configuration and old deploy live | STOP; no retry; cleanup |
 | phase 2 failed; service is exact §7 prepared image and old deploy live | STOP; preserve state; continuation needs fresh operator GO |
 | phase 2 failed; service is partial, different or unreadable | terminal NO-GO; no deploy; preserve evidence; cleanup |
-| Capture A or B contains any pending preview/sync other than unapproved `exe-d9pg7s3m8hqs73fguv80`, or the complete set cannot be enumerated | STOP; no phase 3; preserve provider evidence; cleanup |
+| pre-window sync capture, Capture A or Capture B contains a new/unknown sync, a disallowed known-residual transition, or incomplete enumeration | STOP; no next phase; preserve provider evidence; cleanup |
 | phase 3 failed; no new deploy exists and old deploy remains live | STOP; no retry; capture env-key names; cleanup |
 | new deploy is queued/building/pre-deploy/in-progress | wait read-only until terminal; no retry and no second deploy |
 | new deploy is terminal failed | STOP; capture DB revision/receipt and config; no roster work |
@@ -317,10 +347,19 @@ Disposition of the service-level `PLATFORM_*` values is explicit:
 - `PLATFORM_ROLLBACK_AUTHORIZATION_B64` and
   `PLATFORM_ROLLBACK_AUTHORIZATION_SHA256` must remain absent for deploy;
 - after any failure occurring after Phase 3 staged these values, do not delete,
-  restore or overwrite them by assumption. Capture their names and non-secret
-  digests, freeze the observed state, and require a new reviewed cleanup or
-  fix-forward GO. Terminal cleanup may close the credential window but cannot
-  declare the technical deploy complete.
+  restore or overwrite them by assumption. The coordinator can already have
+  compensated the write inside `_set_release_env_with_cas`, and
+  `release_env_restore_failed` can leave a partial set. Capture actual presence
+  and non-secret digests; absence, a full set and a partial set are distinct
+  evidence states and none proves whether staging happened. Freeze the observed
+  state and require a new reviewed cleanup or fix-forward GO. Terminal cleanup
+  may close the credential window but cannot declare the technical deploy
+  complete.
+
+Known residual: the workflow timeout is 35 minutes while deploy and verification
+polls can each consume 1200 seconds. A workflow timeout is classified from
+provider/DB state under §9; it never authorizes rerun or a second deploy merely
+to obtain an artifact.
 
 Only after cleanup PASS is the deploy window closed. The next package is
 `minesweeper-feed-roster-packet-2026-08-05.md`.
@@ -329,10 +368,15 @@ Only after cleanup PASS is the deploy window closed. The next package is
 
 One independent Claude delta-review covers this file against the exact
 workflow/coordinator at `0e9e940`. Phase 1 GO is exhausted. The remaining
-route requires three separate double-GO boundaries:
+route requires three mandatory double-GO boundaries and one conditional
+containment boundary:
 
-1. credential preparation: disposition/create/probe the exact Render key,
-   write `RENDER_API_KEY`, and set `RENDER_BLUEPRINT_ID`;
+0. only if the pre-existing key cannot be positively bound to retained bytes:
+   enumerate and revoke that exact old key, then remove its GitHub secret
+   holder;
+1. credential preparation: bind/create/probe the one exact window key, perform
+   the pre-window sync capture, write `RENDER_API_KEY`, and set
+   `RENDER_BLUEPRINT_ID`;
 2. Phase 2: one `prepare-source` dispatch;
 3. Phase 3: only after both §7 captures pass, one `deploy` dispatch.
 
