@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab · Три комнаты — прототип переосмысления</title>
+<style>
+  :root{
+    --bg:#0b0e11; --panel:#14181d; --panel2:#1a2027; --line:#242c34;
+    --ink:#e8ecef; --mut:#8a939c; --lime:#b7f04b; --lime-dim:#5f7a2e;
+    --red:#ff6b5e; --amber:#e8b84a;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:1240px;margin:0 auto;padding:32px 20px 80px}
+  .kicker{font:600 11px/1 var(--mono);letter-spacing:.18em;color:var(--mut);text-transform:uppercase}
+  h1{font-size:clamp(24px,4vw,34px);margin:8px 0 6px}
+  .lead{color:var(--mut);max-width:70ch;margin:0 0 24px}
+  .rooms-nav{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 22px}
+  .room-btn{flex:1 1 200px;text-align:left;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:14px 16px;color:var(--ink);cursor:pointer;font:inherit}
+  .room-btn small{display:block;color:var(--mut);margin-top:4px;font-size:12px}
+  .room-btn.active{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime)}
+  .room-btn .num{font:700 11px/1 var(--mono);color:var(--lime);letter-spacing:.1em}
+  .room{display:none}
+  .room.active{display:block}
+  .frame{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 14px}
+  .frame h3{margin:0 0 4px;font-size:15px}
+  .frame .sub{color:var(--mut);font-size:12.5px;margin:0 0 12px}
+  .grid{display:grid;gap:12px}
+  .g-review{grid-template-columns:220px 1fr 260px}
+  .g-pipe{grid-template-columns:1fr}
+  .g-prod{grid-template-columns:1fr 1fr}
+  @media (max-width:900px){.g-review,.g-prod{grid-template-columns:1fr}}
+  .pane{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:60px}
+  .pane h4{margin:0 0 8px;font-size:12px;color:var(--mut);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  .chip{display:inline-block;background:#0f1318;border:1px solid var(--line);border-radius:999px;
+    padding:3px 10px;font-size:12px;color:var(--ink);margin:0 4px 6px 0}
+  .chip.on{border-color:var(--lime);color:var(--lime)}
+  .player{display:flex;align-items:center;justify-content:center;background:#0f1318;border:1px dashed var(--line);
+    border-radius:12px;min-height:250px;color:var(--mut);font-size:13px;flex-direction:column;gap:8px}
+  .keysbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .key{background:#0f1318;border:1px solid var(--line);border-bottom-width:3px;border-radius:8px;
+    padding:6px 12px;font:600 12px var(--mono)}
+  .key b{color:var(--lime);margin-right:6px}
+  .metric{font:600 12px var(--mono);color:var(--lime)}
+  .qitem{display:flex;justify-content:space-between;align-items:center;background:#0f1318;
+    border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin-bottom:6px;font-size:12.5px}
+  .qitem.cur{border-color:var(--lime)}
+  .qitem .tag{font:600 10px var(--mono);color:var(--mut)}
+  .stage-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px}
+  @media (max-width:900px){.stage-row{grid-template-columns:repeat(2,1fr)}}
+  .stage{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px}
+  .stage h5{margin:0 0 4px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+  .stage .st{font:600 11px var(--mono)}
+  .st.ok{color:var(--lime)} .st.wait{color:#e8b84a} .st.off{color:var(--mut)}
+  .order-line{display:flex;align-items:center;gap:10px;background:#0f1318;border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px}
+  .bar{flex:1;height:6px;background:#232a32;border-radius:3px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--lime)}
+  .grants{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+  .grant{background:#0f1318;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:12px}
+  .grant b{display:block;font:600 11px var(--mono);margin-bottom:2px}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+  .dot.g{background:var(--lime)} .dot.r{background:var(--red)} .dot.x{background:#4a545e}
+  .danger{border:1px solid #3a2a26;background:#171113;border-radius:12px;padding:12px}
+  .danger h4{color:var(--red)}
+  .note{border-left:3px solid var(--lime);padding:8px 14px;background:var(--panel);border-radius:0 10px 10px 0;
+    color:var(--mut);font-size:13px;margin:14px 0}
+  .note b{color:var(--ink)}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:8px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{color:var(--mut);font-weight:600;background:var(--panel2)}
+  td b{color:var(--lime);font-weight:600}
+  .foot{color:var(--mut);font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Прототип · не код · итерация 1</div>
+  <h1>Lab: три комнаты вместо тринадцати вкладок</h1>
+  <p class="lead">Сейчас вкладки повторяют внутренние подсистемы. Комнаты повторяют
+  три роли, в которых ты реально живёшь: <b>вкус</b> — <b>производство</b> — <b>надзор</b>.
+  Переключение: клавиши 1 / 2 / 3 или кнопки ниже. Всё внутри — существующие экраны,
+  пересобранные по смыслу; ничего не переписывается с нуля.</p>
+
+  <div class="rooms-nav">
+    <button class="room-btn active" data-room="r1"><span class="num">1 · УТРО</span><br>Отсмотр
+      <small>очередь вкуса · вердикты клавишами · тут живёт «Память»</small></button>
+    <button class="room-btn" data-room="r2"><span class="num">2 · ДЕНЬ</span><br>Конвейер
+      <small>заказ серии от брифа до публикации · фабрики и сборка — этапы, не вкладки</small></button>
+    <button class="room-btn" data-room="r3"><span class="num">3 · НАДЗОР</span><br>Прод
+      <small>живая лента · каталог · ростер · числа · помеченные · центр допусков</small></button>
+  </div>
+
+  <!-- ================= КОМНАТА 1 ================= -->
+  <section class="room active" id="r1">
+    <div class="frame">
+      <h3>Отсмотр — комната одного жеста</h3>
+      <p class="sub">Всё подчинено циклу «посмотрел → вердикт → следующий». Целевая метрика прямо на экране.
+      Сюда переехали: <b>Отсмотр</b>, очередь <b>Прототипов</b>, приёмка <b>Доработки</b>, вкладка <b>Память</b> (стала боковой панелью контекста).</p>
+      <div class="grid g-review">
+        <div class="pane">
+          <h4>Очередь · 14</h4>
+          <div class="qitem cur"><span>Sort L3 · 8×7</span><span class="tag">УРОВЕНЬ</span></div>
+          <div class="qitem"><span>Sort L4 · 6×5</span><span class="tag">УРОВЕНЬ</span></div>
+          <div class="qitem"><span>Garden Curios</span><span class="tag">СКИН</span></div>
+          <div class="qitem"><span>Серия «Утро» 1–5</span><span class="tag">СЕРИЯ</span></div>
+          <div class="qitem"><span>Mix: pins+sort</span><span class="tag">ПРОТОТИП</span></div>
+          <div class="qitem"><span>Цикл 2 · tide-turn</span><span class="tag">ДОРАБОТКА</span></div>
+          <p class="sub" style="margin-top:8px">Один поток. Тип — просто ярлык,
+          а не отдельная вкладка со своей моделью оценки.</p>
+        </div>
+        <div class="pane">
+          <h4>Сцена</h4>
+          <div class="player">
+            <div>▶ playable · следующий уже прогрет в тёплом фрейме</div>
+            <div class="metric">между вердиктами: 6.2 с · сегодня: 23 вердикта</div>
+          </div>
+          <div class="keysbar">
+            <span class="key"><b>L</b>Удачно</span>
+            <span class="key"><b>J</b>Проблемно</span>
+            <span class="key"><b>S</b>Не уверен</span>
+            <span class="key"><b>B</b>Сломан</span>
+            <span class="key"><b>R</b>В доработку…</span>
+            <span class="key"><b>M</b>Голос</span>
+          </div>
+        </div>
+        <div class="pane">
+          <h4>Контекст (бывш. «Память»)</h4>
+          <span class="chip on">интерес: движение</span>
+          <span class="chip">payoff поздний</span>
+          <span class="chip">6 цветов = верх</span>
+          <p class="sub">Что увидит следующий агент-генератор. Тут же — твои теги по текущему кандидату.</p>
+          <h4 style="margin-top:12px">Серия</h4>
+          <p class="sub">Прогресс прохождения 3/5 · сундук не открыт.<br>Чекбокс риска — только здесь, у контекста.</p>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>Что выиграли:</b> три разные системы оценки (blind review / prototype review / factory review)
+    сведены в один жест с одним словарём вердиктов; руки не покидают клавиатуру; «Память» перестала быть
+    вкладкой-музеем и стала рабочим контекстом рядом со сценой.</div>
+  </section>
+
+  <!-- ================= КОМНАТА 2 ================= -->
+  <section class="room" id="r2">
+    <div class="frame">
+      <h3>Конвейер — комната одного заказа</h3>
+      <p class="sub">Центральная сущность — заказ серии. Всё остальное — его этапы.
+      Сюда переехали: <b>Заказы</b>, <b>Фабрики</b>, <b>Уровни</b>, <b>Серии</b>, форма кампаний из <b>Очереди</b>, публикация.</p>
+      <div class="stage-row">
+        <div class="stage"><h5>Бриф</h5><span class="st ok">готов</span></div>
+        <div class="stage"><h5>Фабрики</h5><span class="st ok">v1 готова</span></div>
+        <div class="stage"><h5>Мир</h5><span class="st wait">выбор из 3</span></div>
+        <div class="stage"><h5>Уровни</h5><span class="st wait">отсмотр 13</span></div>
+        <div class="stage"><h5>Сборка</h5><span class="st off">ждёт</span></div>
+        <div class="stage"><h5>Публикация</h5><span class="st off">TMA</span></div>
+      </div>
+      <div class="order-line"><span>«Сортинг · осень»</span><div class="bar"><i style="width:55%"></i></div><span class="st wait">мир</span></div>
+      <div class="order-line"><span>«Сортинг · по референсу Pins»</span><div class="bar"><i style="width:20%"></i></div><span class="st wait">фабрика</span></div>
+      <div class="grid g-prod" style="margin-top:12px">
+        <div class="pane">
+          <h4>Этап крупно: Уровни этого заказа</h4>
+          <p class="sub">Библиотека уровней открывается как этап заказа с уже применённым фильтром,
+          а не как отдельная вкладка со своим состоянием. «Добавить в серию» видит текущий заказ.</p>
+        </div>
+        <div class="pane">
+          <h4>Ночные кампании</h4>
+          <p class="sub">Форма «Ночные вариации» живёт здесь как способ пополнить конвейер,
+          рядом lanes Codex/Claude. Мёртвый режим «Серия уровней» выпилен — серия заказывается заказом.</p>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>Что выиграли:</b> исчезают дубли «двух способов сделать то же» —
+    ручная сборка серий, два UI выбора мира, три входа в rework: у всего появляется одна дверь — заказ.
+    Экспертные пути остаются, но как «расширенный режим» внутри этапа, а не как соседняя вкладка.</div>
+  </section>
+
+  <!-- ================= КОМНАТА 3 ================= -->
+  <section class="room" id="r3">
+    <div class="frame">
+      <h3>Прод — комната торжественных решений</h3>
+      <p class="sub">Здесь ничего не делается быстро — и это осознанно. Сюда переехали:
+      <b>Каталог</b>, <b>Композер</b>, <b>Числа ленты</b>, <b>Помеченные</b>, доставка QA-оценок, «личный тест в ленте».</p>
+      <div class="grid g-prod">
+        <div class="pane">
+          <h4>Живая лента</h4>
+          <p class="sub">клиент c1681d8 · бэкенд 09fa0cd · ростер 13 юнитов<br>
+          <span class="st wait">⚠ 1 помеченная серия ждёт решения</span></p>
+        </div>
+        <div class="pane danger">
+          <h4>Необратимое</h4>
+          <p class="sub">Recall · Активация ростера · Approve чисел · Публикация.<br>
+          Всегда модально: diff → последствия → галочка → подпись. Ошибка остаётся на экране, пока её не закроешь.</p>
+        </div>
+      </div>
+      <div class="pane" style="margin-top:12px">
+        <h4>Центр допусков (новое)</h4>
+        <div class="grants">
+          <div class="grant"><b><span class="dot g"></span>catalog:read</b>активен · 41 мин</div>
+          <div class="grant"><b><span class="dot g"></span>flags:write</b>активен · 12 мин</div>
+          <div class="grant"><b><span class="dot r"></span>analytics:read</b>роут выключен на бэкенде</div>
+          <div class="grant"><b><span class="dot x"></span>catalog:recall</b>не запрошен</div>
+          <div class="grant"><b><span class="dot x"></span>feed.roster:write</b>не запрошен</div>
+          <div class="grant"><b><span class="dot x"></span>feed.sequencing:write</b>не запрошен</div>
+          <div class="grant"><b><span class="dot g"></span>evaluation:write</b>доставка подключена</div>
+          <div class="grant"><b><span class="dot x"></span>feed.test:write</b>не запрошен</div>
+        </div>
+        <p class="sub" style="margin-top:10px">Все Telegram-гранты в одном месте, со статусом
+        и честной диагностикой «Lab включён, а роут на бэкенде выключен» — вместо шести
+        одинаковых карточек, разбросанных по вкладкам.</p>
+      </div>
+    </div>
+    <div class="note"><b>Что выиграли:</b> опасное собрано в одном месте и выглядит опасным;
+    рутина отсюда убрана; ловушка «404 маскируется под отсутствие данных» видна в центре допусков сразу.</div>
+  </section>
+
+  <!-- ================= КАРТА ПЕРЕЕЗДА ================= -->
+  <div class="frame" style="margin-top:20px">
+    <h3>Карта переезда: 13 вкладок → 3 комнаты</h3>
+    <table>
+      <tr><th>Было (вкладка)</th><th>Стало</th></tr>
+      <tr><td>Отсмотр · Прототипы · Доработка (приёмка) · Память</td><td><b>Комната 1 · Отсмотр</b> — один поток очереди, контекст сбоку</td></tr>
+      <tr><td>Заказы · Фабрики · Уровни · Серии · форма кампаний из «Очереди» · Доработка (запуск)</td><td><b>Комната 2 · Конвейер</b> — этапы заказа + ночные кампании</td></tr>
+      <tr><td>Каталог · Композер · Числа ленты · Помеченные · доставка QA-оценок</td><td><b>Комната 3 · Прод</b> + Центр допусков</td></tr>
+    </table>
+    <p class="sub" style="margin-top:10px">Миграция дешёвая: комнаты — это слой навигации и группировки
+    над существующими view (те же данные, те же роуты, те же тесты). Этап 1 — новая шапка и группировка
+    без переделки экранов; этап 2 — слияние дублей (recall, выбор мира, входы rework); этап 3 —
+    очередь-единый-поток в комнате 1. Каждый этап — отдельный bounded PR.</p>
+  </div>
+
+  <p class="foot">Прототип «Три комнаты» · итерация 1 · 05.08.2026 · по мотивам аудита docs/lab-audit-2026-08-05.md (§7)</p>
+</div>
+<script>
+  const btns=document.querySelectorAll('.room-btn'),rooms=document.querySelectorAll('.room');
+  function go(id){btns.forEach(b=>b.classList.toggle('active',b.dataset.room===id));
+    rooms.forEach(r=>r.classList.toggle('active',r.id===id));}
+  btns.forEach(b=>b.addEventListener('click',()=>go(b.dataset.room)));
+  addEventListener('keydown',e=>{if(e.key==='1')go('r1');if(e.key==='2')go('r2');if(e.key==='3')go('r3');});
+</script>
+</body>
+</html>
