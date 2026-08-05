@@ -5,9 +5,9 @@
 - Независимый ревьюер: Claude, один delta-проход перед production-окном.
 - Заменяет редакцию 2 (`abc3f8f`) после NO-GO
   `platform-reliability-variant-b-deploy-slice-v2-review-2026-08-05.md`.
-- Статус: **CORRECTIVE DELTA REVIEW — прежний Claude GO закрывает весь
-  маршрут, кроме уточнённого Phase 1 `ref=master`; ни одного dispatch или
-  Render-изменения до delta-GO и отдельного operator GO.**
+- Статус: **CLAUDE REVIEW GO, включая corrective `ref=master` delta на exact
+  bytes `6afd7020…b456`; ни одного dispatch или Render-изменения до отдельного
+  operator GO.**
 
 ## 1. Цель и сознательное упрощение
 
