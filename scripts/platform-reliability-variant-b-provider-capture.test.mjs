@@ -182,6 +182,62 @@ test('prepared capture proves exact immutable image projection', async () => {
   assert.equal(value.baselineSyncsSha256, baseline.syncsSha256);
 });
 
+test('prepared capture accepts either documented preDeploy location but not disagreement', async () => {
+  const baseline = (await captureFixture()).value;
+  const preparedOptions = options('prepared');
+  preparedOptions.baseline = baseline;
+  const topLevelOnly = fakeRequest({
+    stage: 'prepared',
+    serviceOverride: {
+      serviceDetails: {
+        envSpecificDetails: { registryCredential: { id: REGISTRY_ID } },
+        healthCheckPath: '/api/health',
+        preDeployCommand: PREDEPLOY,
+        runtime: 'image',
+      },
+    },
+  });
+  const accepted = await capture(preparedOptions, { requestJson: topLevelOnly.requestJson });
+  assert.equal(accepted.service.preDeployCommand, PREDEPLOY);
+
+  const inconsistent = fakeRequest({
+    stage: 'prepared',
+    serviceOverride: {
+      serviceDetails: {
+        envSpecificDetails: {
+          preDeployCommand: `${PREDEPLOY} --wrong`,
+          registryCredential: { id: REGISTRY_ID },
+        },
+        healthCheckPath: '/api/health',
+        preDeployCommand: PREDEPLOY,
+        runtime: 'image',
+      },
+    },
+  });
+  await assert.rejects(
+    capture(preparedOptions, { requestJson: inconsistent.requestJson }),
+    (error) => error instanceof CaptureError
+      && error.code === 'service_predeploy_command_inconsistent',
+  );
+});
+
+test('pre-window capture requires the exact source runtime before any mutation', async () => {
+  for (const [serviceOverride, code] of [
+    [{ serviceDetails: {
+      envSpecificDetails: {},
+      healthCheckPath: '/api/health',
+      runtime: 'image',
+    } }, 'prewindow_runtime_mismatch'],
+    [{ imagePath: IMAGE }, 'prewindow_image_path_mismatch'],
+  ]) {
+    const fake = fakeRequest({ serviceOverride });
+    await assert.rejects(
+      capture(options(), { requestJson: fake.requestJson }),
+      (error) => error instanceof CaptureError && error.code === code,
+    );
+  }
+});
+
 test('prepared capture fails closed on image and preDeploy drift', async () => {
   const baseline = (await captureFixture()).value;
   for (const [serviceOverride, code] of [
@@ -414,7 +470,7 @@ test('route pins the exact capture bytes and both known preview identities', () 
   );
   const digest = crypto.createHash('sha256').update(fs.readFileSync(scriptPath)).digest('hex');
 
-  assert.equal(digest, 'e1dc4484c591195d7ed2e5de9b2aa6d473d701af97081b0c55fa7a5286af0c82');
+  assert.equal(digest, 'dc8f1d46cda2f173df1cabb70457c099cf25da8d5aff847e144d6d523870a25f');
   assert.ok(route.includes(digest));
   assert.ok(route.includes('exe-d9nercqjnfac73aunbvg'));
   assert.ok(route.includes('exe-d9pg7s3m8hqs73fguv80'));

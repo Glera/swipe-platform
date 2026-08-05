@@ -155,6 +155,14 @@ function registryId(service, envDetails) {
   return present[0] ?? null;
 }
 
+function preDeployCommand(details, envDetails) {
+  const candidates = [details.preDeployCommand, envDetails.preDeployCommand]
+    .filter((value) => value !== undefined && value !== null)
+    .map((value) => assertString(value, 'service_predeploy_command_invalid'));
+  if (new Set(candidates).size > 1) fail('service_predeploy_command_inconsistent');
+  return candidates[0] ?? null;
+}
+
 function normalizeService(payload, options) {
   const service = assertPlainObject(payload, 'service_shape_invalid');
   if (service.id !== options.serviceId) fail('service_identity_mismatch');
@@ -179,7 +187,7 @@ function normalizeService(payload, options) {
     id: options.serviceId,
     imagePath: service.imagePath ?? null,
     ownerId: options.expectedOwnerId,
-    preDeployCommand: envDetails.preDeployCommand ?? null,
+    preDeployCommand: preDeployCommand(details, envDetails),
     registryCredentialId: registryId(service, envDetails),
     runtime: assertString(runtime, 'service_runtime_invalid'),
     type: service.type,
@@ -207,6 +215,9 @@ function normalizeService(payload, options) {
     if (normalized.preDeployCommand !== options.expectedPreDeployCommand) {
       fail('prepared_predeploy_command_mismatch');
     }
+  } else {
+    if (normalized.runtime !== 'docker') fail('prewindow_runtime_mismatch');
+    if (normalized.imagePath !== null) fail('prewindow_image_path_mismatch');
   }
   return normalized;
 }

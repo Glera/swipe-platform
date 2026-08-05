@@ -82,12 +82,13 @@ mutation, repeat every mutable observation below:
    `PLATFORM_RELEASE_AUTHORITY_SCOPE`. `RENDER_BLUEPRINT_ID` is deliberately
    added only immediately before phase 2 and must equal the live Blueprint in
    §2.
-4. `secrets.RENDER_API_KEY` was not used or changed by Phase 1. Independent
-   receipt review observed that the name already exists in environment
-   `production`, with GitHub metadata `created_at=2026-08-05T09:26:22Z`.
-   Its plaintext and Render-key identity are not recoverable from GitHub.
-   Before any credential-preparation GO this pre-existing secret must be
-   dispositioned under §5; it must never be silently overwritten.
+4. Conditional containment is complete under
+   `platform-reliability-variant-b-old-key-containment-receipt-2026-08-05.md`:
+   the old Render key is absent, environment `production` contains no
+   `RENDER_API_KEY`, and the cutover job therefore fails closed before any
+   provider call. Re-observe those two absences before credential preparation.
+   The next window creates exactly one new temporary key and one new GitHub
+   secret; it does not update or reuse the contained credential.
 5. Current production is observed read-only: live backend `09fa0cd`, DB
    `0070`, and the sole live deploy is `dep-d9mtmabm8hqs73cighmg`. If these
    changed, stop and rebuild the packet.
@@ -109,12 +110,19 @@ mutation, repeat every mutable observation below:
    `error` and `success`; no dashboard inference substitutes for this API.
 8. The executable read-only instrument is
    `scripts/platform-reliability-variant-b-provider-capture.mjs`, SHA-256
-   `e1dc4484c591195d7ed2e5de9b2aa6d473d701af97081b0c55fa7a5286af0c82`.
+   `dc8f1d46cda2f173df1cabb70457c099cf25da8d5aff847e144d6d523870a25f`.
    It performs GET only; exhausts cursor pagination for `/syncs` and
    `/env-vars`; reads the exact Blueprint, service and latest deploy; emits RFC
    8785 canonical JSON with no API key or env values; and fails closed on an
    unknown nonterminal sync, unsafe known-preview state, forbidden rollback
-   authorization name, incomplete pagination or unreadable projection.
+   authorization name, pagination failure or unreadable projection. At
+   `pre-window` it additionally requires the exact source state
+   `runtime=docker` and `imagePath=null` before any mutation.
+9. The Blueprint Sync Hook recorded by the containment receipt remains a live
+   credential outside this route. Never invoke it. A hook-triggered sync would
+   be caught only at the three sampled captures; a residual gap remains after
+   Capture B and before the Phase 3 coordinator POST. Any observed new sync or
+   source/runtime drift is STOP, not an invitation to continue.
 
 ## 4. Phase 1 — completed immutable candidate publication
 
@@ -156,21 +164,12 @@ No rerun or second image dispatch is authorized.
 
 Only after a separate credential-preparation double GO:
 
-1. Resolve the pre-existing GitHub secret from §3 before changing anything:
-   - if its exact plaintext is still held and its Render key identity is known,
-     pin that identity and those same retained bytes as the **only** window key;
-     creating a second key in this branch is forbidden;
-   - otherwise STOP. Do not overwrite or delete the GitHub secret. A conditional
-     old-key-containment double GO must first enumerate the complete active-key
-     table in Render Account Settings, identify the exact old row by its retained
-     creation receipt, revoke that row, capture the complete table again with the
-     row absent, then delete the GitHub secret and confirm its absence. If the row
-     cannot be identified exactly, containment is unresolved and no new key may
-     be created.
-2. The selected window key must have one pinned Render key identity and exact
-   bytes in one non-emitting local secure holder. It is either the proven
-   retained key from step 1 or one newly created temporary key after the
-   conditional containment branch completed.
+1. Reconfirm the completed containment state from §3: the old Render key is
+   absent and environment `production` has no `RENDER_API_KEY`. Any mismatch is
+   STOP; do not create or overwrite a credential.
+2. Create exactly one temporary window key with one pinned Render key identity
+   and exact bytes in one non-emitting local secure holder. No other Render key
+   or GitHub secret is reused.
 3. With those exact retained bytes, exact
    `GET https://api.render.com/v1/users` returns 200.
 4. Before any GitHub or production-service mutation, run the exact §3 tool from
@@ -179,7 +178,7 @@ Only after a separate credential-preparation double GO:
 
    ```bash
    test "$(shasum -a 256 scripts/platform-reliability-variant-b-provider-capture.mjs | awk '{print $1}')" = \
-     e1dc4484c591195d7ed2e5de9b2aa6d473d701af97081b0c55fa7a5286af0c82
+     dc8f1d46cda2f173df1cabb70457c099cf25da8d5aff847e144d6d523870a25f
    node scripts/platform-reliability-variant-b-provider-capture.mjs \
      --stage pre-window \
      --blueprint-id exs-d95qo3q8qa3s73ea23p0 \
@@ -195,15 +194,19 @@ Only after a separate credential-preparation double GO:
    `<pre_window_syncs>` / `<pre_window_syncs_sha256>`. The nonterminal subset
    may be any subset of the two exact §3 residuals in `created|pending`;
    `running|success` for either known preview is STOP. Any other nonterminal
-   sync, incomplete pagination or unreadable field is STOP while production
-   remains untouched; revoke/clean the selected key.
+   sync, pagination failure or unreadable field is STOP while production
+   remains untouched; revoke/clean the selected key. The receipt must also show
+   `service.runtime=docker`, `service.imagePath=null`, the exact old live deploy,
+   and no rollback-authorization env-key names.
 5. Operator writes the same bytes to environment secret `RENDER_API_KEY` and
    records the GitHub secret update timestamp. GitHub cannot return plaintext;
    the local holder remains mandatory.
 6. Set repository variable `RENDER_BLUEPRINT_ID` to
    `exs-d95qo3q8qa3s73ea23p0` and re-read all six variables.
-7. Confirm there is no concurrent Render UI/API deploy and no other
-   `platform-production-release` workflow in progress.
+7. Confirm there is no concurrent Render UI/API deploy, no other
+   `platform-production-release` workflow in progress, and no intentional use
+   of the still-live Blueprint Sync Hook. The sampled capture cannot prove the
+   hook was unused in the interval after it was taken.
 8. Re-read `dep-d9mtmabm8hqs73cighmg`; it must still be live. This exact ID is the
    `expected_current_deploy` for both cutover dispatches.
 
@@ -316,7 +319,7 @@ Each capture compares the complete normalized sync array to
   named residuals, never as any other set.
 
 Capture B must equal Capture A under the same normalization. Any unknown or new
-sync, a disallowed state transition, incomplete pagination, or inability to
+sync, a disallowed state transition, pagination failure, or inability to
 enumerate the complete set is STOP.
 If the API does not expose any required association (especially registry
 credential or preDeploy command), this is **not** treated as PASS by
@@ -362,10 +365,15 @@ available — DB revision and release receipt.
 
 | Observed state | Disposition |
 | --- | --- |
+| pre-window capture reports source-runtime/image drift, latest-deploy mismatch/not-live, forbidden rollback key, provider read failure or any other non-sync mismatch | STOP before GitHub/service mutation; preserve the receipt/error code; revoke the temporary key and remove any holder created in the window |
 | phase 2 failed; service remains exact source configuration and old deploy live | STOP; no retry; cleanup |
 | phase 2 failed; service is exact §7 prepared image and old deploy live | STOP; preserve state; continuation needs fresh operator GO |
 | phase 2 failed; service is partial, different or unreadable | terminal NO-GO; no deploy; preserve evidence; cleanup |
 | pre-window sync capture, Capture A or Capture B contains a new/unknown sync, a disallowed known-residual transition, or incomplete enumeration | STOP; no next phase; preserve provider evidence; cleanup |
+| Capture A reports a latest-deploy identity/status mismatch or any new deploy after prepare-source | terminal STOP; no phase 3; preserve service/deploy/sync state and coordinator receipt; cleanup credentials only |
+| Capture A or B reports prepared image/registry/health/preDeploy mismatch or an unreadable required projection | STOP; no phase 3; preserve the partially prepared service and exact error; cleanup credentials only; correction needs a new reviewed route |
+| Capture B reports `equal_capture_projection_mismatch` or lacks an `equalCaptureSha256` bound to Capture A | STOP; no phase 3; preserve both captures; cleanup credentials only; a fresh GO is required after disposition |
+| any capture reports `rollback_authorization_present` | STOP; no next phase; preserve env-key-name evidence without values; removal or restoration requires a separate reviewed decision |
 | phase 3 failed; no new deploy exists and old deploy remains live | STOP; no retry; capture env-key names; cleanup |
 | new deploy is queued/building/pre-deploy/in-progress | wait read-only until terminal; no retry and no second deploy |
 | new deploy is terminal failed | STOP; capture DB revision/receipt and config; no roster work |
