@@ -1,5 +1,27 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ LAB ИНТЕГРАЦИЯ В MASTER И ЖИВОМ :4317 (06.08)
+
+- Накопленные волны Lab-аудита, mobile-review integration и Composer recovery
+  сведены в `swipe-generator/master`: PR #11, merge
+  `92f7a6764ade036da584fae1ef2342fb200b90a1`. Exact-head CI зелёный;
+  независимый Claude Fable review — **GO**, P1/P2 нет.
+- Локальный Lab переведён на чистый detached checkout этого merge-коммита:
+  `/Users/gleb/My projects/p4g-platform-workspace/swipe-generator-live`.
+  LaunchAgent использует Node 24; прежние `.data`, auth, очередь и preview
+  сохранены. Dirty checkout оператора не тронут.
+- Живой smoke PASS: Composer показывает production roster из 15 механик,
+  Minesweeper на позиции 5; «Поиграть» открывает production-игру в iframe;
+  browser console чистая. Mobile-review остаётся default-off до готовности
+  backend-половины.
+- Известный отдельный хвост: legacy Series Order данные дают
+  `series_order_corrupt` для полной тяжёлой проекции; лёгкий bootstrap,
+  Composer и roster работают. Это bounded data-cleanup, не блокер релиза.
+- Durable evidence и неблокирующие follow-ups:
+  `lab-mobile-review-integration-release-receipt-2026-08-06.md`.
+- WIP «Фабрики» сохранён отдельно:
+  `wip/live-checkout-2026-08-05@a7b5891`; не собирать его заново.
+
 ## ▶ ПЛАТФОРМА ВОССТАНОВЛЕНА; MINESWEEPER В ЛЕНТЕ (06.08)
 
 - Это верхний актуальный срез; более ранние дневниковые записи ниже остаются
