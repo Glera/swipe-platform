@@ -1,6 +1,6 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ VARIANT B: CREDENTIAL PREPARATION REVIEWED (06.08)
+## ▶ VARIANT B: CREDENTIAL PREPARATION PASS (06.08)
 
 - Это верхний актуальный срез; более ранние дневниковые записи ниже остаются
   историей и не переопределяют его.
@@ -10,13 +10,21 @@
 - Второй независимый Claude-review credential window принят Codex как вторая
   подпись с условиями. Durable disposition:
   `platform-reliability-variant-b-credential-preparation-review-2026-08-06.md`.
-- GitHub environment pre-secret gate PASS: custom branch policies включены,
-  ровно одно правило `branch: master` (`id=56600753`); secrets=0; stable
-  variables=5 без `RENDER_BLUEPRINT_ID`.
-- Следующий шаг — явный operator GO на создание одного временного Render key,
-  pre-window capture, запись environment secret и `RENDER_BLUEPRINT_ID`.
-- Окно ограничено 90 минутами от создания ключа. При STOP до Phase 2 оператор
-  отзывает key, удаляет secret и `RENDER_BLUEPRINT_ID`; branch policy остаётся.
+- Credential preparation исполнен и read-only проверен. Durable receipt:
+  `platform-reliability-variant-b-credential-preparation-receipt-2026-08-06.md`.
+  В Render ровно один временный key `r1a-variant-b-window-20260806`; точные
+  bytes находятся только в holder mode 0600. `GET /v1/users=200`.
+- Pre-window provider capture `PASS` на `2026-08-06T05:25:45.293Z`:
+  Blueprint paused/autoSync=false, service source-backed, latest deploy
+  `dep-d9mtmabm8hqs73cighmg` live, forbidden rollback env keys отсутствуют.
+- GitHub environment: ровно одно правило `branch: master`, ровно secret
+  `RENDER_API_KEY`, ровно шесть variables; `RENDER_BLUEPRINT_ID` равен
+  `exs-d95qo3q8qa3s73ea23p0`. Новых cutover-dispatch нет; backend остаётся
+  `0e9e940`.
+- Credential deadline: `2026-08-06T06:54:37Z`. Следующий акт — отдельный
+  operator GO ровно на один Phase 2 `prepare-source` dispatch. При STOP до
+  Phase 2 оператор отзывает key, доказывает 401, удаляет secret,
+  `RENDER_BLUEPRINT_ID` и holder; branch policy остаётся.
 - `claude-ops` атрибутирован local operator keypair
   `/Users/gleb/.ssh/render_ops*`, fingerprint `SHA256:FfvzNGva…VBahI`; контур
   не используется этим манёвром. Render 2FA обязателен до Phase 3.
