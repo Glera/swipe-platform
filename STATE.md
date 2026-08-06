@@ -10,12 +10,11 @@
 - Второй независимый Claude-review credential window принят Codex как вторая
   подпись с условиями. Durable disposition:
   `platform-reliability-variant-b-credential-preparation-review-2026-08-06.md`.
-- Fresh GitHub read-only факт: environment `production` без protection rules
-  и branch policy; secrets=0; stable variables=5 без `RENDER_BLUEPRINT_ID`.
-- Единственное действие ДО возврата ключа: оператор ограничивает environment
-  selected branch `master`; Codex проверяет policy read-only. Затем нужен
-  явный operator GO на создание одного временного Render key, pre-window
-  capture, запись environment secret и `RENDER_BLUEPRINT_ID`.
+- GitHub environment pre-secret gate PASS: custom branch policies включены,
+  ровно одно правило `branch: master` (`id=56600753`); secrets=0; stable
+  variables=5 без `RENDER_BLUEPRINT_ID`.
+- Следующий шаг — явный operator GO на создание одного временного Render key,
+  pre-window capture, запись environment secret и `RENDER_BLUEPRINT_ID`.
 - Окно ограничено 90 минутами от создания ключа. При STOP до Phase 2 оператор
   отзывает key, удаляет secret и `RENDER_BLUEPRINT_ID`; branch policy остаётся.
 - `claude-ops` атрибутирован local operator keypair

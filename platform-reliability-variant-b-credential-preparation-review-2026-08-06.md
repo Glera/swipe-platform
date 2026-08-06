@@ -75,6 +75,21 @@ cannot receive its environment secret. Required reviewers and master branch
 protection are not added by this bounded packet: they are not needed for the
 exact `ref=master` route and would widen the external change.
 
+Observed PASS on 06.08.2026 after the operator action:
+
+```text
+environment protection rule id = 61902030 (branch_policy)
+protected_branches = false
+custom_branch_policies = true
+branch policy id = 56600753
+branch policy name = master
+branch policy type = branch
+environment secrets = 0
+repository variables = 5; RENDER_BLUEPRINT_ID absent
+```
+
+This closes the only condition that had to be satisfied before key creation.
+
 ### 2. Armed-window time box
 
 The 90-minute clock begins when the temporary Render key is created. If Phase
@@ -150,4 +165,3 @@ third-party actions by floating major tags. Fixing that would move backend
 authority and invalidate the already published candidate. For this one
 attended, branch-restricted, 90-minute window the reviewer and owner accept the
 risk. The key is revoked at every terminal outcome.
-
