@@ -30,12 +30,17 @@
 - Dirty checkout оператора не тронут. Неблокирующие P3 сохранены в review:
   старые dev-only Arrows receipts, узкое окно уже начатого poll и усиление
   source-contract тестов; живой контур они не блокируют.
-- Следующий продуктовый пакет уже изолирован: полный Klondike из
-  `playables@a7b9e80` перенесён в ветку
-  `codex/feed-update-minesweeper-solitaire-20260806`, commit `e546d3f`;
-  22/22 теста и swipe-build PASS. Он ещё не опубликован и не активирован —
-  следующий шаг: правка Minesweeper + Klondike по эталонному mechanic
-  onboarding flow.
+- Minesweeper update + полный Klondike прошли три независимых Claude Fable
+  review-раунда: два P2 сохранения/автоплея исправлены двухсессионными
+  browser-тестами, финальный exact-head verdict — **GO**, findings нет.
+  Playables PR #6 влит merge-коммитом
+  `c54573c917f341a8489461c2349b86eb2d43dcdd`; reviewed source-head
+  `bc9ba0728e4761cd3ca87f11f6794f8e5f586f7a`. Klondike: 23 unit + 3
+  browser + 39 runtime PASS; Minesweeper regression suite и оба swipe-build
+  PASS. Feed `b1a9e63` прошёл preflight (локальный fixture-drift объяснён
+  dirty backend checkout; его bytes совпадают с `backend/origin/master`).
+  Следующий акт — один operator-run `deploy-swipe.sh minesweeper-v1
+  solitaire-v1`; production manifest и roster пока не менялись.
 
 ## ▶ ПЛАТФОРМА ВОССТАНОВЛЕНА; MINESWEEPER В ЛЕНТЕ (06.08)
 
