@@ -1,41 +1,26 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ VARIANT B: PHASE 2 PREPARE-SOURCE PASS (06.08)
+## ▶ VARIANT B: DEPLOY + CLEANUP PASS; NEXT MINESWEEPER (06.08)
 
 - Это верхний актуальный срез; более ранние дневниковые записи ниже остаются
   историей и не переопределяют его.
-- Variant B v4 route + GET-only provider capture + tests + independent review
-  влиты meta PR #65, merge `0620b6a`. Candidate image Phase 1 уже опубликован;
-  serving production всё ещё `09fa0cd`, DB `0070`.
-- Второй независимый Claude-review credential window принят Codex как вторая
-  подпись с условиями. Durable disposition:
-  `platform-reliability-variant-b-credential-preparation-review-2026-08-06.md`.
-- Credential preparation исполнен и read-only проверен. Durable receipt:
-  `platform-reliability-variant-b-credential-preparation-receipt-2026-08-06.md`.
-  В Render ровно один временный key `r1a-variant-b-window-20260806`; точные
-  bytes находятся только в holder mode 0600. `GET /v1/users=200`.
-- Pre-window provider capture `PASS` на `2026-08-06T05:25:45.293Z`:
-  Blueprint paused/autoSync=false, service source-backed, latest deploy
-  `dep-d9mtmabm8hqs73cighmg` live, forbidden rollback env keys отсутствуют.
-- GitHub environment: ровно одно правило `branch: master`, ровно secret
-  `RENDER_API_KEY`, ровно шесть variables; `RENDER_BLUEPRINT_ID` равен
-  `exs-d95qo3q8qa3s73ea23p0`; backend остаётся `0e9e940`.
-- Credential deadline: `2026-08-06T06:54:37Z`. Ключ остаётся только для
-  завершения reviewed Phase 3 и затем обязательно отзывается; secret и holder
-  удаляются при любом terminal исходе.
-- **Phase 2 исполнен один раз и PASS:** run `31074614067`, exact backend
-  `0e9e940`, coordinator receipt
-  `c1c58bb4…9c59`. Durable receipt:
-  `platform-reliability-variant-b-phase2-receipt-2026-08-06.md`.
-- Capture A PASS: service теперь image-backed на exact digest `d7db2713…b8b4`,
-  но старый deploy `dep-d9mtmabm8hqs73cighmg` остаётся live; нового deploy и
-  миграции нет. До Phase 3 запрещены Restart/Redeploy/UI edits/API writes.
-- Следующая граница: оператор включает Render 2FA; Codex наблюдает enabled,
-  снимает fresh Capture B с exact equality к A и только затем запрашивает
-  отдельный GO на один Phase 3 deploy.
-- `claude-ops` атрибутирован local operator keypair
-  `/Users/gleb/.ssh/render_ops*`, fingerprint `SHA256:FfvzNGva…VBahI`; контур
-  не используется этим манёвром. Render 2FA обязателен до Phase 3.
+- Variant B завершён по reviewed v4 route. Durable receipt:
+  `platform-reliability-variant-b-phase3-deploy-receipt-2026-08-06.md`.
+- Production backend: exact candidate image из backend `0e9e940`, deploy
+  `dep-d9q1vo7avr4c73akv7k0` live. Public health PASS.
+- DB verification job `job-d9q202e1egvs73d5bdbg` succeeded на exact команде
+  `verify-applied-db`: committed release receipt и revision
+  `0073_platform_release_receipts` доказаны pinned-кодом, а не run-status.
+- Phase 2/3 были ровно двумя dispatch: `31074614067` prepare-source и
+  `31075139056` deploy; оба exact head `0e9e940`, attempt 1, success. Retry и
+  rollback не было.
+- Terminal cleanup PASS: временный Render key отозван и даёт 401; GitHub
+  environment secrets пусты; holder удалён; шесть non-secret release variables
+  сохранены. Render 2FA enabled.
+- Следующий контур — reviewed
+  `minesweeper-feed-roster-packet-2026-08-05.md`: mapping/register/CAS activation
+  после fresh production preflight, затем наблюдение `/session` и два запуска
+  mini-app. До завершения пакета сапёр в roster не ожидается.
 - External controls/credentials/dispatch/deploy исполняет только оператор;
   Codex оркестрирует, проверяет read-only evidence и принимает результат.
 
