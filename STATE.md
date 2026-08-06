@@ -1,5 +1,24 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ LABS FAST LANE ДЛЯ PLAYABLE — ТЗ ЗАФИКСИРОВАНО (06.08)
+
+- Оператор утвердил целевой UX first-party прототипов: существующая механика
+  обновляется через Labs за 5–10 минут, новая добавляется за 15–20 минут;
+  operator touchpoints — один exact Telegram Approve и наблюдение в Mini App.
+- Git остаётся audit/rollback под капотом; GitHub, terminal, Render-ключи и
+  backend deploy не входят в обычный content-only release.
+- Обе обложки пересобираются по умолчанию; update не меняет mapping/roster,
+  add после live static verification одним plan создаёт identity/mapping и
+  CAS-активирует roster. Цель — одно открытие Mini App.
+- В ТЗ добавлена mobile-first петля: operator помечает exact живую механику с
+  телефона, отправляет instruction в существующий flags/rework контур, играет
+  HTTPS candidate и тем же Telegram exact action принимает release. В v0 Mac
+  остаётся вычислителем; offline-запрос ждёт подключения Labs, cloud IDE/farm
+  вне scope.
+- Единое ТЗ двух сценариев:
+  `docs/specs/lab-playable-release-fast-lane.md`. Статус — DRAFT, реализация
+  не начата; до неё действует текущий Composer/onboarding process.
+
 ## ▶ ФАБРИКИ В MASTER И ЖИВОМ LAB; LEGACY SERIES ORDER ЗАКРЫТ (06.08)
 
 - Klondike feed-пакет доведён до merge после bounded review Claude Opus 5

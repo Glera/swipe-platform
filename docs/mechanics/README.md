@@ -51,6 +51,10 @@
 - [`FEED-ONBOARDING-PACKET-TEMPLATE.md`](FEED-ONBOARDING-PACKET-TEMPLATE.md) —
   короткий шаблон единственного reviewed-пакета от готового playable до
   наблюдаемой production-приёмки.
+- [`lab-playable-release-fast-lane.md`](../specs/lab-playable-release-fast-lane.md)
+  — утверждённое направление упрощённого прототипного UX: update за 5–10 минут
+  и add за 15–20 минут через Labs + один exact Telegram Approve. До реализации
+  не заменяет текущий onboarding authority.
 - [`swipe-backend/docs/specs/mechanic-onboarding.md`](../../swipe-backend/docs/specs/mechanic-onboarding.md)
   — эталонный путь уже выпущенной механики в production-ленту: один reviewed
   mapping apply, затем визуальный Lab Composer и наблюдаемая приёмка.
