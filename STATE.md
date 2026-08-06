@@ -1,26 +1,41 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ LAB ИНТЕГРАЦИЯ В MASTER И ЖИВОМ :4317 (06.08)
+## ▶ ФАБРИКИ В MASTER И ЖИВОМ LAB; LEGACY SERIES ORDER ЗАКРЫТ (06.08)
 
-- Накопленные волны Lab-аудита, mobile-review integration и Composer recovery
-  сведены в `swipe-generator/master`: PR #11, merge
-  `92f7a6764ade036da584fae1ef2342fb200b90a1`. Exact-head CI зелёный;
-  независимый Claude Fable review — **GO**, P1/P2 нет.
-- Локальный Lab переведён на чистый detached checkout этого merge-коммита:
+- Legacy `series_order_corrupt` закрыт без переписывания immutable-данных:
+  чтение различает текущую и durable generation-verification. Изменение
+  прошло независимый Claude Fable review (**GO**) и влито в
+  `swipe-generator/master` через PR #12, merge
+  `5d81c75a4740ebe5b009ad55d9a16561b554b712`; все три исторические записи
+  снова читаются полной проекцией.
+- Сохранённый WIP «Фабрики» `wip/live-checkout-2026-08-05@a7b5891`
+  поднят, сведен с master и доведён до релиза. Независимый review нашёл три
+  P2 (replay до compose, честность Arrows receipt, невмешивающийся background
+  poll); все закрыты red-then-green. PR #13 влит merge-коммитом
+  `e63767f260b443fa1ef31b166c4945a4d5bb539f`, exact-head CI зелёный,
+  delta-review Claude Fable — **GO**.
+- Живой Lab работает из чистого detached checkout
   `/Users/gleb/My projects/p4g-platform-workspace/swipe-generator-live`.
-  LaunchAgent использует Node 24; прежние `.data`, auth, очередь и preview
-  сохранены. Dirty checkout оператора не тронут.
-- Живой smoke PASS: Composer показывает production roster из 15 механик,
-  Minesweeper на позиции 5; «Поиграть» открывает production-игру в iframe;
-  browser console чистая. Mobile-review остаётся default-off до готовности
-  backend-половины.
-- Известный отдельный хвост: legacy Series Order данные дают
-  `series_order_corrupt` для полной тяжёлой проекции; лёгкий bootstrap,
-  Composer и roster работают. Это bounded data-cleanup, не блокер релиза.
-- Durable evidence и неблокирующие follow-ups:
-  `lab-mobile-review-integration-release-receipt-2026-08-06.md`.
-- WIP «Фабрики» сохранён отдельно:
-  `wip/live-checkout-2026-08-05@a7b5891`; не собирать его заново.
+  Визуальный smoke страницы «Фабрики» PASS: доступны Сортинг и Стрелочки,
+  показываются 9 sort-фабрик и 1 arrows-фабрика, error-панели нет;
+  `/v1/series-orders?mode=summary` возвращает 25 записей без
+  `series_order_corrupt`.
+- Во время первого рестарта обнаружен дефект installer-а: три операционных
+  env не переносились в новый LaunchAgent. Реальные `.data` не менялись;
+  сервис сразу возвращён на прежний data-root. Durable fix прошёл отдельный
+  независимый review (**GO**) и exact-head CI, влит через PR #14, merge
+  `d8619d328e148b46d09ee6b170c95df175678887`. Обычный повторный
+  `service:install` доказал сохранение data-root, platform origin, deploy
+  manifest и catalog endpoint; финальный HTTP smoke PASS.
+- Dirty checkout оператора не тронут. Неблокирующие P3 сохранены в review:
+  старые dev-only Arrows receipts, узкое окно уже начатого poll и усиление
+  source-contract тестов; живой контур они не блокируют.
+- Следующий продуктовый пакет уже изолирован: полный Klondike из
+  `playables@a7b9e80` перенесён в ветку
+  `codex/feed-update-minesweeper-solitaire-20260806`, commit `e546d3f`;
+  22/22 теста и swipe-build PASS. Он ещё не опубликован и не активирован —
+  следующий шаг: правка Minesweeper + Klondike по эталонному mechanic
+  onboarding flow.
 
 ## ▶ ПЛАТФОРМА ВОССТАНОВЛЕНА; MINESWEEPER В ЛЕНТЕ (06.08)
 
