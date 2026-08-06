@@ -1,5 +1,29 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ VARIANT B: CREDENTIAL PREPARATION REVIEWED (06.08)
+
+- Это верхний актуальный срез; более ранние дневниковые записи ниже остаются
+  историей и не переопределяют его.
+- Variant B v4 route + GET-only provider capture + tests + independent review
+  влиты meta PR #65, merge `0620b6a`. Candidate image Phase 1 уже опубликован;
+  production всё ещё `09fa0cd`, DB `0070`, новых cutover-dispatch нет.
+- Второй независимый Claude-review credential window принят Codex как вторая
+  подпись с условиями. Durable disposition:
+  `platform-reliability-variant-b-credential-preparation-review-2026-08-06.md`.
+- Fresh GitHub read-only факт: environment `production` без protection rules
+  и branch policy; secrets=0; stable variables=5 без `RENDER_BLUEPRINT_ID`.
+- Единственное действие ДО возврата ключа: оператор ограничивает environment
+  selected branch `master`; Codex проверяет policy read-only. Затем нужен
+  явный operator GO на создание одного временного Render key, pre-window
+  capture, запись environment secret и `RENDER_BLUEPRINT_ID`.
+- Окно ограничено 90 минутами от создания ключа. При STOP до Phase 2 оператор
+  отзывает key, удаляет secret и `RENDER_BLUEPRINT_ID`; branch policy остаётся.
+- `claude-ops` атрибутирован local operator keypair
+  `/Users/gleb/.ssh/render_ops*`, fingerprint `SHA256:FfvzNGva…VBahI`; контур
+  не используется этим манёвром. Render 2FA обязателен до Phase 3.
+- External controls/credentials/dispatch/deploy исполняет только оператор;
+  Codex оркестрирует, проверяет read-only evidence и принимает результат.
+
 ## ▶ CODEX ПРИНЯЛ FRONTIER-ОРКЕСТРАЦИЮ (05.08, вечер)
 
 - Оператор передал Codex владение маршрутом, реализацией, коммитами и
