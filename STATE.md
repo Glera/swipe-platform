@@ -2,6 +2,17 @@
 
 ## ▶ ФАБРИКИ В MASTER И ЖИВОМ LAB; LEGACY SERIES ORDER ЗАКРЫТ (06.08)
 
+- Klondike feed-пакет доведён до merge после bounded review Claude Opus 5
+  через подписочный CLI. Первый проход нашёл один P1: обязательный cover-guard
+  ошибочно охватывал legacy-механики со standard card. Scope исправлен до
+  трёх явных custom-cover рецептов; delta-review — **GO**, P1/P2 нет.
+  Backend PR #57 влит как `ad65ac5`, feed PR #22 — `1c4a221`, playables PR
+  #7 — `3f17df6`; exact-head CI всех трёх зелёный. Серии теперь fail-safe:
+  неизвестная механика получает 1 игру, `arrows-v1` явно сохраняет 5.
+  Production ещё не менялся: следующий операторский акт — один
+  `deploy-swipe.sh minesweeper-v1 solitaire-v1` из чистого release-checkout,
+  затем отдельные backend deploy и Composer mapping/activation Klondike.
+
 - Legacy `series_order_corrupt` закрыт без переписывания immutable-данных:
   чтение различает текущую и durable generation-verification. Изменение
   прошло независимый Claude Fable review (**GO**) и влито в
