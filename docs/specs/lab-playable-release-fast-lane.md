@@ -1,14 +1,14 @@
 # ТЗ: быстрый выпуск playable-механик через Labs
 
-Статус: **DRAFT — продуктовая схема утверждена оператором 06.08.2026;
-реализация не начата**.
+Статус: **утверждённая продуктовая схема; v0 реализован в пакетах, независимо
+проверен и не считается включённым до отдельного enabling deploy и dogfood**.
 
 Область: только first-party прототипы из `playables`, опубликованные в
 дефолтной swipe-ленте. Это временный быстрый контур для стадии без аудитории,
 а не универсальная release-платформа.
 
-После реализации этот документ заменяет штатный операторский UX из
-`swipe-backend/docs/specs/mechanic-onboarding.md`. До этого действующим
+После приёмки enabling deploy этот документ заменяет штатный операторский UX
+из `swipe-backend/docs/specs/mechanic-onboarding.md`. До этого действующим
 остаётся текущий Composer-процесс.
 
 ## 1. Результат
@@ -54,10 +54,11 @@ Git остаётся обязательным audit trail и механизмо�
    и CAS-активация roster. Незавершённый релиз остаётся невидимым игроку.
 6. **Обложки пересобираются автоматически.** Оператор не должен помнить о
    дополнительной галочке после визуальной правки.
-7. **Прототипный quality budget.** Затронутые тесты, runtime smoke, сборка,
-   preview и covers обязательны. Полный многочасовой release/review-контур
-   запускается только при изменении shared runtime, backend/DB или по явному
-   запросу оператора.
+7. **Прототипный quality budget.** Затронутые mechanic tests, сборка, играбельный
+   HTTPS candidate и covers обязательны. Отдельный автоматический runtime smoke
+   и полный release/review-контур запускаются при изменении shared runtime,
+   backend/DB или по явному запросу оператора; в content-only v0 smoke выполняет
+   оператор, играя candidate перед Approve.
 8. **Один запуск Mini App.** Новая `/session` должна быть применена до первого
    mount; двухсессионное staging roster не должно оставаться частью
    операторского acceptance.
@@ -119,17 +120,20 @@ capability выдана только оператору.
 13:30  Live
 ```
 
-Шаг раскрывается в короткий лог с входами, длительностью и receipt. Ошибка
-остаётся на своём шаге; Labs предлагает **Повторить этот шаг**, а не начать
-процесс заново. Изменившиеся bytes всегда требуют нового candidate и нового
-Telegram intent.
+V0 показывает время и имя последних шагов, candidate, terminal receipt и
+короткую безопасную ошибку; append-only journal сохраняет полную связь событий.
+Раскрываемые command logs и вычисленные длительности добавляются только если
+первые dogfood не позволяют понять превышение бюджета. Ошибка остаётся на своём
+шаге; Labs предлагает **Повторить этот шаг**, а не начать процесс заново.
+Изменившиеся bytes всегда требуют нового candidate и нового Telegram intent.
 
 Минимальная state machine:
 
 ```text
 DRAFT → PREPARING → READY_FOR_APPROVAL → AUTHORIZED
       → PUBLISHING_STATIC → APPLYING_FEED? → VERIFYING → LIVE
-                           ↘ FAILED
+                           ↘ FAILED → retry
+      READY_FOR_APPROVAL/FAILED → CANCELLED
 ```
 
 `APPLYING_FEED` существует только для `add`.
@@ -140,14 +144,16 @@ Labs ведёт простой append-only JSON journal под своим сущ
 не новую распределённую workflow-систему. Release record содержит:
 
 - `releaseId`, mode, playable/catalog identity;
-- source SHA и список затронутых source paths;
+- source SHA;
 - candidate runtime/version/digests;
 - before/after cover digests;
 - test summary;
-- exact Telegram-authorized intent digest и actor;
+- exact Telegram-authorized intent digest; actor остаётся в backend
+  device-auth authority и typed add receipt, а не копируется caller-ом;
 - static Git commit и production manifest digest;
 - mapping/activation receipts для `add`;
-- timestamps, durations, terminal status и failure code.
+- timestamps, terminal status и failure code. V0 выводит длительность из
+  соседних timestamps; отдельный per-step metrics store не создаётся.
 
 Git хранит исходники и опубликованные bytes. Backend остаётся authority mapping
 и roster. Labs journal только связывает их для операторской истории.
@@ -165,7 +171,8 @@ Git хранит исходники и опубликованные bytes. Backe
 - production runtime version/digest;
 - уровень/ordinal, seed и session/run identity, если они есть;
 - позиция в ленте и timestamp;
-- автоматически снятый кадр либо явно добавленный screenshot;
+- явно добавленный screenshot либо честный `not_attached`; автоматический кадр
+  добавляется позже только при реально доступном capture API;
 - текстовая инструкция; диктовка заполняет редактируемое текстовое поле.
 
 Оператор не вводит SHA, UUID или технические identity. Он пишет, например:
@@ -178,23 +185,30 @@ authority и поэтому не требует отдельного device code
 существующие operator flags/rework/mobile-review контуры, а не в новый
 таск-трекер.
 
-Когда candidate готов, бот присылает сообщение:
+Exact device-auth экран Telegram Mini App показывает:
 
 ```text
 Klondike · доработка готова
 «Увеличить номиналы карт»
 
-[Поиграть в candidate] [Нужна ещё правка] [Принять и опубликовать]
+[Поиграть в candidate] [Отклонить] [Принять и опубликовать]
 ```
 
 Candidate обязан открываться с телефона по HTTPS; `localhost` не является
 mobile preview. **Принять и опубликовать** совмещает taste-acceptance результата
 и единственный exact `feed.playable-release:write` Approve. Второго desktop- или
-GitHub-подтверждения нет. После live verification бот присылает **Открыть в
-ленте**.
+GitHub-подтверждения нет. После live verification Labs показывает итоговый
+receipt; оператор открывает Mini App обычным Telegram-входом.
 
-Если нужна ещё правка, новый комментарий создаёт следующий semantic cycle того
-же root request с сохранённой историей parent → candidate → feedback.
+В v0 Labs показывает одноразовый code/link, а оператор открывает существующий
+device-auth экран в Telegram. Проактивная отправка сообщения ботом и push
+**Открыть в ленте** — неблокирующее улучшение после первых двух dogfood, если
+ручной переход действительно мешает уложиться в 5–20 минут. Отдельный messaging
+контур до измерения не строится.
+
+Если нужна ещё правка, оператор отклоняет exact authorization, отменяет
+candidate в Labs и создаёт следующий rework из живой ленты. Связанный
+многошаговый thread parent → candidate → feedback — улучшение после dogfood.
 
 ### 4.5 Что доступно с телефона, а что требует вычислителя
 
@@ -202,13 +216,15 @@ GitHub-подтверждения нет. После live verification бот п
 
 - пометить exact механику прямо во время игры;
 - оставить текст/диктовку и screenshot;
-- отправить задачу в работу и видеть её timeline;
+- отправить задачу в работу и видеть её входной статус;
 - сыграть в HTTPS candidate;
 - запросить следующий rework cycle;
 - принять exact candidate и разрешить production;
-- открыть и проверить live-версию либо запросить rollback.
+- открыть и проверить live-версию.
 
-Редактирование source, сборка, тесты и Git выполняются агентом на вычислителе.
+Timeline релиза v0 живёт в Labs; с телефона видны исходная задача, exact
+candidate и итоговый approval. Редактирование source, сборка, тесты и Git
+выполняются агентом на вычислителе.
 Оператору компьютер для них не нужен, но в v0 этим вычислителем остаётся
 локальный Mac с Labs. Backend хранит входящую задачу, пока Mac offline; UI честно
 показывает **Ждёт подключения Labs**. Always-on cloud runner, удалённая IDE и
@@ -222,7 +238,8 @@ Labs:
 
 1. проверяет, что source commit достижим из `playables/master`;
 2. определяет существующий playable в production `versions.json`;
-3. запускает mechanic unit tests, swipe build и runtime smoke;
+3. запускает mechanic unit tests и swipe build; операторский runtime smoke —
+   обязательная игра в HTTPS candidate перед Approve;
 4. для визуально затронутого playable показывает candidate iframe;
 5. всегда выпекает tall и compact covers;
 6. показывает manifest diff: old/new version, source SHA, runtime digest,
@@ -255,7 +272,8 @@ roster и mapping не меняются
 4. создаёт content commit и пушит `master` существующими локальными Git
    credentials;
 5. ждёт production `versions.json` и exact runtime/cover bytes;
-6. помечает release `LIVE` и показывает **Открыть в Mini App**.
+6. помечает release `LIVE` и показывает terminal receipt; оператор открывает
+   Mini App обычным Telegram-входом.
 
 Mapping, roster, backend и Render не меняются.
 
@@ -335,8 +353,9 @@ feed.playable-release:write
 - device authorization привязана к JCS digest exact release intent;
 - intent показывает mode, source SHA, identities, runtime/covers и весь
   product-visible diff;
-- одобренный exact job можно безопасно продолжить после transport failure в
-  пределах 60 минут; changed bytes/plan требуют нового кода;
+- одобренный exact job можно безопасно продолжить после transport failure,
+  пока жив memory-only token; после рестарта/expiry Labs запрашивает новый код
+  для того же frozen intent, а changed bytes/plan всегда требуют нового кода;
 - повтор одного request hash возвращает exact receipt;
 - Deny/expiry не оставляют mutation authority;
 - существующий Telegram allowlist остаётся единственным actor authority.
@@ -362,12 +381,14 @@ feed.playable-release:write
 | --- | --- |
 | Build/test/cover | production не меняется; повторяется exact шаг |
 | Telegram deny/expiry | production не меняется; candidate остаётся в истории |
+| Нужна ещё правка | release становится `CANCELLED`; candidate остаётся инертной историей, lane освобождается |
+| Labs/Mac перезапущен во время шага | оборванная фаза становится `FAILED`; повтор использует тот же journal и frozen bytes |
 | Static push CAS conflict | перечитать master и пересобрать candidate; старый intent сгорел |
 | Static опубликована, live bytes не совпали | не выполнять mapping/roster; release `FAILED` |
 | Mapping/roster apply упал | статика инертна; exact request можно resumed/replayed |
 | Ответ apply потерян | сначала перечитать projection; blind second mutation запрещена |
-| Update оказался плохим | кнопка rollback готовит новый exact release из предыдущей истории и требует новый Telegram Approve |
-| Новая механика оказалась плохой | CAS-активировать предыдущий roster; статика может остаться инертной |
+| Update оказался плохим | тот же Fast Lane готовит новый update из предыдущего source commit и требует новый Telegram Approve |
+| Новая механика оказалась плохой | существующий Composer CAS-активирует предыдущий roster; статика может остаться инертной |
 
 ## 10. Минимальные implementation-пакеты
 
@@ -376,8 +397,9 @@ feed.playable-release:write
    допускается.
 2. **Labs job + UI**: preparation, candidate preview, covers, timeline и
    локальный journal поверх существующих scripts/jobs.
-3. **Mobile candidate review**: HTTPS candidate, следующий rework cycle и
-   terminal accept из Telegram.
+3. **Mobile candidate review**: существующий device-auth TMA показывает HTTPS
+   candidate, exact summary и terminal accept; proactive bot message — только
+   после dogfood при доказанной необходимости.
 4. **Exact Telegram authority**: новый one-shot scope/binding и один apply
    endpoint для builtin mapping+roster. Предпочтительно без новой DB-таблицы.
 5. **Static executor**: CAS, export, Git content commit/push и live verifier.
@@ -385,6 +407,33 @@ feed.playable-release:write
    новой Mini App-сессии.
 7. **Один enabling deploy** backend/Labs/feed. После него content-only releases
    не требуют backend или Render deploy.
+
+### 10.1 Исполнительный выбор v0
+
+Чтобы mobile preview не требовал нового хостинга, Labs переиспользует уже
+отработанный паттерн catalog preview:
+
+- exact source собирается во временном detached worktree, поэтому dirty checkout
+  оператора и параллельные ветки не затрагиваются;
+- candidate до подтверждения публикуется в `swipe-platform` только под
+  content-addressed путём `playable-previews/<releaseId>/...`; эти bytes инертны,
+  потому что production `versions.json` и roster на них не ссылаются;
+- HTTPS candidate открывается с телефона с production static origin;
+- после exact Telegram Approve тот же проверенный набор bytes отдельным content
+  commit переносится на live-имена и в `versions.json`; повторная сборка между
+  approval и публикацией запрещена;
+- для `add` backend mapping+roster применяется только после проверки live static;
+  для `update` backend вообще не вызывается.
+
+Новый one-shot scope `feed.playable-release:write` добавляется в существующий
+device-auth broker и связывается с полным release intent. Та же маленькая
+миграция CHECK-ограничений broker-а добавляет одну узкую таблицу входящих
+mobile-rework requests: она хранит точный контекст телефона и lifecycle
+`open → claimed → closed`, но не является release engine и не получает publish
+authority. Release timeline остаётся локальным append-only journal Labs.
+Локально сохранённый Stage 2 guard с provisional revision `0074` до интеграции
+перенумеровывается поверх фактической головы; два revision с одним номером в
+merge-ready ветках одновременно не допускаются.
 
 Пакеты могут быть отдельными PR ради ревью, но являются одной продуктовой
 возможностью. Между ними не вводятся operator GO и production ceremonies.
@@ -433,7 +482,7 @@ production controls Minesweeper; право финального publish мож�
 | Mac выключен | Backend принимает request и показывает `waiting_for_lab`; работа начнётся после подключения |
 | Помечена не та версия/уровень | Identity берётся из server-owned показа, не из ручных полей |
 | Инструкция с телефона слишком расплывчата | Контекст+кадр прикладываются автоматически; агент может вернуть один bounded уточняющий вопрос |
-| Модель сделала лишние изменения | Labs показывает source diff, playable candidate и covers; Approve связан с exact bytes |
+| Модель сделала лишние изменения | Labs показывает exact source commit, playable candidate и covers; Approve связан с exact bytes |
 | Случайная публикация без проверки | Final action доступен из карточки played candidate; Telegram показывает весь product-visible diff |
 | Накопится слишком много задач и затрат | Не более одного active rework root на mechanic; без auto-retry; видимые elapsed/model/cost данные |
 | Static опубликована, roster apply не прошёл | Новая механика остаётся инертной; exact apply resumable/idempotent |
@@ -476,7 +525,8 @@ production controls Minesweeper; право финального publish мож�
 ### Add acceptance
 
 - [ ] оператор указал identity/anchor и не переносил UUID/hash между командами;
-- [ ] release timeline и final approval были доступны в Telegram;
+- [ ] release timeline был доступен в Labs, а candidate/summary/final approval —
+  в Telegram;
 - [ ] playable, payload и обе covers опубликованы и проверены;
 - [ ] Telegram показал exact static+mapping+roster plan;
 - [ ] было ровно одно человеческое подтверждение;

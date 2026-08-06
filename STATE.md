@@ -1,6 +1,32 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ LABS FAST LANE ДЛЯ PLAYABLE — ТЗ ЗАФИКСИРОВАНО (06.08)
+## ▶ LABS FAST LANE — REVIEW GO; EXACT CI ЖДЁТ GITHUB ACTIONS (06.08)
+
+- Codex владеет реализацией до проверенных PR и пакета одного enabling deploy;
+  production deploy, миграции и секреты остаются за отдельным GO оператора.
+- Локальная Stage 2 ветка `claude/mission-truncate-guard@55a5656` сохранена в
+  origin без merge/deploy. Её provisional `0074` не резервирует номер: перед
+  будущей интеграцией guard будет перенумерован поверх фактического Alembic head.
+- Старые pending Blueprint previews считаются известным dashboard-footgun:
+  `exe-d9pg7s3m8hqs73fguv80` и `exe-d9nercqjnfac73aunbvg` никогда не Approve.
+  Поле `pendingPreviewIds=[]` старого capture не доказывает их отсутствие и не
+  используется как новый release gate; Gate C0 не возвращается.
+- Реализация использует инертный HTTPS candidate под content-addressed путём в
+  `swipe-platform`, один exact Telegram Approve и затем live static + optional
+  atomic mapping/roster apply. Обычный playable release не идёт через Render.
+- Три implementation PR открыты на exact независимо проверенных heads:
+  backend `#58@3640b75`, generator `#15@ec2d43a`, feed `#23@965486d`.
+  Независимые dispositions и локальная проверка записаны в
+  `docs/receipts/labs-fast-lane-{independent-review,verification}-2026-08-06.md`.
+- Финальный enabling-пакет независимо проверен: **GO, P1/P2 нет**. Feed CI
+  зелёный; точные backend/generator jobs не получили runner из-за публичного
+  major outage GitHub Actions и остаются единственным внешним гейтом.
+- Один enabling deploy подготовлен отдельным пакетом
+  `docs/receipts/labs-fast-lane-enabling-deploy-packet-2026-08-06.md`;
+  это последний platform/backend deploy в штатном playable-контуре. Он не
+  исполняется без отдельного GO.
+
+## LABS FAST LANE ДЛЯ PLAYABLE — ИСТОРИЧЕСКОЕ ПРОДУКТОВОЕ РЕШЕНИЕ (06.08)
 
 - Оператор утвердил целевой UX first-party прототипов: существующая механика
   обновляется через Labs за 5–10 минут, новая добавляется за 15–20 минут;
@@ -16,8 +42,9 @@
   остаётся вычислителем; offline-запрос ждёт подключения Labs, cloud IDE/farm
   вне scope.
 - Единое ТЗ двух сценариев:
-  `docs/specs/lab-playable-release-fast-lane.md`. Статус — DRAFT, реализация
-  не начата; до неё действует текущий Composer/onboarding process.
+  `docs/specs/lab-playable-release-fast-lane.md`. Актуальный implementation
+  status находится в верхнем срезе этого файла; до enabling deploy действует
+  текущий Composer/onboarding process.
 
 ## ▶ ФАБРИКИ В MASTER И ЖИВОМ LAB; LEGACY SERIES ORDER ЗАКРЫТ (06.08)
 
