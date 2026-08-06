@@ -362,8 +362,9 @@ Fable; recovery платформы НЕ является «routine coding» (н�
 ### 2. Портфель + P4G (Stage 2 на паузе)
 - Владелец: frontier-сессия (Fable).
 - Гейт-цепочка Stage 2: деплой → миграция `0074_append_only_truncate_guard`
-  (ветка `claude/mission-truncate-guard` @ `55a5656` — НЕ запушена, запушить
-  при первой возможности) → только потом `mission_ops --apply` /
+  (ветка `claude/mission-truncate-guard` @ `55a5656` сохранена в origin, но не
+  влита и перед будущей интеграцией должна быть rebased+renumbered поверх
+  фактической головы) → только потом `mission_ops --apply` /
   `ENABLE_MISSION_CORE` (HANDOFF §1). TRUNCATE-дыра шире заявленной:
   108 таблиц. Диагностика только через `pg_trigger`/`tgtype & 32`
   (`information_schema.triggers` TRUNCATE-триггеры не видит).

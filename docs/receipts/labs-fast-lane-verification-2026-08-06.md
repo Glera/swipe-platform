@@ -10,6 +10,8 @@ production service, database, secret, roster, or static origin was changed.
 - full repository suite against the configured PostgreSQL test paths:
   **1375 passed, 659 skipped, 10 subtests passed** in 101.18 seconds;
 - focused Fast Lane/backend contract suite: **81 passed**;
+- final completion-audit rerun of the pure release/rework/auth contract files:
+  **33 passed**;
 - disposable PostgreSQL base-to-head migration and Fast Lane acceptance passed;
 - after the first CI exposed its stale synthetic-LKG filename, the corrected
   fixture independently resolved to `0073_platform_release_receipts` when the
@@ -39,16 +41,19 @@ merged or deployed by this work.
 - final drift-recovery UI delta: `npm run check` and focused UI test passed;
 - `git diff --check`: clean.
 
-A full local `npm run verify` was also attempted before the final delta. Seven
-failures were attributable to the known local sibling/catalog fixture drift and
-the host Node mismatch, rather than Fast Lane assertions; the same class of
-environmental failures existed outside this change. Clean repository CI is the
-merge authority and must be green on the exact PR head.
+A final exact-head `npm run verify` under bundled Node 24.14 completed
+**713 passed, 6 skipped, 4 failed**. Every Fast Lane assertion passed. The four
+failures are pre-existing checkout-environment drift: three require an absent
+trusted sibling `swipe-ugc` worker path and one observes the already-drifted
+frozen derivation identity in the sibling `playables` checkout. Re-running
+those exact four tests on the untouched PR base `d8619d3` produced the same
+four failures and messages. Clean repository CI with its pinned checkout
+layout remains the merge authority and must be green on the exact PR head.
 
 ## `feed-prototype@965486d`
 
 - full `npm run lint` (TypeScript plus the repository's complete check matrix):
-  passed;
+  passed again on the final exact head during completion audit;
 - catalog Lab browser check: public HTTPS candidate accepted and unsafe local
   candidate blocked;
 - feed-roster browser check: one-open fresh roster, exact mobile context,
