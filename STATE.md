@@ -1,12 +1,12 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ VARIANT B: CREDENTIAL PREPARATION PASS (06.08)
+## ▶ VARIANT B: PHASE 2 PREPARE-SOURCE PASS (06.08)
 
 - Это верхний актуальный срез; более ранние дневниковые записи ниже остаются
   историей и не переопределяют его.
 - Variant B v4 route + GET-only provider capture + tests + independent review
   влиты meta PR #65, merge `0620b6a`. Candidate image Phase 1 уже опубликован;
-  production всё ещё `09fa0cd`, DB `0070`, новых cutover-dispatch нет.
+  serving production всё ещё `09fa0cd`, DB `0070`.
 - Второй независимый Claude-review credential window принят Codex как вторая
   подпись с условиями. Durable disposition:
   `platform-reliability-variant-b-credential-preparation-review-2026-08-06.md`.
@@ -19,12 +19,20 @@
   `dep-d9mtmabm8hqs73cighmg` live, forbidden rollback env keys отсутствуют.
 - GitHub environment: ровно одно правило `branch: master`, ровно secret
   `RENDER_API_KEY`, ровно шесть variables; `RENDER_BLUEPRINT_ID` равен
-  `exs-d95qo3q8qa3s73ea23p0`. Новых cutover-dispatch нет; backend остаётся
-  `0e9e940`.
-- Credential deadline: `2026-08-06T06:54:37Z`. Следующий акт — отдельный
-  operator GO ровно на один Phase 2 `prepare-source` dispatch. При STOP до
-  Phase 2 оператор отзывает key, доказывает 401, удаляет secret,
-  `RENDER_BLUEPRINT_ID` и holder; branch policy остаётся.
+  `exs-d95qo3q8qa3s73ea23p0`; backend остаётся `0e9e940`.
+- Credential deadline: `2026-08-06T06:54:37Z`. Ключ остаётся только для
+  завершения reviewed Phase 3 и затем обязательно отзывается; secret и holder
+  удаляются при любом terminal исходе.
+- **Phase 2 исполнен один раз и PASS:** run `31074614067`, exact backend
+  `0e9e940`, coordinator receipt
+  `c1c58bb4…9c59`. Durable receipt:
+  `platform-reliability-variant-b-phase2-receipt-2026-08-06.md`.
+- Capture A PASS: service теперь image-backed на exact digest `d7db2713…b8b4`,
+  но старый deploy `dep-d9mtmabm8hqs73cighmg` остаётся live; нового deploy и
+  миграции нет. До Phase 3 запрещены Restart/Redeploy/UI edits/API writes.
+- Следующая граница: оператор включает Render 2FA; Codex наблюдает enabled,
+  снимает fresh Capture B с exact equality к A и только затем запрашивает
+  отдельный GO на один Phase 3 deploy.
 - `claude-ops` атрибутирован local operator keypair
   `/Users/gleb/.ssh/render_ops*`, fingerprint `SHA256:FfvzNGva…VBahI`; контур
   не используется этим манёвром. Render 2FA обязателен до Phase 3.
