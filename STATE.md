@@ -12,9 +12,14 @@
   Статика опубликована в production как `swipe-platform@feb982d`: feed,
   оба playable и четыре cover-файла отвечают HTTP 200 и побайтово совпадают
   с git. Backend release packet `klondike-backend-release-packet-2026-08-06.md`
-  на `2b37a9e` прошёл независимый Opus 5 review — **GO**. Следующий акт —
-  ровно одна публикация candidate image без Render authority; затем отдельно
-  `prepare-source` → deploy → Composer mapping/activation Klondike.
+  на `2b37a9e` прошёл независимый Opus 5 review — **GO**. Phase 1 завершена
+  одним dispatch без Render authority: run `31101029853`, attempt 1, PASS;
+  manifest `3c74aa6f…`, immutable candidate `sha256:32a6eca8…`. Artifact
+  принят 27 exact-проверками, durable receipt —
+  `klondike-backend-phase1-image-publication-receipt-2026-08-06.md`. GO
+  израсходован; следующий акт требует отдельного разрешения на bounded
+  credential preparation и `prepare-source`, затем отдельно deploy и
+  Composer mapping/activation Klondike.
 
 - Legacy `series_order_corrupt` закрыт без переписывания immutable-данных:
   чтение различает текущую и durable generation-verification. Изменение
