@@ -28,6 +28,22 @@ the exact public `release.json` SHA-256 is
 `61f392891ee8ca652cc6ef6e45e37febc7710ff274c479267f53f980d3dce8ff`;
 the latter pins the feed and playables commits above.
 
+At `2026-08-06T12:11:43Z` one PostgreSQL transaction declared `READ ONLY`
+observed revision `0073_platform_release_receipts`, active activation
+`837fdee2-6d6f-4676-9080-2ad4d7434c57`, and these 15 ordered playable IDs:
+
+```text
+merge-locked-v1-swipe, marble-sort-swipe, pins-swipe, arrows-v1-swipe,
+minesweeper-v1-swipe, merge-timepress-v1-swipe, merge-timepress-v2-swipe,
+merge-timepress-no-orders-v1-swipe, pins-l3-swipe, short-drama-swipe,
+pins-l5-swipe, merge-second-board-v1-swipe, pins-l7-swipe,
+merge-second-board-v2-swipe, pins-l9-swipe
+```
+
+Every ID resolves to an explicit branch in `app/run_policy.py`; the intended
+default change therefore affects only future/unknown mechanics, not this live
+roster.
+
 ## Current last-known-good image
 
 - build run: `31028527617`;
@@ -80,11 +96,10 @@ with the reviewed platform-release checklist.
 Immediately before the bounded Phase 2–3 window:
 
 1. operator creates one temporary Render API key;
-2. exact GET-only API capture proves the service is image-backed on the LKG
-   digest, auto-deploy is off, the current live deploy is unique, and no
-   concurrent cutover run exists. This is an explicitly named API capture,
-   not the source-oriented `platform-release-provider-capture.py`, which
-   cannot represent an image-backed service;
+2. repeat the read-only DB query above and STOP unless it still reports
+   `0073`; then run the exact GET-only capture command below. It proves the
+   service is image-backed on the LKG digest, auto-deploy is off, the current
+   live deploy is unique, and no concurrent cutover run exists;
 3. the same key is stored only as GitHub environment secret
    `production/RENDER_API_KEY`;
 4. repository variables remain the existing six reviewed identities;
@@ -96,6 +111,53 @@ Immediately before the bounded Phase 2–3 window:
    credential is pinned, health path is `/api/health`, preDeploy is
    `python -m app.platform_release predeploy-env`, and the current live deploy
    ID did not change.
+
+### Executable capture authority
+
+The authority is
+`scripts/platform-reliability-variant-b-provider-capture.mjs`, exact SHA-256
+`dc8f1d46cda2f173df1cabb70457c099cf25da8d5aff847e144d6d523870a25f`.
+The old Python provider capture and this tool's `pre-window` stage are
+source-runtime only and must not be used here. Current production is captured
+with `--stage prepared` and the LKG image:
+
+```bash
+node scripts/platform-reliability-variant-b-provider-capture.mjs \
+  --stage prepared \
+  --blueprint-id exs-d95qo3q8qa3s73ea23p0 \
+  --service-id srv-d95r3bfavr4c73aqsi4g \
+  --expected-owner-id tea-d1m4lmali9vc73euvelg \
+  --expected-current-deploy "$current_deploy" \
+  --known-preview-id exe-d9nercqjnfac73aunbvg \
+  --known-preview-id exe-d9pg7s3m8hqs73fguv80 \
+  --expected-image-path ghcr.io/glera/swipe-backend@sha256:d7db27136b117c45158f40f9cc261d6807aae413f53ef2d649e4d23079e1b8b4 \
+  --expected-registry-credential-id rgc-d9np7tajnfac73bi5ib0 \
+  --expected-health-check-path /api/health \
+  --expected-predeploy-command "python -m app.platform_release predeploy-env" \
+  --baseline /Users/gleb/secure/r1a/variant-b-pre-window-provider-capture.v1.json \
+  --output klondike-lkg-provider-capture.v1.json
+```
+
+Immediately after Phase 2, Capture A repeats that command with the accepted
+candidate image ref as `--expected-image-path`, uses
+`--baseline klondike-lkg-provider-capture.v1.json`, and writes
+`klondike-candidate-capture-a.v1.json`. Immediately before Phase 3, Capture B
+repeats fresh GETs with the same arguments and adds:
+
+```text
+--equal-capture klondike-candidate-capture-a.v1.json
+--output klondike-candidate-capture-b.v1.json
+```
+
+Only `observedAt` may differ. The candidate image ref and current deploy are
+copied from the accepted candidate manifest and fresh provider GET and are
+recorded in the execution receipt before either command.
+
+Both known preview IDs are permanent residuals. The tool must reject any new
+sync and any transition of a known residual to `running` or `success`.
+Provider enumeration has previously omitted a dashboard-visible pending
+preview, so `exe-d9pg7s3m8hqs73fguv80` also remains an explicit manual STOP:
+never Approve it and never use Manual sync during this window.
 
 ## Phase 3 — deploy the bound immutable image
 
@@ -114,10 +176,17 @@ workflow uploads a coordinator receipt only on success; on failure the exact
 run log and immediate provider capture are the terminal evidence. Fixing that
 inherited P2 is a later reliability change, not authority for retry here.
 
+If Phase 2 succeeds but Phase 3 is not authorized or reaches STOP, production
+continues serving the LKG deploy while the saved service image points at the
+candidate. Restart, redeploy, preview approval and every Render write are then
+forbidden. Cleanup still runs; a separately reviewed recovery must either
+restore the saved LKG image or resume Phase 3.
+
 STOP on any source/master mismatch, schema other than `0073`, non-image
 runtime, saved image/config mismatch, multiple live deploys, pending cutover
 run, changed GitHub variables, artifact mismatch, or any deploy appearing
-between Phase 2 and Phase 3. Both workflow runs must report
+between Phase 2 and Phase 3. A known preview in `running`/`success`, any new
+sync, or approval/manual-sync interaction is also STOP. Both workflow runs must report
 `head_sha=ad65ac5ae09ab7b855b59f4b0a7d89328de5caab`. Retry, rollback, manual
 Render deploy and service edits are not authorized by this packet.
 
