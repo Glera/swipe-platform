@@ -9,9 +9,12 @@
   Backend PR #57 влит как `ad65ac5`, feed PR #22 — `1c4a221`, playables PR
   #7 — `3f17df6`; exact-head CI всех трёх зелёный. Серии теперь fail-safe:
   неизвестная механика получает 1 игру, `arrows-v1` явно сохраняет 5.
-  Production ещё не менялся: следующий операторский акт — один
-  `deploy-swipe.sh minesweeper-v1 solitaire-v1` из чистого release-checkout,
-  затем отдельные backend deploy и Composer mapping/activation Klondike.
+  Статика опубликована в production как `swipe-platform@feb982d`: feed,
+  оба playable и четыре cover-файла отвечают HTTP 200 и побайтово совпадают
+  с git. Backend release packet `klondike-backend-release-packet-2026-08-06.md`
+  на `2b37a9e` прошёл независимый Opus 5 review — **GO**. Следующий акт —
+  ровно одна публикация candidate image без Render authority; затем отдельно
+  `prepare-source` → deploy → Composer mapping/activation Klondike.
 
 - Legacy `series_order_corrupt` закрыт без переписывания immutable-данных:
   чтение различает текущую и durable generation-verification. Изменение
