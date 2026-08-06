@@ -1,6 +1,6 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ VARIANT B: DEPLOY + CLEANUP PASS; NEXT MINESWEEPER (06.08)
+## ▶ ПЛАТФОРМА ВОССТАНОВЛЕНА; MINESWEEPER В ЛЕНТЕ (06.08)
 
 - Это верхний актуальный срез; более ранние дневниковые записи ниже остаются
   историей и не переопределяют его.
@@ -17,10 +17,27 @@
 - Terminal cleanup PASS: временный Render key отозван и даёт 401; GitHub
   environment secrets пусты; holder удалён; шесть non-secret release variables
   сохранены. Render 2FA enabled.
-- Следующий контур — reviewed
-  `minesweeper-feed-roster-packet-2026-08-05.md`: mapping/register/CAS activation
-  после fresh production preflight, затем наблюдение `/session` и два запуска
-  mini-app. До завершения пакета сапёр в roster не ожидается.
+- Reviewed Minesweeper-пакет исполнен: active roster содержит 15 entries,
+  Minesweeper стоит на позиции 5 после Arrows; activation
+  `837fdee2-6d6f-4676-9080-2ad4d7434c57`.
+- Наблюдаемая приёмка PASS: оператор увидел и сыграл Minesweeper; telemetry
+  фиксирует `unit_shown` на `feed_pos=4`, first input, manual wins и
+  `series_complete` без `roster_entry_unavailable`/`roster_fallback`.
+  Durable receipt:
+  `minesweeper-feed-roster-execution-receipt-2026-08-06.md`.
+- Recovery-контур на этом заканчивается. Эталон mechanic onboarding принят:
+  reviewed mapping apply → Lab Composer preview/diff/CAS activation → два
+  запуска Mini App. Ручные roster JSON/UUID и три отдельных GO остаются только
+  bootstrap-историей. Backend guide влит PR #56 (`3328858`), Composer docs и
+  honest lost-response recovery — generator PR #10 (`1257aa7`); независимый
+  Claude verdict — GO, receipt
+  `mechanic-onboarding-standard-claude-review-2026-08-06.md`.
+- Локальный Lab/Composer восстановлен: versioned Node `24.19.0`, launchd
+  использует `/usr/local/opt/node@24/bin/node`, production manifest source
+  `https://swipe-platform.onrender.com/versions.json`, preview origin явно
+  пинится на `https://swipe-platform.onrender.com`; status/state проецируют
+  active Minesweeper roster. Шаблон следующего пакета:
+  `docs/mechanics/FEED-ONBOARDING-PACKET-TEMPLATE.md`.
 - External controls/credentials/dispatch/deploy исполняет только оператор;
   Codex оркестрирует, проверяет read-only evidence и принимает результат.
 

@@ -48,6 +48,31 @@
   capture preflight и clean/instrumented scenario receipts.
 - [`PROCESS-RECEIPT-TEMPLATE.md`](PROCESS-RECEIPT-TEMPLATE.md) — метрики
   внимания, переделок и эффективности процесса на класс.
+- [`FEED-ONBOARDING-PACKET-TEMPLATE.md`](FEED-ONBOARDING-PACKET-TEMPLATE.md) —
+  короткий шаблон единственного reviewed-пакета от готового playable до
+  наблюдаемой production-приёмки.
+- [`swipe-backend/docs/specs/mechanic-onboarding.md`](../../swipe-backend/docs/specs/mechanic-onboarding.md)
+  — эталонный путь уже выпущенной механики в production-ленту: один reviewed
+  mapping apply, затем визуальный Lab Composer и наблюдаемая приёмка.
+
+## Граница исследования и выхода в ленту
+
+Этот каталог отвечает за выбор класса, fidelity, game feel и доказательство
+играбельности. После утверждения playable публикационный контур не должен
+повторять исследовательскую сложность. Штатный handoff состоит из одного
+короткого onboarding-пакета: identity/digests, series policy, production URL,
+желаемая позиция и результат проверок.
+
+Дальше оператор не составляет roster вручную: reviewed mapping регистрируется
+одной process-local командой, а состав/порядок/preview/CAS activation делаются
+в Lab → **Композер**. Подробности и STOP-ветки принадлежат backend-документу
+выше; отдельные research-пакеты не должны дублировать этот изменчивый процесс.
+
+Legacy `Variant` тоже является release-предусловием: её создаёт реальный
+authenticated legacy/builtin `POST /api/runs/start` без `decision_id`, не SQL,
+catalog/player-v2 dogfood и не roster Composer. Если такого пути для скрытой
+механики нет, admission останавливается до отдельного reviewed seeding
+authority.
 
 ## Контекст платформы, влияющий на выбор
 
