@@ -3,8 +3,11 @@
 Status: **DRAFT — image publication and production deploy require separate
 operator GO**.
 
-Scope: deploy the reviewed one-game Klondike series policy. This release has
-no migration and does not change the active roster.
+Scope: deploy the reviewed series policy: Klondike is explicitly one game,
+Arrows explicitly remains five, and an unknown future mechanic now safely
+defaults from five games to one. This release has no migration and does not
+change the active roster; every mechanic in the current 15-entry roster still
+matches an explicit policy branch and preserves its existing length.
 
 ## Immutable source facts
 
@@ -19,6 +22,11 @@ no migration and does not change the active roster.
 
 The public release and all two playable HTML files plus four cover files were
 observed with HTTP 200 and exact git-byte SHA-256 equality before this packet.
+The exact public `versions.json` SHA-256 is
+`780a381d6a76f251108af5e2d892cb5c5c813cd0de1341f88b909e38c6d910b6` and
+the exact public `release.json` SHA-256 is
+`61f392891ee8ca652cc6ef6e45e37febc7710ff274c479267f53f980d3dce8ff`;
+the latter pins the feed and playables commits above.
 
 ## Current last-known-good image
 
@@ -59,34 +67,59 @@ one manifest, exact candidate backend and cross-repo pins, target `0073`,
 expected predecessor `0072`, accepted chain `0070..0073`, current LKG pins,
 and the immutable candidate image digest.
 
-## Phase 2 — direct image-to-image deploy
+## Phase 2 — bind the saved image configuration
 
-There is deliberately no `prepare-source` phase. Production is already
-image-backed. At the reviewed coordinator source, `operation=deploy` first
-requires `runtime=image`, stages the candidate release identity, posts exactly
-one deploy naming the immutable digest, waits for live, runs
-`verify-applied-db`, and checks public health. `prepare-source` exists only to
-convert a source-backed service and would be redundant here.
+Production is already image-backed, but `operation=deploy` does not verify the
+saved `imagePath`, registry credential, health path or preDeploy command. A
+separately authorized `operation=prepare-source` is therefore retained. In
+this release it is an image-to-image configuration bind: it PATCHes the saved
+service configuration to the reviewed candidate digest and verifies the
+result without creating a deploy. This also keeps the executable route aligned
+with the reviewed platform-release checklist.
 
-Immediately before a separately authorized deploy window:
+Immediately before the bounded Phase 2–3 window:
 
 1. operator creates one temporary Render API key;
-2. read-only capture proves the service is image-backed on the LKG digest,
-   auto-deploy is off, the current live deploy is unique, DB is `0073`, and
-   no concurrent cutover run exists;
+2. exact GET-only API capture proves the service is image-backed on the LKG
+   digest, auto-deploy is off, the current live deploy is unique, and no
+   concurrent cutover run exists. This is an explicitly named API capture,
+   not the source-oriented `platform-release-provider-capture.py`, which
+   cannot represent an image-backed service;
 3. the same key is stored only as GitHub environment secret
    `production/RENDER_API_KEY`;
 4. repository variables remain the existing six reviewed identities;
 5. dispatch exactly one `platform-release-cutover.yml` run from master with
-   `operation=deploy`, the accepted candidate run and manifest, LKG run
-   `31028527617`, and the freshly observed current live deploy ID;
-6. at every terminal outcome revoke the Render key, prove it unusable, delete
-   the GitHub secret and local holder, and preserve non-secret variables.
+   `operation=prepare-source`, the accepted candidate run and manifest, LKG
+   run `31028527617`, and the freshly observed current live deploy ID;
+6. accept only its downloaded success receipt plus a fresh GET proving the
+   saved runtime is image, `imagePath` is the candidate digest, registry
+   credential is pinned, health path is `/api/health`, preDeploy is
+   `python -m app.platform_release predeploy-env`, and the current live deploy
+   ID did not change.
+
+## Phase 3 — deploy the bound immutable image
+
+After a fresh CAS proves backend master, workflow bytes, GitHub variables,
+current live deploy and bound service fields are unchanged, dispatch exactly
+one `platform-release-cutover.yml` run with `operation=deploy`, the same
+candidate and LKG identities, and the same current live deploy ID. The
+coordinator stages the release identity, posts one deploy naming the immutable
+candidate digest, waits for live, runs `verify-applied-db`, and checks public
+health. Post-deploy GET evidence must show the saved `imagePath` still equals
+the candidate digest and the new deploy is the unique live deploy.
+
+At every terminal outcome revoke the Render key, prove it unusable, delete the
+GitHub secret and local holder, and preserve non-secret variables. The current
+workflow uploads a coordinator receipt only on success; on failure the exact
+run log and immediate provider capture are the terminal evidence. Fixing that
+inherited P2 is a later reliability change, not authority for retry here.
 
 STOP on any source/master mismatch, schema other than `0073`, non-image
-runtime, multiple live deploys, pending cutover run, changed GitHub variables,
-or artifact mismatch. Retry, rollback, manual Render deploy and service edits
-are not authorized by this packet.
+runtime, saved image/config mismatch, multiple live deploys, pending cutover
+run, changed GitHub variables, artifact mismatch, or any deploy appearing
+between Phase 2 and Phase 3. Both workflow runs must report
+`head_sha=ad65ac5ae09ab7b855b59f4b0a7d89328de5caab`. Retry, rollback, manual
+Render deploy and service edits are not authorized by this packet.
 
 ## Remaining product step
 
