@@ -1,5 +1,18 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ PROTOTYPE DEPLOY БЕЗ ПУСТОЙ ОПЕРАТОРСКОЙ КНОПКИ (07.08)
+
+- Оператор снял обязательное финальное ручное нажатие для штатного обратимого
+  deploy проверенного `master`: если исходная задача уже просит
+  обновить/опубликовать результат, frontier-владелец после CAS+CI запускает
+  один существующий workflow и наблюдает terminal result. Миграции, секреты,
+  env/permissions, инфраструктура, destructive acts и rollback остаются за
+  отдельным операторским authority.
+- Текущий Render API key сохраняется как переиспользуемый prototype deploy
+  credential в GitHub environment `production`, ограниченном веткой `master`;
+  удаление после каждого обновления больше не является частью процесса.
+  Ротация — при утечке/смене доступа либо перед живой аудиторией.
+
 ## ▶ LABS FAST LANE ДЛЯ PLAYABLE — ТЗ ЗАФИКСИРОВАНО (06.08)
 
 - Оператор утвердил целевой UX first-party прототипов: существующая механика
@@ -118,8 +131,10 @@
   пинится на `https://swipe-platform.onrender.com`; status/state проецируют
   active Minesweeper roster. Шаблон следующего пакета:
   `docs/mechanics/FEED-ONBOARDING-PACKET-TEMPLATE.md`.
-- External controls/credentials/dispatch/deploy исполняет только оператор;
-  Codex оркестрирует, проверяет read-only evidence и принимает результат.
+- Credentials и прочие core-authority actions исполняет оператор. Штатный
+  обратимый prototype deploy проверенного `master` после решения 07.08 может
+  запускать frontier-владелец без отдельного ручного клика; Codex проверяет
+  CAS/CI, запускает один раз, наблюдает и фиксирует receipt.
 
 ## ▶ CODEX ПРИНЯЛ FRONTIER-ОРКЕСТРАЦИЮ (05.08, вечер)
 
