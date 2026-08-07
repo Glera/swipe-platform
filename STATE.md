@@ -1,5 +1,28 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ DOGFOOD VALIDATION ВЛИТ; SORTING ЖДЁТ TELEGRAM APPROVE (07.08)
+
+- Fast Lane теперь явно разделяет проверки: technical safety всегда blocking,
+  gamefeel внутри versioned bounds мягкий для `exact-user` dogfood. Действие
+  «Открыть всем» остаётся отдельным будущим release с полной gamefeel-приёмкой;
+  универсального bypass тестов нет.
+- Playables PR #11 влит как `7358e9b`: Sorting сохраняет прежние 20 technical
+  checks; Minesweeper/Arrows получили отдельные неиспаряемые input suites;
+  presentation/layout остаются отдельно запускаемым gamefeel. Generator PR
+  #23 влит как `bcbe937`: source-agent и release preparation симметрично
+  используют `:technical`; exact-head CI PASS (`31191376316`, 7m33s).
+- Два независимых Claude Fable прохода дали GO. P2 про real hit-testing и
+  release-stage broad suite закрыты; финальный P2 про зелёный пустой
+  `--test-name-pattern` закрыт переносом input checks в отдельные файлы.
+- Целевая Sorting-настройка `2/3` до retry прошла technical 20/20 и реальный
+  visual proof: win без page errors за 46s против 25s до правки, в пределах
+  90s harness cap.
+- Тот же request `01aaf0e3-…` recoverable-reset без нового ввода. Source-agent
+  изменил один tuning-файл, technical/build/visual-proof PASS и запушил
+  Playables commit `40ef388b`. Release `aae4ffbd-…` в
+  `READY_FOR_APPROVAL`; exact Telegram intent `3cde3b29…` ждёт operator
+  подтверждения, после него обычный static publish + live verification.
+
 ## ▶ FAST LANE: BLOCKED-СТАТУС LIVE, ЖДЁТ MOBILE SMOKE И RETRY (07.08)
 
 - Для автоматической доработки механики введена durable остановка `blocked`:
