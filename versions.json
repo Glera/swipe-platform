@@ -1,14 +1,14 @@
 {
   "marble-sort-swipe": {
-    "version": "7231be1cad",
+    "version": "41db14e381",
     "htmlBytes": 1088,
-    "payloadBytes": 157410,
+    "payloadBytes": 158413,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "light",
-    "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
-    "runtimeArtifactDigest": "sha256:8ca50d773b5915deeec79b39f91736c88531ddaff682d36ae2257f0c6e610124"
+    "sourceCommit": "731636e03ea6b4e5e41f35fb1eeed8633075872f",
+    "runtimeArtifactDigest": "sha256:c5d9a300caa10c2a233320e2131baf226654f90e31cf7db2bdaf14df60425ddd"
   },
   "merge-locked-v1-swipe": {
     "version": "5edeaf2660",
