@@ -1,6 +1,36 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ DOGFOOD VALIDATION ВЛИТ; SORTING ЖДЁТ TELEGRAM APPROVE (07.08)
+## ▶ FAST LANE INTAKE ИСПРАВЛЕН; TWO DOTS UPDATE LIVE (07.08)
+
+- Первый полный `add` прошёл одним release
+  `9869f144-894f-4b12-bba8-69fb9ebf15b2`: exact source
+  `playables@1ac40a2`, strict technical profile, HTTPS candidate, одно
+  Telegram-подтверждение, static publish, server-owned mapping create и CAS
+  roster activation. Новый activation `5671e39c-…` содержит 17 entries;
+  `orthogonal-link-v1-swipe` стоит на позиции 8 сразу после Klondike.
+- Production manifest `f20e9017…`, runtime digest `sha256:8a7cda5b…`; HTML,
+  payload и обе covers отвечают 200 и совпадают с frozen bytes. Telegram LIVE
+  notification доставлен как message id `50`.
+- Candidate был готов за 1m06s, после approval до LIVE — 30s; полный wall time
+  19m23s включал 17m46s ожидания оператора. Подробный receipt:
+  `labs-fast-lane-two-dots-add-dogfood-receipt-2026-08-07.md`.
+- Точечный intake fix влит Generator PR #25 (`8c9b4ad`): source-agent разрешает
+  source только из detached `origin/master`, читает стандартный
+  `test:<sourceId>:technical`, а исключение до/вокруг agent-run получает
+  durable FAILED journal и безопасную `blocked`-проекцию вместо бесконечного
+  локального лога. Opus delta-review — GO; exact-head CI зелёный после одного
+  `rerun --failed` известного polling-flake.
+- Сохранённый мобильный request `098ac28e-…` продолжен без пересоздания.
+  Первый candidate-edit честно остановил real-pointer browser test и показал
+  `! Нужна помощь`; recoverable retry прошёл technical/build/visual proof,
+  запушил `playables@cb581e7` и выпустил release `0231edce-…`.
+- Update LIVE: `swipe-platform@ff613f2`, manifest version `260f3f1281`, runtime
+  digest `sha256:476e0bb8…`, request закрыт тем же release receipt
+  `e4ca6e29…`; Telegram completion доставлен как message id `54`. Следующая
+  точка — операторский gameplay smoke увеличенной сетки/точек в свежем Mini
+  App-сеансе.
+
+## ▶ DOGFOOD VALIDATION ВЛИТ; SORTING ЗАВЕРШЁН (07.08)
 
 - Fast Lane теперь явно разделяет проверки: technical safety всегда blocking,
   gamefeel внутри versioned bounds мягкий для `exact-user` dogfood. Действие
@@ -20,8 +50,8 @@
 - Тот же request `01aaf0e3-…` recoverable-reset без нового ввода. Source-agent
   изменил один tuning-файл, technical/build/visual-proof PASS и запушил
   Playables commit `40ef388b`. Release `aae4ffbd-…` в
-  `READY_FOR_APPROVAL`; exact Telegram intent `3cde3b29…` ждёт operator
-  подтверждения, после него обычный static publish + live verification.
+  дошёл до LIVE; последующий Sorting request также завершён и не держит
+  публикационный слот.
 
 ## ▶ FAST LANE: BLOCKED-СТАТУС LIVE, ЖДЁТ MOBILE SMOKE И RETRY (07.08)
 
@@ -47,11 +77,9 @@
   `0074→0075` и verification job. Feed `d9cbafc` опубликован в
   `swipe-platform@54af248`, его live bytes совпали. Generator-writer live на
   `e3f9601` с сохранённым data-root.
-- Существующая Sorting-задача `01aaf0e3-…` спроецирована в `blocked` с
-  безопасной причиной. Следующая точка: оператор наблюдает сообщение в
-  `swipe_it`, янтарно-красную кнопку и detail-popover в Mini App; затем Codex
-  делает recoverable reset и повторяет **тот же** request без нового ввода.
-  Durable rollout receipt:
+- Контур подтверждён живыми Sorting и Two Dots retry: безопасное уведомление,
+  detail-popover, архив failed-attempt, повтор **того же** request без нового
+  ввода и последующий LIVE release. Durable rollout receipt:
   `labs-fast-lane-blocked-status-rollout-receipt-2026-08-07.md`.
 
 ## ▶ PROTOTYPE DEPLOY БЕЗ ПУСТОЙ ОПЕРАТОРСКОЙ КНОПКИ (07.08)

@@ -100,8 +100,10 @@ runtime-контракта, выход за versioned bounds или любой �
 release plan, human gamefeel review и rollout authority. Нельзя неявно
 расширить `exact-user` candidate на всех игроков.
 
-Для поддерживаемой механики source-agent запускает явный
-`test:<mechanic>:technical`. Presentation/layout golden-проверки могут
+Для каждой механики source-agent и release-service запускают один и тот же
+непустой package script `test:<sourceId>:technical`; отсутствие профиля
+fail-closed блокирует каждый release, включая уже добавленную механику.
+Presentation/layout golden-проверки могут
 оставаться в широком suite или отдельном `:gamefeel`, но не должны блокировать
 dogfood только из-за осознанного изменения вкусового параметра. При этом
 browser/lifecycle proof технического профиля нельзя заменить одним unit-тестом
@@ -112,7 +114,8 @@ browser/lifecycle proof технического профиля нельзя з�
 - один operator Telegram account из существующего allowlist;
 - один локальный Labs на доверенной машине;
 - один production origin `swipe-platform.onrender.com`;
-- first-party playable уже находится в `playables/master`;
+- first-party playable уже находится в exact remote `playables/master`;
+  dirty/stale локальный checkout не является каталогом источников для Labs;
 - source commit готовит bounded-агент в изолированном worktree; ручной
   IDE/готовый commit остаётся fallback, оператор не нажимает GitHub-кнопки;
 - для новой механики series length по умолчанию равен `1`;
@@ -253,7 +256,9 @@ writer не обращается к отсутствующему route. Backend 
 только для `blocked`; после создания первой blocked-проекции откат Generator к
 версии без поддержки `execution` запрещён.
 
-Когда candidate готов, бот присылает сообщение:
+Когда candidate готов, бот идемпотентно присылает сообщение с HTTPS candidate,
+текущим device-code и его expiry (перевыпуск кода обновляет тот же intent, а не
+создаёт второй release):
 
 ```text
 Klondike · доработка готова
