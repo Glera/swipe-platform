@@ -1,7 +1,7 @@
 # Labs Fast Lane backend flag corrective — independent review
 
-Status: **FIRST PASS COMPLETE; dispositions applied, narrow delta review
-pending. This is not an operator GO.**
+Status: **SECOND-PASS P2 DISPOSITION APPLIED; final micro-delta review pending.
+This is not an operator GO.**
 
 Reviewed artifact:
 `docs/receipts/labs-fast-lane-backend-flag-corrective-2026-08-07.md` at meta
@@ -68,3 +68,16 @@ become live and unhealthy routes after live.
   approval after this one-time enabling correction;
 - the edit affects only the web service, not the two cron services.
 
+## Delta pass at `c2a678f`
+
+Verdict: **NO-GO with one P2, no P1**. The reviewer verified literal closure
+of every first-pass finding, then found that the acceptance expected only two
+new routes even though the same flag also mounts the server-owned
+`/api/feed/playable-releases/apply` route and makes its release-bound write
+scope grantable.
+
+Disposition: **accepted**. The observed-before matrix now names all three
+absent child routes. PASS requires all three to appear, and states that the
+apply route remains inert until a separately authorized exact release obtains
+`feed.playable-release:write`. STOP likewise covers absence of any of the three
+routes. No mutation authority was added to the corrective action itself.

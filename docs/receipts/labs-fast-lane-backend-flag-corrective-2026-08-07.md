@@ -18,7 +18,8 @@ from Telegram, and received the generic client message **Не удалось с�
 Direct evidence after the failure:
 
 - production OpenAPI contains neither `/api/operator-playable-reworks` nor
-  `/api/admin/operator-playable-reworks`;
+  `/api/admin/operator-playable-reworks` nor the server-owned apply path
+  `/api/feed/playable-releases/apply`;
 - the same OpenAPI document does contain `/api/operator-level-flags` and
   `/api/admin/operator-level-flags`, proving the sibling player and Lab gate
   chains are live before the missing child flag is enabled;
@@ -38,8 +39,9 @@ and the additional `settings.enable_feed_playable_release` child gate. The
 child setting defaults false.
 Reviewed backend source and `render.yaml` already contain the feature and the
 literal intended value `ENABLE_FEED_PLAYABLE_RELEASE=true`; the image-backed
-cutover changed image/service source but did not apply Blueprint environment
-values. This is a one-time enabling omission, not a content-release failure.
+cutover changed image/service source but did not apply at least this newly
+added Blueprint environment value. This is a one-time enabling omission, not a
+content-release failure.
 
 ## 2. Bounded corrective action
 
@@ -48,7 +50,8 @@ Operator-only action in the Render dashboard for service
 
 1. Before changing anything, confirm the current live deploy is
    `dep-d9qmm8cs728c73a5lusg`, the service is image-backed, and the same env
-   page shows `ENABLE_CATALOG_LAB_AUTH=true` plus
+   page shows `ENABLE_CATALOG_LAB_AUTH=true`,
+   `ENABLE_OPERATOR_LEVEL_FLAGS=true` and
    `ENABLE_OPERATOR_LEVEL_FLAGS_LAB=true`. STOP on any mismatch; the public
    sibling OpenAPI routes above are a second, independent check of those
    chains.
@@ -76,9 +79,11 @@ PASS requires all of the following direct observations:
   `sha256:fdd5bab35a5b8892caf47d3f9a5e66f36dff21543fc210f6997321d265e0d0a6`;
 - public health remains HTTP 200 / `ok=true`;
 - database revision remains `0074_feed_playable_release_scope`;
-- production OpenAPI now contains exactly the player rework path
-  `/api/operator-playable-reworks` and Lab path
-  `/api/admin/operator-playable-reworks`;
+- production OpenAPI now contains both rework paths
+  `/api/operator-playable-reworks` and
+  `/api/admin/operator-playable-reworks`, plus the expected server-owned apply
+  path `/api/feed/playable-releases/apply`. The third route is inert without a
+  separately authorized, release-bound `feed.playable-release:write` grant;
 - local Labs projection returns a valid empty list instead of
   `operator_flags_lab_response_invalid`;
 - no mapping, roster activation, feed playable-release receipt, or rework row
@@ -89,7 +94,9 @@ PASS requires all of the following direct observations:
 
 STOP and report literal state if the image digest changes, more than one deploy
 is created, health fails, the database revision changes, another environment
-variable changes, or either route remains absent after a live deploy.
+variable changes, or any of the three expected routes remains absent after a
+live deploy. If Save creates no deploy, STOP without a second Save/retry and
+report the literal dashboard state.
 
 ## 4. Rollback
 
@@ -113,7 +120,9 @@ approval. The recurring content path contains no Render step.
 
 The first independent read-only review used Claude Opus 5 via the subscription
 CLI against meta `f81a549` and exact backend/generator/feed sources. Verdict:
-**GO with no P1 and two P2 pre-save checks**. The dispositions above:
+**GO with no P1 and two P2 pre-save checks**. A first delta review against
+`c2a678f` verified all original closures, then returned one new P2 because the
+acceptance omitted the third child route. The dispositions above:
 
 - prove both sibling gate chains from the same production OpenAPI and require
   their env values on the edit page;
@@ -122,6 +131,8 @@ CLI against meta `f81a549` and exact backend/generator/feed sources. Verdict:
 - describe the expected platform preDeploy receipt write precisely;
 - broaden rollback to cover a deploy that never becomes live;
 - correct the in-memory-only retry claim.
+- expect `/api/feed/playable-releases/apply` alongside both rework routes and
+  state explicitly that its write grant is separate and release-bound.
 
 The review/disposition receipt is
 `docs/receipts/labs-fast-lane-backend-flag-corrective-review-2026-08-07.md`.
