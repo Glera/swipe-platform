@@ -226,5 +226,16 @@
     "mountCost": "light",
     "sourceCommit": "92f56c0aa218dbde5c8956370560840bfc78beef",
     "runtimeArtifactDigest": "sha256:c90451a719e4657f447179d747b1806fc2f16f915de536ea13bad8545cf4c7d2"
+  },
+  "orthogonal-link-v1-swipe": {
+    "version": "ff18632275",
+    "htmlBytes": 833,
+    "payloadBytes": 57089,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 0,
+    "mountCost": "light",
+    "sourceCommit": "1ac40a2bce2af1d75264065ee3766e37021eb9a3",
+    "runtimeArtifactDigest": "sha256:8a7cda5b70e77e8ece012f59070d0861a1564d8a5a82f5f76c80ca9d17bfdf7f"
   }
 }
