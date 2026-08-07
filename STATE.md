@@ -1,6 +1,6 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ FAST LANE: ОСТАНОВКА ВИДНА В TELEGRAM, КОД ГОТОВ К ROLLOUT (07.08)
+## ▶ FAST LANE: BLOCKED-СТАТУС LIVE, ЖДЁТ MOBILE SMOKE И RETRY (07.08)
 
 - Для автоматической доработки механики введена durable остановка `blocked`:
   в Mini App правая кнопка становится янтарно-красной **`! Нужна помощь`**,
@@ -18,11 +18,18 @@
   #22 → `e3f9601`, Feed PR #27 → `d9cbafc`, Backend PR #60 → `bbc8026b`.
   Backend exact-head CI: image + full PostgreSQL acceptance + 24 migration
   roundtrip + reverse drift PASS; Feed exact-head CI PASS.
-- Rolling rollout намеренно остановлен перед единственным authority-актом:
-  production backend deploy с миграцией `0074→0075`. После operator GO порядок
-  фиксирован: Backend 0075 live → Feed static publish → Generator writer live →
-  проекция существующей Sorting-задачи в `blocked` и Telegram-smoke →
-  recoverable retry того же request.
+- Rolling rollout завершён до ручной точки наблюдения. Backend image
+  `sha256:3d2889a6…` задеплоен run `31188304631` как Render deploy
+  `dep-d9quqaqd0e5s73b5u01g`; coordinator PASS подтвердил миграцию
+  `0074→0075` и verification job. Feed `d9cbafc` опубликован в
+  `swipe-platform@54af248`, его live bytes совпали. Generator-writer live на
+  `e3f9601` с сохранённым data-root.
+- Существующая Sorting-задача `01aaf0e3-…` спроецирована в `blocked` с
+  безопасной причиной. Следующая точка: оператор наблюдает сообщение в
+  `swipe_it`, янтарно-красную кнопку и detail-popover в Mini App; затем Codex
+  делает recoverable reset и повторяет **тот же** request без нового ввода.
+  Durable rollout receipt:
+  `labs-fast-lane-blocked-status-rollout-receipt-2026-08-07.md`.
 
 ## ▶ PROTOTYPE DEPLOY БЕЗ ПУСТОЙ ОПЕРАТОРСКОЙ КНОПКИ (07.08)
 
