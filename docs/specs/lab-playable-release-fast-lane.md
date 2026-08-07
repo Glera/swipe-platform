@@ -1,23 +1,26 @@
 # ТЗ: быстрый выпуск playable-механик через Labs
 
-Статус: **DRAFT — продуктовая схема утверждена оператором 06.08.2026;
-реализация не начата**.
+Статус: **IMPLEMENTING — продуктовая схема утверждена оператором 06.08.2026;
+Fast Lane core включён, автоматический Telegram intake и жизненный цикл
+фабрик проходят dogfood 07.08.2026**.
 
 Область: только first-party прототипы из `playables`, опубликованные в
 дефолтной swipe-ленте. Это временный быстрый контур для стадии без аудитории,
 а не универсальная release-платформа.
 
-После реализации этот документ заменяет штатный операторский UX из
-`swipe-backend/docs/specs/mechanic-onboarding.md`. До этого действующим
-остаётся текущий Composer-процесс.
+После двух успешных dogfood-проходов этот документ заменяет штатный
+операторский UX из `swipe-backend/docs/specs/mechanic-onboarding.md` для
+first-party content-only изменений. Composer остаётся ручным fallback.
 
 ## 1. Результат
 
 Оператор работает только в Labs, Telegram и Mini App:
 
 ```text
-готовый source commit
-  → Labs готовит и показывает candidate
+Telegram-задача из живой механики
+  → bounded-агент меняет только exact playable
+  → supervisor проверяет diff, тесты, build и visual proof
+  → Labs автоматически готовит candidate
   → одно точное подтверждение в Telegram
   → Labs публикует и проверяет production
   → оператор открывает Mini App
@@ -27,7 +30,8 @@ Git остаётся обязательным audit trail и механизмо�
 операторским интерфейсом. Оператор не открывает GitHub, не запускает команды в
 терминале, не создаёт Render-ключи и не нажимает Manual Deploy.
 
-Временные целевые бюджеты от готового source commit до проверяемого production:
+Временные целевые бюджеты от отправки bounded Telegram-задачи до проверяемого
+production (для уже готового commit ручной fallback просто пропускает agent-шаг):
 
 | Сценарий | Полное время | Активное время оператора |
 | --- | ---: | ---: |
@@ -68,7 +72,8 @@ Git остаётся обязательным audit trail и механизмо�
 - один локальный Labs на доверенной машине;
 - один production origin `swipe-platform.onrender.com`;
 - first-party playable уже находится в `playables/master`;
-- source PR/merge готовит агент/IDE; оператор не нажимает GitHub-кнопки;
+- source commit готовит bounded-агент в изолированном worktree; ручной
+  IDE/готовый commit остаётся fallback, оператор не нажимает GitHub-кнопки;
 - для новой механики series length по умолчанию равен `1`;
 - кастомная series policy допустима только если она уже выражается versioned
   content config без backend/client deploy;
@@ -101,7 +106,8 @@ capability выдана только оператору.
 - candidate iframe;
 - before/after covers;
 - exact diff production manifest;
-- кнопка **Подтвердить публикацию в Telegram**.
+- автоматическое начало exact Telegram approval; кнопка в Labs остаётся
+  аварийным fallback, но не входит в happy path.
 
 ### 4.2 История шагов
 
@@ -178,6 +184,13 @@ authority и поэтому не требует отдельного device code
 существующие operator flags/rework/mobile-review контуры, а не в новый
 таск-трекер.
 
+Labs читает durable очередь сам. Нормальный путь не содержит второго действия
+**Взять в Fast Lane**: при подключённом Mac oldest-open задача автоматически
+получает bounded source-agent, exact source commit и один release job. В UI
+Labs ручная подстановка остаётся только раскрываемым fallback. На телефоне
+состояние `open|claimed` перечитывается с backend после каждого запуска Mini
+App, поэтому «В работе» не является page-local оптимистической меткой.
+
 Когда candidate готов, бот присылает сообщение:
 
 ```text
@@ -213,6 +226,26 @@ GitHub-подтверждения нет. После live verification бот п
 локальный Mac с Labs. Backend хранит входящую задачу, пока Mac offline; UI честно
 показывает **Ждёт подключения Labs**. Always-on cloud runner, удалённая IDE и
 browser code editor намеренно не входят в v0.
+
+### 4.6 Изменение runtime и готовые фабрики
+
+Release не удаляет и не пересобирает все фабрики рефлекторно. По exact source
+diff и old/new runtime digest Labs детерминированно присваивает затронутым
+фабрикам один из трёх статусов:
+
+- `current` — runtime bytes не изменились либо diff только presentation/assets;
+- `needs_revalidation` — правила/темп runtime изменились без изменения
+  versioned contract; готовые фабрики и их история сохраняются, но новые
+  generation effects через них fail-closed до повторной проверки;
+- `incompatible` — изменён contract/schema/runtime adapter; candidate можно
+  сыграть, но публикация блокируется до обновления или retirement фабрики.
+
+Для `runtime_tuning` затрагивается level-design factory; setting factory не
+перезапускается без contract evidence. Contract-breaking изменение затрагивает
+обе. Модель не выбирает класс сама: classifier использует только paths и
+versioned digest. Исторические outputs остаются доступны как evidence и не
+становятся «актуальными» молча. Повторная валидация/новая admission — отдельный
+асинхронный follow-up; она не добавляет operator-клик в content release.
 
 ## 5. Обновление существующей механики — 5–10 минут
 
@@ -374,16 +407,28 @@ feed.playable-release:write
 1. **Mobile capture**: operator-only действие в feed/TMA → существующий
    flags/rework outbox; exact context, инструкция и screenshot; offline Mac
    допускается.
-2. **Labs job + UI**: preparation, candidate preview, covers, timeline и
+2. **Automatic source intake**: oldest-open очередь → bounded subscription
+   agent в isolated worktree → path budget → mechanic tests/build/visual proof
+   → exact source commit с `Rework-Request` trailer; без auto-retry.
+   Source directory разрешается exact-first (`<playableId>/`, если существует),
+   и только затем через снятие `-swipe`; это не позволяет старому base-fork
+   затереть одноимённый Swipe runtime. Общие dependencies подключаются только
+   после завершения model-edit и проверки полного diff.
+3. **Labs job + UI**: preparation, candidate preview, covers, timeline и
    локальный journal поверх существующих scripts/jobs.
-3. **Mobile candidate review**: HTTPS candidate, следующий rework cycle и
+4. **Mobile candidate review**: HTTPS candidate, следующий rework cycle и
    terminal accept из Telegram.
-4. **Exact Telegram authority**: новый one-shot scope/binding и один apply
+5. **Exact Telegram authority**: новый one-shot scope/binding и один apply
    endpoint для builtin mapping+roster. Предпочтительно без новой DB-таблицы.
-5. **Static executor**: CAS, export, Git content commit/push и live verifier.
-6. **One-open roster delivery**: применить fresh `/session` до первого mount в
+6. **Static executor**: CAS, export, Git content commit/push и live verifier.
+7. **Factory impact**: append-only local status, fail-closed selection и
+   visible `current|needs_revalidation|incompatible` projection. Отдельная
+   revalidation принимает только exact latest impact digest + runtime digest +
+   новый evidence digest и append-only возвращает затронутый kind в `current`;
+   произвольный «factory passed» статус старый impact не снимает.
+8. **One-open roster delivery**: применить fresh `/session` до первого mount в
    новой Mini App-сессии.
-7. **Один enabling deploy** backend/Labs/feed. После него content-only releases
+9. **Один enabling deploy** backend/Labs/feed. После него content-only releases
    не требуют backend или Render deploy.
 
 Пакеты могут быть отдельными PR ради ревью, но являются одной продуктовой
@@ -434,6 +479,8 @@ production controls Minesweeper; право финального publish мож�
 | Помечена не та версия/уровень | Identity берётся из server-owned показа, не из ручных полей |
 | Инструкция с телефона слишком расплывчата | Контекст+кадр прикладываются автоматически; агент может вернуть один bounded уточняющий вопрос |
 | Модель сделала лишние изменения | Labs показывает source diff, playable candidate и covers; Approve связан с exact bytes |
+| Модель или build вышли за exact playable | Supervisor допускает только bounded paths/files/lines; нарушение не создаёт source commit и не запускает release |
+| Обновлён runtime готовой фабрики | Presentation не мешает; tuning помечает `needs_revalidation`; contract change блокирует publish |
 | Случайная публикация без проверки | Final action доступен из карточки played candidate; Telegram показывает весь product-visible diff |
 | Накопится слишком много задач и затрат | Не более одного active rework root на mechanic; без auto-retry; видимые elapsed/model/cost данные |
 | Static опубликована, roster apply не прошёл | Новая механика остаётся инертной; exact apply resumable/idempotent |
@@ -462,7 +509,8 @@ production controls Minesweeper; право финального publish мож�
 
 ### Update acceptance
 
-- [ ] оператор передал source commit, но не использовал terminal/GitHub/Render;
+- [ ] оператор отправил задачу из живой механики и не использовал Labs-button/terminal/GitHub/Render;
+- [ ] source commit с exact request trailer создан автоматически после bounded checks;
 - [ ] request мог быть создан из live-механики с телефона;
 - [ ] preparation и covers завершились автоматически;
 - [ ] candidate был доступен и проверен с телефона;
