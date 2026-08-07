@@ -1,19 +1,19 @@
 {
   "schema": "runtime-artifact.v1",
   "playableId": "marble-sort-swipe",
-  "digest": "sha256:c5d9a300caa10c2a233320e2131baf226654f90e31cf7db2bdaf14df60425ddd",
+  "digest": "sha256:94ba00722b6a6d02ac3f95d1f12b6a20933c78f0b47fe633785404d6a306ec25",
   "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
-  "sourceCommit": "731636e03ea6b4e5e41f35fb1eeed8633075872f",
+  "sourceCommit": "40ef388b87e5fe24cdc9ab6d782beab68c114b79",
   "files": [
     {
       "path": "marble-sort-swipe.html",
       "bytes": 1088,
-      "sha256": "sha256:9c82c208ba7d03166b6d2a6fcccf72d3d6dee5b4eb1bdd13da1d56bbe92a83fe"
+      "sha256": "sha256:d3abea54bf7c791c9ef2bc13efe0183602b387145ba787bf537d81ef8cf05dce"
     },
     {
       "path": "marble-sort-swipe.payload.js",
-      "bytes": 158413,
-      "sha256": "sha256:f374f3a0b4e2530c544e43c5e76199876988b2fa30cb45c249460b57ccb6e500"
+      "bytes": 158417,
+      "sha256": "sha256:7f7da117c957962f9874844007602c5300775a08d7b5be5c792c10614a50d049"
     }
   ]
 }
