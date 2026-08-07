@@ -1,9 +1,18 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ LABS FAST LANE — ПАКЕТ ГОТОВ К ОПЕРАТОРСКОМУ GO (07.08)
+## ▶ LABS FAST LANE — ENABLED, EXIT RECEIPT ЕЩЁ ОТКРЫТ (07.08)
 
-- Codex владеет реализацией до проверенных PR и пакета одного enabling deploy;
-  production deploy, миграции и секреты остаются за отдельным GO оператора.
+- Оператор дал GO на bounded enabling window по пакету SHA-256
+  `9db293d7099ad67c1d8ee47c460ce06218349d18bbfec25ba7139f46dadc1b89`.
+  Три reviewed source-ветки влиты exact merge-коммитами; backend опубликован
+  immutable-образом и задеплоен, база мигрирована на `0074`, merged feed
+  опубликован, локальный Labs работает с Fast Lane flag `1`.
+- Фактические SHA, workflow runs, image/manifest digests, deploy/verification
+  IDs, static byte equality и локальный service status записаны в
+  `docs/receipts/labs-fast-lane-enabling-exit-receipt-2026-08-07.md`.
+  Квитанция честно остаётся `IN PROGRESS`: временный Render key и GitHub
+  environment secret ещё не удалены оператором, Telegram update-dogfood ещё
+  не проведён. До этих двух актов Fast Lane не объявляется terminal PASS.
 - Локальная Stage 2 ветка `claude/mission-truncate-guard@55a5656` сохранена в
   origin без merge/deploy. Её provisional `0074` не резервирует номер: перед
   будущей интеграцией guard будет перенумерован поверх фактического Alembic head.
@@ -14,7 +23,7 @@
 - Реализация использует инертный HTTPS candidate под content-addressed путём в
   `swipe-platform`, один exact Telegram Approve и затем live static + optional
   atomic mapping/roster apply. Обычный playable release не идёт через Render.
-- Три implementation PR открыты на exact независимо проверенных heads:
+- Три implementation PR были влиты с exact независимо проверенных heads:
   backend `#58@96a6d80`, generator `#15@ec2d43a`, feed `#23@965486d`.
   Независимые dispositions и локальная проверка записаны в
   `docs/receipts/labs-fast-lane-{independent-review,verification}-2026-08-06.md`.
@@ -22,10 +31,10 @@
   CI всех трёх PR зелёный. Outage GitHub Actions отделён от кода; повторный
   backend CI поймал и закрыл только test-order pollution между append-only
   roster acceptance и console golden, финальная PostgreSQL matrix зелёная.
-- Один enabling deploy подготовлен отдельным пакетом
+- Один enabling deploy был задан отдельным пакетом
   `docs/receipts/labs-fast-lane-enabling-deploy-packet-2026-08-06.md`;
-  это последний platform/backend deploy в штатном playable-контуре. Он не
-  исполняется без отдельного GO.
+  это последний platform/backend deploy в штатном playable-контуре. Обычный
+  content-only release после terminal dogfood не должен возвращаться к Render.
 
 ## LABS FAST LANE ДЛЯ PLAYABLE — ИСТОРИЧЕСКОЕ ПРОДУКТОВОЕ РЕШЕНИЕ (06.08)
 
