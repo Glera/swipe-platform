@@ -1,5 +1,29 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ FAST LANE: ОСТАНОВКА ВИДНА В TELEGRAM, КОД ГОТОВ К ROLLOUT (07.08)
+
+- Для автоматической доработки механики введена durable остановка `blocked`:
+  в Mini App правая кнопка становится янтарно-красной **`! Нужна помощь`**,
+  по нажатию показывает исходную просьбу, безопасную краткую причину и факт,
+  что изменение не опубликовано. Первый переход best-effort отправляет то же
+  уведомление в `swipe_it`; badge остаётся надёжным fallback.
+- Исправленный supervisor не держит очередь: failed-задача проецируется в
+  backend, следующая может исполняться. Recoverable retry архивирует journal и
+  visual proof, возвращает тот же request в `accepted` и продолжает без новой
+  задачи и без ручного нажатия в Labs.
+- Независимый Claude Fable 5 delta-review: **GO**, P1/P2 нет. Review receipt:
+  `labs-fast-lane-blocked-status-review-receipt-2026-08-07.md`; продуктовый
+  контракт дополнен в `docs/specs/lab-playable-release-fast-lane.md`.
+- Проверенные исходники влиты: Playables PR #10 → `affe8acd`, Generator PR
+  #22 → `e3f9601`, Feed PR #27 → `d9cbafc`, Backend PR #60 → `bbc8026b`.
+  Backend exact-head CI: image + full PostgreSQL acceptance + 24 migration
+  roundtrip + reverse drift PASS; Feed exact-head CI PASS.
+- Rolling rollout намеренно остановлен перед единственным authority-актом:
+  production backend deploy с миграцией `0074→0075`. После operator GO порядок
+  фиксирован: Backend 0075 live → Feed static publish → Generator writer live →
+  проекция существующей Sorting-задачи в `blocked` и Telegram-smoke →
+  recoverable retry того же request.
+
 ## ▶ PROTOTYPE DEPLOY БЕЗ ПУСТОЙ ОПЕРАТОРСКОЙ КНОПКИ (07.08)
 
 - Оператор снял обязательное финальное ручное нажатие для штатного обратимого
