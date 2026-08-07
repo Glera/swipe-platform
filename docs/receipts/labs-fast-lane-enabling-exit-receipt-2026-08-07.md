@@ -1,7 +1,7 @@
 # Labs Fast Lane — enabling exit receipt
 
-Status: **IN PROGRESS — backend/static/Labs enabled; operator credential
-cleanup and first Telegram update-dogfood are still required. This document is
+Status: **IN PROGRESS — backend/static/Labs enabled and temporary credentials
+cleaned up; first Telegram update-dogfood is still required. This document is
 not a terminal PASS receipt yet.**
 
 Authority packet:
@@ -106,9 +106,9 @@ The exit receipt remains open until all rows below have direct evidence.
 
 | Requirement | Current evidence |
 | --- | --- |
-| revoke temporary Render key `labs-fast-lane-enabling-20260807` | **PENDING OPERATOR ACTION**; key is still listed active |
-| remove GitHub environment secret `RENDER_API_KEY` | **PENDING OPERATOR ACTION**; secret is still listed |
-| delete local secret holder / prove unusable | **PENDING OPERATOR ACTION / VERIFICATION** |
+| revoke temporary Render key `labs-fast-lane-enabling-20260807` | **PASS**; authenticated Render dashboard lists zero rows with that exact name after operator revocation |
+| remove GitHub environment secret `RENDER_API_KEY` | **PASS**; environment secret inventory is `[]` |
+| delete local secret holder / prove unusable | **PASS WITH SUBSTITUTE PROOF**; plaintext was deliberately not retained for a 401 probe, active-key inventory is zero for the exact name, GitHub secret is absent, and a bounded local name search outside docs/receipts found no holder |
 | one tiny reviewed update prepared in Labs | **PENDING INPUT** |
 | exact Telegram approval | **PENDING** |
 | static commit, hosted byte verification and `LIVE` receipt | **PENDING** |
@@ -116,3 +116,5 @@ The exit receipt remains open until all rows below have direct evidence.
 | mapping/roster/backend/DB unchanged across the update dogfood | **PENDING POST-DOGFOOD CHECK** |
 | independent review of this terminal receipt | **PENDING AFTER ALL EVIDENCE EXISTS** |
 
+Credential cleanup did not remove the six non-secret repository variables and
+did not invoke any workflow, service mutation, deploy, migration, or rollback.

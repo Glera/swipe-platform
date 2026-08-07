@@ -10,9 +10,10 @@
 - Фактические SHA, workflow runs, image/manifest digests, deploy/verification
   IDs, static byte equality и локальный service status записаны в
   `docs/receipts/labs-fast-lane-enabling-exit-receipt-2026-08-07.md`.
-  Квитанция честно остаётся `IN PROGRESS`: временный Render key и GitHub
-  environment secret ещё не удалены оператором, Telegram update-dogfood ещё
-  не проведён. До этих двух актов Fast Lane не объявляется terminal PASS.
+  Квитанция честно остаётся `IN PROGRESS`: временный Render key отозван,
+  GitHub environment secret удалён и оба отсутствия проверены независимо;
+  Telegram update-dogfood ещё не проведён. До него Fast Lane не объявляется
+  terminal PASS.
 - Локальная Stage 2 ветка `claude/mission-truncate-guard@55a5656` сохранена в
   origin без merge/deploy. Её provisional `0074` не резервирует номер: перед
   будущей интеграцией guard будет перенумерован поверх фактического Alembic head.
