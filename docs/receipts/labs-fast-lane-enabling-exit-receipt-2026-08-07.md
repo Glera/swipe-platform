@@ -118,3 +118,18 @@ The exit receipt remains open until all rows below have direct evidence.
 
 Credential cleanup did not remove the six non-secret repository variables and
 did not invoke any workflow, service mutation, deploy, migration, or rollback.
+
+## 6. First dogfood finding
+
+The first real Telegram submission reached the operator UI but displayed
+**Не удалось сохранить задачу**. Production OpenAPI proved that both playable
+rework routes were physically absent, while backend code and committed
+`render.yaml` already carried the reviewed Fast Lane implementation and
+`ENABLE_FEED_PLAYABLE_RELEASE=true`. The image-based enabling cutover did not
+apply that Blueprint environment value to the live service.
+
+No request row, release, mapping, roster activation, static commit, or database
+revision change resulted from the failed attempt. The bounded one-flag remedy
+is specified separately in
+`docs/receipts/labs-fast-lane-backend-flag-corrective-2026-08-07.md` and awaits
+independent review plus explicit operator GO.
