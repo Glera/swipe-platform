@@ -26,6 +26,20 @@
   candidate и принять exact release с телефона; код/сборка остаются за агентом
   на вычислителе. До реализации действует текущий Composer-путь; ТЗ:
   `docs/specs/lab-playable-release-fast-lane.md`.
+- Telegram rework request is an instruction, not publication authority. A
+  server-owned coordinator may automatically hand one exact request to a
+  bounded source agent only inside that playable's source directory, with
+  path/size budgets, mechanic tests, a production Swipe build, before/after
+  visual proof, an exact source commit carrying the request id, and a
+  compare-and-swap push. Failure is durable and never auto-retried. Only the
+  later content-bound Telegram approval may publish the exact candidate.
+- A playable source release deterministically projects its effect on admitted
+  factories as `current`, `needs_revalidation`, or `incompatible`; a model
+  verdict is never authority for this classification. Affected stale or
+  incompatible factories fail closed for fresh selection, while their history
+  and prior evidence remain readable. Revalidation or replacement is a
+  separate asynchronous factory lifecycle, not an extra operator click in the
+  playable-release path.
 - Продуктовые инварианты ниже остаются в силе для уже построенных контуров;
   двухконтурный режим управляет процессом новой работы.
 - Портфель, владельцы контуров и очередь операторских решений — в `STATE.md`
