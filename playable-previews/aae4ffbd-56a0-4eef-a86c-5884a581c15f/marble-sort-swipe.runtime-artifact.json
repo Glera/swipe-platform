@@ -1,0 +1,19 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "marble-sort-swipe",
+  "digest": "sha256:94ba00722b6a6d02ac3f95d1f12b6a20933c78f0b47fe633785404d6a306ec25",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "40ef388b87e5fe24cdc9ab6d782beab68c114b79",
+  "files": [
+    {
+      "path": "marble-sort-swipe.html",
+      "bytes": 1088,
+      "sha256": "sha256:d3abea54bf7c791c9ef2bc13efe0183602b387145ba787bf537d81ef8cf05dce"
+    },
+    {
+      "path": "marble-sort-swipe.payload.js",
+      "bytes": 158417,
+      "sha256": "sha256:7f7da117c957962f9874844007602c5300775a08d7b5be5c792c10614a50d049"
+    }
+  ]
+}
