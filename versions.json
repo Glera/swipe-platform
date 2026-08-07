@@ -228,14 +228,14 @@
     "runtimeArtifactDigest": "sha256:c90451a719e4657f447179d747b1806fc2f16f915de536ea13bad8545cf4c7d2"
   },
   "orthogonal-link-v1-swipe": {
-    "version": "ff18632275",
+    "version": "24b1a7a83e",
     "htmlBytes": 833,
-    "payloadBytes": 57089,
+    "payloadBytes": 57196,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "light",
-    "sourceCommit": "1ac40a2bce2af1d75264065ee3766e37021eb9a3",
-    "runtimeArtifactDigest": "sha256:8a7cda5b70e77e8ece012f59070d0861a1564d8a5a82f5f76c80ca9d17bfdf7f"
+    "sourceCommit": "01288eedeb482a52cad9038b9d00ac6b7d63a6ba",
+    "runtimeArtifactDigest": "sha256:ef051ac8f478aecd9ad9be55cdb3df1106d8c53eebf879823f2020577c17f33b"
   }
 }
