@@ -12,8 +12,16 @@
   credential в GitHub environment `production`, ограниченном веткой `master`;
   удаление после каждого обновления больше не является частью процесса.
   Ротация — при утечке/смене доступа либо перед живой аудиторией.
+- Решение сразу проверено живым релизом: workflow `31181127806` один раз
+  задеплоил backend `030ddb3` в Render deploy
+  `dep-d9qth1qjnfac73e6ic1g`, coordinator receipt PASS, image
+  `sha256:859eb260…f948`. DB migration не потребовалась. Новый
+  `notify-live` route отвечает штатным auth-отказом `401`, а не прежним
+  `404`. Generator PR #21 влит как `fb84936`, живой Lab перезапущен на этой
+  голове под Node 24 и отвечает health PASS. Следующая приёмка — одна новая
+  задача из Telegram до LIVE и получение финального сообщения в `swipe_it`.
 
-## ▶ LABS FAST LANE ДЛЯ PLAYABLE — ТЗ ЗАФИКСИРОВАНО (06.08)
+## ▶ LABS FAST LANE ДЛЯ PLAYABLE — АВТОМАТИЧЕСКИЙ КОНТУР В РАБОТЕ (06–07.08)
 
 - Оператор утвердил целевой UX first-party прототипов: существующая механика
   обновляется через Labs за 5–10 минут, новая добавляется за 15–20 минут;
@@ -28,9 +36,13 @@
   HTTPS candidate и тем же Telegram exact action принимает release. В v0 Mac
   остаётся вычислителем; offline-запрос ждёт подключения Labs, cloud IDE/farm
   вне scope.
-- Единое ТЗ двух сценариев:
-  `docs/specs/lab-playable-release-fast-lane.md`. Статус — DRAFT, реализация
-  не начата; до неё действует текущий Composer/onboarding process.
+- Authority двух сценариев —
+  `docs/specs/lab-playable-release-fast-lane.md`; автоматический handoff из
+  Telegram, source-agent и lifecycle фабрик реализованы и описаны в
+  том же authority; review —
+  `labs-fast-lane-automation-review-receipt-2026-08-07.md`. Последний
+  незакрытый live-smoke — доставка Telegram-сигнала после перехода exact
+  release в LIVE; backend и локальный notifier для него развёрнуты 07.08.
 
 ## ▶ ФАБРИКИ В MASTER И ЖИВОМ LAB; LEGACY SERIES ORDER ЗАКРЫТ (06.08)
 
