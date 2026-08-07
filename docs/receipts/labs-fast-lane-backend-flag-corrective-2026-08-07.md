@@ -1,7 +1,7 @@
 # Labs Fast Lane — backend flag corrective
 
-Status: **DRAFT FOR INDEPENDENT REVIEW. No production action is authorized by
-this document.**
+Status: **REVIEW FIXES APPLIED; awaits narrow independent delta review and
+explicit operator GO. No production action is authorized by this document.**
 
 Authority remains the enabling packet
 `docs/receipts/labs-fast-lane-enabling-deploy-packet-2026-08-06.md`, SHA-256
@@ -19,6 +19,9 @@ Direct evidence after the failure:
 
 - production OpenAPI contains neither `/api/operator-playable-reworks` nor
   `/api/admin/operator-playable-reworks`;
+- the same OpenAPI document does contain `/api/operator-level-flags` and
+  `/api/admin/operator-level-flags`, proving the sibling player and Lab gate
+  chains are live before the missing child flag is enabled;
 - local Labs reports `enabled=true`, `reworkAvailable=true`, zero releases and
   `playableReworks=[]`;
 - the local service log records
@@ -30,8 +33,9 @@ Direct evidence after the failure:
 - the database remains at `0074_feed_playable_release_scope`;
 - the temporary Render key and GitHub `RENDER_API_KEY` secret are absent.
 
-The backend mounts both missing routers only when
-`settings.enable_feed_playable_release` is true. The setting defaults false.
+The backend mounts each missing router behind its already-live sibling chain
+and the additional `settings.enable_feed_playable_release` child gate. The
+child setting defaults false.
 Reviewed backend source and `render.yaml` already contain the feature and the
 literal intended value `ENABLE_FEED_PLAYABLE_RELEASE=true`; the image-backed
 cutover changed image/service source but did not apply Blueprint environment
@@ -43,12 +47,21 @@ Operator-only action in the Render dashboard for service
 `srv-d95r3bfavr4c73aqsi4g`:
 
 1. Before changing anything, confirm the current live deploy is
-   `dep-d9qmm8cs728c73a5lusg` and the service is image-backed.
-2. Add or change exactly one non-secret environment variable:
+   `dep-d9qmm8cs728c73a5lusg`, the service is image-backed, and the same env
+   page shows `ENABLE_CATALOG_LAB_AUTH=true` plus
+   `ENABLE_OPERATOR_LEVEL_FLAGS_LAB=true`. STOP on any mismatch; the public
+   sibling OpenAPI routes above are a second, independent check of those
+   chains.
+2. Confirm `PLATFORM_RELEASE_OPERATION` is `deploy` or absent, and do not
+   change the existing `PLATFORM_RELEASE_MANIFEST_B64`,
+   `PLATFORM_RELEASE_MANIFEST_SHA256`, `PLATFORM_DEPLOY_IDENTITY` or
+   `PLATFORM_DATABASE_IDENTITY` values. STOP if the operation is another value
+   or any required release-manifest value is absent.
+3. Add or change exactly one non-secret environment variable:
    `ENABLE_FEED_PLAYABLE_RELEASE=true`.
-3. Save the environment change once, allowing Render to create at most one
+4. Save the environment change once, allowing Render to create at most one
    deploy of the service's already pinned image.
-4. Do not change any other variable, image, source, Blueprint, hook, database,
+5. Do not change any other variable, image, source, Blueprint, hook, database,
    GitHub environment, mapping, roster, or feature flag.
 
 No Render API key, GitHub secret, workflow dispatch, image publication, source
@@ -68,8 +81,11 @@ PASS requires all of the following direct observations:
   `/api/admin/operator-playable-reworks`;
 - local Labs projection returns a valid empty list instead of
   `operator_flags_lab_response_invalid`;
-- no mapping, roster activation, playable-release receipt, or rework row is
-  created merely by enabling the flag.
+- no mapping, roster activation, feed playable-release receipt, or rework row
+  is created merely by enabling the flag. The existing platform preDeploy may
+  replay its committed platform release receipt (or append one exact
+  append-only platform receipt if the deploy identity is new); that is expected
+  infrastructure evidence, not a content mutation.
 
 STOP and report literal state if the image digest changes, more than one deploy
 is created, health fails, the database revision changes, another environment
@@ -77,16 +93,35 @@ variable changes, or either route remains absent after a live deploy.
 
 ## 4. Rollback
 
-If the new routes themselves are unhealthy after the one deploy, the operator
-sets only `ENABLE_FEED_PLAYABLE_RELEASE=false` and saves once. That restores
-physical route absence while retaining code/schema. Rollback is a separate
-production mutation and requires a new operator decision unless the original
-corrective GO explicitly pre-authorizes it for the stated failure condition.
+If the deploy fails to become live after the change, or the new routes are
+unhealthy after it becomes live, the operator sets only
+`ENABLE_FEED_PLAYABLE_RELEASE=false` and saves once. That restores physical
+route absence while retaining code/schema. Rollback is a separate production
+mutation and requires a new operator decision unless the original corrective
+GO explicitly pre-authorizes it for either stated failure condition.
 
 ## 5. Resume point
 
-After PASS, the operator retries the same real Telegram instruction. The
-existing client keeps the exact pending request for an idempotent retry. Labs
-then claims it and prepares the update; publication still requires one exact
-Telegram approval. The recurring content path contains no Render step.
+After PASS, an in-session retry on the same mounted card replays the exact
+pending request. After a TMA reload or occurrence change, the operator re-enters
+the instruction and receives a fresh mutation ID; the failed first attempt
+created no row, so that cannot duplicate server state. Labs then claims the
+request and prepares the update; publication still requires one exact Telegram
+approval. The recurring content path contains no Render step.
 
+## 6. Independent review
+
+The first independent read-only review used Claude Opus 5 via the subscription
+CLI against meta `f81a549` and exact backend/generator/feed sources. Verdict:
+**GO with no P1 and two P2 pre-save checks**. The dispositions above:
+
+- prove both sibling gate chains from the same production OpenAPI and require
+  their env values on the edit page;
+- require deploy/unset release operation and preserve all existing manifest,
+  deploy and database identities;
+- describe the expected platform preDeploy receipt write precisely;
+- broaden rollback to cover a deploy that never becomes live;
+- correct the in-memory-only retry claim.
+
+The review/disposition receipt is
+`docs/receipts/labs-fast-lane-backend-flag-corrective-review-2026-08-07.md`.
