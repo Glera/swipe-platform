@@ -11,7 +11,7 @@ rounds. This receipt records review disposition, not production approval.
 
 | Repository | Reviewed head | Result |
 | --- | --- | --- |
-| `swipe-backend` | `3640b75c87b58cda54b437cedeb36c553bec3de3` | GO after three source rounds + CI-fixture delta |
+| `swipe-backend` | `96a6d80d0bbe0f4db3f0f1b5caff1f2049c09138` | GO after three source rounds + two CI-only deltas |
 | `swipe-generator` | `ec2d43aeb88b9353e417f47d90b856e881845ccb` | GO after source, CI-portability and final UX delta rounds |
 | `feed-prototype` | `965486d9b177584ed2e495e97ec34abd117693b4` | GO after delta review |
 
@@ -76,6 +76,16 @@ repositories. A final bounded Claude Fable review returned **GO** with no
 P1/P2/P3 and confirmed that production command construction and publishing
 behavior are unchanged.
 
+After GitHub Actions recovered, the full backend acceptance found one further
+CI-only ordering collision: Fast Lane correctly leaves an append-only roster
+activation, while the following console golden requires the pre-activation
+world. A bounded independent Claude Opus delta review returned **GO** for
+running the console golden first in its own pytest process. Its useful P2 was
+closed by an imperative comment forbidding roster-activating tests before that
+golden or reconsolidation of the two invocations; its fail-fast observation was
+accepted as intentional. No production source or assertion was relaxed. The
+exact corrected head then passed the full PostgreSQL matrix.
+
 The final enabling-packet review returned **GO** with no P1/P2. Its source-
 drift P3 was closed on generator head `ec2d43a`: a frozen release no longer
 offers a retry that cannot change either expected SHA, and the failure card
@@ -86,8 +96,11 @@ uses the committed release profile, flag-off semantics are proven, and static
 propagation timeout remains a measured dogfood concern rather than a new
 subsystem.
 
-The final byte-bound delta recheck covered packet SHA-256
-`b2528ed5b261b5c65bdb4ff5a0a1209c9f3b6f48b7a3833b4c1463f7fddb32c0`
+The first byte-bound packet recheck covered SHA-256
+`b2528ed5b261b5c65bdb4ff5a0a1209c9f3b6f48b7a3833b4c1463f7fddb32c0`.
+After exact CI and the CI-only backend repin, a fresh Claude Fable byte-bound
+review covered the final packet SHA-256
+`9db293d7099ad67c1d8ee47c460ce06218349d18bbfec25ba7139f46dadc1b89`
 and returned **GO, no P1/P2**. The reviewer confirmed that the document grants
 no authority by itself and that merge, migration, credentials, deploy and
 dogfood remain inside the future operator-gated enabling window.

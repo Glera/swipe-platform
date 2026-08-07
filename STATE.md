@@ -1,6 +1,6 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ LABS FAST LANE — REVIEW GO; EXACT CI ЖДЁТ GITHUB ACTIONS (06.08)
+## ▶ LABS FAST LANE — ПАКЕТ ГОТОВ К ОПЕРАТОРСКОМУ GO (07.08)
 
 - Codex владеет реализацией до проверенных PR и пакета одного enabling deploy;
   production deploy, миграции и секреты остаются за отдельным GO оператора.
@@ -15,12 +15,13 @@
   `swipe-platform`, один exact Telegram Approve и затем live static + optional
   atomic mapping/roster apply. Обычный playable release не идёт через Render.
 - Три implementation PR открыты на exact независимо проверенных heads:
-  backend `#58@3640b75`, generator `#15@ec2d43a`, feed `#23@965486d`.
+  backend `#58@96a6d80`, generator `#15@ec2d43a`, feed `#23@965486d`.
   Независимые dispositions и локальная проверка записаны в
   `docs/receipts/labs-fast-lane-{independent-review,verification}-2026-08-06.md`.
-- Финальный enabling-пакет независимо проверен: **GO, P1/P2 нет**. Feed CI
-  зелёный; точные backend/generator jobs не получили runner из-за публичного
-  major outage GitHub Actions и остаются единственным внешним гейтом.
+- Финальный enabling-пакет независимо проверен: **GO, P1/P2 нет**. Exact-head
+  CI всех трёх PR зелёный. Outage GitHub Actions отделён от кода; повторный
+  backend CI поймал и закрыл только test-order pollution между append-only
+  roster acceptance и console golden, финальная PostgreSQL matrix зелёная.
 - Один enabling deploy подготовлен отдельным пакетом
   `docs/receipts/labs-fast-lane-enabling-deploy-packet-2026-08-06.md`;
   это последний platform/backend deploy в штатном playable-контуре. Он не

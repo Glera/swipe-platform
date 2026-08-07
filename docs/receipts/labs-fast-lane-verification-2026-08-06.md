@@ -5,7 +5,7 @@ Date: 2026-08-06
 This receipt records local verification of the exact reviewed commits. No
 production service, database, secret, roster, or static origin was changed.
 
-## `swipe-backend@3640b75`
+## `swipe-backend@96a6d80`
 
 - full repository suite against the configured PostgreSQL test paths:
   **1375 passed, 659 skipped, 10 subtests passed** in 101.18 seconds;
@@ -17,6 +17,14 @@ production service, database, secret, roster, or static origin was changed.
   fixture independently resolved to `0073_platform_release_receipts` when the
   exact 0074 head was removed; the other affected local tests passed **45/45**;
 - `git diff --check`: clean.
+
+The first complete exact-head PostgreSQL run after the public GitHub Actions
+outage exposed one real test-order dependency: the new device-flow acceptance
+correctly appended the first immutable roster activation before the console
+golden asserted its required empty-roster setup. Commit `96a6d80` preserves
+both assertions and coverage, but runs the console golden first in a separate
+pytest process. The red run was `31124201319` attempt 2; the corrected exact
+head passed the full matrix in run `31145662689` attempt 1.
 
 The exact migration introduced by this package is
 `0074_feed_playable_release_scope`. The separately preserved Stage 2 branch
@@ -61,11 +69,30 @@ layout remains the merge authority and must be green on the exact PR head.
   challenge passed;
 - `git diff --check`: clean.
 
+## Exact-head GitHub authority
+
+- backend Platform release image contract:
+  [run 31145662690](https://github.com/Glera/swipe-backend/actions/runs/31145662690),
+  attempt 1, success on `96a6d80d0bbe0f4db3f0f1b5caff1f2049c09138`;
+- backend PostgreSQL acceptance:
+  [run 31145662689](https://github.com/Glera/swipe-backend/actions/runs/31145662689),
+  attempt 1, all 27 jobs success on the same exact head;
+- generator verify:
+  [run 31145069257](https://github.com/Glera/swipe-generator/actions/runs/31145069257),
+  attempt 1, success on `ec2d43aeb88b9353e417f47d90b856e881845ccb`;
+- feed verify:
+  [run 31122809266](https://github.com/Glera/feed-prototype/actions/runs/31122809266),
+  attempt 2, success on `965486d9b177584ed2e495e97ec34abd117693b4`.
+
+The two backend jobs cancelled before execution during the public outage were
+rerun with `gh run rerun --failed`; no duplicate dispatch was created. The
+generator had no run on its final head, so the workspace exact-SHA guard
+created exactly one workflow dispatch.
+
 ## Remaining gates
 
-1. exact-head GitHub CI on all three final PR heads;
-2. merge without any production side effect;
-3. one separately authorized enabling window: backend image/migration, static
+1. merge without any production side effect;
+2. one separately authorized enabling window: backend image/migration, static
    feed publication, and local Labs service reinstall/restart;
-4. two operator dogfood runs (one update, one add) against the acceptance
+3. two operator dogfood runs (one update, one add) against the acceptance
    budgets in the spec.

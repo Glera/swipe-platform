@@ -1,7 +1,8 @@
 # Labs Fast Lane — one-time enabling deploy packet
 
-Status: **FINAL INDEPENDENT REVIEW GO (no P1/P2); awaiting exact-head PR CI.
-Not an operator GO and not permission to merge or deploy.**
+Status: **READY FOR OPERATOR GO: final independent review GO (no P1/P2) and
+all exact-head PR CI green. This document is not an operator GO and grants no
+permission to merge or deploy.**
 
 Purpose: one bounded enabling window after which an ordinary first-party
 playable update/add is performed from Labs + one Telegram approval. Render,
@@ -12,7 +13,7 @@ belong to the recurring content-release path.
 
 | Plane | PR | Expected base | Reviewed head | Merge condition |
 | --- | --- | --- | --- | --- |
-| backend authority + migration | `Glera/swipe-backend#58` | `ad65ac5ae09ab7b855b59f4b0a7d89328de5caab` | `3640b75c87b58cda54b437cedeb36c553bec3de3` | exact head is second parent; merge tree equals reviewed tree |
+| backend authority + migration | `Glera/swipe-backend#58` | `ad65ac5ae09ab7b855b59f4b0a7d89328de5caab` | `96a6d80d0bbe0f4db3f0f1b5caff1f2049c09138` | exact head is second parent; merge tree equals reviewed tree |
 | Labs job/UI | `Glera/swipe-generator#15` | `d8619d328e148b46d09ee6b170c95df175678887` | `ec2d43aeb88b9353e417f47d90b856e881845ccb` | exact head is second parent; merge tree equals reviewed tree |
 | feed/TMA mobile entry | `Glera/feed-prototype#23` | `1c4a221edd337e3a4ec5cfe21c78ea377b72e3a0` | `965486d9b177584ed2e495e97ec34abd117693b4` | exact head is second parent; merge tree equals reviewed tree |
 
