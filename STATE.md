@@ -1,5 +1,28 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ SINGLE-MAC PRODUCT DEVELOPMENT LOOP v1 ЗАПУЩЕН (09.08)
+
+- Оператор отменил модель двух равноправных development-ячеек. Main Mac —
+  единственный Product Control Plane для platform/backend/feed/Labs,
+  PR/merge/deploy, portfolio и `STATE.md`; Second Mac — Content Factory only
+  без platform/backend authority, credentials, deploy или STATE ownership.
+- Действующий контракт:
+  `docs/specs/single-mac-product-development-loop-v1.md`. Исторический
+  `docs/specs/two-mac-development-operating-model.md` помечен superseded;
+  нижняя two-Mac запись сохранена только как audit trail.
+- Routing v1 typed и детерминированный: Telegram platform change → одна очередь
+  Main Mac; Labs create/copy/variation → Content Factory; content dependency на
+  платформу → `NEEDS_PLATFORM_CHANGE` + linked platform-ticket. AI-router,
+  quota optimizer, distributed merge queue, repo-lock/lease и общая agent
+  platform запрещены.
+- Активная цель: salvage platform-only intake/outbox/candidate primitives из
+  STOP checkpoints и один default-off vertical до durable
+  `READY_TO_PLAY|NEEDS_HELP` notification. Codex implementer; один blind Claude
+  review только готового bounded patch. Merge/deploy/credentials/schedules не
+  входят в первый vertical.
+- Работа идёт в clean ветке `codex/single-mac-product-development-loop-v1`;
+  исходный dirty workspace и сохранённые STOP checkpoints не меняются.
+
 ## ▶ FIX MUTATION PIPELINE v0 ЗАВЕРШЁН: GO FAMILY A (09.08)
 
 - Ticket [#78](https://github.com/Glera/p4g-workspace-meta/issues/78)

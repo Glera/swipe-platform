@@ -1,7 +1,15 @@
 # Two-Mac Development Operating Model v1
 
-Статус: целевая operating model зафиксирована оператором 09.08.2026;
-автоматический диспетчер ещё не реализован. Исполняемый handoff:
+Статус: **SUPERSEDED операторским решением 09.08.2026; только historical
+audit trail, не действующая authority**. Текущая модель:
+`docs/specs/single-mac-product-development-loop-v1.md`.
+
+Ниже сохранён прежний контракт без переинтерпретации. Он не разрешает peer
+development cells, cross-Mac routing/review, platform-worker на втором Mac или
+любую реализацию dispatcher/lease/merge coordination.
+
+Исходный статус: целевая operating model была зафиксирована 09.08.2026;
+автоматический диспетчер не был реализован. Исполняемый handoff:
 `TWO-MAC-DEVELOPMENT-OPERATING-MODEL-HANDOFF-2026-08-09.md`.
 
 ## 1. Цель
