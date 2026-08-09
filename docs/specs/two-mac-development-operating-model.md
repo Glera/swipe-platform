@@ -3,6 +3,9 @@
 Статус: целевая operating model зафиксирована оператором 09.08.2026;
 автоматический диспетчер ещё не реализован. Исполняемый handoff:
 `TWO-MAC-DEVELOPMENT-OPERATING-MODEL-HANDOFF-2026-08-09.md`.
+Первая implementation-инициатива поверх этой модели:
+`docs/specs/telegram-development-intake-v1.md`; исполняемый handoff:
+`TELEGRAM-DEVELOPMENT-INTAKE-HANDOFF-2026-08-09.md`.
 
 ## 1. Цель
 

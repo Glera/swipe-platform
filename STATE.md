@@ -1,5 +1,27 @@
 # STATE.md — контрольный док портфеля
 
+## ⏹ TWO-MAC DEVELOPMENT И TELEGRAM INTAKE STOPPED (09.08)
+
+- Оператор отменил модель двух равноправных рабочих ячеек: второй Mac больше
+  не участвует в разработке платформы. Предыдущие two-Mac operating-model docs
+  сохранены как historical checkpoint, но superseded и не задают target state.
+- Цель Telegram Development Intake остановлена с terminal status
+  **STOP — SUPERSEDED BY OPERATOR DECISION**. Dispatcher/router/leases/merge
+  coordination не продолжать; merge, deploy, credentials, environment и
+  runtime schedules не выполнять.
+- WIP сохранён без push в локальных checkpoint commits: backend
+  `feac8523356a932452be763819520bbd1bddd582`, feed
+  `337609f72552de7450f394f4a6682dcbd71d6761`; meta exact SHA фиксируется
+  checkpoint commit-ом этого STATE.
+- Backend и feed не merge-ready: backend Tier 2 re-review оставил четыре
+  findings, их исправление было прервано; feed full lint был прерван по STOP и
+  финальный delta-review не выполнялся.
+- External mutations не было. Полный terminal receipt и reusable single-Mac
+  seams: `TELEGRAM-DEVELOPMENT-INTAKE-STOP-HANDOFF-2026-08-09.md`.
+- До новой цели ничего из checkpoint не удалять и не переписывать. Новая цель
+  должна отдельно определить single-Mac owner/routing и явно решить, какие
+  части intake/outbox/candidate tooling импортировать.
+
 ## ▶ TWO-MAC DEVELOPMENT MODEL ЗАФИКСИРОВАН; АВТОМАТИЗАЦИЯ НЕ НАЧАТА (09.08)
 
 - Целевая схема: две рабочие ячейки, на каждой Claude + Codex. Mac A владеет
