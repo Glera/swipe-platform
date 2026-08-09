@@ -1,5 +1,27 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ MECHANIC-VARIATION THROUGHPUT AUDIT ГОТОВ К ХЭНДОФФУ (09.08)
+
+- Оператор утвердил ограниченную фазу `-1`: измерить реальную стоимость
+  значимой Level-2 мутации механики до строительства evaluator/DSL/новой
+  экспериментальной инфраструктуры. Финальный исполняемый handoff:
+  `LABS-MECHANIC-VARIATION-THROUGHPUT-AUDIT-HANDOFF-2026-08-09.md`.
+- Execution использует существующий candidate-only `mechanic_sandbox` и
+  переиспользует worker/technical/build/visual-proof primitives Fast Lane, но
+  не является Fast Lane publication: ни один audit-candidate не публикуется в
+  catalog/roster/feed и не меняет production factories.
+- Первый акт новой goal-сессии — жёсткий двухчасовой spike локального
+  action-trace adapter для `orthogonal-link-v1`; при `NO/uncertain/timeout`
+  механика без обсуждения меняется на Sorting с `sort.actions.v1`.
+- Ступени: одинаково захваченный baseline → config-control как floor →
+  обязательная Level-2 `obstacle`-мутация → только при бюджете последовательно
+  `additional_goal` и `delayed_reward`. Каждое правило имеет конструктивную
+  vignette, behavioral prediction/falsifier и минимальный трёхпунктный feel.
+- Timebox — два рабочих дня. Выход — `X/Y/Z/N/V` и ровно одно frozen-решение:
+  `GO FAMILY A | FIX EXPERIMENT HARNESS | FIX MUTATION PIPELINE | STOP`.
+  Концептуальные итерации до получения чисел закрыты; independent Claude review
+  нужен только на содержательных code/merge gates.
+
 ## ▶ FAST LANE INTAKE ИСПРАВЛЕН; TWO DOTS UPDATE LIVE (07.08)
 
 - Первый полный `add` прошёл одним release
