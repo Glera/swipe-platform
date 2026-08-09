@@ -1,5 +1,40 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ FIX MUTATION PIPELINE v0 ЗАВЕРШЁН: GO FAMILY A (09.08)
+
+- Ticket [#78](https://github.com/Glera/p4g-workspace-meta/issues/78)
+  реализован candidate-only PR-ами
+  [UGC #7](https://github.com/Glera/swipe-ugc/pull/7) (`36c15af`) и
+  [Generator #26](https://github.com/Glera/swipe-generator/pull/26)
+  (`333d69c`). PR не слиты; production, catalog, roster, feed, live factories,
+  deploy, credentials и migrations не менялись.
+- Один bounded request теперь приводит exact repo/ref/commit/root-tree/
+  source-tree к существующим technical/build/action-trace/visual-proof,
+  повторно проверяет remote CAS у write boundary и materialize-ит только в
+  новых marker-gated roots. Dirty, hidden-index, stale, missing, mismatched,
+  non-descended и out-of-bounds identity fail closed; DSL/координатор/UI не
+  добавлены.
+- Golden TD-O2 повторён новым путём без ручных UGC/Generator правок:
+  `orthogonal-link-v1-td-o2-d213b0e79592`, runtime `sha256:1f00d79a…`,
+  canonical trace `sha256:2c67fc7f…`, pack `sha256:c9e36be8…`. Два локальных
+  и два reviewer replay дали byte-identical UGC/Generator roots и сохраняют
+  `publicationEligible=false`, `catalogEligible=false`,
+  `feedEligible=false`, `review=null`.
+- Статья N устранена как ручная cross-repo работа: `34m48s → 0`; консервативно
+  с unattended compute — `34m48s → 1m57s` (`−94.4%`). Один blind Claude Fable
+  max-effort review exact patch дал **GO, P1/P2 нет**; семь P3 записаны без
+  исправлений по ticket contract.
+- UGC verify зелёный; Generator focused 13/13, check и root docs 166/166
+  зелёные. Полный старый
+  Generator suite имеет отдельный mutually incompatible sibling debt:
+  worker требует UGC `70f50d4`, поздние factory fixtures — recipe из
+  `83357fb`; оба контура отдельно проходят, текущий ticket их не менял.
+- Durable receipts:
+  `labs-fix-mutation-pipeline-v0-execution-receipt-2026-08-09.md` и
+  `labs-fix-mutation-pipeline-v0-claude-review-receipt-2026-08-09.md`.
+  Frozen terminal decision: **`GO FAMILY A`**; Family A в этой цели не
+  запускалась и требует отдельного контракта.
+
 ## ▶ TWO-MAC DEVELOPMENT MODEL ЗАФИКСИРОВАН; АВТОМАТИЗАЦИЯ НЕ НАЧАТА (09.08)
 
 - Целевая схема: две рабочие ячейки, на каждой Claude + Codex. Mac A владеет
