@@ -80,6 +80,10 @@ Cross-repo research каталога игровых классов и шабло
 - Запрещены distributed merge queue, repo-lock/lease, quota optimizer, общая
   agent platform и platform-worker на втором Mac. `swipe-agents` не является
   dev-loop и не получает эту authority.
+- Первый vertical attended-only: GitHub Issue — единственная development
+  queue; узкий CLI может записать только `READY_TO_PLAY|NEEDS_HELP` и отправить
+  notification. Background runner, polling supervisor, автоматический запуск
+  Codex/Claude и generic candidate builder запрещены.
 
 ## Репозитории
 

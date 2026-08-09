@@ -1,6 +1,6 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ SINGLE-MAC PRODUCT DEVELOPMENT LOOP v1 ЗАПУЩЕН (09.08)
+## ▶ SINGLE-MAC PRODUCT DEVELOPMENT LOOP v1 — LOCAL CANDIDATE READY (09.08)
 
 - Оператор отменил модель двух равноправных development-ячеек. Main Mac —
   единственный Product Control Plane для platform/backend/feed/Labs,
@@ -15,13 +15,28 @@
   платформу → `NEEDS_PLATFORM_CHANGE` + linked platform-ticket. AI-router,
   quota optimizer, distributed merge queue, repo-lock/lease и общая agent
   platform запрещены.
-- Активная цель: salvage platform-only intake/outbox/candidate primitives из
-  STOP checkpoints и один default-off vertical до durable
-  `READY_TO_PLAY|NEEDS_HELP` notification. Codex implementer; один blind Claude
-  review только готового bounded patch. Merge/deploy/credentials/schedules не
-  входят в первый vertical.
-- Работа идёт в clean ветке `codex/single-mac-product-development-loop-v1`;
-  исходный dirty workspace и сохранённые STOP checkpoints не меняются.
+- Реализован local default-off candidate: Telegram Mini App intake → durable
+  backend request/Issue outbox → exact GitHub Issue transport → один attended
+  terminal receipt `READY_TO_PLAY|NEEDS_HELP` → durable Telegram notification,
+  отправляемая только explicit one-shot CLI. GitHub Issues — единственная
+  development queue; background runner/scheduler/subscription launcher и
+  generic candidate builder отсутствуют.
+- Exact clean branches: backend
+  `codex/single-mac-product-development-loop-v1@d8e0dacdb87da446975f07df4b4f0f212dfc9f4a`
+  от `origin/master@bbc8026`; feed
+  `codex/single-mac-product-development-loop-v1@c53d94e82fc0d2b23afc193f6bc5db3daaf98d21`
+  от `origin/master@d9cbafc`. Checkpoints `feac852`/`337609f` не являются
+  ancestry и остались неизменными.
+- Один blind Claude Fable/max review полного нового Tier 2 patch дал 6 findings
+  (`P1×1`, `P2×1`, `P3×4`); все исправлены, dispositions validator green:
+  `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-AUTO-REVIEW-DISPOSITIONS-2026-08-09.json`.
+  Verify: backend affected suite `91 passed, 3 PostgreSQL-only skipped`; feed
+  полный `npm run lint` green; meta `163/163` tests green; negative proof по
+  forbidden-конструкциям — 0 hits.
+- Не выполнены и не авторизованы: real GitHub/Telegram smoke, PostgreSQL CI,
+  push/PR/merge/deploy, credentials/env/settings или runtime schedules. Они
+  остаются отдельными gates после операторского решения. Content Factory и
+  Second Mac не менялись; исходный dirty workspace не затронут.
 
 ## ▶ FIX MUTATION PIPELINE v0 ЗАВЕРШЁН: GO FAMILY A (09.08)
 

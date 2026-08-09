@@ -75,7 +75,10 @@
   distributed merge queue, repo-lock/lease и общая agent platform запрещены.
 - Локальный spike и `wip/*` разрешены без тикета; durable ticket обязателен до
   candidate/PR/merge/deploy. Первый platform vertical не автоматизирует merge
-  или deploy и не создаёт credentials/schedules.
+  или deploy и не создаёт credentials/schedules. GitHub Issues остаются
+  единственной development queue; backend хранит intake/Issue receipt и два
+  terminal status, но не запускает background agents, Codex/Claude
+  subscriptions, scheduler/polling supervisor или generic candidate builder.
 - `swipe-agents` остаётся отдельным deterministic production-ops контуром без
   LLM и не используется для intake, dev-dispatch или review.
 - Модель двух равноправных development-ячеек superseded. Исторический документ

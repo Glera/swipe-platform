@@ -1,0 +1,86 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P1",
+      "file": "app/development_ticket_github.py",
+      "line": 180,
+      "desc": "Installation token request was not repository/permission scoped, while response validation required that exact scoped shape."
+    },
+    {
+      "id": "F002",
+      "severity": "P2",
+      "file": "app/development_ticket_github.py",
+      "line": 194,
+      "desc": "Rate-limited GitHub 403 responses were classified terminal and could permanently fail an intake delivery."
+    },
+    {
+      "id": "F003",
+      "severity": "P3",
+      "file": "app/development_ticket_notification.py",
+      "line": 65,
+      "desc": "A notification recovered as outcome_unknown on its final attempt could remain pending forever."
+    },
+    {
+      "id": "F004",
+      "severity": "P3",
+      "file": "src/operator-development-intakes.mjs",
+      "line": 521,
+      "desc": "A foreground projection could close and replace an actively composed follow-up intake form."
+    },
+    {
+      "id": "F005",
+      "severity": "P3",
+      "file": "docs/specs/single-mac-product-development-loop-v1.md",
+      "line": 45,
+      "desc": "Unescaped pipes broke the normative GitHub Markdown routing table."
+    },
+    {
+      "id": "F006",
+      "severity": "P3",
+      "file": ".github/ISSUE_TEMPLATE/development-ticket.md",
+      "line": 9,
+      "desc": "Manual and backend-rendered Issue templates used one schema id with incompatible section structures."
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "F001",
+      "action": "fixed"
+    },
+    {
+      "id": "F002",
+      "action": "fixed"
+    },
+    {
+      "id": "F003",
+      "action": "fixed"
+    },
+    {
+      "id": "F004",
+      "action": "fixed"
+    },
+    {
+      "id": "F005",
+      "action": "fixed"
+    },
+    {
+      "id": "F006",
+      "action": "fixed"
+    }
+  ],
+  "verify": [
+    {
+      "command": "backend affected suite: 91 passed, 3 PostgreSQL-only skipped",
+      "exitCode": 0
+    },
+    {
+      "command": "feed-prototype: npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "meta: node --test scripts/*.test.mjs (163 passed)",
+      "exitCode": 0
+    }
+  ]
+}

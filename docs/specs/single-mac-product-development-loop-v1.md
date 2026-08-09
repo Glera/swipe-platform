@@ -42,7 +42,7 @@ platform-worker и не является запасным Product Control Plane.
 | Typed ingress | Route | Результат |
 | --- | --- | --- |
 | Telegram `platform_change` | Main Mac platform queue | durable platform-ticket |
-| Labs `create | copy | variation` | Content Factory | content candidate packet |
+| Labs `create/copy/variation` | Content Factory | content candidate packet |
 | Content Factory обнаружил platform dependency | остановить content work | `NEEDS_PLATFORM_CHANGE` + linked platform-ticket |
 
 Свободный текст не выбирает Mac, provider, model или review tier. AI-router,
@@ -52,22 +52,24 @@ quota optimizer и автоматический выбор между подпи
 
 GitHub Issue `Glera/p4g-workspace-meta#N` — durable engineering record.
 Telegram/Mini App — operator UX. Backend ingress/outbox не становится общей
-agent DB и хранит только source identity, delivery receipt и bounded status
-projection.
+agent DB и хранит только source identity, Issue delivery receipt, один
+attended terminal receipt и notification outbox. GitHub Issues — единственная
+development queue; отдельная backend queue поверх неё не строится.
 
-Минимальный lifecycle:
+Минимальный наблюдаемый lifecycle:
 
 ```text
-SUBMITTED → QUEUED → IN_PROGRESS
-          → NEEDS_HELP
-          → READY_TO_PLAY → ACCEPTED | REWORK_REQUESTED
+Telegram request → GitHub Issue → attended Main Mac session
+                 → READY_TO_PLAY | NEEDS_HELP → Telegram notification
 ```
 
 `READY_TO_PLAY` обязан ссылаться на exact candidate repository, commit SHA,
 artifact digest и URL. `NEEDS_HELP` содержит safe blocker и
-`nothingPublished=true`. Notification — проекция durable transition, не
-authority. Main queue сериализуется правилом «один active platform-ticket»;
-repo-lock, lease и merge queue не нужны.
+`nothingPublished=true`. Узкий attended CLI записывает только один из двух
+terminal receipts после работы основной сессии; он не запускает Codex/Claude
+и не исполняет код. Notification — проекция durable receipt, не authority.
+Один active platform-ticket обеспечивается ручной WIP-дисциплиной в GitHub
+Issues; repo-lock, lease и merge queue не нужны.
 
 ## 4. Content Factory boundary
 
@@ -100,6 +102,10 @@ reviewer или fallback platform owner.
 - distributed merge queue, repo-lock или lease infrastructure;
 - AI-router, quota optimizer, provider picker;
 - общая agent platform или generic task store;
+- background agent runner, scheduler/polling supervisor или автоматический
+  запуск Codex/Claude subscription;
+- автоматический выбор implementer/reviewer или candidate builder общего
+  назначения;
 - platform/backend worker на втором Mac;
 - production credentials, merge-authority, deploy или `STATE.md` ownership на
   втором Mac;
@@ -113,9 +119,9 @@ signed Telegram platform request
 → durable backend intake/outbox
 → exact GitHub Issue
 → visible Main Mac queue (one active)
-→ Codex implementation
-→ one blind Claude review
-→ READY_TO_PLAY or NEEDS_HELP durable transition
+→ attended Codex implementation
+→ one blind attended Claude review
+→ READY_TO_PLAY or NEEDS_HELP terminal receipt
 → backend-owned Telegram notification
 ```
 
@@ -134,14 +140,19 @@ Acceptance:
 
 ## 8. Salvage checkpoint
 
-Импортируемые WIP commits остановленной инициативы:
+Evidence checkpoints остановленной инициативы (только источники diff):
 
 - backend `feac8523356a932452be763819520bbd1bddd582`;
 - feed `337609f72552de7450f394f4a6682dcbd71d6761`;
 - meta STOP checkpoint `c5b8909fe08a8942a7dcea73cddebd97f2d63f9c`.
 
-Из них разрешены только platform intake/outbox, exact Issue/event primitives,
-status projection и candidate tooling. Mac A/B routing, mechanic→second-Mac
-linkage, peer queues, cross-Mac handoff/review и любая будущая orchestration
-infrastructure не импортируются как authority. Backend/feed checkpoint считаются
-WIP и проходят новый review с нуля.
+Финальные backend/feed ветки всегда создаются от актуального `origin/master`.
+Checkpoint commits не являются их ancestry: из них вручную переносятся только
+явно перечисленные platform-only hunks/files — intake/outbox, exact Issue
+transport, два terminal receipts и notification outbox. Mac A/B routing, две
+author queues, `CELLS`, mechanic auto-linkage, cross-Mac handoff/review,
+dispatcher, leases, generic candidate builder и любая будущая orchestration
+infrastructure не переносятся.
+Перед review patch обязан дать negative proof отсутствия этих конструкций и
+проходит новый Tier 2 review целиком. Migration identity выбирается от
+фактического Alembic head, а не наследуется из checkpoint по имени.
