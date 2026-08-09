@@ -104,22 +104,32 @@ to runtime/tooling variables and does not forward token/key variables.
   base bake verified and preview autoplay reached WIN.
 - Generator new suite: PASS — 13/13.
 - Generator `npm run check`: PASS.
+- UGC exact-head CI for `36c15af`: PASS —
+  [run 31334153902](https://github.com/Glera/swipe-ugc/actions/runs/31334153902).
+- Generator exact-head CI for `333d69c`: PASS, including the full `npm run
+  verify` job and the pinned experiment-worker cross-repo closure —
+  [run 31334153674](https://github.com/Glera/swipe-generator/actions/runs/31334153674).
 - Golden combined pipeline: PASS twice locally; PASS twice independently in
   Claude review.
 - Independent review: **GO, no P1/P2 findings**. Receipt:
   `labs-fix-mutation-pipeline-v0-claude-review-receipt-2026-08-09.md`.
 
-The unchanged Generator full suite has a pre-existing mutually incompatible
-sibling closure and therefore is not claimed green:
+The Generator workflow deliberately checks out two UGC identities: current
+factory content at `b8be78d` and the immutable historical worker release at
+`70f50d4`, routed through `SWIPE_EXPERIMENT_WORKER_UGC_ROOT` and
+`SWIPE_LEVELS_UGC_ROOT`. That declared closure is green in exact-head CI.
+
+A naive local diagnostic with only one sibling cannot represent both contours:
 
 - with current UGC `83357fb`, 757/767 pass and four old exact-pin tests reject
   the worker/derivation drift;
 - with accepted worker UGC `70f50d4`, 733/754 pass and 15 later factory tests
   reject the missing Merge recipe introduced after that pin.
 
-The worker-pin tests pass on `70f50d4`; the factory contour passes on
-`83357fb`; all 13 new tests pass on both. This ticket did not alter either old
-authority contour and did not hide the split with index flags or copied files.
+Those local results are a checkout-shape caveat, not a failed acceptance: the
+worker-pin tests pass on `70f50d4`, the factory contour passes on current
+content, and all 13 new tests pass in either checkout. This ticket did not alter
+either old authority contour or hide the split with index flags or copied files.
 
 ## 5. Bottleneck N before/after
 

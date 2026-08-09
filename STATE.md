@@ -24,11 +24,14 @@
   с unattended compute — `34m48s → 1m57s` (`−94.4%`). Один blind Claude Fable
   max-effort review exact patch дал **GO, P1/P2 нет**; семь P3 записаны без
   исправлений по ticket contract.
-- UGC verify зелёный; Generator focused 13/13, check и root docs 166/166
-  зелёные. Полный старый
-  Generator suite имеет отдельный mutually incompatible sibling debt:
-  worker требует UGC `70f50d4`, поздние factory fixtures — recipe из
-  `83357fb`; оба контура отдельно проходят, текущий ticket их не менял.
+- Exact-head CI зелёный: UGC
+  [run 31334153902](https://github.com/Glera/swipe-ugc/actions/runs/31334153902),
+  Generator
+  [run 31334153674](https://github.com/Glera/swipe-generator/actions/runs/31334153674)
+  с полным `npm run verify` и pinned experiment-worker closure; root docs
+  локально 166/166. Generator CI штатно использует два UGC checkout: current
+  factory content и immutable worker `70f50d4`; локальный запуск с одним
+  sibling не воспроизводит эту матрицу и не является acceptance failure.
 - Durable receipts:
   `labs-fix-mutation-pipeline-v0-execution-receipt-2026-08-09.md` и
   `labs-fix-mutation-pipeline-v0-claude-review-receipt-2026-08-09.md`.
