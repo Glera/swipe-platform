@@ -1,5 +1,25 @@
 # STATE.md — контрольный док портфеля
 
+## ⏸ AGENT TEAM ЗА ROI-ГЕЙТОМ; РАЗРЕШЁН ТОЛЬКО BOUNDED PHASE-B0 (09.08)
+
+- Оператор остановил расширение Agent Team до появления измеримой пользы.
+  Единственный активный остаток — Phase-B0: максимум один рабочий день
+  активной работы плюс 48 часов unattended acceptance; при новом крупном
+  дефекте или расширении контура срабатывает stop-loss в supervised/manual
+  режим.
+- Finance v1-B сохраняется как возобновляемый checkpoint: issue #18 и draft
+  PR #19 остаются открытыми с пометкой `PARKED BY OPERATOR — ROI GATE`.
+  Cross-Mac review, merge, credentials, provider probes, shadow, Telegram
+  sender и schedule сейчас не запускаются.
+- Operator brief, analyst, researcher, unattended LLM, production
+  orchestrator и cohort automation также припаркованы. После terminal PASS
+  или STOP Phase-B0 контур получает статус `FROZEN` до trigger-условий.
+- Engineering OS / Telegram→двух Mac остаётся отдельной приоритетной
+  инициативой: он ускоряет продуктовую итерацию и не переиспользует authority
+  или runtime `swipe-agents`.
+- Authority, stop-loss, trigger-условия и готовая инструкция активной сессии:
+  `AGENT-TEAM-ROI-PAUSE-DECISION-2026-08-09.md`.
+
 ## ▶ TWO-MAC DEVELOPMENT MODEL ЗАФИКСИРОВАН; АВТОМАТИЗАЦИЯ НЕ НАЧАТА (09.08)
 
 - Целевая схема: две рабочие ячейки, на каждой Claude + Codex. Mac A владеет

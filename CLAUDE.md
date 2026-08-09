@@ -81,6 +81,27 @@
   — durable engineering record, Telegram/Mini App — операторский UX. Полный
   контракт: `docs/specs/two-mac-development-operating-model.md`.
 
+## Agent Team: ROI-гейт (операторское решение 09.08.2026)
+
+- `swipe-agents` не развивается как самоцель или как «команда из пяти ролей».
+  После одного bounded Phase-B0 окна контур замораживается до появления
+  измеримой операционной потребности.
+- Бюджет Phase-B0 ограничен одним рабочим днём активной работы и последующим
+  48-часовым unattended acceptance. Новый архитектурный слой, credential
+  contour, многораундовый review или превышение бюджета означают stop-loss и
+  возврат к supervised/manual режиму.
+- Finance, operator brief, analyst, researcher, unattended LLM и production
+  orchestrator не строятся заранее. Возврат к ним начинается с нового ROI
+  review при заметных расходах, нескольких платных провайдерах, существенном
+  ручном контроле, неожиданном счёте, внешней аудитории или реальной цене
+  простоя; trigger сам по себе не даёт merge/runtime authority.
+- Engineering OS для Telegram→двух Mac остаётся отдельным dev-loop и не
+  наследует store, bot authority, production credentials или runtime
+  `swipe-agents`.
+- Полное решение, stop-loss и инструкция активной сессии:
+  `AGENT-TEAM-ROI-PAUSE-DECISION-2026-08-09.md`. Изменчивое состояние
+  инициативы живёт только в `STATE.md` и её собственных receipts.
+
 # Durable product decisions
 
 - Swipe feed content continuation v1 has **no “more like this” button**. Demand
