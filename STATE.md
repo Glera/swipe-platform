@@ -20,27 +20,29 @@
   GitHub Issue → Mac A implementation + Tier 1 review → единая
   READY_TO_PLAY/NEEDS_HELP очередь → операторский наигрыш.
 
-## ▶ MECHANIC-VARIATION THROUGHPUT AUDIT ГОТОВ К ХЭНДОФФУ (09.08)
+## ▶ MECHANIC-VARIATION THROUGHPUT AUDIT ЗАВЕРШЁН: FIX MUTATION PIPELINE (09.08)
 
-- Оператор утвердил ограниченную фазу `-1`: измерить реальную стоимость
-  значимой Level-2 мутации механики до строительства evaluator/DSL/новой
-  экспериментальной инфраструктуры. Финальный исполняемый handoff:
-  `LABS-MECHANIC-VARIATION-THROUGHPUT-AUDIT-HANDOFF-2026-08-09.md`.
-- Execution использует существующий candidate-only `mechanic_sandbox` и
-  переиспользует worker/technical/build/visual-proof primitives Fast Lane, но
-  не является Fast Lane publication: ни один audit-candidate не публикуется в
-  catalog/roster/feed и не меняет production factories.
-- Первый акт новой goal-сессии — жёсткий двухчасовой spike локального
-  action-trace adapter для `orthogonal-link-v1`; при `NO/uncertain/timeout`
-  механика без обсуждения меняется на Sorting с `sort.actions.v1`.
-- Ступени: одинаково захваченный baseline → config-control как floor →
-  обязательная Level-2 `obstacle`-мутация → только при бюджете последовательно
-  `additional_goal` и `delayed_reward`. Каждое правило имеет конструктивную
-  vignette, behavioral prediction/falsifier и минимальный трёхпунктный feel.
-- Timebox — два рабочих дня. Выход — `X/Y/Z/N/V` и ровно одно frozen-решение:
-  `GO FAMILY A | FIX EXPERIMENT HARNESS | FIX MUTATION PIPELINE | STOP`.
-  Концептуальные итерации до получения чисел закрыты; independent Claude review
-  нужен только на содержательных code/merge gates.
+- Двухчасовой telemetry-spike остановлен с `YES` через 11m42s; выбран exact
+  `orthogonal-link-v1@cb581e7`. Baseline, config-control и три независимые
+  Level-2 мутации (`obstacle`, `additional_goal`, `delayed_reward`) получили
+  одинаковый real-pointer trace, strict technical/build и visual-proof.
+- Итог: `X=1.267` active agent-equivalent hours, `Y=$0` marginal cash и 0
+  remote CI runs, `Z=59m17.171s`, `V=4/4` changed candidates и `3/3` Level-2.
+  Полный exact receipt:
+  `labs-mechanic-variation-throughput-audit-execution-receipt-2026-08-09.md`.
+- Единственный `N` — mutation packaging/admission: дешёвые валидные правила
+  потребовали ручной audit-only сборки в `swipe-ugc` и `swipe-generator` вне
+  exact playable. Первый Claude review нашёл same-tree P2; delta-review после
+  fail-closed исправления дал `GO` без P1/P2.
+- Пять записей materialized только в новых marker-gated local roots; у всех
+  `publicationEligible=false`, `catalogEligible=false`, `feedEligible=false`,
+  `review=null`, byte-stable replay. Production, catalog, roster, feed,
+  deploy, backend и DB не менялись; candidate/audit branches не одобрены к
+  product merge.
+- Frozen terminal decision: **`FIX MUTATION PIPELINE`**. Family A не запускать.
+  Следующий отдельный scope — mechanism-agnostic candidate path с server-side
+  git identity verification; вернуться к Family A только после повторения этих
+  записей без audit-specific cross-repo assembly.
 
 ## ▶ FAST LANE INTAKE ИСПРАВЛЕН; TWO DOTS UPDATE LIVE (07.08)
 
