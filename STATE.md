@@ -20,6 +20,19 @@
   GitHub Issue → Mac A implementation + Tier 1 review → единая
   READY_TO_PLAY/NEEDS_HELP очередь → операторский наигрыш.
 
+## ⏸ WORKSPACE HYGIENE ПРИПАРКОВАН ДО ЗАВЕРШЕНИЯ ТРЁХ ПОТОКОВ (09.08)
+
+- Будущая санитарная инициатива описана в
+  `WORKSPACE-HYGIENE-INITIATIVE-HANDOFF-2026-08-09.md`; документ не разрешает
+  текущие push/close/delete/reset/prune/merge.
+- Trigger: terminal handoff variation audit и Telegram development vertical,
+  плюс завершённое/остановленное Phase-B0 окно; затем один repo за раз под
+  его merge-authority.
+- До trigger запрещён массовый cleanup: dirty backend checkout и активные
+  worktree других Mac не трогать. Immediate correction отдельно: Stage 2
+  снова blocked до reviewed current-head TRUNCATE guard после коллизии имён
+  миграций `0074`.
+
 ## ▶ MECHANIC-VARIATION THROUGHPUT AUDIT ГОТОВ К ХЭНДОФФУ (09.08)
 
 - Оператор утвердил ограниченную фазу `-1`: измерить реальную стоимость
@@ -483,14 +496,15 @@ Fable; recovery платформы НЕ является «routine coding» (н�
   9095892→23f22fe; головы сверены). После пуша: CI на новых головах →
   отдельная подпись на Gate C0 — первый шаг, который дойдёт до прода.
 
-### 2. Портфель + P4G (Stage 2 готов к переприоритизации)
+### 2. Портфель + P4G (Stage 2 снова blocked: TRUNCATE guard вне master)
 - Владелец: frontier-сессия (Fable).
-- Прежний технический гейт по `0074_append_only_truncate_guard` закрыт
-  последующим rollout, дошедшим до `0075`; Stage 2 больше не считается
-  заблокированным миграцией. Следующий ход — portfolio reprioritization и
-  актуальный preflight по backend authority перед любым `mission_ops --apply`
-  / `ENABLE_MISSION_CORE`, а не исполнение старой ветки/старых пинов из этого
-  исторического раздела.
+- Коллизия имён подтверждена 09.08: master-миграции `0074`/`0075` относятся
+  к Fast Lane, а `0074_append_only_truncate_guard` живёт отдельно в
+  `origin/claude/mission-truncate-guard@55a5656`, основана на старом `0073` и
+  не входит в current Alembic graph. Нужен новый Tier 2 пакет от актуального
+  master со следующим revision/down_revision и повторной инвентаризацией всех
+  append-only таблиц. До его reviewed merge/deploy запрещены
+  `mission_ops --apply` и `ENABLE_MISSION_CORE`.
 - Макеты сезона: продолжать в прототипном контуре. Черновик 3 из ~14
   поверхностей спасён: `season-mockups-draft-2026-08-04.html`. Открытый
   вопрос хаба: где «утверждённый прогресс-бар сезона с иконками друзей» —
@@ -609,9 +623,10 @@ Fable; recovery платформы НЕ является «routine coding» (н�
 - **A1 supervised/enablement** — после деплоя + тихая неделя. R3.1 закрыт
   волной 7 ещё 17.07 (merge `2d40e18`) + R4/R4.1; идёт независимая
   верификация (контур 3).
-- **P4G Stage 2** — технический гейт `0074` пройден; вернуть через portfolio
-  reprioritization, актуальный backend preflight и готовность первых
-  операторских кейсов/макетов, а не по старой ветке миграции.
+- **P4G Stage 2** — blocked до нового current-head TRUNCATE guard (старый
+  `0074_append_only_truncate_guard` конфликтует с уже применёнными Fast Lane
+  `0074`/`0075`); затем portfolio reprioritization, актуальный backend
+  preflight и готовность первых операторских кейсов/макетов.
 - **C2 evidence** — data-gated (нужны независимые игроки / friend cohort).
 - **Feed-sequencing O1–O4** — запаркован 04.08 (решение оператора); 13.10 или
   появление friend cohort запускает review разморозки, но не автоматическое
