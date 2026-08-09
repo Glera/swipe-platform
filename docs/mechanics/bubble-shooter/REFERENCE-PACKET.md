@@ -155,4 +155,3 @@ bundle and exist only as private evaluation evidence.
   are outside Levels 1–2 and outside this bounded class.
 - Audio/haptic waveforms were not extracted. Prototype uses own synthesized
   semantic cues and requires sound-off parity.
-
