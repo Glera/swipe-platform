@@ -153,6 +153,7 @@ carry-stack/production не является режимом survivor тольк�
 | Merge (`granular-grid` merge+blast) | Matching/merge | прототипы, активная разработка |
 | Short-drama timepress | Timing | прод-лента, фид-ведомые уровни |
 | Gen-tap и вариации | — | прод-лента |
+| Mahjong buffer-pairs | Tile puzzle | Review 3 approved; prototype active, rollout не разрешён |
 
 Sort и Pins уже прошли путь «эталон → серия → лента»; новый класс, который
 переиспользует их примитивы (staged boot, AutoCursor, series+params, SkinSpec),
@@ -988,16 +989,27 @@ runtime-документации feed/playables.
 ## Evidence contract
 
 - reference packet (включая числовой feel-разбор и parity checklist);
+- **transition parity matrix**: pre-state, input, промежуточные checkpoints,
+  settle/effect и final state для каждого различающего сценария;
 - class brief;
 - solver/validator tests;
 - deterministic replay;
 - visual proof;
 - **before/after GIF через AutoCursor на каждую feel-итерацию**;
 - **side-by-side клип прототип/референс** для теста различимости;
+- fixed-crop contact sheet для reorder, insertion, displacement, compaction,
+  cascade и других переходов, которые могут иметь одинаковый final state при
+  разной наблюдаемой причинности;
 - runtime checks;
 - manual taste review;
 - список известных расхождений с референсом;
 - final disposition: accept / rework / reject.
+
+Для process-v2 brief матрица проверяется fail-closed командой
+`node scripts/mechanics-contract-lint.mjs` (включена в `meta-verify`): минимум
+две полностью заполненные contrast-строки, каждая с конкретным
+`Naive failure caught`, reference evidence и executable fixture. Happy-path
+строка без adversarial соседа больше не считается готовым контрактом.
 
 ## Fidelity contract — как попадать в референс
 
@@ -1021,6 +1033,14 @@ runtime-документации feed/playables.
 5. **Evidence, contract и shipping profile разделены.** Код потребляет
    first-party presentation profile; измерения capture не становятся
    shipping authority напрямую.
+6. **Parity проверяет переход, не только результат.** Для каждого
+   state-changing input packet фиксирует минимум `t0 → reaction → settle →
+   effect end`. Если две реализации дают одинаковый final state, но по-разному
+   переставляют, сдвигают, группируют или освобождают объекты, это механическое
+   расхождение. Обязательны contrast-сценарии: заполненность bounded-буфера,
+   mate/no-mate, mate в начале/середине/конце, displaced survivors и
+   terminal/non-terminal исход. Финальная screenshot и reducer fixture без
+   промежуточного event/visual trace не являются parity evidence.
 
 Визуальная идентичность: референс воспроизводится по ощущению, арт — свой
 через SkinSpec-пайплайн (одновременно rights-гигиена и вход в фабрику
@@ -1047,6 +1067,14 @@ runtime-документации feed/playables.
   reference packet: исполнитель с таблицей сходится за 2–3 итерации,
   исполнитель со ссылкой на видео — нет;
 - таблица правил и edge cases;
+- **transition parity matrix** с checkpoints
+  `pre/input/reaction/settle/effect/final`;
+- contrast-сценарии, выбранные так, чтобы ловить одинаковый final state при
+  разной причинной анимации или упорядочивании;
+- для каждой строки явно названо, какую правдоподобную наивную реализацию она
+  должна сломать; Review 3 не принимает матрицу из одного happy path;
+- для reorder/insertion/compaction — fixed-crop contact sheet минимум `10 fps`
+  и точный action script, по которому сценарий воспроизводится;
 - список принципиального juice;
 - **reference parity checklist**: ~20 наблюдаемых свойств, каждое
   формулируется проверяемо («стрелка стартует ≤50 мс после тапа», «при
@@ -1073,6 +1101,8 @@ spike.
 - level schema draft;
 - non-goals;
 - acceptance examples.
+- temporal acceptance examples: incoming target, displaced identities,
+  intermediate ordering, effect targets и survivor compaction.
 
 Начало engine и generator до согласования неоднозначных правил создаёт
 расходящиеся реализации; поэтому спорные поля brief являются блокером, а не
@@ -1096,6 +1126,9 @@ spike.
 - autoplay hook.
 
 Engine не владеет художественной темой и не генерирует уровни.
+Если presentation-правило меняет наблюдаемый порядок объектов, typed event
+bridge обязан передавать target/identity перехода; renderer не должен угадывать
+его из финального массива.
 
 ## Workstream S — Solver/validator
 
@@ -1187,6 +1220,8 @@ Factory не может объявить уровень «хорошим»: он
 - visual proof;
 - performance sample;
 - reference delta list;
+- replay transition matrix: одинаковый action script, checkpoints и crop для
+  reference/prototype; каждая строка имеет `PASS | accepted delta | rework`;
 - fail/restart coverage;
 - known limitations;
 - reviewer dispositions.
@@ -1281,8 +1316,10 @@ R Reference
 
 ## Review 3 — Class brief
 
-Вопрос: достаточно ли точно описаны правило, границы и acceptance, чтобы
-независимые исполнители не принимали разные продуктовые решения?
+Вопрос: достаточно ли точно описаны правило, промежуточные переходы, границы и
+acceptance, чтобы независимые исполнители не принимали разные продуктовые
+решения? Review обязан вернуть brief в rework, если state-changing input описан
+только final reducer-state без transition parity row.
 
 Результат:
 
@@ -1293,8 +1330,9 @@ R Reference
 ## Review 4 — Evidence
 
 Вопрос: соответствует ли прототип эталону и платформенному контракту — и
-проходит ли тест различимости (parity checklist + side-by-side, Fidelity
-contract)?
+проходит ли тест различимости (transition matrix + parity checklist +
+side-by-side, Fidelity contract)? Сравниваются одинаковые action scripts и
+синхронизированные causal windows; общий success-run не заменяет scenario rows.
 
 Результат:
 
@@ -1323,6 +1361,12 @@ contract)?
 8. ASMR начинается с cleaning, scraping или makeover?
 9. Micro TD — path placement, merge TD или crowd/lane strategy?
 10. Является ли Smash Fest самостоятельным обязательным классом?
+
+Закрыто `2026-08-01`: для primary reference Vita Mahjong принят гибрид
+`exposed-pair + four-slot holding tray`, а не triple-tile. Authority:
+[`mahjong/REFERENCE-PACKET.md`](mahjong/REFERENCE-PACKET.md),
+[`mahjong/CLASS-BRIEF.md`](mahjong/CLASS-BRIEF.md) и независимый
+[`Review 3`](mahjong/REVIEW-3-INDEPENDENT-2026-08-01.md).
 
 # Следующий review packet
 

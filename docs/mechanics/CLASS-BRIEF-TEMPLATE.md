@@ -1,3 +1,4 @@
+<!-- mechanics-process-version: 2 -->
 # Class Brief: `[mechanic-id]`
 
 - Дата: `YYYY-MM-DD`
@@ -113,6 +114,29 @@ score не закрывает failed MUST.
 - Twin -> Original matched pair:
 - Operator choice-session disposition:
 - Downstream scale-out: `authorized | blocked`
+
+### Transition parity matrix
+
+Обязательна для каждого state-changing input. Final state без промежуточных
+checkpoints недостаточен. Добавьте contrast-сценарии, где наивная реализация
+может дать тот же результат другой перестановкой/анимацией: empty/partial/full
+buffer, match/no-match, target в начале/середине/конце, survivors/no survivors,
+terminal/non-terminal.
+
+| Pre-state | Input/action script | Reaction checkpoint | Settle/effect checkpoint | Final state | Naive failure caught | Reference evidence | Executable fixture |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| | | | | | | | |
+
+Для reorder/insertion/displacement/compaction/cascade приложите fixed-crop
+contact sheet минимум `10 fps`. Typed event boundary обязан назвать incoming
+target и identity/маршрут каждого сдвигаемого объекта; renderer не выводит это
+из одного final state.
+
+Минимум две полностью заполненные adversarial строки обязательны даже для
+простого класса. Каждая строка называет конкретную ошибочную реализацию, которую
+она должна поймать. Gate: `node scripts/mechanics-contract-lint.mjs`; тот же
+lint запускается `meta-verify` и не позволяет новому process-v2 brief пройти с
+одним happy path или пустой evidence/fixture ячейкой.
 
 ### Rights boundary
 
@@ -388,6 +412,8 @@ interface LevelSpec {
 - [ ] Win/fail/restart воспроизводимы.
 - [ ] Autoplay и takeover следуют brief.
 - [ ] Нет скрытых правил, отсутствующих в brief.
+- [ ] Каждый state-changing input покрыт transition parity row с проверкой
+  промежуточного ordering/motion, а не только final state.
 
 ### Content
 
@@ -420,6 +446,9 @@ interface LevelSpec {
 - [ ] Parity checklist пройден; failed MUST нет.
 - [ ] Matched-scenario choice-session содержит не более восьми решений.
 - [ ] Before/after GIF (AutoCursor) приложены к каждой feel-итерации.
+- [ ] Reference/prototype исполняют одинаковые action scripts; causal windows
+  синхронизированы, а reorder/compaction подтверждены contact sheets.
+- [ ] Для каждой transition row записан `PASS | accepted delta | rework`.
 
 ### Evidence
 
@@ -460,6 +489,7 @@ interface LevelSpec {
 - [ ] Runtime checks приложены.
 - [ ] Reference delta list заполнен.
 - [ ] Process receipt заполнен.
+- [ ] Transition trace/contact sheets и scenario coverage приложены.
 - [ ] Независимый reviewer дал dispositions.
 
 ## Kill criteria

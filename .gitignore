@@ -49,6 +49,9 @@ ai-generated-art/
 art/
 art-references/
 
+# Локальный capture механик: в Git идут контракты и исходники, не raw evidence.
+docs/mechanics/**/evidence/reference/
+
 # --- локальные настройки Claude Code; skills — версионируются ---
 .claude/*
 !.claude/skills/

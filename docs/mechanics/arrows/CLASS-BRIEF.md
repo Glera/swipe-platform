@@ -112,9 +112,14 @@ Review 4 использует checklist из
   в конце fit.
 - Правило считывается без текста: AutoCursor нажимает очевидно свободную
   стрелку; та уходит по направлению наконечника и открывает следующую.
-- Autoplay: deterministic solver trace, `3` успешных хода без ошибок.
-- Длина autoplay после camera fit: `4–7 s`, не более `25%` ожидаемого
-  решения.
+- Autoplay — capability только Swipe-сборки. Он проходит deterministic solver
+  trace целиком и останавливается после win, команды host `stopAutoPlay` или
+  первого принятого user input.
+- AppLovin, FTUE и обычный localhost стартуют в manual mode; shared API не
+  может включить в них autoplay.
+- Длина autoplay определяется полным witness уровня. Это не короткий
+  трёхходовый tutor: Swipe host при необходимости сам останавливает demo или
+  переводит его в manual takeover.
 - Time-to-rule: первый autoplay tap принят за `≤650 ms`, первый exit полностью
   завершён за `≤1,350 ms` от первого live frame.
 - Оптимальность: legal и воспроизводимый trace; среди равных ходов выбирает
@@ -462,7 +467,8 @@ Review 3 не требуется; `AR-E/AR-S/AR-P/AR-A` могут старто�
 - [ ] Core loop, head-ray collision и path-following exit подтверждены
       fixtures.
 - [ ] Win/fail/restart воспроизводимы.
-- [ ] Autoplay/takeover следуют brief без reset.
+- [ ] Swipe-autoplay проходит полный deterministic witness до win; takeover
+      продолжает exact state без reset.
 - [ ] Concurrent tap fixtures доказывают immediate logical removal, overlapping
       visual exits и отсутствие потерянных/queued tap.
 - [ ] Blocked-wash fixtures доказывают discard во время wash и повторную
@@ -479,6 +485,8 @@ Review 3 не требуется; `AR-E/AR-S/AR-P/AR-A` могут старто�
 ### Platform
 
 - [ ] Staged boot, pause/resume и cleanup проходят runtime checks.
+- [ ] `hasAutoPlay=true` только в Swipe build; AppLovin/FTUE/localhost стартуют
+      manual и отвергают `startAutoPlay`.
 - [ ] Completion отправляется ровно один раз.
 - [ ] Cover совпадает с первым live frame.
 - [ ] Feed swipe не создаёт tap.
@@ -513,6 +521,8 @@ Review 3 не требуется; `AR-E/AR-S/AR-P/AR-A` могут старто�
   manual pan для readable gameplay.
 - Первый autoplay exit не завершается за `1.35 s` или takeover нельзя сделать
   без state discontinuity.
+- Swipe-autoplay останавливается до terminal win при отсутствии host stop или
+  manual takeover.
 - Concurrent manual taps теряются, queue-ятся либо читают stale live-set.
 - Exit/camera motion не достигают читаемости на target WebView без нарушения
   runtime budgets.
