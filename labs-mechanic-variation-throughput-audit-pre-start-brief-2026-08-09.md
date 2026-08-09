@@ -2,7 +2,7 @@
 
 Date: 2026-08-09
 
-Status: **SPIKE RUNNING — candidate protocol frozen before implementation**
+Status: **FROZEN — telemetry spike YES; Two Dots selected**
 
 Authority:
 [`LABS-MECHANIC-VARIATION-THROUGHPUT-AUDIT-HANDOFF-2026-08-09.md`](LABS-MECHANIC-VARIATION-THROUGHPUT-AUDIT-HANDOFF-2026-08-09.md).
@@ -25,8 +25,7 @@ protocol.
   shared harness or Labs code change raises only that patch to Tier 1. Any
   backend, DB, auth, release-infrastructure, shared-runtime or production need
   is a stop condition, not an implementation invitation.
-- GitHub issue: to be linked after this first durable commit and before a
-  candidate is declared ready to play.
+- GitHub issue: [`Glera/p4g-workspace-meta#76`](https://github.com/Glera/p4g-workspace-meta/issues/76).
 
 ## 2. Timebox and measurement clock
 
@@ -35,7 +34,9 @@ protocol.
   (`2026-08-09T20:51:36+03:00`).
 - Hard spike cutoff: `2026-08-09T19:51:36Z`
   (`2026-08-09T22:51:36+03:00`).
-- Spike status at this revision: `RUNNING`.
+- Spike stop: `2026-08-09T18:03:18Z`
+  (`2026-08-09T21:03:18+03:00`), 11m42s after T0 and 1h48m18s before cutoff.
+- Spike result: **YES — use Two Dots**.
 - Spike question: can exact `orthogonal-link-v1` produce a comparable local
   candidate action trace through an exact-playable/local-harness adapter, with
   no backend, DB or shared-runtime change?
@@ -48,7 +49,41 @@ Contemporaneous ledger starts at the spike clock, not at first code edit:
 
 | UTC start | UTC stop | Candidate | Bucket | Evidence / activity |
 | --- | --- | --- | --- | --- |
-| 17:51:36 | open | audit setup | telemetry/trace | authority read, exact baseline resolution, adapter-spike inspection |
+| 17:51:36 | 18:03:18 | audit setup | telemetry/trace | authority read, exact baseline resolution, adapter implementation and proof; 0.195 active wall-hours; one fail-closed harness rework |
+
+### Spike evidence
+
+- Candidate-local harness commit:
+  `playables@35b36ff1d9d9c69ede2d0e2ff82f627cffa769b3`; only the Two Dots
+  evidence capture and its focused test changed. Product source remained
+  byte-identical to the pinned baseline.
+- Baseline repository tree: `b9bc5870ee349bf054b632edd0d22d477f6271f7`;
+  exact `orthogonal-link-v1` subtree:
+  `e8173eb409361e4bb2c7667c39dba2292fffb03f`.
+- Trace receipt SHA-256:
+  `ecacdd2fc0d3bb36637cd5c0ac96479be2866308b673ce6b3cd2cea6c554ab57`.
+- SWIPE runtime artifact digest:
+  `sha256:37da6de7f3f0cd4f7ace784d23e90ab3b2130be7e445931e69585679f24e04f5`.
+- Exact trace: 6/6 canonical manual real-pointer actions; rejects `0`,
+  autoplay actions `0`, page errors `0`; terminal `won`; digest chain
+  `ol1-05ea3fd1 -> ol1-0b17da5e -> ol1-51decf7b -> ol1-1dd81f49 ->
+  ol1-805c97d7 -> ol1-253edad1 -> ol1-f8956970`.
+- Focused harness tests: 2/2 PASS. Strict technical profile: 12 engine/solver
+  tests plus the full browser test PASS.
+- Successful capture wall time: 8.135s (build 3.733s, browser capture 3.911s).
+  Setup-inclusive T0-to-first-valid-trace was 9m09s; frozen-brief-commit to
+  trace was 5m04s. The audit uses the larger setup-inclusive value in `Z`.
+- Rework 1: the first run stopped at mount because the SWIPE artifact had an
+  externalized `payload.js`; the candidate-local evidence server was narrowed
+  to serve and verify the exact runtime-manifest file set. No product or
+  platform change was involved.
+
+This proves the minimum comparable action/state closure locally. It does not
+claim that the existing sandbox worker can originate Two Dots: that worker is
+currently Sort-only, rejects unchanged and sub-20-line candidates, and its
+registered Sort baseline predates `sort.actions.v1`. Candidate packaging cost
+is therefore measured explicitly as audit assembly and may become `N`; it is
+not repaired by building a new platform in this goal.
 
 ## 3. Exact pinned baseline
 
