@@ -56,6 +56,31 @@
 - Портфель, владельцы контуров и очередь операторских решений — в `STATE.md`
   (читать первым, обновлять последним).
 
+## Режим разработки: две рабочие ячейки (операторское решение 09.08.2026)
+
+- Mac A владеет Product Platform, portfolio/meta authority и merge в
+  `swipe-backend`, `feed-prototype`, `swipe-platform`; Mac B владеет Content,
+  Labs/фабриками и merge в `swipe-generator`, `playables`. `swipe-agents`
+  остаётся deterministic production-ops без LLM и не используется как
+  dev-dispatcher.
+- Владелец линии и repository merge-authority фиксированы; автор отдельного
+  тикета может меняться между Claude/Codex. Смена владельца — только через
+  письменный handoff.
+- Review ladder: playable/content dogfood — technical checks + visual proof +
+  операторский наигрыш без обязательного LLM review; bounded platform/Labs
+  code — один blind cross-provider review; shared backend/migrations/auth/
+  money/release authority — cross-Mac frontier review, exact-head CI и
+  требуемая вторая подпись.
+- Локальный spike и `wip/*`-ветка разрешены без тикета, но PR/candidate,
+  передача другой машине, merge или deploy требуют durable ticket contract.
+  Существующая ветка привязывается к тикету без пересоздания.
+- Живой Lab пока хостится на Mac A только из detached exact `master`, хотя
+  кодом `swipe-generator` владеет Mac B. Restart делает runtime-host по
+  exact-SHA handoff; author worktree никогда не является live runtime.
+- В v1 нет отдельного repo-lock, merge queue или quota optimizer. GitHub Issue
+  — durable engineering record, Telegram/Mini App — операторский UX. Полный
+  контракт: `docs/specs/two-mac-development-operating-model.md`.
+
 # Durable product decisions
 
 - Swipe feed content continuation v1 has **no “more like this” button**. Demand

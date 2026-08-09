@@ -1,5 +1,25 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ TWO-MAC DEVELOPMENT MODEL ЗАФИКСИРОВАН; АВТОМАТИЗАЦИЯ НЕ НАЧАТА (09.08)
+
+- Целевая схема: две рабочие ячейки, на каждой Claude + Codex. Mac A владеет
+  Product Platform/portfolio; Mac B — Playables/Labs/Engineering OS. Авторы
+  тикетов ротируются, line owner и merge-authority фиксированы.
+- Три review tier: prototype/content dogfood без модельного review; bounded
+  platform/Labs code — один cross-provider раунд на том же Mac; core/shared
+  authority — cross-Mac frontier review, exact-head CI и требуемый operator GO.
+- Локальные и `wip/*`-ветки остаются разрешены без тикета. Durable ticket
+  становится обязательным перед PR/candidate, cross-Mac handoff, merge или
+  deploy; существующая ветка импортируется без пересоздания.
+- Живой Lab остаётся на Mac A из detached master; код/merge generator — Mac B.
+  `swipe-agents` остаётся no-LLM production ops и не смешивается с Engineering
+  OS. Repo-lock, merge queue и quota optimizer в v1 не строятся.
+- Authority: `docs/specs/two-mac-development-operating-model.md`. Исполняемый
+  handoff: `TWO-MAC-DEVELOPMENT-OPERATING-MODEL-HANDOFF-2026-08-09.md`.
+- Первый полезный vertical после отдельного GO: mobile platform ticket →
+  GitHub Issue → Mac A implementation + Tier 1 review → единая
+  READY_TO_PLAY/NEEDS_HELP очередь → операторский наигрыш.
+
 ## ▶ MECHANIC-VARIATION THROUGHPUT AUDIT ГОТОВ К ХЭНДОФФУ (09.08)
 
 - Оператор утвердил ограниченную фазу `-1`: измерить реальную стоимость
@@ -463,14 +483,14 @@ Fable; recovery платформы НЕ является «routine coding» (н�
   9095892→23f22fe; головы сверены). После пуша: CI на новых головах →
   отдельная подпись на Gate C0 — первый шаг, который дойдёт до прода.
 
-### 2. Портфель + P4G (Stage 2 на паузе)
+### 2. Портфель + P4G (Stage 2 готов к переприоритизации)
 - Владелец: frontier-сессия (Fable).
-- Гейт-цепочка Stage 2: деплой → миграция `0074_append_only_truncate_guard`
-  (ветка `claude/mission-truncate-guard` @ `55a5656` — НЕ запушена, запушить
-  при первой возможности) → только потом `mission_ops --apply` /
-  `ENABLE_MISSION_CORE` (HANDOFF §1). TRUNCATE-дыра шире заявленной:
-  108 таблиц. Диагностика только через `pg_trigger`/`tgtype & 32`
-  (`information_schema.triggers` TRUNCATE-триггеры не видит).
+- Прежний технический гейт по `0074_append_only_truncate_guard` закрыт
+  последующим rollout, дошедшим до `0075`; Stage 2 больше не считается
+  заблокированным миграцией. Следующий ход — portfolio reprioritization и
+  актуальный preflight по backend authority перед любым `mission_ops --apply`
+  / `ENABLE_MISSION_CORE`, а не исполнение старой ветки/старых пинов из этого
+  исторического раздела.
 - Макеты сезона: продолжать в прототипном контуре. Черновик 3 из ~14
   поверхностей спасён: `season-mockups-draft-2026-08-04.html`. Открытый
   вопрос хаба: где «утверждённый прогресс-бар сезона с иконками друзей» —
@@ -589,11 +609,13 @@ Fable; recovery платформы НЕ является «routine coding» (н�
 - **A1 supervised/enablement** — после деплоя + тихая неделя. R3.1 закрыт
   волной 7 ещё 17.07 (merge `2d40e18`) + R4/R4.1; идёт независимая
   верификация (контур 3).
-- **P4G Stage 2 инфра** — деплой + `0074` + стабилизация макетов
-  поверхностей.
+- **P4G Stage 2** — технический гейт `0074` пройден; вернуть через portfolio
+  reprioritization, актуальный backend preflight и готовность первых
+  операторских кейсов/макетов, а не по старой ветке миграции.
 - **C2 evidence** — data-gated (нужны независимые игроки / friend cohort).
-- **Feed-sequencing O1–O4** — запаркован 04.08 (решение оператора); возврат:
-  появились независимые игроки (закрытый тест 13.10 / friend cohort).
+- **Feed-sequencing O1–O4** — запаркован 04.08 (решение оператора); 13.10 или
+  появление friend cohort запускает review разморозки, но не автоматическое
+  включение.
 - **Cohort observability** — слит, инертен (`ENABLE_COHORT_OBSERVABILITY=false`).
 - **Mobile-review контур** — рабочие деревья swipe-backend / swipe-generator /
   swipe-agents стоят на `codex/mobile-review-performance` с грязными
