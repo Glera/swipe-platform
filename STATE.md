@@ -22,7 +22,7 @@
   development queue; background runner/scheduler/subscription launcher и
   generic candidate builder отсутствуют.
 - Exact clean branches: backend
-  `codex/single-mac-product-development-loop-v1@d8e0dacdb87da446975f07df4b4f0f212dfc9f4a`
+  `codex/single-mac-product-development-loop-v1@c88090850fdfa7eb4f1c525d28d37399b2dea11c`
   от `origin/master@bbc8026`; feed
   `codex/single-mac-product-development-loop-v1@c53d94e82fc0d2b23afc193f6bc5db3daaf98d21`
   от `origin/master@d9cbafc`. Checkpoints `feac852`/`337609f` не являются
@@ -30,13 +30,19 @@
 - Один blind Claude Fable/max review полного нового Tier 2 patch дал 6 findings
   (`P1×1`, `P2×1`, `P3×4`); все исправлены, dispositions validator green:
   `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-AUTO-REVIEW-DISPOSITIONS-2026-08-09.json`.
-  Verify: backend affected suite `91 passed, 3 PostgreSQL-only skipped`; feed
-  полный `npm run lint` green; meta `163/163` tests green; negative proof по
-  forbidden-конструкциям — 0 hits.
+  Post-review physical PG16 gate нашёл и закрыл precedence-дефект screenshot
+  CHECK; empty base→head, `0075↔0076` roundtrip и весь signed-Telegram
+  one-shot lifecycle на реальных таблицах теперь PASS. Verify: backend полный
+  local suite `1402 passed, 660 skipped, 10 subtests`; Mission architecture guard
+  `15/15` + receipt PASS; feed полный `npm run lint` green; meta
+  `163/163` tests green; negative proof по forbidden-конструкциям — 0 hits.
 - Не выполнены и не авторизованы: real GitHub/Telegram smoke, PostgreSQL CI,
   push/PR/merge/deploy, credentials/env/settings или runtime schedules. Они
-  остаются отдельными gates после операторского решения. Content Factory и
-  Second Mac не менялись; исходный dirty workspace не затронут.
+  остаются отдельными gates после операторского решения. Exact attended
+  инструкция без secrets:
+  `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-LIVE-SMOKE-HANDOFF-2026-08-09.md`.
+  Content Factory и Second Mac не менялись; исходный dirty workspace не
+  затронут.
 
 ## ▶ FIX MUTATION PIPELINE v0 ЗАВЕРШЁН: GO FAMILY A (09.08)
 

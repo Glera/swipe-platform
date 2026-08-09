@@ -69,9 +69,31 @@
       "action": "fixed"
     }
   ],
+  "postReviewVerification": [
+    {
+      "id": "V001",
+      "severity": "P1",
+      "action": "fixed",
+      "desc": "Physical PostgreSQL 16 upgrade exposed ambiguous JSONB operator precedence in the screenshot CHECK; migration and ORM metadata now parenthesize both extracted operands."
+    },
+    {
+      "id": "V002",
+      "severity": "gate",
+      "action": "fixed",
+      "desc": "The full backend suite exposed stale Mission integration baselines; exact reviewed line-count and SHA anchors were advanced without increasing any line budget."
+    }
+  ],
   "verify": [
     {
-      "command": "backend affected suite: 91 passed, 3 PostgreSQL-only skipped",
+      "command": "backend full local suite: 1402 passed, 660 skipped, 10 subtests passed",
+      "exitCode": 0
+    },
+    {
+      "command": "ephemeral PostgreSQL 16: empty base-to-head plus signed-Telegram HTTP intake, 0075-to-0076 physical lifecycle, and downgrade roundtrip",
+      "exitCode": 0
+    },
+    {
+      "command": "mission architecture guard: 15 passed; receipt status PASS",
       "exitCode": 0
     },
     {
