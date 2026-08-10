@@ -27,18 +27,17 @@
   `codex/single-mac-product-development-loop-v1@c53d94e82fc0d2b23afc193f6bc5db3daaf98d21`
   от `origin/master@d9cbafc`. Checkpoints `feac852`/`337609f` не являются
   ancestry и остались неизменными.
-- Один blind Claude Fable/max review полного нового Tier 2 patch дал 6 findings
-  (`P1×1`, `P2×1`, `P3×4`); все исправлены, dispositions validator green:
-  `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-AUTO-REVIEW-DISPOSITIONS-2026-08-09.json`.
-  Post-review physical PG16 gate нашёл и закрыл precedence-дефект screenshot
-  CHECK; empty base→head, `0075↔0076` roundtrip и весь signed-Telegram
-  one-shot lifecycle на реальных таблицах теперь PASS. Verify: backend полный
-  local suite `1402 passed, 660 skipped, 10 subtests`; Mission architecture guard
-  `15/15` + receipt PASS; feed полный `npm run lint` green; meta
-  `163/163` tests green; negative proof по forbidden-конструкциям — 0 hits.
-- Не выполнены и не авторизованы: real GitHub/Telegram smoke, PostgreSQL CI,
-  push/PR/merge/deploy, credentials/env/settings или runtime schedules. Они
-  остаются отдельными gates после операторского решения. Exact attended
+- Local physical PG16 gate закрыл precedence-дефект screenshot CHECK; empty
+  base→head, `0075↔0076` roundtrip и весь signed-Telegram one-shot lifecycle
+  на реальных таблицах PASS. Verify: backend полный local suite `1402 passed,
+  660 skipped, 10 subtests`; Mission architecture guard `15/15` + receipt PASS;
+  feed полный `npm run lint` green; meta `166/166` tests green; negative proof
+  по forbidden-конструкциям — 0 hits. Публикационный blind review фиксируется
+  в PR/output, а не добавляется в authority patch до собственного review.
+- Открыты только draft PR: meta #80, backend #61, feed #28. Не выполнены и не
+  авторизованы: real GitHub Issue/Telegram smoke, миграция живой БД,
+  merge/deploy, credentials/env/settings или runtime schedules. Они остаются
+  отдельными gates после операторского решения. Exact attended
   инструкция без secrets:
   `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-LIVE-SMOKE-HANDOFF-2026-08-09.md`.
   Content Factory и Second Mac не менялись; исходный dirty workspace не
