@@ -35,6 +35,8 @@ The following values are CAS inputs, not values to rediscover as “latest”:
 | Meta master before PR #87 | `5da309bf927c1681bb5989f4a55152ca1153e864` |
 | Playables/tooling pin | `b072a97305de749ce35c6f6f4323c3ba462b9ddf` |
 | Release-profile helper SHA-256 | `25634ba0f58472e2674f043b3dc90aeb85112623185c7ffc7b87e50068b6cc34` |
+| Feed build sibling (`swipe-ugc`) | `65f1d52bca68afc976b0ea9e0a4d0a1e7685016b` |
+| Audited `swipe-ugc` master | `8cd1e8598b699766bb02ccd22f63e38ab9ffe1ee` |
 | Static archive before rollout | `swipe-platform@46144eb2a05a276fa122ae5f74876e4b9b7801cc` |
 | Existing static `release.json` feed pin | `e3b273f9a685fb0554bac57a1703af699bf044c1` |
 | Existing static deploy-tooling pin | `cb581e71e57f60822247d8ac2077e73adff86e88` |
@@ -134,7 +136,10 @@ Generator restart**.
 
 Use the only existing feed release operation: `playables/scripts/deploy-swipe.sh`
 with no playable IDs, as documented by `feed-prototype/README.md`, section
-`Деплой`. Prepare clean checkouts whose tracked branches are exact master.
+`Деплой`. Prepare clean Feed, Playables and static checkouts whose tracked
+branches are exact master. The production Vite config also imports one
+build-only sibling, `swipe-ugc`; use the exact detached Feed-CI pin below,
+never a floating checkout.
 
 Before running it:
 
@@ -142,15 +147,26 @@ Before running it:
 test "$(git -C feed-prototype status --porcelain --untracked-files=all)" = ""
 test "$(git -C playables status --porcelain --untracked-files=all)" = ""
 test "$(git -C swipe-platform status --porcelain --untracked-files=all)" = ""
+test "$(git -C swipe-ugc status --porcelain --untracked-files=all)" = ""
 git -C feed-prototype fetch origin master
 git -C playables fetch origin master
 git -C swipe-platform fetch origin master
+git -C swipe-ugc fetch origin master
 test "$(git -C feed-prototype rev-parse HEAD)" = "$FEED_MERGE_SHA"
 test "$(git -C feed-prototype rev-parse origin/master)" = "$FEED_MERGE_SHA"
 test "$(git -C playables rev-parse HEAD)" = b072a97305de749ce35c6f6f4323c3ba462b9ddf
 test "$(git -C playables rev-parse origin/master)" = b072a97305de749ce35c6f6f4323c3ba462b9ddf
 test "$(git -C swipe-platform rev-parse HEAD)" = 46144eb2a05a276fa122ae5f74876e4b9b7801cc
 test "$(git -C swipe-platform rev-parse origin/master)" = 46144eb2a05a276fa122ae5f74876e4b9b7801cc
+test "$(git -C swipe-ugc rev-parse HEAD)" = 65f1d52bca68afc976b0ea9e0a4d0a1e7685016b
+test "$(git -C swipe-ugc rev-parse origin/master)" = 8cd1e8598b699766bb02ccd22f63e38ab9ffe1ee
+git -C swipe-ugc merge-base --is-ancestor \
+  65f1d52bca68afc976b0ea9e0a4d0a1e7685016b \
+  8cd1e8598b699766bb02ccd22f63e38ab9ffe1ee
+test "$(git -C swipe-ugc diff --name-only \
+  65f1d52bca68afc976b0ea9e0a4d0a1e7685016b..8cd1e8598b699766bb02ccd22f63e38ab9ffe1ee -- \
+  recipes/sort/recipe.mjs recipes/sort/recipe.json recipes/sort/theme-prompt.txt \
+  preview/sort-v2.html bases/sort-v2/payload.js)" = ""
 EVIDENCE_DIR="$(mktemp -d)"
 shasum -a 256 swipe-platform/versions.json > "$EVIDENCE_DIR/versions-before.sha256"
 
