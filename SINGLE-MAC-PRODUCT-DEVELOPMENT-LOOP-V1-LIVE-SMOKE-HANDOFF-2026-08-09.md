@@ -59,7 +59,7 @@ handoff не записываются. Никакой agent не создаёт 
    {
      "schema": "platform.development-ticket-terminal.v1",
      "mutationId": "<new canonical UUID>",
-     "issueNumber": "<created issue number>",
+     "issueNumber": 7601,
      "status": "NEEDS_HELP",
      "summary": "Live intake smoke completed without a code candidate.",
      "candidate": null,
