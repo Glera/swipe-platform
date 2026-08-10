@@ -1,17 +1,20 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ SMASH FEST FAST LANE — READY FOR EXACT TELEGRAM APPROVAL (10.08)
+## ▶ SMASH FEST SUCCESSOR — NEEDS CANDIDATE DECISION LOOP v0 (10.08)
 
 - Resumed ticket [#82](https://github.com/Glera/p4g-workspace-meta/issues/82)
-  дошёл до `READY_FOR_APPROVAL` по live parallel preparation v1. Exact HTTPS
-  candidate и server-owned review binding готовы; ровно одно READY
-  Telegram-сообщение подтверждено.
-- Граница standing GO соблюдена: publication, mapping и roster CAS
-  не запускались; неродственный Two Dots release не менялся. Дальше
-  требуется только existing exact Telegram approval оператора.
-- Exact release, frozen add-plan, verification и timing живут в
-  `labs-fast-lane-smash-fest-add-ready-receipt-2026-08-10.md`; прежняя
-  NEEDS_HELP-точка сохранена отдельно как audit trail.
+  дошёл до `READY_FOR_APPROVAL`, но оператор явно не принял
+  текущий candidate и запросил single-level successor. Текущий
+  release не одобрялся, не публиковался и не отменялся.
+- Live Fast Lane не умеет server-owned `candidate → rework`: review
+  GET-only, новый release той же механики блокируется, cancel
+  локальный и не снимает backend READY projection. Ручная подмена
+  storage/source запрещена; execution остановлен как
+  `NEEDS_PLATFORM_CHANGE`.
+- Exact evidence, successor contract и минимальная dependency Candidate Decision
+  Loop v0 живут в
+  `labs-fast-lane-smash-fest-successor-needs-platform-handoff-2026-08-10.md`;
+  прежний READY receipt сохранён как audit trail.
 
 ## ▶ FAST LANE PARALLEL PREPARATION v1 — DRAFT STACK READY, LIVE GO PENDING (10.08)
 
