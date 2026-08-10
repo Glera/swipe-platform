@@ -33,7 +33,8 @@ The following values are CAS inputs, not values to rediscover as “latest”:
 | Generator PR #27 head | `0d9770183e6322b255628cbe7c28dde69dc23cb5` |
 | Generator master before merge | `adea2c8aa0ad7532530bcb199f55befd8a9ad464` |
 | Meta master before PR #87 | `5da309bf927c1681bb5989f4a55152ca1153e864` |
-| Playables/tooling pin | `5cbc5578beded5eb73abd6ddff85e9eed821739e` |
+| Playables/tooling pin | `b072a97305de749ce35c6f6f4323c3ba462b9ddf` |
+| Release-profile helper SHA-256 | `25634ba0f58472e2674f043b3dc90aeb85112623185c7ffc7b87e50068b6cc34` |
 | Static archive before rollout | `swipe-platform@46144eb2a05a276fa122ae5f74876e4b9b7801cc` |
 | Existing static `release.json` feed pin | `e3b273f9a685fb0554bac57a1703af699bf044c1` |
 | Existing static deploy-tooling pin | `cb581e71e57f60822247d8ac2077e73adff86e88` |
@@ -146,12 +147,29 @@ git -C playables fetch origin master
 git -C swipe-platform fetch origin master
 test "$(git -C feed-prototype rev-parse HEAD)" = "$FEED_MERGE_SHA"
 test "$(git -C feed-prototype rev-parse origin/master)" = "$FEED_MERGE_SHA"
-test "$(git -C playables rev-parse HEAD)" = 5cbc5578beded5eb73abd6ddff85e9eed821739e
-test "$(git -C playables rev-parse origin/master)" = 5cbc5578beded5eb73abd6ddff85e9eed821739e
+test "$(git -C playables rev-parse HEAD)" = b072a97305de749ce35c6f6f4323c3ba462b9ddf
+test "$(git -C playables rev-parse origin/master)" = b072a97305de749ce35c6f6f4323c3ba462b9ddf
 test "$(git -C swipe-platform rev-parse HEAD)" = 46144eb2a05a276fa122ae5f74876e4b9b7801cc
 test "$(git -C swipe-platform rev-parse origin/master)" = 46144eb2a05a276fa122ae5f74876e4b9b7801cc
 EVIDENCE_DIR="$(mktemp -d)"
 shasum -a 256 swipe-platform/versions.json > "$EVIDENCE_DIR/versions-before.sha256"
+
+NODE_24_BIN="/usr/local/Cellar/node@24/24.19.0/bin/node"
+PROFILE_HELPER="playables/scripts/catalog-dogfood-release-profile.mjs"
+test -x "$NODE_24_BIN"
+test "$("$NODE_24_BIN" --version)" = v24.19.0
+test "$(shasum -a 256 "$PROFILE_HELPER" | awk '{print $1}')" = \
+  25634ba0f58472e2674f043b3dc90aeb85112623185c7ffc7b87e50068b6cc34
+RESOLVE_STDOUT="$("$NODE_24_BIN" "$PROFILE_HELPER" resolve \
+  2>"$EVIDENCE_DIR/helper-resolve.stderr")" || exit 1
+test ! -s "$EVIDENCE_DIR/helper-resolve.stderr"
+test "$(printf '%s' "$RESOLVE_STDOUT" | shasum -a 256 | awk '{print $1}')" = \
+  5a51cbe9c8da54d1bfc8be7a5460e952e4f59649d9f33fb5bcd6451a1ae40a8e
+ISLAND_STDOUT="$("$NODE_24_BIN" "$PROFILE_HELPER" resolve-island \
+  2>"$EVIDENCE_DIR/helper-resolve-island.stderr")" || exit 1
+test ! -s "$EVIDENCE_DIR/helper-resolve-island.stderr"
+test "$(printf '%s' "$ISLAND_STDOUT" | shasum -a 256 | awk '{print $1}')" = \
+  8b65d442d54e4a5601e40d6ef36fed7aed7f032fe652835e0444e3a22d4a5897
 ```
 
 Then execute exactly once:
@@ -171,12 +189,12 @@ After terminal Render Static success, record `STATIC_CONTENT_SHA` and the final
 test "$(git -C swipe-platform rev-parse HEAD)" = "$(git -C swipe-platform rev-parse origin/master)"
 STATIC_SHA="$(git -C swipe-platform rev-parse HEAD)"
 test "$(jq -r .feedCommit swipe-platform/release.json)" = "$FEED_MERGE_SHA"
-test "$(jq -r .deployToolingCommit swipe-platform/release.json)" = 5cbc5578beded5eb73abd6ddff85e9eed821739e
+test "$(jq -r .deployToolingCommit swipe-platform/release.json)" = b072a97305de749ce35c6f6f4323c3ba462b9ddf
 test "$(jq -r .exportedPlayablesCommit swipe-platform/release.json)" = null
 shasum -a 256 -c "$EVIDENCE_DIR/versions-before.sha256"
 curl -fsS https://swipe-platform.onrender.com/release.json > "$EVIDENCE_DIR/live-release.json"
 test "$(jq -r .feedCommit "$EVIDENCE_DIR/live-release.json")" = "$FEED_MERGE_SHA"
-test "$(jq -r .deployToolingCommit "$EVIDENCE_DIR/live-release.json")" = 5cbc5578beded5eb73abd6ddff85e9eed821739e
+test "$(jq -r .deployToolingCommit "$EVIDENCE_DIR/live-release.json")" = b072a97305de749ce35c6f6f4323c3ba462b9ddf
 ```
 
 Record SHA-256 for the repository and live `index.html`, `release.json` and
@@ -190,7 +208,7 @@ from `BACKEND_MERGE_SHA`, once, with `publish=true` and these exact inputs:
 | Input | Source / value |
 | --- | --- |
 | `feed_sha` | `FEED_MERGE_SHA` from the verified Feed merge receipt |
-| `playables_sha` | `5cbc5578beded5eb73abd6ddff85e9eed821739e` |
+| `playables_sha` | `b072a97305de749ce35c6f6f4323c3ba462b9ddf` |
 | `swipe_platform_sha` | final `STATIC_SHA` from §3.1 |
 | `code_min_revision` | `0075_playable_rework_status` |
 | `code_max_revision` | `0077_fast_lane_parallel_ready` |
