@@ -12,9 +12,10 @@ Decision: **LOCAL CANDIDATE READY; LIVE GO NOT YET GIVEN**
 | `feed-prototype` | `02f398f0c2697884d3184eb4ca4a0218bc191e4d` | `69e449bcd8c7517a018fa77870efa955cc444103` | [#30](https://github.com/Glera/feed-prototype/pull/30) |
 | `swipe-backend` | `3c3693ae71d3e6ca22961a018adf18d1f1e0abe0` | `06fb08945552669c6a6cd21c9a336bef8e22a2da` | [#62](https://github.com/Glera/swipe-backend/pull/62) |
 
-The root meta head and PR are recorded after this receipt is committed. No
-`playables`, `swipe-ugc`, live platform checkout, candidate record, catalog,
-roster or release record was changed.
+Root receipt/GO documentation is [meta PR #87](https://github.com/Glera/p4g-workspace-meta/pull/87).
+Its exact final head is the PR head authority because a commit cannot
+self-reference its own SHA. No `playables`, `swipe-ugc`, live platform
+checkout, candidate record, catalog, roster or release record was changed.
 
 ## Acceptance matrix
 

@@ -6,7 +6,8 @@
   candidate-only стеком: generator
   [PR #27](https://github.com/Glera/swipe-generator/pull/27), feed
   [PR #30](https://github.com/Glera/feed-prototype/pull/30), backend
-  [PR #62](https://github.com/Glera/swipe-backend/pull/62) и связанный meta PR.
+  [PR #62](https://github.com/Glera/swipe-backend/pull/62) и meta
+  [PR #87](https://github.com/Glera/p4g-workspace-meta/pull/87).
   До 10 разных механик готовятся параллельно; source/platform head mutations
   узко сериализованы, publication/activation остаётся одной FIFO lane.
 - READY получает immutable per-release candidate/review binding, durable
