@@ -23,12 +23,17 @@
 - Один blind Claude Fable medium-effort review дал `GO_WITH_FINDINGS`: 2 P2 и
   5 P3, все семь исправлены и покрыты regressions; валидируемая диспозиция —
   `labs-fast-lane-parallel-v1-auto-review-dispositions-2026-08-10.json`.
-- Live GO ещё не дан. Не выполнены merge, миграция live DB, deploy, Lab restart,
-  реальные Telegram-задачи/сообщения, публикация, активация или мутация
-  сохранённых releases. Two Dots `6c267c01-…`, Smash #82 и receipt-only #83
-  не менялись. Exact receipt:
-  `labs-fast-lane-parallel-v1-execution-receipt-2026-08-10.md`; компактный
-  attended пакет: `FAST-LANE-PARALLEL-V1-LIVE-GO-2026-08-10.md`.
+- Terminal audit не авторизовал прежний Live GO: Generator cancel завершает
+  только локальный journal, а backend не имеет terminal transition, очищающего
+  durable READY projection. Поэтому десять live Telegram-задач остаются STOP;
+  executable packet допускает после отдельного GO только exact merge/rollout
+  и zero-task/read-only smoke. Packet SHA-256:
+  `fb6a55f7b32ee81a7a3d8aa7c2e5e6b239ef23535c2cd6c76a8b7bafbfcf2395`.
+  Не выполнены merge, live DB migration/deploy, Lab restart, Telegram actions,
+  publication/activation или мутация сохранённых releases. Two Dots
+  `6c267c01-…`, Smash #82 и receipt-only #83 не менялись. Exact receipt:
+  `labs-fast-lane-parallel-v1-execution-receipt-2026-08-10.md`; единый attended
+  route: `FAST-LANE-PARALLEL-V1-LIVE-GO-2026-08-10.md`.
 
 ## ▶ SINGLE-MAC PRODUCT DEVELOPMENT LOOP v1 — LOCAL CANDIDATE READY (09.08)
 
