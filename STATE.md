@@ -26,8 +26,8 @@
 - Exact branch/CI authority — draft PR meta #80, backend #61 и feed #28;
   изменчивые heads и результаты не дублируются здесь. Checkpoints
   `feac852`/`337609f` не являются ancestry и остались неизменными.
-- Correction pass закрывает только review F001/F005/F006/F009 и уменьшает
-  transport/schema. Physical `0075↔0076`, full repo verify, negative proof и
+- Bounded correction уменьшает transport/schema без нового lifecycle или
+  authority. Physical `0075↔0076`, full repo verify, negative proof и
   один новый blind full review остаются обязательными gates; их результаты
   фиксируются в PR/output, не в authority patch до собственного review.
 - Открыты только draft PR: meta #80, backend #61, feed #28. Не выполнены и не
