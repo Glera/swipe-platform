@@ -1,0 +1,96 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P1",
+      "file": "swipe-backend/app/operator_playable_reworks.py",
+      "line": 448,
+      "desc": "Migration backfill made historical closed reworks emit terminalDisposition, breaking the exact legacy generator list wire during rollout."
+    },
+    {
+      "id": "F002",
+      "severity": "P2",
+      "file": "swipe-generator/src/playable-rework-auto-coordinator.mjs",
+      "line": 76,
+      "desc": "An unhandled decision fetch or successor-start failure could reject the coordinator tick and starve unrelated candidates."
+    },
+    {
+      "id": "F003",
+      "severity": "P2",
+      "file": "swipe-generator/src/playable-release-service.mjs",
+      "line": 1076,
+      "desc": "The legacy local cancel path still allowed a review-aware READY candidate to bypass the server-owned accept-or-rework state machine."
+    },
+    {
+      "id": "F004",
+      "severity": "P2",
+      "file": "swipe-backend/app/api_catalog_lab_auth.py",
+      "line": 338,
+      "desc": "A device authorization created after an accept decision was pre-approved, weakening the existing exact-device Telegram approval boundary."
+    },
+    {
+      "id": "F005",
+      "severity": "P3",
+      "file": "swipe-backend/app/playable_release_decision.py",
+      "line": 193,
+      "desc": "The accept receipt projected an unbounded authorization history even though feed and generator clients cap response collections at 100 items."
+    },
+    {
+      "id": "F006",
+      "severity": "P3",
+      "file": "swipe-backend/app/feed_playable_release_service.py",
+      "line": 118,
+      "desc": "Requiring an append-only decision before release approval removes the old Feed approval path during a backend-before-Feed rolling window."
+    },
+    {
+      "id": "F007",
+      "severity": "P3",
+      "file": "swipe-generator/src/operator-flags-lab-client.mjs",
+      "line": 24,
+      "desc": "The generator client accepted source identifiers outside the backend playable-id namespace, creating a late successor handoff rejection."
+    },
+    {
+      "id": "F008",
+      "severity": "P3",
+      "file": "feed-prototype/src/candidate-review.ts",
+      "line": 553,
+      "desc": "Opening the rework form had no escape path, making the accept outcome unreachable without reloading the Mini App."
+    }
+  ],
+  "dispositions": [
+    { "id": "F001", "action": "fixed" },
+    { "id": "F002", "action": "fixed" },
+    { "id": "F003", "action": "fixed" },
+    { "id": "F004", "action": "fixed" },
+    { "id": "F005", "action": "fixed" },
+    {
+      "id": "F006",
+      "action": "rejected",
+      "reason": "This is an intentional fail-closed compatibility break: restoring legacy approval would reopen an unfenced path around the append-only decision. The bounded rollout order is Feed, then Generator, then Backend; candidate actions remain paused until all three are healthy."
+    },
+    { "id": "F007", "action": "fixed" },
+    { "id": "F008", "action": "fixed" }
+  ],
+  "verify": [
+    {
+      "command": "swipe-backend: PYTHONPATH=. .venv/bin/pytest -q",
+      "exitCode": 0
+    },
+    {
+      "command": "swipe-backend: disposable PostgreSQL 16 migration and state-machine acceptance for 0078",
+      "exitCode": 0
+    },
+    {
+      "command": "feed-prototype: PATH=/usr/local/opt/node@24/bin:$PATH npm run lint",
+      "exitCode": 0
+    },
+    {
+      "command": "swipe-generator: npm run verify (Node 24; current UGC 8cd1e8598b699766bb02ccd22f63e38ab9ffe1ee; pinned worker UGC 70f50d4a6c18cffe726b18d5cae80ad84ef73ace)",
+      "exitCode": 0
+    },
+    {
+      "command": "root: node --test 'scripts/*.test.mjs'",
+      "exitCode": 0
+    }
+  ]
+}
