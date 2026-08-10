@@ -1,0 +1,80 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P2",
+      "file": "swipe-generator/public/lab.js",
+      "line": 3696,
+      "desc": "The Lab opened an unauthenticated browser candidateReview URL even though the feed review lookup requires Telegram Mini App authentication."
+    },
+    {
+      "id": "F002",
+      "severity": "P2",
+      "file": "swipe-generator/src/playable-rework-auto-coordinator.mjs",
+      "line": 44,
+      "desc": "The first denied or incompatible READY release could starve later READY releases that were still eligible for approval progress."
+    },
+    {
+      "id": "F003",
+      "severity": "P3",
+      "file": "swipe-backend/app/api_catalog_lab_auth.py",
+      "line": 539,
+      "desc": "The candidate review availability gate ran before the already-decided idempotent approval replay path."
+    },
+    {
+      "id": "F004",
+      "severity": "P3",
+      "file": "swipe-backend/app/operator_playable_reworks.py",
+      "line": 408,
+      "desc": "A delayed PREPARING projection for the same release could overwrite READY_FOR_APPROVAL and erase its binding and notification state."
+    },
+    {
+      "id": "F005",
+      "severity": "P3",
+      "file": "swipe-generator/src/playable-release-service.mjs",
+      "line": 529,
+      "desc": "Release preparation and source-agent git fetch/worktree operations did not share one repository lane and could contend on refs and worktree metadata."
+    },
+    {
+      "id": "F006",
+      "severity": "P3",
+      "file": "swipe-generator/test/playable-release-service.test.mjs",
+      "line": 322,
+      "desc": "The singleton publication proof exercised only the generic mutex instead of two real service publication attempts."
+    },
+    {
+      "id": "F007",
+      "severity": "P3",
+      "file": "swipe-generator/src/playable-release-service.mjs",
+      "line": 496,
+      "desc": "A locally synthesized READY outcome_unknown receipt was not distinguishable from a durable backend receipt and exposed no retry action."
+    }
+  ],
+  "dispositions": [
+    { "id": "F001", "action": "fixed" },
+    { "id": "F002", "action": "fixed" },
+    { "id": "F003", "action": "fixed" },
+    { "id": "F004", "action": "fixed" },
+    { "id": "F005", "action": "fixed" },
+    { "id": "F006", "action": "fixed" },
+    { "id": "F007", "action": "fixed" }
+  ],
+  "verify": [
+    {
+      "command": "swipe-generator: npm run verify (Node 24.14.0; current UGC 8cd1e8598b699766bb02ccd22f63e38ab9ffe1ee; pinned worker UGC 70f50d4a6c18cffe726b18d5cae80ad84ef73ace)",
+      "exitCode": 0
+    },
+    {
+      "command": "swipe-backend: .venv/bin/python -m pytest -q",
+      "exitCode": 0
+    },
+    {
+      "command": "feed-prototype: npm run lint (rebased onto 02f398f0c2697884d3184eb4ca4a0218bc191e4d)",
+      "exitCode": 0
+    },
+    {
+      "command": "root: node --test 'scripts/*.test.mjs'",
+      "exitCode": 0
+    }
+  ]
+}
