@@ -34,6 +34,10 @@ Exact feed build pin для планируемого rollout:
 `PLATFORM_DEVELOPMENT_INTAKE_BUILD_SHA`. Иной feed SHA этим packet не
 разрешён.
 
+Authorization identity этого packet — exact published Git commit и SHA-256
+байтов этого файла, зафиксированные в draft PR. Имя файла без
+этих двух identity не авторизует rollout.
+
 ## Read-only live baseline — 10.08.2026
 
 Baseline снят GET/read-only действиями; secret values не читались намеренно,
@@ -63,6 +67,24 @@ Baseline снят GET/read-only действиями; secret values не чит�
   `8de571fb01efd0af8b1c6cc76bb4891b8936c60fb1fafea373030317a2f352e9`.
   Ни одного из девяти новых setting names ниже нет. Значения существующих
   settings/secrets не читались.
+
+## Static Deploy Hook — name-only consumer inventory
+
+Hook URL повторно не читался и не копировался. Read-only inventory
+покрыл tracked workflows/config/scripts в meta, backend, feed, playables и
+`swipe-platform`; repo/environment GitHub Actions secret/variable names в этих
+пяти репозиториях; GitHub code-search по только именам
+`RENDER_DEPLOY_HOOK`, `DEPLOY_HOOK_URL`, `RENDER_HOOK_URL`, `DEPLOY_HOOK`;
+и имена local process env/launch labels. Consumer или storage binding не
+найдены. Org-level Actions settings не были доступны текущему
+read-only GitHub principal, поэтому вывод узкий: **no known consumer in
+the observable release contour**.
+
+Фактический static release path — push в `swipe-platform/master` и Render
+Auto-Deploy On Commit, а не hook. Оператор регенерирует credential и новое
+значение никуда не раздаёт. Если immediately-before-rotation preflight
+обнаружит consumer, надо STOP до ротации и зафиксировать его
+владельца и exact rebind location; rollout не ломает его вслепую.
 
 ## Почему порядок именно такой
 
@@ -237,6 +259,26 @@ Rollback capability:
 identity, DB revision, три TMA identifiers, replay, Issue URL/marker,
 terminal/notification receipts, ручное закрытие и подтверждение, что Second
 Mac, code runner, merge и deploy automation этого lifecycle не участвовали.
+
+## Что заработает после smoke
+
+После successful rollout+smoke будут живы: Telegram intake, durable backend
+request, attended one-shot bridge в один GitHub Issue, attended terminal
+`READY_TO_PLAY|NEEDS_HELP` и Telegram notification. Это наблюдаемый
+lifecycle, а не unattended development system.
+
+Этот rollout **не** добавляет постоянный runner, scheduler, polling
+supervisor, automatic Codex/Claude launch или автоматическое исполнение
+пользовательских platform-задач. Реальный request после smoke потребует
+attended Main-Mac session, которая явно запустит bridge, выполнит
+работу и запишет terminal status/notification.
+
+Следующий минимальный bounded vertical, который в эту цель не входит:
+explicit foreground Main-Mac worker v0 с `--issue <number>`, ровно одним
+активным ticket и без polling/schedule/merge/deploy authority. Он берёт
+только exact GitHub Issue, стартует одну attended Main-Mac work session и
+завершается terminal receipt. Ему нужны отдельные spec, review и
+operator GO после живого smoke; сейчас он не реализуется.
 
 Оценка одного окна: 55–85 минут (preflight/credentials 10–15, feed 10–15,
 image+cutover 25–40, smoke+evidence 10–15). Timeout CI/hosting завершает окно

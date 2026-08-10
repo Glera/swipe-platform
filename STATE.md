@@ -31,9 +31,10 @@
   и остались неизменными.
 - Не выполнены и не авторизованы: real GitHub Issue/Telegram smoke,
   migration `0076` живой БД, deploy, credentials/env/settings и runtime
-  schedules. Post-merge packet имеет NO-GO до operator-owned rotation
-  раскрытого static Deploy Hook и явного принятия фактического
-  issue-number receipt path. Exact attended инструкция без secrets:
+  schedules. Name-only inventory не нашёл consumer раскрытого static
+  Deploy Hook в observable release contour; packet имеет NO-GO до
+  operator-owned rotation и явного принятия фактического issue-number
+  receipt path. Exact attended инструкция без secrets:
   `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-LIVE-SMOKE-HANDOFF-2026-08-09.md`.
   Content Factory и Second Mac не менялись; исходный dirty workspace не
   затронут.
