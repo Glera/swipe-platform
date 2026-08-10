@@ -1,0 +1,65 @@
+{
+  "schema": "lab.mechanic-mutation-request.v0",
+  "requestId": "Glera/p4g-workspace-meta#78",
+  "createdAt": "2026-08-09T19:12:39.000Z",
+  "source": {
+    "repository": "https://github.com/Glera/playables.git",
+    "sourceId": "orthogonal-link-v1",
+    "sourcePath": "orthogonal-link-v1",
+    "baseline": {
+      "ref": "refs/heads/master",
+      "commit": "cb581e71e57f60822247d8ac2077e73adff86e88",
+      "tree": "b9bc5870ee349bf054b632edd0d22d477f6271f7",
+      "sourceTree": "e8173eb409361e4bb2c7667c39dba2292fffb03f"
+    },
+    "candidate": {
+      "ref": "refs/heads/codex/labs-variation-obstacle-20260809",
+      "commit": "ccfa98692a1512790ee9b199047f5b7e1c0b789d",
+      "tree": "b95c8c11aa0b7c709a1c2435c8b364a9fc1ee501",
+      "sourceTree": "72c133f4c94980d0866e7ac2abc0d4e7645a60e1"
+    },
+    "lockfileSha256": "sha256:d5f581206398465ee3cd901beb81860f517f71edbc2217761ece2eefcfe8eae5"
+  },
+  "mutation": {
+    "label": "TD-O2",
+    "instruction": "Replay the completed Level-2 locked-dot obstacle mutation as the golden candidate.",
+    "patchSha256": "sha256:448dfb9516540bae345a965f83ef171463693a4ea1d84a0fa747e1ae800beb87",
+    "maxFiles": 14,
+    "maxPatchBytes": 100000,
+    "allowedPaths": [
+      "orthogonal-link-v1/evidence/TD-O2-action-plan.json",
+      "orthogonal-link-v1/evidence/capture-variation-trace.mjs",
+      "orthogonal-link-v1/evidence/capture-variation-trace.test.mjs",
+      "orthogonal-link-v1/src/engine.ts",
+      "orthogonal-link-v1/src/main.ts",
+      "orthogonal-link-v1/src/model.ts",
+      "orthogonal-link-v1/src/presentation.ts",
+      "orthogonal-link-v1/src/production-levels.ts",
+      "orthogonal-link-v1/src/solver.ts",
+      "orthogonal-link-v1/src/validator.ts",
+      "test/orthogonal-link-browser.test.mjs",
+      "test/orthogonal-link-engine.test.mjs",
+      "test/orthogonal-link-presentation.test.mjs",
+      "test/orthogonal-link-solver.test.mjs"
+    ]
+  },
+  "primitives": {
+    "technicalScript": "test:orthogonal-link-v1:technical",
+    "actionTrace": {
+      "runner": "orthogonal-link-v1/evidence/capture-variation-trace.mjs",
+      "candidate": "TD-O2",
+      "plan": "orthogonal-link-v1/evidence/TD-O2-action-plan.json",
+      "planBlob": "35d210acc1f6a1e14811986f81114280020b3ca6",
+      "planSha256": "sha256:91bd8adaf191be53dffefe6b43554a1ff288719c8c8d8a880ee885f2732731d4"
+    },
+    "visualProof": {
+      "includePaths": [
+        "orthogonal-link-v1/src"
+      ],
+      "patchSha256": "sha256:8078d567cee7c1f7b60daf0c964712d9168ff9df97b1c28c201dfeaf6d7fc6ea"
+    }
+  },
+  "expectations": {
+    "runtimeDigest": "sha256:1f00d79ac06adc87413501f9807bafdcca45d51b6030ec2a424644e9d957bf77"
+  }
+}
