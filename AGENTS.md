@@ -55,30 +55,35 @@ Cross-repo research каталога игровых классов и шабло
 - Контрольный док портфеля: `STATE.md` в корне — каждая оркестрирующая
   сессия читает его первым и обновляет последним.
 
-## Две рабочие ячейки и тикеты (операторское решение 09.08.2026)
+## Single-Mac Product Development Loop (операторское решение 09.08.2026)
 
-- Полный контракт: [docs/specs/two-mac-development-operating-model.md](docs/specs/two-mac-development-operating-model.md).
-- Mac A — Platform/portfolio и merge-authority backend/feed/static platform;
-  Mac B — Playables/Labs и merge-authority generator/playables. Автор тикета
-  может меняться, владелец линии — только через письменный handoff.
-- Review tier определяется реально затронутой authority-границей. Tier 0
-  playable/content dogfood не требует модельного review; Tier 1 получает один
-  blind cross-provider review на том же Mac; Tier 2 — cross-Mac frontier
-  review, exact-head CI и нужный operator GO.
-- Review input содержит исходный ticket contract, acceptance criteria, exact
-  patch/head и связанные authority docs, но не авторский транскрипт и
-  самооценку.
-- Локальный spike/`wip/*` разрешён без тикета. До PR/candidate, cross-Mac
-  handoff, merge или deploy задача обязана получить durable ticket; готовую
-  ветку привязывают к нему, не создают заново.
-- В v1 сериализация — один merge-authority + repo/path intent в тикете;
-  отдельные repo-lock/lease и merge queue не строятся до фактической
-  необходимости после 10–20 тикетов.
-- `swipe-agents` не является dev-loop. Engineering OS живёт отдельно и не
-  получает production credentials или Telegram bot authority.
-- Код `swipe-generator` принадлежит Mac B, но живой Lab до отдельного решения
-  хостится на Mac A из detached exact `master`; restart — одна runbook-команда
-  runtime-host после exact-SHA handoff.
+- Полный контракт:
+  [docs/specs/single-mac-product-development-loop-v1.md](docs/specs/single-mac-product-development-loop-v1.md).
+  Прежний two-Mac contract superseded и не используется для routing/review.
+- Основной Mac — Product Control Plane и единственная development/merge
+  authority для platform/backend/feed/Labs, meta-repo и `STATE.md`. Один
+  активный platform-ticket; Codex implementer, Claude reviewer по требуемому
+  tier.
+- Второй Mac — Content Factory only: create/copy/variation, builds, tests,
+  traces и visual proof; максимум 2–3 `READY_TO_PLAY`. Никаких platform/backend
+  правок, merge-authority, production credentials, deploy/schedules или
+  `STATE.md` ownership.
+- Routing только по typed ingress: platform → main queue; content → factory;
+  content с platform dependency → `NEEDS_PLATFORM_CHANGE` + linked
+  platform-ticket. Model/provider не выбирает route.
+- Review input содержит ticket contract, acceptance, exact patch/head и
+  authority docs без авторского transcript/self-assessment. Bounded platform
+  patch получает один blind Claude review; core/irreversible gates сохраняют
+  exact-head CI и operator authority, но не cross-Mac ceremony.
+- Локальный spike/`wip/*` разрешён без тикета. До candidate/PR/merge/deploy
+  нужен durable ticket; готовую ветку импортируют без пересоздания.
+- Запрещены distributed merge queue, repo-lock/lease, quota optimizer, общая
+  agent platform и platform-worker на втором Mac. `swipe-agents` не является
+  dev-loop и не получает эту authority.
+- Первый vertical attended-only: GitHub Issue — единственная development
+  queue; узкий CLI может записать только `READY_TO_PLAY|NEEDS_HELP` и отправить
+  notification. Background runner, polling supervisor, автоматический запуск
+  Codex/Claude и generic candidate builder запрещены.
 
 ## Репозитории
 

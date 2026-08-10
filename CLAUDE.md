@@ -56,30 +56,34 @@
 - Портфель, владельцы контуров и очередь операторских решений — в `STATE.md`
   (читать первым, обновлять последним).
 
-## Режим разработки: две рабочие ячейки (операторское решение 09.08.2026)
+## Режим разработки: single-Mac Product Control Plane (решение 09.08.2026)
 
-- Mac A владеет Product Platform, portfolio/meta authority и merge в
-  `swipe-backend`, `feed-prototype`, `swipe-platform`; Mac B владеет Content,
-  Labs/фабриками и merge в `swipe-generator`, `playables`. `swipe-agents`
-  остаётся deterministic production-ops без LLM и не используется как
-  dev-dispatcher.
-- Владелец линии и repository merge-authority фиксированы; автор отдельного
-  тикета может меняться между Claude/Codex. Смена владельца — только через
-  письменный handoff.
-- Review ladder: playable/content dogfood — technical checks + visual proof +
-  операторский наигрыш без обязательного LLM review; bounded platform/Labs
-  code — один blind cross-provider review; shared backend/migrations/auth/
-  money/release authority — cross-Mac frontier review, exact-head CI и
-  требуемая вторая подпись.
-- Локальный spike и `wip/*`-ветка разрешены без тикета, но PR/candidate,
-  передача другой машине, merge или deploy требуют durable ticket contract.
-  Существующая ветка привязывается к тикету без пересоздания.
-- Живой Lab пока хостится на Mac A только из detached exact `master`, хотя
-  кодом `swipe-generator` владеет Mac B. Restart делает runtime-host по
-  exact-SHA handoff; author worktree никогда не является live runtime.
-- В v1 нет отдельного repo-lock, merge queue или quota optimizer. GitHub Issue
-  — durable engineering record, Telegram/Mini App — операторский UX. Полный
-  контракт: `docs/specs/two-mac-development-operating-model.md`.
+- Основной Mac — единственное место разработки Product Platform: portfolio и
+  `STATE.md`, platform/backend/feed/Labs code, PR, merge и deploy. Для
+  platform-ticket Codex является implementer; Claude делает один независимый
+  review только там, где его требует реальная authority-граница.
+- Второй Mac — только Content Factory: копирование/создание/вариации механик,
+  candidate builds, tests, traces и visual proof. Он не меняет platform/backend,
+  не владеет merge, production credentials, deploy, runtime schedules или
+  `STATE.md` и не запускает platform-worker.
+- Routing v1 детерминирован: Telegram «Правка платформы» → единственная очередь
+  основного Mac; Labs create/copy/variation → Content Factory; content request,
+  которому нужна platform-правка, останавливается как
+  `NEEDS_PLATFORM_CHANGE` и создаёт linked platform-ticket.
+- На основном Mac одновременно один активный platform-ticket. Content Factory
+  держит не более 2–3 `READY_TO_PLAY` кандидатов. AI-router, quota optimizer,
+  distributed merge queue, repo-lock/lease и общая agent platform запрещены.
+- Локальный spike и `wip/*` разрешены без тикета; durable ticket обязателен до
+  candidate/PR/merge/deploy. Первый platform vertical не автоматизирует merge
+  или deploy и не создаёт credentials/schedules. GitHub Issues остаются
+  единственной development queue; backend хранит intake/Issue receipt и два
+  terminal status, но не запускает background agents, Codex/Claude
+  subscriptions, scheduler/polling supervisor или generic candidate builder.
+- `swipe-agents` остаётся отдельным deterministic production-ops контуром без
+  LLM и не используется для intake, dev-dispatch или review.
+- Модель двух равноправных development-ячеек superseded. Исторический документ
+  сохранён только как audit trail. Текущий контракт:
+  `docs/specs/single-mac-product-development-loop-v1.md`.
 
 # Durable product decisions
 

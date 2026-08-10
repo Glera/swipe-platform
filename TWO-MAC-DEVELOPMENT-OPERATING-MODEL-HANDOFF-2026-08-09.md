@@ -2,11 +2,19 @@
 
 Дата: 09.08.2026
 
+Статус: **SUPERSEDED операторским решением 09.08.2026; не исполнять**.
+Текущий handoff authority:
+`docs/specs/single-mac-product-development-loop-v1.md`.
+
+Ниже сохранён historical packet; он не разрешает запуск двух peer development
+cells, cross-Mac routing или автоматизацию dispatcher/lease/merge coordination.
+
 Владелец портфеля: frontier-оркестратор Mac A
 
 Authority: `docs/specs/two-mac-development-operating-model.md`
 
-Статус: модель зафиксирована; реализация автоматического контура не начата.
+Исходный статус: модель была зафиксирована; автоматический контур не был
+реализован.
 
 ## Цель одной фразой
 

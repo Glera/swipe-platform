@@ -1,5 +1,44 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ SINGLE-MAC PRODUCT DEVELOPMENT LOOP v1 — LOCAL CANDIDATE READY (09.08)
+
+- Оператор отменил модель двух равноправных development-ячеек. Main Mac —
+  единственный Product Control Plane для platform/backend/feed/Labs,
+  PR/merge/deploy, portfolio и `STATE.md`; Second Mac — Content Factory only
+  без platform/backend authority, credentials, deploy или STATE ownership.
+- Действующий контракт:
+  `docs/specs/single-mac-product-development-loop-v1.md`. Исторический
+  `docs/specs/two-mac-development-operating-model.md` помечен superseded;
+  нижняя two-Mac запись сохранена только как audit trail.
+- Routing v1 typed и детерминированный: Telegram platform change → одна очередь
+  Main Mac; Labs create/copy/variation → Content Factory; content dependency на
+  платформу → `NEEDS_PLATFORM_CHANGE` + linked platform-ticket. AI-router,
+  quota optimizer, distributed merge queue, repo-lock/lease и общая agent
+  platform запрещены.
+- Реализован local default-off candidate: Telegram Mini App intake → durable
+  backend request/Issue outbox → один complete GitHub Issue POST → attended
+  terminal receipt `READY_TO_PLAY|NEEDS_HELP` → durable Telegram notification,
+  отправляемая explicit one-shot CLI attended Main-Mac session. Оператор сам
+  CLI не запускает: он надиктовывает задачу, получает terminal notification и
+  открывает результат. GitHub Issues — единственная development queue;
+  background runner/scheduler/subscription launcher и generic candidate builder
+  отсутствуют. Stub→PATCH и genesis-comment подсистема удалены.
+- Exact branch/CI authority — draft PR meta #80, backend #61 и feed #28;
+  изменчивые heads и результаты не дублируются здесь. Checkpoints
+  `feac852`/`337609f` не являются ancestry и остались неизменными.
+- Bounded correction уменьшает transport/schema без нового lifecycle или
+  authority. Physical `0075↔0076`, full repo verify, negative proof и
+  один новый blind full review остаются обязательными gates; их результаты
+  фиксируются в PR/output, не в authority patch до собственного review.
+- Открыты только draft PR: meta #80, backend #61, feed #28. Не выполнены и не
+  авторизованы: real GitHub Issue/Telegram smoke, миграция живой БД,
+  merge/deploy, credentials/env/settings или runtime schedules. Они остаются
+  отдельными gates после операторского решения. Exact attended
+  инструкция без secrets:
+  `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-LIVE-SMOKE-HANDOFF-2026-08-09.md`.
+  Content Factory и Second Mac не менялись; исходный dirty workspace не
+  затронут.
+
 ## ▶ FIX MUTATION PIPELINE v0 ЗАВЕРШЁН: GO FAMILY A (09.08)
 
 - Ticket [#78](https://github.com/Glera/p4g-workspace-meta/issues/78)
