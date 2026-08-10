@@ -16,24 +16,20 @@
   quota optimizer, distributed merge queue, repo-lock/lease и общая agent
   platform запрещены.
 - Реализован local default-off candidate: Telegram Mini App intake → durable
-  backend request/Issue outbox → exact GitHub Issue transport → один attended
+  backend request/Issue outbox → один complete GitHub Issue POST → attended
   terminal receipt `READY_TO_PLAY|NEEDS_HELP` → durable Telegram notification,
-  отправляемая только explicit one-shot CLI. GitHub Issues — единственная
-  development queue; background runner/scheduler/subscription launcher и
-  generic candidate builder отсутствуют.
-- Exact clean branches: backend
-  `codex/single-mac-product-development-loop-v1@c88090850fdfa7eb4f1c525d28d37399b2dea11c`
-  от `origin/master@bbc8026`; feed
-  `codex/single-mac-product-development-loop-v1@c53d94e82fc0d2b23afc193f6bc5db3daaf98d21`
-  от `origin/master@d9cbafc`. Checkpoints `feac852`/`337609f` не являются
-  ancestry и остались неизменными.
-- Local physical PG16 gate закрыл precedence-дефект screenshot CHECK; empty
-  base→head, `0075↔0076` roundtrip и весь signed-Telegram one-shot lifecycle
-  на реальных таблицах PASS. Verify: backend полный local suite `1402 passed,
-  660 skipped, 10 subtests`; Mission architecture guard `15/15` + receipt PASS;
-  feed полный `npm run lint` green; meta `166/166` tests green; negative proof
-  по forbidden-конструкциям — 0 hits. Публикационный blind review фиксируется
-  в PR/output, а не добавляется в authority patch до собственного review.
+  отправляемая explicit one-shot CLI attended Main-Mac session. Оператор сам
+  CLI не запускает: он надиктовывает задачу, получает terminal notification и
+  открывает результат. GitHub Issues — единственная development queue;
+  background runner/scheduler/subscription launcher и generic candidate builder
+  отсутствуют. Stub→PATCH и genesis-comment подсистема удалены.
+- Exact branch/CI authority — draft PR meta #80, backend #61 и feed #28;
+  изменчивые heads и результаты не дублируются здесь. Checkpoints
+  `feac852`/`337609f` не являются ancestry и остались неизменными.
+- Correction pass закрывает только review F001/F005/F006/F009 и уменьшает
+  transport/schema. Physical `0075↔0076`, full repo verify, negative proof и
+  один новый blind full review остаются обязательными gates; их результаты
+  фиксируются в PR/output, не в authority patch до собственного review.
 - Открыты только draft PR: meta #80, backend #61, feed #28. Не выполнены и не
   авторизованы: real GitHub Issue/Telegram smoke, миграция живой БД,
   merge/deploy, credentials/env/settings или runtime schedules. Они остаются

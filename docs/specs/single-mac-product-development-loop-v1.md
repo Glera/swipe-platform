@@ -67,7 +67,10 @@ Telegram request → GitHub Issue → attended Main Mac session
 artifact digest и URL. `NEEDS_HELP` содержит safe blocker и
 `nothingPublished=true`. Узкий attended CLI записывает только один из двух
 terminal receipts после работы основной сессии; он не запускает Codex/Claude
-и не исполняет код. Notification — проекция durable receipt, не authority.
+и не исполняет код. Bridge, terminal и notification one-shot CLI запускает
+attended Main-Mac session, не оператор вручную. Steady-state действия оператора
+ограничены надиктовкой задачи, получением terminal notification и открытием
+результата. Notification — проекция durable receipt, не authority.
 Один active platform-ticket обеспечивается ручной WIP-дисциплиной в GitHub
 Issues; repo-lock, lease и merge queue не нужны.
 

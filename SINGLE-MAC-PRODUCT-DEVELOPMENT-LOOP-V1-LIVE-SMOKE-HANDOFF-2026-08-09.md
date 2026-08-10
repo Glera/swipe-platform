@@ -94,7 +94,7 @@ Smoke receipt должен записать:
 
 - environment и exact backend/feed SHA;
 - Telegram `requestId` / `mutationId` / `requestHash`;
-- GitHub Issue URL и genesis-comment URL;
+- GitHub Issue URL и exact source marker/hash из единственного Issue body;
 - terminal mutation/status и notification id/provider message id;
 - replay result;
 - подтверждение, что Second Mac не участвовал;
