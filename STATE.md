@@ -73,7 +73,6 @@
   `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-LIVE-SMOKE-HANDOFF-2026-08-09.md`.
   Content Factory и Second Mac не менялись; исходный dirty workspace не
   затронут.
-
 ## ▶ FIX MUTATION PIPELINE v0 ЗАВЕРШЁН: GO FAMILY A (09.08)
 
 - Ticket [#78](https://github.com/Glera/p4g-workspace-meta/issues/78)
