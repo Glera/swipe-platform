@@ -1,5 +1,18 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ SMASH FEST FAST LANE — READY FOR EXACT TELEGRAM APPROVAL (10.08)
+
+- Resumed ticket [#82](https://github.com/Glera/p4g-workspace-meta/issues/82)
+  дошёл до `READY_FOR_APPROVAL` по live parallel preparation v1. Exact HTTPS
+  candidate и server-owned review binding готовы; ровно одно READY
+  Telegram-сообщение подтверждено.
+- Граница standing GO соблюдена: publication, mapping и roster CAS
+  не запускались; неродственный Two Dots release не менялся. Дальше
+  требуется только existing exact Telegram approval оператора.
+- Exact release, frozen add-plan, verification и timing живут в
+  `labs-fast-lane-smash-fest-add-ready-receipt-2026-08-10.md`; прежняя
+  NEEDS_HELP-точка сохранена отдельно как audit trail.
+
 ## ▶ FAST LANE PARALLEL PREPARATION v1 — DRAFT STACK READY, LIVE GO PENDING (10.08)
 
 - Ticket [#84](https://github.com/Glera/p4g-workspace-meta/issues/84) реализован
