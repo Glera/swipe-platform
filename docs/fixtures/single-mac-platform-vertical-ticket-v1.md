@@ -29,8 +29,10 @@
 - Implementer: `Codex`
 - Reviewer: `one blind Claude review on the complete bounded patch`
 - Review tier: `2` — backend migration/outbox plus bounded feed UI
-- Meta branch/imported head:
-  `codex/single-mac-product-development-loop-v1@8c62e58`
+- Meta branch:
+  `codex/single-mac-product-development-loop-v1`; pre-rebase checkpoint
+  `189041e3d1e53bd025690111e3f8c5e7ecaddf1f`. Exact review identity is the
+  draft PR head and is intentionally not duplicated as mutable status here.
 - Backend branch/base:
   `codex/single-mac-product-development-loop-v1` from
   `origin/master@bbc8026bfc775470b257ffecf8e56adb977506bb`; local candidate
