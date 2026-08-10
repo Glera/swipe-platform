@@ -3,11 +3,13 @@
 ## ▶ FIX MUTATION PIPELINE v0 ЗАВЕРШЁН: GO FAMILY A (09.08)
 
 - Ticket [#78](https://github.com/Glera/p4g-workspace-meta/issues/78)
-  реализован candidate-only PR-ами
-  [UGC #7](https://github.com/Glera/swipe-ugc/pull/7) (`36c15af`) и
-  [Generator #26](https://github.com/Glera/swipe-generator/pull/26)
-  (`333d69c`). PR не слиты; production, catalog, roster, feed, live factories,
-  deploy, credentials и migrations не менялись.
+  реализован candidate-only PR-ами: [UGC #7](https://github.com/Glera/swipe-ugc/pull/7)
+  влит как `8cd1e859`, затем
+  [Generator #26](https://github.com/Glera/swipe-generator/pull/26) после
+  проверки против нового UGC master влит как `adea2c8a`. Meta closure —
+  [PR #79](https://github.com/Glera/p4g-workspace-meta/pull/79). Production,
+  catalog, roster, feed, live factories, deploy, credentials, migrations и
+  live Lab не менялись.
 - Один bounded request теперь приводит exact repo/ref/commit/root-tree/
   source-tree к существующим technical/build/action-trace/visual-proof,
   повторно проверяет remote CAS у write boundary и materialize-ит только в
@@ -32,9 +34,15 @@
   локально 166/166. Generator CI штатно использует два UGC checkout: current
   factory content и immutable worker `70f50d4`; локальный запуск с одним
   sibling не воспроизводит эту матрицу и не является acceptance failure.
+- После UGC merge полный Generator verify на Node `24.14.0` против
+  `UGC master@8cd1e859` + historical worker `70f50d4` прошёл 762/0/6;
+  reciprocal UGC worker suites прошли 29/29. Generator merge tree совпадает с
+  reviewed `333d69c`.
 - Durable receipts:
   `labs-fix-mutation-pipeline-v0-execution-receipt-2026-08-09.md` и
-  `labs-fix-mutation-pipeline-v0-claude-review-receipt-2026-08-09.md`.
+  `labs-fix-mutation-pipeline-v0-claude-review-receipt-2026-08-09.md`;
+  bounded merge packet —
+  `labs-fix-mutation-pipeline-v0-merge-packet-2026-08-10.md`.
   Frozen terminal decision: **`GO FAMILY A`**; Family A в этой цели не
   запускалась и требует отдельного контракта.
 

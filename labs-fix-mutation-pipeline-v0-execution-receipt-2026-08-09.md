@@ -16,13 +16,16 @@ Authority:
 Implementation PRs:
 
 - [swipe-ugc#7](https://github.com/Glera/swipe-ugc/pull/7), exact head
-  `36c15aff1cb59d008833dd09e0c612504dcbb546`;
+  `36c15aff1cb59d008833dd09e0c612504dcbb546`, merged to master as
+  `8cd1e8598b699766bb02ccd22f63e38ab9ffe1ee`;
 - [swipe-generator#26](https://github.com/Glera/swipe-generator/pull/26), exact
-  head `333d69c16357fc88ea43d0748a008e88e957cfd9`.
+  head `333d69c16357fc88ea43d0748a008e88e957cfd9`, merged to master as
+  `adea2c8aa0ad7532530bcb199f55befd8a9ad464`.
 
-Neither PR was merged. No Family A run, production change, publication,
-catalog/feed/roster mutation, live-factory write, deploy, credential use or
-migration was performed.
+Both implementation PRs were merged on 2026-08-10 under one operator-approved
+bounded packet. No Family A run, production change, publication,
+catalog/feed/roster mutation, live-factory write, deploy, credential use,
+migration or live Lab restart was performed.
 
 ## 1. Delivered path
 
@@ -113,6 +116,10 @@ to runtime/tooling variables and does not forward token/key variables.
   Claude review.
 - Independent review: **GO, no P1/P2 findings**. Receipt:
   `labs-fix-mutation-pipeline-v0-claude-review-receipt-2026-08-09.md`.
+- Post-UGC-merge Generator verification on Node `24.14.0`, with current UGC
+  `8cd1e859` plus historical worker UGC `70f50d4`: PASS — 762 pass, 0 fail,
+  6 skipped. The reciprocal UGC worker contract/publication/integrity suites
+  passed 29/29 against Generator head `333d69c`.
 
 The Generator workflow deliberately checks out two UGC identities: current
 factory content at `b8be78d` and the immutable historical worker release at
