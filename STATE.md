@@ -1,5 +1,40 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ CANDIDATE DECISION LOOP v0 — DRAFT STACK READY, MERGE/LIVE GO PENDING (10.08)
+
+- Ticket [#91](https://github.com/Glera/p4g-workspace-meta/issues/91)
+  реализован candidate-only стеком: backend
+  [PR #63](https://github.com/Glera/swipe-backend/pull/63) `e0682cf8`, feed
+  [PR #32](https://github.com/Glera/feed-prototype/pull/32) `c5715c47`,
+  generator [PR #29](https://github.com/Glera/swipe-generator/pull/29)
+  `6062202b` и meta
+  [PR #93](https://github.com/Glera/p4g-workspace-meta/pull/93). Exact-head CI
+  всех трёх code PR terminal green; root suite 166/166.
+- READY notification теперь ведёт в один authenticated TMA review с исходной
+  просьбой, exact 9:16 candidate и чек-листом. Два продуктовых исхода:
+  append-only exact-user/dogfood accept через существующий Telegram approval
+  либо append-only rework с atomic approval fence, честным `superseded`,
+  server-owned lineage и одним successor/READY notification. Public
+  publication/activation отсутствует.
+- `0077` не мог хранить actor-bound decision, взаимоисключение, terminal fence
+  и durable successor lineage; узкая additive migration `0078` добавляет эти
+  server-owned факты без client-authored JSON и не выдумывает disposition для
+  historical closed rows. Backend race/replay/auth и чистый PG16, feed 390×844
+  browser flow, generator successor/one-notification и полные verify закрыты.
+- Один bounded blind Claude Fable high-effort review дал 1 P1, 3 P2 и 4 P3:
+  семь findings исправлены, rollout-compatibility F006 осознанно оставлен
+  fail-closed. Поэтому attended rollout только **Feed → Generator → Backend** с
+  paused candidate actions; machine-validated dispositions —
+  `labs-candidate-decision-loop-v0-auto-review-dispositions-2026-08-10.json`.
+- Mandatory add-mode evidence: Smash [#82](https://github.com/Glera/p4g-workspace-meta/issues/82),
+  [receipt](https://github.com/Glera/p4g-workspace-meta/issues/82#issuecomment-5241803721),
+  commit `58e80b1`, PR #83. Live Smash
+  `ab5e07b9-f129-4fc3-aa91-3880bb4f1df7`, Two Dots и Klondike не менялись.
+  Merge, deploy, live migration/restart, Telegram/candidate action и
+  publication не выполнялись. Единый packet:
+  `labs-candidate-decision-loop-v0-merge-rollout-packet-2026-08-10.md`, SHA-256
+  `afbdd145394d20d245b1c1131a4b5f7007fe0396c036f8c04496089e8b84f9eb`.
+
 ## ▶ FAST LANE PARALLEL PREPARATION v1 — DRAFT STACK READY, LIVE GO PENDING (10.08)
 
 - Ticket [#84](https://github.com/Glera/p4g-workspace-meta/issues/84) реализован

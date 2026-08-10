@@ -29,8 +29,10 @@ ingestion, webhook, scheduler or agent architecture was added.
 | `feed-prototype` | `807185578e544b2732d18c2d4458932f6dab98ea` | `c5715c4708f1ea6b121c67e3a9cae5544b13d52f` | [#32](https://github.com/Glera/feed-prototype/pull/32) | PASS: [run 31408342859](https://github.com/Glera/feed-prototype/actions/runs/31408342859) |
 | `swipe-generator` | `a2ffbf790eaa0d6a4092eee857a4a07c403df264` | `6062202b2eb28f01e82ef72c7244ac27d188b761` | [#29](https://github.com/Glera/swipe-generator/pull/29) | PASS: [run 31408343263, attempt 2](https://github.com/Glera/swipe-generator/actions/runs/31408343263) |
 
-The final meta receipt PR is the authority for its own head because a commit
-cannot self-reference its SHA.
+Root receipt/STATE are in draft meta
+[PR #93](https://github.com/Glera/p4g-workspace-meta/pull/93). Its final PR
+head is the authority for its own SHA because a commit cannot self-reference
+its SHA.
 
 ## Code-path audit and storage decision
 
