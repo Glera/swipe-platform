@@ -33,7 +33,7 @@ The following values are CAS inputs, not values to rediscover as “latest”:
 | Generator PR #27 head | `0d9770183e6322b255628cbe7c28dde69dc23cb5` |
 | Generator master before merge | `adea2c8aa0ad7532530bcb199f55befd8a9ad464` |
 | Meta master before PR #87 | `5da309bf927c1681bb5989f4a55152ca1153e864` |
-| Playables/tooling pin | `17516f8172394840d4f159f64c32a86aa10371ed` |
+| Playables/tooling pin | `a1d86ee337e3d3b0cf4124d881ca8f7c83e530ee` |
 | Release-profile helper SHA-256 | `25634ba0f58472e2674f043b3dc90aeb85112623185c7ffc7b87e50068b6cc34` |
 | Feed build sibling (`swipe-ugc`) | `65f1d52bca68afc976b0ea9e0a4d0a1e7685016b` |
 | Audited `swipe-ugc` master | `8cd1e8598b699766bb02ccd22f63e38ab9ffe1ee` |
@@ -65,10 +65,12 @@ delete or rewrite any existing `playable-previews/` path.
 The Playables tooling pin is a clean descendant of the previous
 `b072a97305de749ce35c6f6f4323c3ba462b9ddf` pin through PR #19
 (`dc8755ad1b84f1261f953bc800a657186693db01`), PR #15
-(`ee9e181bd6cb0054b583282ee5770ea3a01a38b2`) and PR #16 (the pinned master
-above). The no-argument deploy script, release-profile helper and pinned profile
-bytes are unchanged. The descendant is required because `deploy-swipe.sh`
-refuses a Playables checkout that is not its published tracked upstream.
+(`ee9e181bd6cb0054b583282ee5770ea3a01a38b2`), PR #16
+(`17516f8172394840d4f159f64c32a86aa10371ed`) and PR #17 (the pinned master
+above). The no-argument deploy script, release-profile helper and pinned
+profile bytes are unchanged. The descendant is required because
+`deploy-swipe.sh` refuses a Playables checkout that is not its published
+tracked upstream.
 
 If any master, PR head, live deploy, DB revision, image/manifest pin or static
 archive differs, this packet is stale: **STOP, do not rebase, merge, build,
@@ -162,8 +164,8 @@ git -C swipe-platform fetch origin master
 git -C swipe-ugc fetch origin master
 test "$(git -C feed-prototype rev-parse HEAD)" = "$FEED_MERGE_SHA"
 test "$(git -C feed-prototype rev-parse origin/master)" = "$FEED_MERGE_SHA"
-test "$(git -C playables rev-parse HEAD)" = 17516f8172394840d4f159f64c32a86aa10371ed
-test "$(git -C playables rev-parse origin/master)" = 17516f8172394840d4f159f64c32a86aa10371ed
+test "$(git -C playables rev-parse HEAD)" = a1d86ee337e3d3b0cf4124d881ca8f7c83e530ee
+test "$(git -C playables rev-parse origin/master)" = a1d86ee337e3d3b0cf4124d881ca8f7c83e530ee
 test "$(git -C swipe-platform rev-parse HEAD)" = 46144eb2a05a276fa122ae5f74876e4b9b7801cc
 test "$(git -C swipe-platform rev-parse origin/master)" = 46144eb2a05a276fa122ae5f74876e4b9b7801cc
 test "$(git -C swipe-ugc rev-parse HEAD)" = 65f1d52bca68afc976b0ea9e0a4d0a1e7685016b
@@ -213,12 +215,12 @@ After terminal Render Static success, record `STATIC_CONTENT_SHA` and the final
 test "$(git -C swipe-platform rev-parse HEAD)" = "$(git -C swipe-platform rev-parse origin/master)"
 STATIC_SHA="$(git -C swipe-platform rev-parse HEAD)"
 test "$(jq -r .feedCommit swipe-platform/release.json)" = "$FEED_MERGE_SHA"
-test "$(jq -r .deployToolingCommit swipe-platform/release.json)" = 17516f8172394840d4f159f64c32a86aa10371ed
+test "$(jq -r .deployToolingCommit swipe-platform/release.json)" = a1d86ee337e3d3b0cf4124d881ca8f7c83e530ee
 test "$(jq -r .exportedPlayablesCommit swipe-platform/release.json)" = null
 shasum -a 256 -c "$EVIDENCE_DIR/versions-before.sha256"
 curl -fsS https://swipe-platform.onrender.com/release.json > "$EVIDENCE_DIR/live-release.json"
 test "$(jq -r .feedCommit "$EVIDENCE_DIR/live-release.json")" = "$FEED_MERGE_SHA"
-test "$(jq -r .deployToolingCommit "$EVIDENCE_DIR/live-release.json")" = 17516f8172394840d4f159f64c32a86aa10371ed
+test "$(jq -r .deployToolingCommit "$EVIDENCE_DIR/live-release.json")" = a1d86ee337e3d3b0cf4124d881ca8f7c83e530ee
 ```
 
 Record SHA-256 for the repository and live `index.html`, `release.json` and
@@ -232,7 +234,7 @@ from `BACKEND_MERGE_SHA`, once, with `publish=true` and these exact inputs:
 | Input | Source / value |
 | --- | --- |
 | `feed_sha` | `FEED_MERGE_SHA` from the verified Feed merge receipt |
-| `playables_sha` | `17516f8172394840d4f159f64c32a86aa10371ed` |
+| `playables_sha` | `a1d86ee337e3d3b0cf4124d881ca8f7c83e530ee` |
 | `swipe_platform_sha` | final `STATIC_SHA` from §3.1 |
 | `code_min_revision` | `0075_playable_rework_status` |
 | `code_max_revision` | `0077_fast_lane_parallel_ready` |
