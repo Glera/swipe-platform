@@ -51,6 +51,9 @@
 - [`FEED-ONBOARDING-PACKET-TEMPLATE.md`](FEED-ONBOARDING-PACKET-TEMPLATE.md) —
   короткий шаблон единственного reviewed-пакета от готового playable до
   наблюдаемой production-приёмки.
+- [`approved-mechanic-variant-library-v0.md`](../specs/approved-mechanic-variant-library-v0.md)
+  — draft хранения принятых вариаций между founder-play и отдельным release;
+  Git-полка без новой DB, DSL или runtime-ротации.
 - [`lab-playable-release-fast-lane.md`](../specs/lab-playable-release-fast-lane.md)
   — утверждённое направление упрощённого прототипного UX: update за 5–10 минут
   и add за 15–20 минут через Labs + один exact Telegram Approve. До реализации
