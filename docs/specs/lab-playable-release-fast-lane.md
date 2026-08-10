@@ -109,6 +109,46 @@ dogfood только из-за осознанного изменения вку�
 browser/lifecycle proof технического профиля нельзя заменить одним unit-тестом
 на tuning-константу.
 
+### 2.2 Fast Lane parallel preparation v1
+
+Подготовка bounded, но больше не глобально одиночная:
+
+- одновременно допускается до **10** `PREPARING` release-job для разных
+  механик; на одну механику по-прежнему приходится не более одного
+  non-terminal release;
+- `READY_FOR_APPROVAL` одной задачи не занимает preparation capacity и не
+  останавливает source/build/test/visual/covers остальных;
+- падение одной задачи проецируется только в её `NEEDS_HELP`; очередь других
+  механик продолжает работу;
+- публикация, feed apply и production activation остаются одной FIFO lane и
+  никогда не исполняются одновременно.
+
+Это не замена константы `1→10` и не новая scheduler/agent platform. Долгие
+независимые шаги выполняются параллельно в отдельных worktree. Коротко
+сериализованы только source-head landing разных механик, commit/push общего
+`swipe-platform/master` для candidate hosting и вся publication lane.
+
+Каждый candidate получает immutable identity собственного release:
+
+- `/playable-previews/<releaseId>/<playableId>.html` и frozen digest HTML;
+- server-owned `review-binding.json` с `releaseId`, playable и durable
+  `reworkRequestId` либо source/ticket fallback;
+- exact manifest-entry digest для update; candidate-time full manifest
+  остаётся диагностикой, а не CAS всего будущего platform head.
+
+Поэтому более поздний candidate обязан быть потомком ранее размещённого
+candidate commit и не инвалидирует его review identity. Update при публикации
+проверяет ancestry source/candidate, отсутствие изменения exact source path и
+CAS только прежнего manifest entry; unrelated entries сохраняются. Add
+сохраняет полный manifest/roster CAS, потому что добавляет product-visible
+identity и позицию. Эти две политики нельзя объединять ослаблением add-CAS.
+
+Переход в `READY_FOR_APPROVAL` создаёт одну durable READY outbox-запись на
+`releaseId`. Confirmed replay/restart не отправляет сообщение повторно.
+Однозначный retryable отказ допускает idempotent replay той же записи;
+неопределённый transport outcome становится `NEEDS_HELP` и не ретраится
+автоматически, поскольку Telegram `sendMessage` не имеет idempotency key.
+
 ## 3. Временные границы v0
 
 - один operator Telegram account из существующего allowlist;
@@ -147,7 +187,7 @@ capability выдана только оператору.
 - для `add`: `catalogMechanic`, `mechanicFamily`, anchor/позиция и
   `seriesLength=1`;
 - кнопка **Подготовить обновление** / **Подготовить новую механику**;
-- candidate iframe;
+- in-platform candidate review в реальном responsive game slot;
 - before/after covers;
 - exact diff production manifest;
 - автоматическое начало exact Telegram approval; кнопка в Labs остаётся
@@ -256,9 +296,10 @@ writer не обращается к отсутствующему route. Backend 
 только для `blocked`; после создания первой blocked-проекции откат Generator к
 версии без поддержки `execution` запрещён.
 
-Когда candidate готов, бот идемпотентно присылает сообщение с HTTPS candidate,
-текущим device-code и его expiry (перевыпуск кода обновляет тот же intent, а не
-создаёт второй release):
+Когда candidate готов, бот идемпотентно присылает название механики, исходную
+просьбу (дословно либо безопасно ограниченную по длине), статус **Готово к
+проверке** и deep-link на server-resolved in-platform review. Raw HTTPS URL
+остаётся техническим proof, но не операторской acceptance surface:
 
 ```text
 Klondike · доработка готова
@@ -267,11 +308,15 @@ Klondike · доработка готова
 [Поиграть в candidate] [Нужна ещё правка] [Принять и опубликовать]
 ```
 
-Candidate обязан открываться с телефона по HTTPS; `localhost` не является
-mobile preview. **Принять и опубликовать** совмещает taste-acceptance результата
-и единственный exact `feed.playable-release:write` Approve. Второго desktop- или
-GitHub-подтверждения нет. После live verification бот присылает **Открыть в
-ленте**.
+Review surface монтирует exact frozen candidate из server-owned release binding
+в том же responsive game slot и host lifecycle, что feed: autoplay/tutorial,
+первое касание → manual takeover, host messages, restart и completion. Рядом
+видны original request, submittedAt/actor и server-derived **Что проверить**.
+Manifest/catalog/roster/feed allocation не читаются и не меняются этим путём;
+caller-authored candidate URL не принимается. CTA **Принять и опубликовать**
+заблокирован до verified binding, `interactive_ready` и ручного takeover.
+`localhost` и standalone raw URL не являются mobile preview. После live
+verification бот присылает **Открыть в ленте**.
 
 Если нужна ещё правка, новый комментарий создаёт следующий semantic cycle того
 же root request с сохранённой историей parent → candidate → feedback.
@@ -349,9 +394,11 @@ roster и mapping не меняются
 
 После подтверждения Labs:
 
-1. повторяет CAS `playables/master == authorized source`;
-2. повторяет CAS ожидаемой головы `swipe-platform/master`;
-3. экспортирует exact candidate в `swipe-platform`;
+1. доказывает, что authorized source достижим из `playables/master` и exact
+   source path не изменён более поздними commits других механик;
+2. доказывает ancestry immutable candidate commit в текущем
+   `swipe-platform/master`;
+3. CAS-композирует только approved manifest entry поверх текущего manifest;
 4. создаёт content commit и пушит `master` существующими локальными Git
    credentials;
 5. ждёт production `versions.json` и exact runtime/cover bytes;
@@ -462,7 +509,8 @@ feed.playable-release:write
 | --- | --- |
 | Build/test/cover | production не меняется; повторяется exact шаг |
 | Telegram deny/expiry | production не меняется; candidate остаётся в истории |
-| Static push CAS conflict | перечитать master и пересобрать candidate; старый intent сгорел |
+| Exact source path или approved manifest entry изменился | production не менять; подготовить новый candidate |
+| Только unrelated candidate/manifest entries появились позже | сохранить старую exact identity и продолжить через узкую serialized publication lane |
 | Static опубликована, live bytes не совпали | не выполнять mapping/roster; release `FAILED` |
 | Mapping/roster apply упал | статика инертна; exact request можно resumed/replayed |
 | Ответ apply потерян | сначала перечитать projection; blind second mutation запрещена |

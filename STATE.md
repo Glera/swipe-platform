@@ -1,5 +1,40 @@
 # STATE.md — контрольный док портфеля
 
+## ▶ FAST LANE PARALLEL PREPARATION v1 — DRAFT STACK READY, LIVE GO PENDING (10.08)
+
+- Ticket [#84](https://github.com/Glera/p4g-workspace-meta/issues/84) реализован
+  candidate-only стеком: generator
+  [PR #27](https://github.com/Glera/swipe-generator/pull/27), feed
+  [PR #30](https://github.com/Glera/feed-prototype/pull/30), backend
+  [PR #62](https://github.com/Glera/swipe-backend/pull/62) и meta
+  [PR #87](https://github.com/Glera/p4g-workspace-meta/pull/87).
+  До 10 разных механик готовятся параллельно; source/platform head mutations
+  узко сериализованы, publication/activation остаётся одной FIFO lane.
+- READY получает immutable per-release candidate/review binding, durable
+  original-request linkage и один READY outbox event. Русские состояния:
+  «Готовится», «Готово к проверке», «Нужна помощь». In-platform review
+  воспроизводит exact frozen candidate в responsive slot с autoplay, manual
+  takeover, restart и terminal lifecycle; raw URL не является acceptance.
+- Детерминированная матрица закрывает 10 задач, реальную одновременность,
+  READY non-blocking, task-local failure, exact older-candidate identity,
+  request/notification association и две service-level publication попытки с
+  измеренным максимумом concurrency 1. Полные repo verify зелёные на exact
+  heads; изменчивые результаты и SHA зафиксированы в execution receipt/PR.
+- Один blind Claude Fable medium-effort review дал `GO_WITH_FINDINGS`: 2 P2 и
+  5 P3, все семь исправлены и покрыты regressions; валидируемая диспозиция —
+  `labs-fast-lane-parallel-v1-auto-review-dispositions-2026-08-10.json`.
+- Terminal audit не авторизовал прежний Live GO: Generator cancel завершает
+  только локальный journal, а backend не имеет terminal transition, очищающего
+  durable READY projection. Поэтому десять live Telegram-задач остаются STOP;
+  executable packet допускает после отдельного GO только exact merge/rollout
+  и zero-task/read-only smoke. Packet SHA-256:
+  `fb6a55f7b32ee81a7a3d8aa7c2e5e6b239ef23535c2cd6c76a8b7bafbfcf2395`.
+  Не выполнены merge, live DB migration/deploy, Lab restart, Telegram actions,
+  publication/activation или мутация сохранённых releases. Two Dots
+  `6c267c01-…`, Smash #82 и receipt-only #83 не менялись. Exact receipt:
+  `labs-fast-lane-parallel-v1-execution-receipt-2026-08-10.md`; единый attended
+  route: `FAST-LANE-PARALLEL-V1-LIVE-GO-2026-08-10.md`.
+
 ## ▶ SINGLE-MAC PRODUCT DEVELOPMENT LOOP v1 — LOCAL CANDIDATE READY (09.08)
 
 - Оператор отменил модель двух равноправных development-ячеек. Main Mac —
