@@ -43,7 +43,17 @@ The following values are CAS inputs, not values to rediscover as “latest”:
 | Live/LKG manifest SHA-256 | `f56c6705b7e2805260e6cb0b40c0079be550ba8bfe632c01265e1d87b7a32f18` |
 | Live/LKG image digest | `sha256:3d2889a6646de067b5c6951c3410f0c07b6ea38c637396163bee8c3c85f99ce5` |
 | Live Render deploy CAS | `dep-d9quqaqd0e5s73b5u01g` |
-| Previous live Generator | `e3f960120510c56c81b259725229ebf3d051561d` |
+| Previous live Generator | `8c9b4ad0906005f848fdbbcc466136e6babbf203` |
+
+The Generator baseline is a clean, non-divergent Fast Lane descendant of the
+earlier blocked-status rollout: PR #23 merged as `bcbe937e9ca2acbecde5e149774c4186028fe43d`
+(technical validation profiles), PR #24 merged as
+`2ede43a1d764ed8fb13d82f6d51d368ded1971e4` (strict new-mechanic profiles used
+by Two Dots), and PR #25 merged as
+`8c9b4ad0906005f848fdbbcc466136e6babbf203` (durable remote-source intake
+recovery). This exact live evolution is recorded in `STATE.md`,
+`labs-fast-lane-dogfood-validation-retry-receipt-2026-08-07.md` and
+`labs-fast-lane-two-dots-add-dogfood-receipt-2026-08-07.md`.
 
 The static baseline already contains the preserved Two Dots preview commit.
 Every static operation below is append-only on top of that head; it must not
@@ -253,6 +263,32 @@ Only after §3.3 is fully PASS, use a clean runtime-host checkout whose tracked
 `master` and `HEAD` both equal `GENERATOR_MERGE_SHA`. Record the previous
 LaunchAgent status, plist WorkingDirectory, preserved environment and data-root
 path. Do not copy or delete `.data`.
+
+Before changing any runtime checkout or plist, require the re-baselined live
+identity and preserved state to match exactly:
+
+```bash
+CURRENT_LIVE_ROOT="/Users/gleb/My projects/p4g-platform-workspace/swipe-generator-live"
+CURRENT_DATA_ROOT="/Users/gleb/My projects/p4g-platform-workspace/swipe-generator/.data"
+CURRENT_PLIST="$HOME/Library/LaunchAgents/com.p4g.swipe-generator.plist"
+
+test "$(git -C "$CURRENT_LIVE_ROOT" rev-parse HEAD)" = \
+  8c9b4ad0906005f848fdbbcc466136e6babbf203
+test "$(git -C "$CURRENT_LIVE_ROOT" status --porcelain --untracked-files=all)" = ""
+test "$(plutil -extract Label raw -o - "$CURRENT_PLIST")" = com.p4g.swipe-generator
+test "$(plutil -extract WorkingDirectory raw -o - "$CURRENT_PLIST")" = \
+  "$CURRENT_LIVE_ROOT"
+test "$(plutil -extract EnvironmentVariables.SWIPE_GENERATOR_DATA raw -o - \
+  "$CURRENT_PLIST")" = "$CURRENT_DATA_ROOT"
+test "$(launchctl print gui/$(id -u)/com.p4g.swipe-generator |
+  awk '/^[[:space:]]*working directory =/{sub(/^[^=]*= /,""); print; exit}')" = \
+  "$CURRENT_LIVE_ROOT"
+```
+
+The one normal install may point `WorkingDirectory` at the prepared clean
+`GENERATOR_MERGE_SHA` checkout, but it must preserve `SWIPE_GENERATOR_DATA`
+byte-for-byte as `CURRENT_DATA_ROOT`. Any current-head, plist, WorkingDirectory
+or data-root mismatch is STOP before install or restart.
 
 Run the existing service operation once:
 
