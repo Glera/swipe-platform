@@ -237,5 +237,16 @@
     "mountCost": "light",
     "sourceCommit": "dae6f2d114a57cd8c8799f5071a37b3b5f63820b",
     "runtimeArtifactDigest": "sha256:c0b9d7886f5029ad13f909c991bbce2b26637bd42de3f4ae15bb0bb2d0c84379"
+  },
+  "smash-fest-v1-swipe": {
+    "version": "685bfe967e",
+    "htmlBytes": 1090,
+    "payloadBytes": 154254,
+    "assetBytes": 0,
+    "assets": [],
+    "mediaBytes": 0,
+    "mountCost": "light",
+    "sourceCommit": "c34fc248328a2b3fadcb8b2a7ce5dbd4b6587c15",
+    "runtimeArtifactDigest": "sha256:484e0e595df889c3c90a98dfad2b4d738b2d449f792b1fe44a721361774b076b"
   }
 }
