@@ -1,12 +1,18 @@
 # Two-Mac Development Operating Model v1
 
-Статус: **SUPERSEDED операторским решением 09.08.2026; только historical
-audit trail, не действующая authority**. Текущая модель:
-`docs/specs/single-mac-product-development-loop-v1.md`.
+Статус: **SUPERSEDED; только historical audit trail, не действующая
+authority**. Его модель двух peer development cells отменена 09.08.2026 и не
+возвращена решением 11.08. Текущий узкий successor:
+`docs/specs/two-mac-zero-transfer-bridge-phase-0.md`.
 
 Ниже сохранён прежний контракт без переинтерпретации. Он не разрешает peer
 development cells, cross-Mac routing/review, platform-worker на втором Mac или
 любую реализацию dispatcher/lease/merge coordination.
+
+Successor использует только старую физическую ownership-топологию
+(`backend/feed` на Mac A, `generator/playables` на Mac B) и detached live Lab
+host на Mac A. Он не наследует peer cells, provider routing, dispatcher,
+leases, merge coordination или общую Engineering OS.
 
 Исходный статус: целевая operating model была зафиксирована 09.08.2026;
 автоматический диспетчер не был реализован. Исполняемый handoff:

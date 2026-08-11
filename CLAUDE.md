@@ -56,34 +56,44 @@
 - Портфель, владельцы контуров и очередь операторских решений — в `STATE.md`
   (читать первым, обновлять последним).
 
-## Режим разработки: single-Mac Product Control Plane (решение 09.08.2026)
+## Режим разработки: Two-Mac Zero-Transfer Bridge Phase 0 (решение 11.08.2026)
 
-- Основной Mac — единственное место разработки Product Platform: portfolio и
-  `STATE.md`, platform/backend/feed/Labs code, PR, merge и deploy. Для
-  platform-ticket Codex является implementer; Claude делает один независимый
-  review только там, где его требует реальная authority-граница.
-- Второй Mac — только Content Factory: копирование/создание/вариации механик,
-  candidate builds, tests, traces и visual proof. Он не меняет platform/backend,
-  не владеет merge, production credentials, deploy, runtime schedules или
-  `STATE.md` и не запускает platform-worker.
-- Routing v1 детерминирован: Telegram «Правка платформы» → единственная очередь
-  основного Mac; Labs create/copy/variation → Content Factory; content request,
-  которому нужна platform-правка, останавливается как
-  `NEEDS_PLATFORM_CHANGE` и создаёт linked platform-ticket.
-- На основном Mac одновременно один активный platform-ticket. Content Factory
-  держит не более 2–3 `READY_TO_PLAY` кандидатов. AI-router, quota optimizer,
-  distributed merge queue, repo-lock/lease и общая agent platform запрещены.
-- Локальный spike и `wip/*` разрешены без тикета; durable ticket обязателен до
-  candidate/PR/merge/deploy. Первый platform vertical не автоматизирует merge
-  или deploy и не создаёт credentials/schedules. GitHub Issues остаются
-  единственной development queue; backend хранит intake/Issue receipt и два
-  terminal status, но не запускает background agents, Codex/Claude
-  subscriptions, scheduler/polling supervisor или generic candidate builder.
-- `swipe-agents` остаётся отдельным deterministic production-ops контуром без
-  LLM и не используется для intake, dev-dispatch или review.
-- Модель двух равноправных development-ячеек superseded. Исторический документ
-  сохранён только как audit trail. Текущий контракт:
-  `docs/specs/single-mac-product-development-loop-v1.md`.
+- Это не возврат к двум равноправным platform-development ячейкам. Mac A —
+  Product Control Plane: portfolio/`STATE.md`, meta, platform/backend/feed,
+  production/deploy authority и live Lab runtime host. Mac B — Content Factory:
+  `swipe-generator` и `playables` authoring, candidate build/test/trace/visual
+  proof и обычная merge-authority этих двух repos. Mac B не получает
+  platform/backend/feed, Telegram bot, Render, publication, production или
+  `STATE.md` authority.
+- Routing только typed и deterministic: Telegram «Правка платформы» → Mac A;
+  Labs create/copy/variation/mechanic rework → Mac B; content dependency на
+  platform → `NEEDS_PLATFORM_CHANGE` + отдельный linked Mac A ticket.
+- GitHub Issue в meta — единственный durable engineering ticket и transport.
+  После одного local bootstrap каждая машина наблюдает только свой route, а
+  bounded heartbeat возобновляет ту же локальную Codex-задачу. Operator не
+  переносит prompts, receipts, SHA, task IDs или wake instructions.
+- Append-only Issue events связывают exact ticket/request/parent/source,
+  assigned machine и digest локальной task identity. Claim исполним только
+  после proposal и двух полных post-write чтений; replay exact-idempotent, а
+  fork/stale/route/task mismatch fail closed. Offline Mac остаётся
+  `QUEUED:machine_offline` без steal/reassignment.
+- Phase 0 не строит general scheduler/runner, arbitrary remote-command API,
+  provider/subscription picker, distributed lease, repo lock, merge queue,
+  shared task DB или agent platform. In-chat heartbeat — trigger существующей
+  задачи, не новый execution service. `swipe-agents` остаётся отдельным no-LLM
+  production-ops контуром.
+- Создание/ротация credentials, settings/permissions, flag activation,
+  destructive action и publication требуют одного consolidated operator
+  window. Обычные bounded merges/deploys без таких изменений следуют текущим
+  CAS/CI/review правилам. Контент не принимается/отклоняется за оператора.
+- Mac B single author slot до отдельной durable сериализации: Two Dots #91,
+  затем Smash #82, затем Generator bridge. Arrows candidates operator-parked и
+  не мутируются. Labs visual/performance/mobile polish начинается только после
+  Phase 0 terminal acceptance.
+- Текущий контракт: `docs/specs/two-mac-zero-transfer-bridge-phase-0.md`,
+  durable ledger: `Glera/p4g-workspace-meta#94`. Single-Mac v1 и исходный
+  Two-Mac v1 сохранены как superseded audit trail; merged Single-Mac intake,
+  Issue transport и terminal notification переиспользуются default-off.
 
 # Durable product decisions
 

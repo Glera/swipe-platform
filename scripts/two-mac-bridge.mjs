@@ -1,0 +1,959 @@
+#!/usr/bin/env node
+// One observation/transition pass for the Phase 0 two-Mac Issue bridge.
+//
+// This is deliberately not a daemon or scheduler. A Codex in-chat heartbeat
+// invokes one pass. GitHub Issues are the only durable transport; the raw GitHub
+// token and raw Codex task ID are never printed or stored by this script.
+
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+import {
+  createMachineBinding,
+  createEvent,
+  decodeEventMarkers,
+  encodeMachineBindingMarker,
+  decodeTicketMarkers,
+  encodeEventMarker,
+  encodeTicketMarker,
+  projectJournal,
+  projectMachineBindings,
+  sha256,
+  ticketDigest,
+} from './two-mac-bridge-contract.mjs';
+
+const DEFAULT_REPO = 'Glera/p4g-workspace-meta';
+const SHA256 = /^[0-9a-f]{64}$/u;
+const GIT_SHA = /^[0-9a-f]{40}$/u;
+const ERROR_CODE = /^[a-z][a-z0-9_]{2,95}$/u;
+const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
+const REF = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,239}$/u;
+const PRIORITY_ISSUES = new Map([[91, 0], [82, 1]]);
+const DEFAULT_CONTROL_ISSUE = 94;
+const DEFAULT_GENERATOR_URL = 'http://127.0.0.1:4317/v1/playable-releases';
+const OFFLINE_OBSERVATION_MS = 15 * 60 * 1000;
+
+const USAGE = `Usage:
+  node scripts/two-mac-bridge.mjs project --issue N [--repo OWNER/REPO]
+  node scripts/two-mac-bridge.mjs observe --machine mac-a|mac-b [--repo OWNER/REPO]
+  node scripts/two-mac-bridge.mjs bootstrap --machine mac-a|mac-b \\
+    [--control-issue N] [--apply]
+  node scripts/two-mac-bridge.mjs bind-platform --issue N --machine mac-a \\
+    [--control-issue N] [--apply]
+  node scripts/two-mac-bridge.mjs bind-generator --issue N --machine mac-a \\
+    --request-id REQUEST_ID [--control-issue N] [--generator-url LOOPBACK_URL] [--apply]
+  node scripts/two-mac-bridge.mjs claim --issue N --machine mac-a|mac-b [--apply]
+  node scripts/two-mac-bridge.mjs advance --issue N --machine mac-a|mac-b \\
+    --state QUEUED:machine_offline|IN_PROGRESS|READY_TO_PLAY|NEEDS_HELP|DONE \\
+    [state evidence] [--apply]
+
+State evidence:
+  READY_TO_PLAY  --head-repository OWNER/REPO --head-ref BRANCH --head-sha SHA \\
+                 --candidate-url HTTPS_URL --candidate-sha256 SHA256
+  NEEDS_HELP     --error-code CODE
+  DONE           --receipt-id ID   (Mac A only)
+
+Mutations are dry-run unless --apply. The local task binding is derived from
+CODEX_THREAD_ID and compared to the ticket; it is never accepted as CLI input.
+`;
+
+function takeValue(argv, index, option) {
+  const value = argv[index + 1];
+  if (value === undefined || value.startsWith('--')) throw new Error(`${option} requires a value`);
+  return value;
+}
+
+export function parseArgs(argv) {
+  const options = {
+    command: null,
+    repo: DEFAULT_REPO,
+    issue: null,
+    machine: null,
+    state: null,
+    errorCode: null,
+    headRepository: null,
+    headRef: null,
+    headSha: null,
+    candidateUrl: null,
+    candidateSha256: null,
+    receiptId: null,
+    controlIssue: DEFAULT_CONTROL_ISSUE,
+    requestId: null,
+    generatorUrl: DEFAULT_GENERATOR_URL,
+    apply: false,
+    help: false,
+    lockHeld: false,
+  };
+  const [command, ...rest] = argv;
+  options.command = command ?? null;
+  for (let index = 0; index < rest.length; index += 1) {
+    const arg = rest[index];
+    if (arg === '--repo') {
+      options.repo = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--issue') {
+      options.issue = Number(takeValue(rest, index, arg)); index += 1;
+    } else if (arg === '--machine') {
+      options.machine = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--state') {
+      options.state = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--error-code') {
+      options.errorCode = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--head-repository') {
+      options.headRepository = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--head-ref') {
+      options.headRef = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--head-sha') {
+      options.headSha = takeValue(rest, index, arg).toLowerCase(); index += 1;
+    } else if (arg === '--candidate-url') {
+      options.candidateUrl = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--candidate-sha256') {
+      options.candidateSha256 = takeValue(rest, index, arg).replace(/^sha256:/u, '').toLowerCase(); index += 1;
+    } else if (arg === '--receipt-id') {
+      options.receiptId = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--control-issue') {
+      options.controlIssue = Number(takeValue(rest, index, arg)); index += 1;
+    } else if (arg === '--request-id') {
+      options.requestId = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--generator-url') {
+      options.generatorUrl = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--apply') {
+      options.apply = true;
+    } else if (arg === '--lock-held') {
+      options.lockHeld = true;
+    } else if (arg === '--help' || arg === '-h') {
+      options.help = true;
+    } else {
+      throw new Error(`unknown option: ${arg}`);
+    }
+  }
+  if (options.help) return options;
+  if (!['project', 'observe', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)) {
+    throw new Error('command must be project, observe, bootstrap, bind-platform, bind-generator, claim, or advance');
+  }
+  if (!REPOSITORY.test(options.repo)) throw new Error('--repo must be OWNER/REPO');
+  if (options.repo !== DEFAULT_REPO) throw new Error(`--repo is allowlisted to ${DEFAULT_REPO}`);
+  if (['project', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)
+      && (!Number.isSafeInteger(options.issue) || options.issue < 1)) {
+    throw new Error('--issue must be a positive strict integer');
+  }
+  if (['observe', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)
+      && !['mac-a', 'mac-b'].includes(options.machine)) {
+    throw new Error('--machine must be mac-a or mac-b');
+  }
+  if (['bootstrap', 'bind-platform', 'bind-generator'].includes(options.command)
+      && (!Number.isSafeInteger(options.controlIssue) || options.controlIssue < 1)) {
+    throw new Error('--control-issue must be a positive strict integer');
+  }
+  if (options.command === 'bind-platform' && options.machine !== 'mac-a') {
+    throw new Error('bind-platform is a Mac A command');
+  }
+  if (options.command === 'bind-generator') {
+    if (options.machine !== 'mac-a') throw new Error('bind-generator is a Mac A command');
+    if (!safeIdentity(options.requestId)) throw new Error('--request-id is invalid');
+    validateGeneratorUrl(options.generatorUrl);
+  }
+  if (options.command === 'advance') validateAdvanceOptions(options);
+  return options;
+}
+
+function validateAdvanceOptions(options) {
+  if (!['QUEUED:machine_offline', 'IN_PROGRESS', 'READY_TO_PLAY', 'NEEDS_HELP', 'DONE'].includes(options.state)) {
+    throw new Error('--state is invalid for advance');
+  }
+  if (options.state === 'READY_TO_PLAY') {
+    if (!REPOSITORY.test(String(options.headRepository || ''))) throw new Error('--head-repository is required');
+    if (!validRef(options.headRef)) throw new Error('--head-ref is invalid');
+    if (!GIT_SHA.test(String(options.headSha || ''))) throw new Error('--head-sha must be a full lowercase SHA');
+    let parsed;
+    try { parsed = new URL(options.candidateUrl); } catch { throw new Error('--candidate-url is invalid'); }
+    if (parsed.protocol !== 'https:') throw new Error('--candidate-url must use HTTPS');
+    if (!SHA256.test(String(options.candidateSha256 || ''))) throw new Error('--candidate-sha256 is invalid');
+  }
+  if (options.state === 'NEEDS_HELP' && !ERROR_CODE.test(String(options.errorCode || ''))) {
+    throw new Error('NEEDS_HELP requires --error-code');
+  }
+  if (options.state === 'QUEUED:machine_offline'
+      && (options.machine !== 'mac-a' || options.errorCode !== 'machine_offline')) {
+    throw new Error('QUEUED:machine_offline requires Mac A and --error-code machine_offline');
+  }
+  if (options.state === 'DONE'
+      && (options.machine !== 'mac-a' || !safeIdentity(options.receiptId))) {
+    throw new Error('DONE requires Mac A and --receipt-id');
+  }
+  if (!['NEEDS_HELP', 'QUEUED:machine_offline'].includes(options.state)
+      && options.errorCode !== null) {
+    throw new Error('--error-code is valid only for NEEDS_HELP or machine_offline');
+  }
+}
+
+function validRef(value) {
+  return typeof value === 'string' && REF.test(value)
+    && !value.includes('..') && !value.includes('//') && !value.includes('@{')
+    && !value.endsWith('/') && !value.endsWith('.') && !value.endsWith('.lock');
+}
+
+function safeIdentity(value) {
+  return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$/u.test(value);
+}
+
+function validateGeneratorUrl(value) {
+  let parsed;
+  try { parsed = new URL(value); } catch { throw new Error('--generator-url is invalid'); }
+  if (parsed.protocol !== 'http:'
+      || !['127.0.0.1', 'localhost'].includes(parsed.hostname)
+      || parsed.pathname !== '/v1/playable-releases'
+      || parsed.username || parsed.password || parsed.search || parsed.hash) {
+    throw new Error('--generator-url must be the exact loopback playable-releases endpoint');
+  }
+  return parsed;
+}
+
+export function deriveTaskDigest(env) {
+  const threadId = env.CODEX_THREAD_ID;
+  if (typeof threadId !== 'string' || threadId.length < 8 || threadId.length > 256
+      || /[\0\r\n]/u.test(threadId)) {
+    throw new Error('CODEX_THREAD_ID is required for this command');
+  }
+  return sha256(`codex-thread-v1\0${threadId}`);
+}
+
+function executeGh(args, cwd = process.cwd()) {
+  const result = spawnSync('gh', args, {
+    cwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (result.status !== 0) {
+    throw new Error((result.stderr || result.stdout || 'gh failed').trim());
+  }
+  return result.stdout;
+}
+
+function parseJson(value, label) {
+  try { return JSON.parse(value); } catch { throw new Error(`${label} returned invalid JSON`); }
+}
+
+export function createGitHubTransport({ execute = executeGh, cwd = process.cwd() } = {}) {
+  const apiJson = (args, label) => parseJson(execute(['api', ...args], cwd), label);
+  return {
+    async getRepositoryId(repo) {
+      const result = apiJson([`repos/${repo}`], 'reading repository identity');
+      const id = String(result.id || '');
+      if (!/^[1-9][0-9]{0,31}$/u.test(id)) throw new Error('GitHub repository ID is invalid');
+      return id;
+    },
+    async listOpenIssues(repo) {
+      const pages = apiJson([
+        '--paginate', `repos/${repo}/issues?state=open&per_page=100`,
+        '--slurp',
+      ], 'listing Issues');
+      const result = Array.isArray(pages) ? pages.flat() : [];
+      return result.filter((issue) => !issue.pull_request).map((issue) => ({
+        number: issue.number,
+        body: issue.body || '',
+        htmlUrl: issue.html_url,
+        updatedAt: issue.updated_at,
+      }));
+    },
+    async getIssue(repo, issueNumber) {
+      const issue = apiJson([`repos/${repo}/issues/${issueNumber}`], 'reading Issue');
+      const commentPages = apiJson([
+        '--paginate', `repos/${repo}/issues/${issueNumber}/comments?per_page=100`,
+        '--slurp',
+      ], 'reading Issue comments');
+      const comments = Array.isArray(commentPages) ? commentPages.flat() : [];
+      return {
+        number: issue.number,
+        body: issue.body || '',
+        htmlUrl: issue.html_url,
+        updatedAt: issue.updated_at,
+        comments: comments.map((comment) => ({
+          id: String(comment.id),
+          body: comment.body || '',
+          htmlUrl: comment.html_url,
+          createdAt: comment.created_at,
+        })),
+      };
+    },
+    async searchIssues(repo, needle) {
+      if (!safeIdentity(needle)) throw new Error('Issue search identity is invalid');
+      const query = encodeURIComponent(`repo:${repo} "${needle}" in:comments type:issue`);
+      const pages = apiJson([
+        '--paginate', `search/issues?q=${query}&per_page=100`, '--slurp',
+      ], 'searching Issues');
+      return (Array.isArray(pages) ? pages : []).flatMap((page) => (
+        Array.isArray(page?.items) ? page.items : []
+      )).map((issue) => ({
+        number: issue.number,
+        body: issue.body || '',
+        htmlUrl: issue.html_url,
+        updatedAt: issue.updated_at,
+      }));
+    },
+    async postComment(repo, issueNumber, body) {
+      return apiJson([
+        '--method', 'POST', `repos/${repo}/issues/${issueNumber}/comments`,
+        '-f', `body=${body}`,
+      ], 'posting Issue comment');
+    },
+    async resolveRef(repo, ref) {
+      const encoded = ref.split('/').map(encodeURIComponent).join('/');
+      const result = apiJson([`repos/${repo}/git/ref/heads/${encoded}`], 'resolving remote ref');
+      return String(result?.object?.sha || '').toLowerCase();
+    },
+  };
+}
+
+function machineBindingsFromIssue(issue) {
+  return projectMachineBindings(
+    issue.number,
+    [issue.body, ...(issue.comments || []).map((comment) => comment.body)],
+  );
+}
+
+function resolveLocalHead(cwd = process.cwd()) {
+  const result = spawnSync('git', ['rev-parse', 'HEAD'], {
+    cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const head = String(result.stdout || '').trim().toLowerCase();
+  if (result.status !== 0 || !GIT_SHA.test(head)) throw new Error('cannot resolve exact local bridge HEAD');
+  return head;
+}
+
+export async function bootstrapMachine({
+  transport,
+  repo,
+  controlIssue,
+  machine,
+  taskDigest,
+  bridgeCommit,
+  apply,
+  clock = () => new Date(),
+}) {
+  const remote = await transport.resolveRef(repo, 'master');
+  if (remote !== bridgeCommit) throw new Error(`bridge bootstrap requires exact ${repo}/master ${remote}`);
+  const repositoryId = await transport.getRepositoryId(repo);
+  const issue = await transport.getIssue(repo, controlIssue);
+  const bindings = machineBindingsFromIssue(issue);
+  const existing = bindings[machine];
+  if (existing) {
+    if (existing.taskDigest !== taskDigest || existing.bridgeCommit !== bridgeCommit
+        || existing.repositoryId !== repositoryId) {
+      throw new Error(`conflicting ${machine} bootstrap already exists`);
+    }
+    return { status: 'REUSE', binding: existing };
+  }
+  const binding = createMachineBinding({
+    controlIssue, repositoryId, machine, taskDigest, bridgeCommit,
+    registeredAt: now(clock),
+  });
+  if (!apply) return { status: 'DRY_RUN', binding };
+  await transport.postComment(repo, controlIssue, [
+    `Phase 0 local binding: \`${machine}\``, '',
+    encodeMachineBindingMarker(binding),
+  ].join('\n'));
+  const verified = machineBindingsFromIssue(await transport.getIssue(repo, controlIssue));
+  if (verified[machine]?.bindingDigest !== binding.bindingDigest) {
+    throw new Error('machine binding is not uniquely durable after write');
+  }
+  return { status: 'BOOTSTRAPPED', binding: verified[machine] };
+}
+
+function exactGeneratorRecord(records, requestId, label) {
+  if (!Array.isArray(records)) throw new Error(`Generator ${label} projection is not an array`);
+  const matches = records.filter((record) => record?.requestId === requestId);
+  if (matches.length !== 1) throw new Error(`Generator ${label} projection has ${matches.length} records for ${requestId}`);
+  return matches[0];
+}
+
+export function deriveGeneratorTicket({ snapshot, issueNumber, repositoryId, requestId, targetTaskDigest }) {
+  if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) {
+    throw new Error('Generator projection is invalid');
+  }
+  const rework = exactGeneratorRecord(snapshot.playableReworks, requestId, 'rework');
+  const task = exactGeneratorRecord(snapshot.agentTasks, requestId, 'agent task');
+  const request = rework.request;
+  if (!request || typeof request !== 'object' || Array.isArray(request)) {
+    throw new Error('Generator request payload is invalid');
+  }
+  if (!SHA256.test(String(rework.requestHash || ''))) throw new Error('Generator requestHash is invalid');
+  const parentFromRequest = request.parentReleaseId ?? null;
+  const matchingParents = Array.isArray(snapshot.releases)
+    ? snapshot.releases.filter((release) => release?.reworkRequestId === requestId)
+    : [];
+  const parentIds = parentFromRequest
+    ? [parentFromRequest]
+    : [...new Set(matchingParents.map((release) => release.releaseId).filter(Boolean))];
+  if (parentIds.length !== 1 || !safeIdentity(parentIds[0])) {
+    throw new Error('Generator parent release identity is missing or ambiguous');
+  }
+  const sourceId = task.sourceId || request.sourceId
+    || String(request.playableId || '').replace(/-swipe$/u, '');
+  const sourceCommitCandidates = [task.sourceCommit, request.sourceCommit, request.runtime?.sourceCommit]
+    .filter((value) => typeof value === 'string' && GIT_SHA.test(value));
+  const sourceCommit = sourceCommitCandidates[0] ?? null;
+  const mutationId = request.mutationId ?? null;
+  const createdAt = rework.createdAt ?? request.createdAt;
+  return {
+    schema: 'two-mac.bridge-ticket.v1',
+    ticketId: `meta-${issueNumber}/${requestId}`,
+    issueNumber,
+    repositoryId,
+    sourceKind: 'mechanic',
+    requestId,
+    requestHash: rework.requestHash,
+    mutationId,
+    parentRequestId: parentIds[0],
+    sourceId,
+    sourceRepository: 'Glera/playables',
+    sourceCommit,
+    sourceTree: null,
+    assignedMachine: 'mac-b',
+    authority: 'content-factory',
+    targetTaskDigest,
+    instruction: request.instruction,
+    createdAt,
+  };
+}
+
+async function readGeneratorSnapshot(url, fetchImpl) {
+  validateGeneratorUrl(url);
+  const response = await fetchImpl(url, { method: 'GET', redirect: 'error' });
+  if (!response.ok) throw new Error(`Generator projection returned HTTP ${response.status}`);
+  const snapshot = await response.json();
+  if (snapshot?.schema !== 'lab.playable-release-list.v1') {
+    throw new Error('Generator projection schema is invalid');
+  }
+  return snapshot;
+}
+
+export async function bindGeneratorIssue({
+  transport,
+  repo,
+  issueNumber,
+  controlIssue,
+  requestId,
+  generatorUrl,
+  taskDigest,
+  bridgeCommit,
+  apply,
+  fetchImpl = fetch,
+  clock = () => new Date(),
+}) {
+  const repositoryId = await transport.getRepositoryId(repo);
+  const bindings = machineBindingsFromIssue(await transport.getIssue(repo, controlIssue));
+  for (const machine of ['mac-a', 'mac-b']) {
+    const binding = bindings[machine];
+    if (!binding || binding.repositoryId !== repositoryId || binding.bridgeCommit !== bridgeCommit) {
+      throw new Error(`exact ${machine} bootstrap is required before mechanic binding`);
+    }
+  }
+  if (bindings['mac-a'].taskDigest !== taskDigest) {
+    throw new Error('bind-generator is running in another Mac A task');
+  }
+  const githubIssue = await transport.getIssue(repo, issueNumber);
+  const existingTickets = [githubIssue.body, ...githubIssue.comments.map((comment) => comment.body)]
+    .flatMap(decodeTicketMarkers);
+  if (existingTickets.length > 0) {
+    const projected = projectIssue(githubIssue);
+    if (projected.ticket.requestId !== requestId) {
+      throw new Error(`Issue #${issueNumber} is already bound to another ticket`);
+    }
+    return { status: 'REUSE', ticket: projected.ticket, projection: projected.projection };
+  }
+
+  const searchHits = await transport.searchIssues(repo, requestId);
+  const boundElsewhere = [];
+  for (const hit of searchHits) {
+    const candidate = await transport.getIssue(repo, hit.number);
+    const candidateTickets = [candidate.body, ...candidate.comments.map((comment) => comment.body)]
+      .flatMap(decodeTicketMarkers)
+      .filter((item) => item.requestId === requestId);
+    if (candidateTickets.length > 0) boundElsewhere.push(candidate.number);
+  }
+  const uniqueIssues = [...new Set(boundElsewhere)];
+  if (uniqueIssues.length > 0) {
+    throw new Error(`Generator request ${requestId} is already bound to Issue #${uniqueIssues.join(',#')}`);
+  }
+  const snapshot = await readGeneratorSnapshot(generatorUrl, fetchImpl);
+  const ticket = deriveGeneratorTicket({
+    snapshot, issueNumber, repositoryId, requestId,
+    targetTaskDigest: bindings['mac-b'].taskDigest,
+  });
+  const queued = createEvent({
+    ticket,
+    state: 'QUEUED',
+    actorMachine: 'mac-a',
+    actorTaskDigest: taskDigest,
+    idempotencyKey: `queue:${ticketDigest(ticket).slice(0, 32)}`,
+    occurredAt: now(clock),
+  });
+  if (!apply) return { status: 'DRY_RUN', ticket, queued };
+  await transport.postComment(repo, issueNumber, [
+    `Phase 0 mechanic binding: \`${requestId}\` → \`mac-b\``, '',
+    encodeTicketMarker(ticket), '', encodeEventMarker(queued, ticket),
+  ].join('\n'));
+  const verified = projectIssue(await transport.getIssue(repo, issueNumber));
+  if (verified.projection.ticketDigest !== ticketDigest(ticket)
+      || verified.projection.lastEventDigest !== queued.eventDigest) {
+    throw new Error('mechanic ticket binding is not uniquely durable after write');
+  }
+  return { status: 'BOUND', ticket, projection: verified.projection };
+}
+
+function decodeBackendInstruction(value) {
+  return value.replaceAll('&gt;', '>').replaceAll('&lt;', '<').replaceAll('&amp;', '&');
+}
+
+export function derivePlatformTicket({ issue, repositoryId, targetTaskDigest }) {
+  const markerPattern = /<!-- p4g-development-ticket:v1 sourceKind=platform sourceRequestId=([A-Za-z0-9._:@+-]+) sourceRequestHash=([0-9a-f]{64}) -->/gu;
+  const markers = [...String(issue.body || '').matchAll(markerPattern)];
+  if (markers.length !== 1) throw new Error(`platform Issue has ${markers.length} exact backend source markers`);
+  if (!String(issue.body).includes('<!-- schema: development-ticket.v1 -->')) {
+    throw new Error('platform Issue development-ticket schema marker is missing');
+  }
+  const requestedAt = String(issue.body).match(/^- Requested at: `([^`]+)`$/mu)?.[1];
+  const requestSection = String(issue.body).match(/## Original request\n\n([\s\S]*?)\n\n## Captured context/u)?.[1];
+  if (!requestedAt || !requestSection?.startsWith('> ')) {
+    throw new Error('platform Issue server-owned request fields are missing');
+  }
+  const buildSha = String(issue.body).match(/^- Client\/platform build SHA: .*server-verified ([0-9a-f]{7,64}).*$/mu)?.[1] ?? null;
+  return {
+    schema: 'two-mac.bridge-ticket.v1',
+    ticketId: `meta-${issue.number}/${markers[0][1]}`,
+    issueNumber: issue.number,
+    repositoryId,
+    sourceKind: 'platform',
+    requestId: markers[0][1],
+    requestHash: markers[0][2],
+    mutationId: null,
+    parentRequestId: null,
+    sourceId: 'platform-intake',
+    sourceRepository: DEFAULT_REPO,
+    sourceCommit: buildSha && GIT_SHA.test(buildSha) ? buildSha : null,
+    sourceTree: null,
+    assignedMachine: 'mac-a',
+    authority: 'product-control-plane',
+    targetTaskDigest,
+    instruction: decodeBackendInstruction(requestSection.slice(2)),
+    createdAt: requestedAt,
+  };
+}
+
+export async function bindPlatformIssue({
+  transport,
+  repo,
+  issueNumber,
+  controlIssue,
+  taskDigest,
+  bridgeCommit,
+  apply,
+  clock = () => new Date(),
+}) {
+  const repositoryId = await transport.getRepositoryId(repo);
+  const bindings = machineBindingsFromIssue(await transport.getIssue(repo, controlIssue));
+  const binding = bindings['mac-a'];
+  if (!binding || binding.repositoryId !== repositoryId || binding.bridgeCommit !== bridgeCommit) {
+    throw new Error('exact mac-a bootstrap is required before platform binding');
+  }
+  if (binding.taskDigest !== taskDigest) throw new Error('bind-platform is running in another Mac A task');
+  const githubIssue = await transport.getIssue(repo, issueNumber);
+  const ticket = derivePlatformTicket({ issue: githubIssue, repositoryId, targetTaskDigest: taskDigest });
+  const existingTickets = [githubIssue.body, ...githubIssue.comments.map((comment) => comment.body)]
+    .flatMap(decodeTicketMarkers);
+  if (existingTickets.length > 0) {
+    const projected = projectIssue(githubIssue);
+    if (projected.projection.ticketDigest !== ticketDigest(ticket)) {
+      throw new Error(`Issue #${issueNumber} is already bound to another ticket`);
+    }
+    return { status: 'REUSE', ticket, projection: projected.projection };
+  }
+  const queued = createEvent({
+    ticket,
+    state: 'QUEUED',
+    actorMachine: 'mac-a',
+    actorTaskDigest: taskDigest,
+    idempotencyKey: `queue:${ticketDigest(ticket).slice(0, 32)}`,
+    occurredAt: now(clock),
+  });
+  if (!apply) return { status: 'DRY_RUN', ticket, queued };
+  await transport.postComment(repo, issueNumber, [
+    `Phase 0 platform binding: \`${ticket.requestId}\` → \`mac-a\``, '',
+    encodeTicketMarker(ticket), '', encodeEventMarker(queued, ticket),
+  ].join('\n'));
+  const verified = projectIssue(await transport.getIssue(repo, issueNumber));
+  if (verified.projection.ticketDigest !== ticketDigest(ticket)
+      || verified.projection.lastEventDigest !== queued.eventDigest) {
+    throw new Error('platform ticket binding is not uniquely durable after write');
+  }
+  return { status: 'BOUND', ticket, projection: verified.projection };
+}
+
+function markersFromIssue(issue) {
+  const bodies = [issue.body, ...(issue.comments || []).map((comment) => comment.body)];
+  const tickets = bodies.flatMap((body) => decodeTicketMarkers(body));
+  if (tickets.length === 0) return null;
+  const uniqueTickets = new Map(tickets.map((ticket) => [ticketDigest(ticket), ticket]));
+  if (uniqueTickets.size !== 1) throw new Error(`Issue #${issue.number} has conflicting bridge tickets`);
+  const [ticket] = uniqueTickets.values();
+  if (ticket.issueNumber !== issue.number) throw new Error(`Issue #${issue.number} carries another issueNumber`);
+  const events = bodies.flatMap((body) => decodeEventMarkers(body, ticket));
+  return { ticket, projection: projectJournal(ticket, events) };
+}
+
+export function projectIssue(issue) {
+  const result = markersFromIssue(issue);
+  if (!result) throw new Error(`Issue #${issue.number} has no Phase 0 ticket marker`);
+  return result;
+}
+
+export function planWake({ ticket, projection, machine, taskDigest, observedAt = Date.now() }) {
+  if (!['mac-a', 'mac-b'].includes(machine) || !SHA256.test(taskDigest)) {
+    throw new Error('wake observer identity is invalid');
+  }
+  if (!projection.state || projection.state === 'DONE') return null;
+  if (ticket.assignedMachine === machine) {
+    if (ticket.targetTaskDigest !== taskDigest) {
+      return { action: 'STOP', code: 'task_binding_mismatch', issueNumber: ticket.issueNumber };
+    }
+    if (['QUEUED', 'QUEUED:machine_offline'].includes(projection.state)) {
+      return { action: 'CLAIM', issueNumber: ticket.issueNumber, state: projection.state };
+    }
+    if (projection.state === 'CLAIMED') {
+      return { action: 'START', issueNumber: ticket.issueNumber, state: projection.state };
+    }
+    if (['CLAIM_PROPOSED', 'IN_PROGRESS'].includes(projection.state)) {
+      return { action: 'CONTINUE', issueNumber: ticket.issueNumber, state: projection.state };
+    }
+    return null;
+  }
+  if (machine === 'mac-a' && ticket.assignedMachine === 'mac-b'
+      && ['READY_TO_PLAY', 'NEEDS_HELP'].includes(projection.state)) {
+    return { action: 'CONSUME_TERMINAL', issueNumber: ticket.issueNumber, state: projection.state };
+  }
+  if (machine === 'mac-a' && ticket.assignedMachine === 'mac-b'
+      && projection.state === 'QUEUED') {
+    const queuedAt = Date.parse(projection.events.at(-1)?.occurredAt || '');
+    if (Number.isFinite(queuedAt) && observedAt - queuedAt >= OFFLINE_OBSERVATION_MS) {
+      return { action: 'MARK_OFFLINE', issueNumber: ticket.issueNumber, state: projection.state };
+    }
+  }
+  return null;
+}
+
+function wakePriority(left, right) {
+  const actionOrder = {
+    CONSUME_TERMINAL: 0, MARK_OFFLINE: 1, CLAIM: 2, START: 3, CONTINUE: 4, STOP: 5,
+  };
+  const byAction = (actionOrder[left.action] ?? 99) - (actionOrder[right.action] ?? 99);
+  if (byAction !== 0) return byAction;
+  const byPinned = (PRIORITY_ISSUES.get(left.issueNumber) ?? 99)
+    - (PRIORITY_ISSUES.get(right.issueNumber) ?? 99);
+  if (byPinned !== 0) return byPinned;
+  return left.issueNumber - right.issueNumber;
+}
+
+export function selectWakes(wakes, machine) {
+  const sorted = [...wakes].sort(wakePriority);
+  const safeErrors = sorted.filter((wake) => wake.action === 'STOP').slice(0, 10);
+  const terminal = machine === 'mac-a'
+    ? sorted.filter((wake) => wake.action === 'CONSUME_TERMINAL').slice(0, 10)
+    : [];
+  const monitoring = machine === 'mac-a'
+    ? sorted.filter((wake) => wake.action === 'MARK_OFFLINE').slice(0, 10)
+    : [];
+  const author = sorted.find((wake) => ['CLAIM', 'START', 'CONTINUE'].includes(wake.action));
+  return [...safeErrors, ...terminal, ...monitoring, ...(author ? [author] : [])];
+}
+
+async function loadProjection(transport, repo, issueNumber) {
+  return projectIssue(await transport.getIssue(repo, issueNumber));
+}
+
+async function appendOnce({ transport, repo, issueNumber, ticket, projection, event, apply }) {
+  const existing = projection.events.find((item) => item.idempotencyKey === event.idempotencyKey);
+  if (existing) {
+    if (existing.eventDigest !== event.eventDigest) throw new Error(`idempotency conflict for ${event.idempotencyKey}`);
+    return { posted: false, event: existing };
+  }
+  if (!apply) return { posted: false, event };
+  await transport.postComment(repo, issueNumber, [
+    `Bridge transition: \`${event.state}\``,
+    '',
+    encodeEventMarker(event, ticket),
+  ].join('\n'));
+  return { posted: true, event };
+}
+
+function now(clock) {
+  return clock().toISOString().replace(/\.\d{3}Z$/u, (value) => value);
+}
+
+export async function claimIssue({ transport, repo, issueNumber, machine, taskDigest, apply, clock = () => new Date() }) {
+  let current = await loadProjection(transport, repo, issueNumber);
+  const { ticket } = current;
+  if (ticket.assignedMachine !== machine || ticket.targetTaskDigest !== taskDigest) {
+    throw new Error('ticket is assigned to another machine or task');
+  }
+  if (current.projection.state === 'CLAIMED') {
+    if (!current.projection.executable) throw new Error('existing claim is not executable');
+    return { status: 'REUSE', projection: current.projection };
+  }
+  if (!['QUEUED', 'QUEUED:machine_offline', 'CLAIM_PROPOSED'].includes(current.projection.state)) {
+    throw new Error(`ticket is not claimable from ${current.projection.state}`);
+  }
+
+  if (current.projection.state !== 'CLAIM_PROPOSED') {
+    const proposed = createEvent({
+      ticket,
+      previous: current.projection.events.at(-1),
+      state: 'CLAIM_PROPOSED',
+      actorMachine: machine,
+      actorTaskDigest: taskDigest,
+      idempotencyKey: `claim-proposed:${ticketDigest(ticket).slice(0, 32)}`,
+      occurredAt: now(clock),
+    });
+    const result = await appendOnce({ transport, repo, issueNumber, ticket, projection: current.projection, event: proposed, apply });
+    if (!apply) return { status: 'DRY_RUN', nextEvent: result.event, projection: current.projection };
+    current = await loadProjection(transport, repo, issueNumber);
+    if (current.projection.lastEventDigest !== proposed.eventDigest) {
+      throw new Error('claim proposal was not the unique current event');
+    }
+  }
+
+  const confirmed = createEvent({
+    ticket,
+    previous: current.projection.events.at(-1),
+    state: 'CLAIMED',
+    actorMachine: machine,
+    actorTaskDigest: taskDigest,
+    idempotencyKey: `claim-confirmed:${ticketDigest(ticket).slice(0, 32)}`,
+    occurredAt: now(clock),
+  });
+  const result = await appendOnce({ transport, repo, issueNumber, ticket, projection: current.projection, event: confirmed, apply });
+  if (!apply) return { status: 'DRY_RUN', nextEvent: result.event, projection: current.projection };
+
+  const first = await loadProjection(transport, repo, issueNumber);
+  const second = await loadProjection(transport, repo, issueNumber);
+  if (!first.projection.executable || !second.projection.executable
+      || first.projection.lastEventDigest !== confirmed.eventDigest
+      || second.projection.lastEventDigest !== confirmed.eventDigest) {
+    throw new Error('claim confirmation did not survive two complete independent reads');
+  }
+  return { status: 'CLAIMED', projection: second.projection };
+}
+
+function transitionEvidence(options) {
+  if (options.state === 'READY_TO_PLAY') {
+    return [
+      {
+        kind: 'git_head',
+        identity: `${options.headRepository}@${options.headRef}:${options.headSha}`,
+        url: `https://github.com/${options.headRepository}/commit/${options.headSha}`,
+        sha256: null,
+      },
+      {
+        kind: 'candidate',
+        identity: `sha256:${options.candidateSha256}`,
+        url: options.candidateUrl,
+        sha256: options.candidateSha256,
+      },
+    ];
+  }
+  if (options.state === 'DONE') {
+    return [{ kind: 'telegram_receipt', identity: options.receiptId, url: null, sha256: null }];
+  }
+  return [];
+}
+
+async function verifyCandidateBytes(url, expectedSha256, fetchImpl) {
+  const response = await fetchImpl(url, { method: 'GET', redirect: 'error' });
+  if (!response.ok) throw new Error(`candidate returned HTTP ${response.status}`);
+  const contentLength = Number(response.headers?.get?.('content-length') ?? 0);
+  if (Number.isFinite(contentLength) && contentLength > 8 * 1024 * 1024) {
+    throw new Error('candidate exceeds the 8 MiB bridge evidence limit');
+  }
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (bytes.length > 8 * 1024 * 1024) throw new Error('candidate exceeds the 8 MiB bridge evidence limit');
+  const actual = sha256(bytes);
+  if (actual !== expectedSha256) {
+    throw new Error(`candidate bytes sha256 ${actual} do not match expected evidence`);
+  }
+}
+
+export async function advanceIssue({
+  transport,
+  options,
+  taskDigest,
+  bridgeCommit = null,
+  fetchImpl = fetch,
+  clock = () => new Date(),
+}) {
+  const current = await loadProjection(transport, options.repo, options.issue);
+  const { ticket, projection } = current;
+  if (options.machine === 'mac-a') {
+    const repositoryId = await transport.getRepositoryId(options.repo);
+    const bindings = machineBindingsFromIssue(
+      await transport.getIssue(options.repo, options.controlIssue),
+    );
+    const binding = bindings['mac-a'];
+    if (!binding || binding.taskDigest !== taskDigest
+        || binding.repositoryId !== repositoryId
+        || ticket.repositoryId !== repositoryId
+        || (bridgeCommit && binding.bridgeCommit !== bridgeCommit)) {
+      throw new Error('exact mac-a control binding is required for this transition');
+    }
+  }
+  if (options.state === 'READY_TO_PLAY') {
+    const remote = await transport.resolveRef(options.headRepository, options.headRef);
+    if (remote !== options.headSha) throw new Error(`remote ${options.headRef} is ${remote}, not ${options.headSha}`);
+    await verifyCandidateBytes(options.candidateUrl, options.candidateSha256, fetchImpl);
+  }
+  if (options.state !== 'DONE'
+      && options.state !== 'QUEUED:machine_offline'
+      && !(options.state === 'NEEDS_HELP' && ['task_missing', 'machine_offline'].includes(options.errorCode)
+        && options.machine === 'mac-a')
+      && (ticket.assignedMachine !== options.machine || ticket.targetTaskDigest !== taskDigest)) {
+    throw new Error('transition belongs to another machine or task');
+  }
+  const event = createEvent({
+    ticket,
+    previous: projection.events.at(-1),
+    state: options.state,
+    actorMachine: options.machine,
+    actorTaskDigest: taskDigest,
+    idempotencyKey: `${options.state.toLowerCase()}:${ticketDigest(ticket).slice(0, 32)}`,
+    occurredAt: now(clock),
+    evidence: transitionEvidence(options),
+    errorCode: options.errorCode,
+  });
+  const result = await appendOnce({
+    transport,
+    repo: options.repo,
+    issueNumber: options.issue,
+    ticket,
+    projection,
+    event,
+    apply: options.apply,
+  });
+  if (!options.apply) return { status: 'DRY_RUN', nextEvent: result.event, projection };
+  const verified = await loadProjection(transport, options.repo, options.issue);
+  if (verified.projection.lastEventDigest !== event.eventDigest) {
+    throw new Error('transition is not the unique current event after write');
+  }
+  return { status: 'APPLIED', projection: verified.projection };
+}
+
+export async function runCli(argv, {
+  env = process.env,
+  transport = createGitHubTransport(),
+  writeOut = (value) => process.stdout.write(value),
+  writeErr = (value) => process.stderr.write(value),
+  clock = () => new Date(),
+  fetchImpl = fetch,
+  resolveHead = () => resolveLocalHead(),
+} = {}) {
+  let options;
+  try {
+    options = parseArgs(argv);
+    if (options.help) { writeOut(USAGE); return 0; }
+    if (options.command === 'project') {
+      const result = await loadProjection(transport, options.repo, options.issue);
+      writeOut(`${JSON.stringify(result.projection, null, 2)}\n`);
+      return 0;
+    }
+    const taskDigest = deriveTaskDigest(env);
+    if (options.command === 'bootstrap') {
+      const result = await bootstrapMachine({
+        transport, repo: options.repo, controlIssue: options.controlIssue,
+        machine: options.machine, taskDigest, bridgeCommit: resolveHead(),
+        apply: options.apply, clock,
+      });
+      writeOut(`${JSON.stringify(result, null, 2)}\n`);
+      return 0;
+    }
+    if (options.command === 'bind-platform') {
+      const result = await bindPlatformIssue({
+        transport, repo: options.repo, issueNumber: options.issue,
+        controlIssue: options.controlIssue, taskDigest,
+        bridgeCommit: resolveHead(), apply: options.apply, clock,
+      });
+      writeOut(`${JSON.stringify(result, null, 2)}\n`);
+      return 0;
+    }
+    if (options.command === 'bind-generator') {
+      const result = await bindGeneratorIssue({
+        transport, repo: options.repo, issueNumber: options.issue,
+        controlIssue: options.controlIssue, requestId: options.requestId,
+        generatorUrl: options.generatorUrl, taskDigest,
+        bridgeCommit: resolveHead(), apply: options.apply, fetchImpl, clock,
+      });
+      writeOut(`${JSON.stringify(result, null, 2)}\n`);
+      return 0;
+    }
+    if (options.command === 'observe') {
+      const issues = await transport.listOpenIssues(options.repo);
+      const wakes = [];
+      for (const issue of issues) {
+        let result;
+        try { result = projectIssue(await transport.getIssue(options.repo, issue.number)); }
+        catch (error) {
+          if (/no Phase 0 ticket marker/u.test(error.message)) continue;
+          wakes.push({
+            action: 'STOP', code: 'issue_journal_invalid',
+            issueNumber: issue.number, issueUrl: issue.htmlUrl,
+          });
+          continue;
+        }
+        const wake = planWake({ ...result, machine: options.machine, taskDigest });
+        if (wake) wakes.push({
+          ...wake,
+          issueUrl: issue.htmlUrl,
+          ticketDigest: result.projection.ticketDigest,
+        });
+      }
+      const selected = selectWakes(wakes, options.machine);
+      writeOut(`${JSON.stringify({ schema: 'two-mac.bridge-observation.v1', machine: options.machine, wakes: selected }, null, 2)}\n`);
+      return selected.some((wake) => wake.action === 'STOP') ? 2 : 0;
+    }
+    if (options.command === 'claim') {
+      const result = await claimIssue({
+        transport, repo: options.repo, issueNumber: options.issue,
+        machine: options.machine, taskDigest, apply: options.apply, clock,
+      });
+      writeOut(`${JSON.stringify(result, null, 2)}\n`);
+      return 0;
+    }
+    const result = await advanceIssue({
+      transport, options, taskDigest, bridgeCommit: resolveHead(), fetchImpl, clock,
+    });
+    writeOut(`${JSON.stringify(result, null, 2)}\n`);
+    return 0;
+  } catch (error) {
+    writeErr(`STOP: ${error.message}\n`);
+    return 1;
+  }
+}
+
+function lockPath(repo, machine) {
+  return `/tmp/p4g-two-mac-bridge-${repo.replaceAll('/', '-')}-${machine}.lock`;
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  let parsed;
+  try { parsed = parseArgs(process.argv.slice(2)); } catch (error) {
+    process.stderr.write(`STOP: ${error.message}\n`);
+    process.exitCode = 1;
+  }
+  if (parsed && parsed.apply && ['bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(parsed.command) && !parsed.lockHeld) {
+    const args = [
+      '-t', '0', lockPath(parsed.repo, parsed.machine),
+      process.execPath, fileURLToPath(import.meta.url),
+      ...process.argv.slice(2), '--lock-held',
+    ];
+    const result = spawnSync('/usr/bin/lockf', args, { stdio: 'inherit' });
+    process.exitCode = typeof result.status === 'number' ? result.status : 1;
+  } else if (parsed) {
+    process.exitCode = await runCli(process.argv.slice(2));
+  }
+}
