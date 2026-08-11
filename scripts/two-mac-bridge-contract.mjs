@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 export const TICKET_SCHEMA = 'two-mac.bridge-ticket.v1';
 export const EVENT_SCHEMA = 'two-mac.bridge-event.v1';
 export const MACHINE_BINDING_SCHEMA = 'two-mac.bridge-machine-binding.v1';
+export const MACHINE_HOLD_SCHEMA = 'two-mac.bridge-machine-hold.v1';
 
 export const MACHINES = Object.freeze(['mac-a', 'mac-b']);
 export const STATES = Object.freeze([
@@ -11,6 +12,7 @@ export const STATES = Object.freeze([
   'CLAIM_PROPOSED',
   'CLAIMED',
   'IN_PROGRESS',
+  'HANDOFF_READY',
   'READY_TO_PLAY',
   'NEEDS_HELP',
   'DONE',
@@ -26,6 +28,7 @@ const EVENT_ID = /^evt_[0-9a-f]{64}$/u;
 const TICKET_KEYS = Object.freeze([
   'assignedMachine',
   'authority',
+  'callbackTaskDigest',
   'createdAt',
   'instruction',
   'issueNumber',
@@ -73,13 +76,26 @@ const MACHINE_BINDING_KEYS = Object.freeze([
   'schema',
   'taskDigest',
 ]);
+const MACHINE_HOLD_KEYS = Object.freeze([
+  'bindingDigest',
+  'bridgeCommit',
+  'controlIssue',
+  'heldAt',
+  'holdDigest',
+  'machine',
+  'reason',
+  'repositoryId',
+  'schema',
+  'taskDigest',
+]);
 
 const TRANSITIONS = new Map([
   ['QUEUED', new Set(['QUEUED:machine_offline', 'CLAIM_PROPOSED', 'NEEDS_HELP'])],
   ['QUEUED:machine_offline', new Set(['CLAIM_PROPOSED', 'NEEDS_HELP'])],
   ['CLAIM_PROPOSED', new Set(['CLAIMED', 'NEEDS_HELP'])],
   ['CLAIMED', new Set(['IN_PROGRESS', 'NEEDS_HELP'])],
-  ['IN_PROGRESS', new Set(['READY_TO_PLAY', 'NEEDS_HELP'])],
+  ['IN_PROGRESS', new Set(['HANDOFF_READY', 'READY_TO_PLAY', 'NEEDS_HELP'])],
+  ['HANDOFF_READY', new Set(['READY_TO_PLAY', 'NEEDS_HELP'])],
   ['READY_TO_PLAY', new Set(['DONE'])],
   ['NEEDS_HELP', new Set(['DONE'])],
   ['DONE', new Set()],
@@ -172,6 +188,13 @@ export function validateTicket(ticket) {
   if (!SHA256.test(String(ticket.targetTaskDigest || ''))) {
     throw new Error('targetTaskDigest is invalid');
   }
+  if (ticket.assignedMachine === 'mac-b') {
+    if (!SHA256.test(String(ticket.callbackTaskDigest || ''))) {
+      throw new Error('Mac B ticket callbackTaskDigest is invalid');
+    }
+  } else if (ticket.callbackTaskDigest !== null) {
+    throw new Error('Mac A ticket callbackTaskDigest must be null');
+  }
   if (typeof ticket.instruction !== 'string'
       || ticket.instruction.length < 1
       || Buffer.byteLength(ticket.instruction, 'utf8') > 16_384
@@ -233,6 +256,50 @@ export function createMachineBinding({
   return validateMachineBinding(binding);
 }
 
+function expectedMachineHoldDigest(hold) {
+  return digestObject(hold, new Set(['holdDigest']));
+}
+
+export function validateMachineHold(hold) {
+  exactKeys(hold, MACHINE_HOLD_KEYS, 'machine hold');
+  if (hold.schema !== MACHINE_HOLD_SCHEMA) throw new Error('machine hold schema is invalid');
+  if (!Number.isSafeInteger(hold.controlIssue) || hold.controlIssue < 1) {
+    throw new Error('machine hold controlIssue must be a positive strict integer');
+  }
+  if (typeof hold.repositoryId !== 'string' || !/^[1-9][0-9]{0,31}$/u.test(hold.repositoryId)) {
+    throw new Error('machine hold repositoryId is invalid');
+  }
+  if (!MACHINES.includes(hold.machine)) throw new Error('machine hold machine is invalid');
+  if (!SHA256.test(String(hold.taskDigest || ''))) throw new Error('machine hold taskDigest is invalid');
+  if (!GIT_SHA.test(String(hold.bridgeCommit || ''))) throw new Error('machine hold bridgeCommit is invalid');
+  if (!SHA256.test(String(hold.bindingDigest || ''))) throw new Error('machine hold bindingDigest is invalid');
+  if (hold.reason !== 'superseded_bridge_commit') throw new Error('machine hold reason is invalid');
+  canonicalInstant(hold.heldAt, 'heldAt');
+  if (!SHA256.test(String(hold.holdDigest || ''))
+      || hold.holdDigest !== expectedMachineHoldDigest(hold)) {
+    throw new Error('machine hold digest does not match hold bytes');
+  }
+  return hold;
+}
+
+export function createMachineHold({ binding, heldAt }) {
+  validateMachineBinding(binding);
+  const hold = {
+    schema: MACHINE_HOLD_SCHEMA,
+    controlIssue: binding.controlIssue,
+    repositoryId: binding.repositoryId,
+    machine: binding.machine,
+    taskDigest: binding.taskDigest,
+    bridgeCommit: binding.bridgeCommit,
+    bindingDigest: binding.bindingDigest,
+    reason: 'superseded_bridge_commit',
+    heldAt,
+    holdDigest: '',
+  };
+  hold.holdDigest = expectedMachineHoldDigest(hold);
+  return validateMachineHold(hold);
+}
+
 function validateEvidence(evidence) {
   if (!Array.isArray(evidence) || evidence.length > 16) {
     throw new Error('evidence must be an array with at most 16 entries');
@@ -259,6 +326,39 @@ function validateEvidence(evidence) {
     }
     if (item.sha256 !== null && !SHA256.test(String(item.sha256))) {
       throw new Error(`evidence[${index}].sha256 is invalid`);
+    }
+  }
+}
+
+function oneEvidence(event, kind) {
+  const matches = event.evidence.filter((item) => item.kind === kind);
+  if (matches.length !== 1) throw new Error(`${event.state} requires exactly one ${kind} evidence`);
+  return matches[0];
+}
+
+function validateStateEvidence(event) {
+  if (event.state === 'HANDOFF_READY') {
+    if (event.evidence.length !== 1) {
+      throw new Error('HANDOFF_READY requires only exact git_head evidence');
+    }
+    const head = oneEvidence(event, 'git_head');
+    if (head.sha256 !== null || !/@[^:]+:[0-9a-f]{40}$/u.test(head.identity)) {
+      throw new Error('HANDOFF_READY git_head evidence is invalid');
+    }
+  }
+  if (event.state === 'READY_TO_PLAY') {
+    if (event.evidence.length !== 2) {
+      throw new Error('READY_TO_PLAY requires exact git_head and candidate evidence');
+    }
+    const head = oneEvidence(event, 'git_head');
+    const candidate = oneEvidence(event, 'candidate');
+    if (head.sha256 !== null || !/@[^:]+:[0-9a-f]{40}$/u.test(head.identity)) {
+      throw new Error('READY_TO_PLAY git_head evidence is invalid');
+    }
+    if (!SHA256.test(String(candidate.sha256 || ''))
+        || candidate.identity !== `sha256:${candidate.sha256}`
+        || !String(candidate.url || '').startsWith('https://')) {
+      throw new Error('READY_TO_PLAY candidate evidence is invalid');
     }
   }
 }
@@ -290,6 +390,7 @@ export function validateEvent(event, ticket) {
   if (!SAFE_ID.test(String(event.idempotencyKey || ''))) throw new Error('idempotencyKey is invalid');
   canonicalInstant(event.occurredAt, 'occurredAt');
   validateEvidence(event.evidence);
+  validateStateEvidence(event);
   if (event.errorCode !== null && !ERROR_CODE.test(String(event.errorCode))) {
     throw new Error('errorCode is invalid');
   }
@@ -298,15 +399,32 @@ export function validateEvent(event, ticket) {
     validateTicket(ticket);
     if (event.ticketDigest !== ticketDigest(ticket)) throw new Error('event belongs to another ticket');
     if (event.assignedMachine !== ticket.assignedMachine) throw new Error('event route differs from ticket route');
-    if (['CLAIM_PROPOSED', 'CLAIMED', 'IN_PROGRESS', 'READY_TO_PLAY'].includes(event.state)
+    if (['CLAIM_PROPOSED', 'CLAIMED', 'IN_PROGRESS'].includes(event.state)
         && (event.actorMachine !== ticket.assignedMachine
           || event.actorTaskDigest !== ticket.targetTaskDigest)) {
       throw new Error('assigned execution event has the wrong machine or task binding');
     }
-    if (event.state === 'NEEDS_HELP'
-        && !['task_missing', 'machine_offline'].includes(event.errorCode)
-        && (event.actorMachine !== ticket.assignedMachine
+    if (event.state === 'HANDOFF_READY'
+        && (ticket.assignedMachine !== 'mac-b'
+          || event.actorMachine !== 'mac-b'
           || event.actorTaskDigest !== ticket.targetTaskDigest)) {
+      throw new Error('HANDOFF_READY requires the assigned Mac B task');
+    }
+    const terminalMachine = ticket.assignedMachine === 'mac-b' ? 'mac-a' : ticket.assignedMachine;
+    const terminalTaskDigest = ticket.assignedMachine === 'mac-b'
+      ? ticket.callbackTaskDigest
+      : ticket.targetTaskDigest;
+    if (event.state === 'READY_TO_PLAY'
+        && (event.actorMachine !== terminalMachine
+          || event.actorTaskDigest !== terminalTaskDigest)) {
+      throw new Error('READY_TO_PLAY has the wrong machine or task binding');
+    }
+    if (event.state === 'NEEDS_HELP'
+        && !((event.actorMachine === ticket.assignedMachine
+            && event.actorTaskDigest === ticket.targetTaskDigest)
+          || (ticket.assignedMachine === 'mac-b'
+            && event.actorMachine === 'mac-a'
+            && event.actorTaskDigest === ticket.callbackTaskDigest))) {
       throw new Error('execution NEEDS_HELP has the wrong machine or task binding');
     }
   }
@@ -377,6 +495,24 @@ function validateTransition(previous, event, ticket) {
   }
   if (!TRANSITIONS.get(previous.state)?.has(event.state)) {
     throw new Error(`invalid transition ${previous.state} -> ${event.state}`);
+  }
+  if (event.state === 'HANDOFF_READY' && ticket.assignedMachine !== 'mac-b') {
+    throw new Error('HANDOFF_READY is only valid for Mac B tickets');
+  }
+  if (ticket.assignedMachine === 'mac-b' && event.state === 'READY_TO_PLAY') {
+    if (previous.state !== 'HANDOFF_READY') {
+      throw new Error('Mac A READY_TO_PLAY requires HANDOFF_READY');
+    }
+    const handedOffHead = oneEvidence(previous, 'git_head');
+    const hostedHead = oneEvidence(event, 'git_head');
+    if (canonicalJson(handedOffHead) !== canonicalJson(hostedHead)) {
+      throw new Error('Mac A READY_TO_PLAY must attest the exact handed-off git_head');
+    }
+  }
+  if (previous.state === 'HANDOFF_READY' && event.state === 'NEEDS_HELP'
+      && (event.actorMachine !== 'mac-a'
+        || event.actorTaskDigest !== ticket.callbackTaskDigest)) {
+    throw new Error('post-handoff NEEDS_HELP requires the exact Mac A callback task');
   }
   if (event.state === 'QUEUED:machine_offline' && event.errorCode !== 'machine_offline') {
     throw new Error('machine_offline projection requires matching errorCode');
@@ -481,6 +617,11 @@ export function encodeMachineBindingMarker(binding) {
   return encodeMarker('machine-binding', binding);
 }
 
+export function encodeMachineHoldMarker(hold) {
+  validateMachineHold(hold);
+  return encodeMarker('machine-hold', hold);
+}
+
 export function decodeTicketMarkers(body) {
   return decodeMarkers(body, 'ticket').map(validateTicket);
 }
@@ -493,22 +634,56 @@ export function decodeMachineBindingMarkers(body) {
   return decodeMarkers(body, 'machine-binding').map(validateMachineBinding);
 }
 
-export function projectMachineBindings(controlIssueNumber, bodies) {
+export function decodeMachineHoldMarkers(body) {
+  return decodeMarkers(body, 'machine-hold').map(validateMachineHold);
+}
+
+export function projectMachineBindingState(controlIssueNumber, bodies) {
   if (!Number.isSafeInteger(controlIssueNumber) || controlIssueNumber < 1) {
     throw new Error('controlIssueNumber must be a positive strict integer');
   }
   if (!Array.isArray(bodies)) throw new Error('machine binding bodies must be an array');
-  const all = bodies.flatMap(decodeMachineBindingMarkers);
-  const result = {};
-  for (const binding of all) {
+
+  const bindings = new Map();
+  for (const binding of bodies.flatMap(decodeMachineBindingMarkers)) {
     if (binding.controlIssue !== controlIssueNumber) {
       throw new Error('machine binding belongs to another control Issue');
     }
-    const existing = result[binding.machine];
-    if (existing && existing.bindingDigest !== binding.bindingDigest) {
-      throw new Error(`conflicting ${binding.machine} machine bindings`);
-    }
-    result[binding.machine] = binding;
+    bindings.set(binding.bindingDigest, binding);
   }
-  return result;
+
+  const holds = new Map();
+  for (const hold of bodies.flatMap(decodeMachineHoldMarkers)) {
+    if (hold.controlIssue !== controlIssueNumber) {
+      throw new Error('machine hold belongs to another control Issue');
+    }
+    const binding = bindings.get(hold.bindingDigest);
+    if (!binding
+        || binding.repositoryId !== hold.repositoryId
+        || binding.machine !== hold.machine
+        || binding.taskDigest !== hold.taskDigest
+        || binding.bridgeCommit !== hold.bridgeCommit) {
+      throw new Error('machine hold does not match one exact durable binding');
+    }
+    holds.set(hold.bindingDigest, hold);
+  }
+
+  const active = {};
+  const held = {};
+  for (const binding of bindings.values()) {
+    if (holds.has(binding.bindingDigest)) {
+      held[binding.bindingDigest] = binding;
+      continue;
+    }
+    const existing = active[binding.machine];
+    if (existing && existing.bindingDigest !== binding.bindingDigest) {
+      throw new Error(`conflicting active ${binding.machine} machine bindings`);
+    }
+    active[binding.machine] = binding;
+  }
+  return { active, held, holds: [...holds.values()] };
+}
+
+export function projectMachineBindings(controlIssueNumber, bodies) {
+  return projectMachineBindingState(controlIssueNumber, bodies).active;
 }
