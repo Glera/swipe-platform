@@ -12,6 +12,11 @@
   durable ticket/transport; один bounded heartbeat возобновляет ту же локальную
   Codex-задачу. General scheduler/runner, remote-command API, provider picker,
   merge queue, repo lease и shared task DB запрещены.
+- Cross-account Codex Remote оказался неприменим. Текущий bounded correction —
+  Issue-only Mac B wake adapter: один fixed action marker без prompt/command,
+  exact binding/task/bridge/wake CAS, loopback resume только существующей task,
+  append-only CLAIM/terminal receipts и один attended install с checksum.
+  Активный cadence 2m, idle 15m; это не general runner и не новая owner task.
 - Phase 0 frozen D3–D7 как append-only Issue event chain с exact
   ticket/request/parent/source identity, machine/task binding, replay-safe
   idempotency и fail-closed fork/stale detection. До подтверждённого claim после

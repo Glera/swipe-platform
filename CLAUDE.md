@@ -82,6 +82,12 @@
   shared task DB или agent platform. In-chat heartbeat — trigger существующей
   задачи, не новый execution service. `swipe-agents` остаётся отдельным no-LLM
   production-ops контуром.
+- Cross-account Mac A/Mac B не используют Codex Remote. Единственный bounded
+  wake-adapter — reviewed local Mac B LaunchAgent, который читает только bound
+  markers Issue #94, требует exact repository/binding/task/bridge/wake CAS и
+  через loopback App Server возобновляет ровно существующую owner task. Marker
+  не несёт free-text prompt/command, raw task ID не сохраняется; cadence — 2m
+  active и 15m idle. Это не разрешение на general runner или новую task.
 - Создание/ротация credentials, settings/permissions, flag activation,
   destructive action и publication требуют одного consolidated operator
   window. Обычные bounded merges/deploys без таких изменений следуют текущим

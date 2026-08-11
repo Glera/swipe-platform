@@ -92,8 +92,8 @@ stale parent, sequence gap, route mismatch или task mismatch fail closed.
 ## 5. Host/credential boundary (D4)
 
 Один exact meta script выполняет только один observation/transition pass и
-завершается. In-chat Codex heartbeat — существующий trigger той же задачи, не
-daemon/scheduler/runner. CLI:
+завершается. In-chat Codex heartbeat — основной trigger той же задачи, не
+generic daemon/scheduler/runner. CLI:
 
 - использует только allowlisted meta repository Issues;
 - получает task identity из локального `CODEX_THREAD_ID`, хранит/показывает
@@ -122,6 +122,45 @@ authority decision; Phase 0 не создаёт новую task и не угад
 или state file не нужен. Credential/permission/setting creation или activation
 — отдельное consolidated operator window. Mac B не получает production или
 Telegram credentials.
+
+### D4.1. Cross-account Issue-only wake
+
+Два Mac работают под разными ChatGPT accounts, поэтому Codex Remote pairing не
+является доступным transport. Operator GO 11.08.2026 разрешает ровно одно
+узкое исключение из запрета фонового runner: локальный Mac B LaunchAgent
+`com.glera.p4g-two-mac-issue-wake`, который исполняет один reviewed
+Issue-observation pass и может возобновить только уже bound owner task.
+
+- Mac A пишет `two-mac.issue-wake.v1` только в control Issue #94 и только из
+  exact bound Mac A task. В marker нет prompt/command/free text: action — один
+  enum `OBSERVE_ASSIGNED_QUEUE`, а source comments связаны ID и SHA-256 exact
+  bytes.
+- Wake одновременно связан с repository ID, Mac B binding/task digest,
+  неизменным Phase 0 bridge commit и exact reviewed wake commit. Любое
+  расхождение, изменённый source comment, второй pending wake или expiry
+  fail closed.
+- Локальный watcher получает список уже сохранённых Codex tasks через
+  loopback stdio App Server, хэширует ID и требует ровно одно совпадение с
+  bound task digest. Raw task ID не сохраняется в config/Issue и не
+  принимается CLI-параметром. `thread/resume` + `turn/start` получают только
+  фиксированный reviewed wake prompt; Issue prose и unbound comments не
+  являются командами.
+- Перед turn создаётся ровно один append-only `CLAIM`; owner task завершает
+  wake одним `DONE | STOP | NEEDS_HELP` receipt, связанным с exact CLAIM.
+  Task missing, app-server failure, stranded CLAIM и terminal без receipt дают
+  typed failure без автоматического retry или новой task.
+- Один attended install выполняется из clean detached exact wake commit внутри
+  существующей Mac B owner task, выводит SHA-256 script/contract/plist/config и
+  сам пишет durable install receipt. Используются только уже существующие
+  локальные GitHub CLI и Codex auth; credential value не читается и не
+  переносится.
+- LaunchAgent запускает короткий pass каждые 2 минуты при active rollout.
+  После terminal/empty queue локальный cadence gate обращается к GitHub не
+  чаще одного раза в 15 минут. Это не shared task DB: локально хранится только
+  проверяемый install contract и следующий observation timestamp.
+- Rollback — `launchctl bootout` одного label. Config/plist и все Issue markers
+  остаются inert evidence; binding, owner task и bridge journal не удаляются и
+  не переписываются.
 
 Race receipt до введения этого контракта сохранён append-only:
 [Issue #94 comment 5251171648](https://github.com/Glera/p4g-workspace-meta/issues/94#issuecomment-5251171648),
@@ -176,7 +215,8 @@ Terminal Mac B callback становится Issue event. Следующий Mac
 
 ## 9. Explicit non-scope
 
-- background/general runner or scheduler;
+- background/general runner or scheduler; единственное исключение — exact-task
+  Issue-only wake adapter из D4.1;
 - arbitrary remote-command API;
 - AI router, provider/subscription/quota optimizer;
 - distributed lease/repo lock/merge queue/shared task DB;
@@ -206,5 +246,6 @@ Phase 0 `DONE` только после:
 
 Любая новая credential/permission/setting, destructive action, unplanned
 migration/restart или publication authority даёт STOP и один consolidated
-operator window. Rollback bridge — выключить два local heartbeat; Issues и
-events остаются inert evidence, ничего не удаляется и не переписывается.
+operator window. Rollback bridge — выключить два local heartbeat и bootout
+одного D4.1 LaunchAgent; Issues и events остаются inert evidence, ничего не
+удаляется и не переписывается.
