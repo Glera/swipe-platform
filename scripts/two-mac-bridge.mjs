@@ -9,14 +9,18 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import {
+  canonicalJson,
   createMachineBinding,
+  createMachineHold,
   createEvent,
   decodeEventMarkers,
   encodeMachineBindingMarker,
+  encodeMachineHoldMarker,
   decodeTicketMarkers,
   encodeEventMarker,
   encodeTicketMarker,
   projectJournal,
+  projectMachineBindingState,
   projectMachineBindings,
   sha256,
   ticketDigest,
@@ -28,6 +32,7 @@ const GIT_SHA = /^[0-9a-f]{40}$/u;
 const ERROR_CODE = /^[a-z][a-z0-9_]{2,95}$/u;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
 const REF = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,239}$/u;
+const CONTENT_HEAD_REPOSITORIES = new Set(['Glera/playables', 'Glera/swipe-generator']);
 const PRIORITY_ISSUES = new Map([[91, 0], [82, 1]]);
 const DEFAULT_CONTROL_ISSUE = 94;
 const DEFAULT_GENERATOR_URL = 'http://127.0.0.1:4317/v1/playable-releases';
@@ -35,19 +40,21 @@ const OFFLINE_OBSERVATION_MS = 15 * 60 * 1000;
 
 const USAGE = `Usage:
   node scripts/two-mac-bridge.mjs project --issue N [--repo OWNER/REPO]
-  node scripts/two-mac-bridge.mjs observe --machine mac-a|mac-b [--repo OWNER/REPO]
+  node scripts/two-mac-bridge.mjs observe --machine mac-a|mac-b \\
+    [--control-issue N] [--repo OWNER/REPO]
   node scripts/two-mac-bridge.mjs bootstrap --machine mac-a|mac-b \\
-    [--control-issue N] [--apply]
+    [--control-issue N] [--supersede-binding-digest SHA256] [--apply]
   node scripts/two-mac-bridge.mjs bind-platform --issue N --machine mac-a \\
     [--control-issue N] [--apply]
   node scripts/two-mac-bridge.mjs bind-generator --issue N --machine mac-a \\
     --request-id REQUEST_ID [--control-issue N] [--generator-url LOOPBACK_URL] [--apply]
   node scripts/two-mac-bridge.mjs claim --issue N --machine mac-a|mac-b [--apply]
   node scripts/two-mac-bridge.mjs advance --issue N --machine mac-a|mac-b \\
-    --state QUEUED:machine_offline|IN_PROGRESS|READY_TO_PLAY|NEEDS_HELP|DONE \\
+    --state QUEUED:machine_offline|IN_PROGRESS|HANDOFF_READY|READY_TO_PLAY|NEEDS_HELP|DONE \\
     [state evidence] [--apply]
 
 State evidence:
+  HANDOFF_READY  --head-repository OWNER/REPO --head-ref BRANCH --head-sha SHA
   READY_TO_PLAY  --head-repository OWNER/REPO --head-ref BRANCH --head-sha SHA \\
                  --candidate-url HTTPS_URL --candidate-sha256 SHA256
   NEEDS_HELP     --error-code CODE
@@ -79,6 +86,7 @@ export function parseArgs(argv) {
     receiptId: null,
     controlIssue: DEFAULT_CONTROL_ISSUE,
     requestId: null,
+    supersedeBindingDigest: null,
     generatorUrl: DEFAULT_GENERATOR_URL,
     apply: false,
     help: false,
@@ -114,6 +122,8 @@ export function parseArgs(argv) {
       options.controlIssue = Number(takeValue(rest, index, arg)); index += 1;
     } else if (arg === '--request-id') {
       options.requestId = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--supersede-binding-digest') {
+      options.supersedeBindingDigest = takeValue(rest, index, arg).toLowerCase(); index += 1;
     } else if (arg === '--generator-url') {
       options.generatorUrl = takeValue(rest, index, arg); index += 1;
     } else if (arg === '--apply') {
@@ -140,9 +150,13 @@ export function parseArgs(argv) {
       && !['mac-a', 'mac-b'].includes(options.machine)) {
     throw new Error('--machine must be mac-a or mac-b');
   }
-  if (['bootstrap', 'bind-platform', 'bind-generator'].includes(options.command)
+  if (['observe', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)
       && (!Number.isSafeInteger(options.controlIssue) || options.controlIssue < 1)) {
     throw new Error('--control-issue must be a positive strict integer');
+  }
+  if (options.supersedeBindingDigest !== null
+      && (options.command !== 'bootstrap' || !SHA256.test(options.supersedeBindingDigest))) {
+    throw new Error('--supersede-binding-digest is valid only for bootstrap and must be SHA-256');
   }
   if (options.command === 'bind-platform' && options.machine !== 'mac-a') {
     throw new Error('bind-platform is a Mac A command');
@@ -157,13 +171,15 @@ export function parseArgs(argv) {
 }
 
 function validateAdvanceOptions(options) {
-  if (!['QUEUED:machine_offline', 'IN_PROGRESS', 'READY_TO_PLAY', 'NEEDS_HELP', 'DONE'].includes(options.state)) {
+  if (!['QUEUED:machine_offline', 'IN_PROGRESS', 'HANDOFF_READY', 'READY_TO_PLAY', 'NEEDS_HELP', 'DONE'].includes(options.state)) {
     throw new Error('--state is invalid for advance');
   }
-  if (options.state === 'READY_TO_PLAY') {
+  if (['HANDOFF_READY', 'READY_TO_PLAY'].includes(options.state)) {
     if (!REPOSITORY.test(String(options.headRepository || ''))) throw new Error('--head-repository is required');
     if (!validRef(options.headRef)) throw new Error('--head-ref is invalid');
     if (!GIT_SHA.test(String(options.headSha || ''))) throw new Error('--head-sha must be a full lowercase SHA');
+  }
+  if (options.state === 'READY_TO_PLAY') {
     let parsed;
     try { parsed = new URL(options.candidateUrl); } catch { throw new Error('--candidate-url is invalid'); }
     if (parsed.protocol !== 'https:') throw new Error('--candidate-url must use HTTPS');
@@ -311,6 +327,35 @@ function machineBindingsFromIssue(issue) {
   );
 }
 
+function machineBindingStateFromIssue(issue) {
+  return projectMachineBindingState(
+    issue.number,
+    [issue.body, ...(issue.comments || []).map((comment) => comment.body)],
+  );
+}
+
+async function requireExactMachineBinding({
+  transport,
+  repo,
+  controlIssue,
+  machine,
+  taskDigest,
+  bridgeCommit,
+  ticketRepositoryId = null,
+}) {
+  const repositoryId = await transport.getRepositoryId(repo);
+  const state = machineBindingStateFromIssue(await transport.getIssue(repo, controlIssue));
+  const binding = state.active[machine];
+  if (!binding
+      || binding.taskDigest !== taskDigest
+      || binding.bridgeCommit !== bridgeCommit
+      || binding.repositoryId !== repositoryId
+      || (ticketRepositoryId !== null && ticketRepositoryId !== repositoryId)) {
+    throw new Error(`exact active ${machine} machine binding is required`);
+  }
+  return { binding, repositoryId, state };
+}
+
 function resolveLocalHead(cwd = process.cwd()) {
   const result = spawnSync('git', ['rev-parse', 'HEAD'], {
     cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
@@ -327,6 +372,7 @@ export async function bootstrapMachine({
   machine,
   taskDigest,
   bridgeCommit,
+  supersedeBindingDigest = null,
   apply,
   clock = () => new Date(),
 }) {
@@ -334,29 +380,66 @@ export async function bootstrapMachine({
   if (remote !== bridgeCommit) throw new Error(`bridge bootstrap requires exact ${repo}/master ${remote}`);
   const repositoryId = await transport.getRepositoryId(repo);
   const issue = await transport.getIssue(repo, controlIssue);
-  const bindings = machineBindingsFromIssue(issue);
-  const existing = bindings[machine];
+  let state = machineBindingStateFromIssue(issue);
+  const existing = state.active[machine];
   if (existing) {
-    if (existing.taskDigest !== taskDigest || existing.bridgeCommit !== bridgeCommit
-        || existing.repositoryId !== repositoryId) {
-      throw new Error(`conflicting ${machine} bootstrap already exists`);
+    if (existing.taskDigest === taskDigest && existing.bridgeCommit === bridgeCommit
+        && existing.repositoryId === repositoryId) {
+      if (supersedeBindingDigest) {
+        const held = state.held[supersedeBindingDigest];
+        if (!held || held.machine !== machine || held.taskDigest !== taskDigest
+            || held.repositoryId !== repositoryId) {
+          throw new Error(`superseded ${machine} binding is not exact durable HOLD evidence`);
+        }
+      }
+      return { status: 'REUSE', binding: existing, held: state.held };
     }
-    return { status: 'REUSE', binding: existing };
+    if (!supersedeBindingDigest) {
+      throw new Error(`active ${machine} binding requires explicit machine-readable supersession`);
+    }
+    if (existing.bindingDigest !== supersedeBindingDigest
+        || existing.taskDigest !== taskDigest
+        || existing.repositoryId !== repositoryId) {
+      throw new Error(`superseded ${machine} binding does not match the exact local task and repository`);
+    }
   }
+  const previouslyHeld = supersedeBindingDigest ? state.held[supersedeBindingDigest] : null;
+  if (!existing && supersedeBindingDigest
+      && (!previouslyHeld
+        || previouslyHeld.machine !== machine
+        || previouslyHeld.taskDigest !== taskDigest
+        || previouslyHeld.repositoryId !== repositoryId)) {
+    throw new Error(`superseded ${machine} binding is not exact durable HOLD evidence`);
+  }
+
   const binding = createMachineBinding({
     controlIssue, repositoryId, machine, taskDigest, bridgeCommit,
     registeredAt: now(clock),
   });
-  if (!apply) return { status: 'DRY_RUN', binding };
+  const hold = existing ? createMachineHold({ binding: existing, heldAt: now(clock) }) : null;
+  if (!apply) return { status: 'DRY_RUN', binding, hold, held: state.held };
+  if (hold) {
+    await transport.postComment(repo, controlIssue, [
+      `Phase 0 machine-readable HOLD: \`${machine}\``, '',
+      encodeMachineHoldMarker(hold),
+    ].join('\n'));
+    state = machineBindingStateFromIssue(await transport.getIssue(repo, controlIssue));
+    if (state.active[machine]
+        || state.held[existing.bindingDigest]?.bindingDigest !== existing.bindingDigest) {
+      throw new Error('stale machine binding did not become one exact durable HOLD');
+    }
+  }
   await transport.postComment(repo, controlIssue, [
     `Phase 0 local binding: \`${machine}\``, '',
     encodeMachineBindingMarker(binding),
   ].join('\n'));
-  const verified = machineBindingsFromIssue(await transport.getIssue(repo, controlIssue));
-  if (verified[machine]?.bindingDigest !== binding.bindingDigest) {
+  const verified = machineBindingStateFromIssue(await transport.getIssue(repo, controlIssue));
+  if (verified.active[machine]?.bindingDigest !== binding.bindingDigest
+      || (supersedeBindingDigest
+        && verified.held[supersedeBindingDigest]?.bindingDigest !== supersedeBindingDigest)) {
     throw new Error('machine binding is not uniquely durable after write');
   }
-  return { status: 'BOOTSTRAPPED', binding: verified[machine] };
+  return { status: 'BOOTSTRAPPED', binding: verified.active[machine], held: verified.held };
 }
 
 function exactGeneratorRecord(records, requestId, label) {
@@ -366,7 +449,14 @@ function exactGeneratorRecord(records, requestId, label) {
   return matches[0];
 }
 
-export function deriveGeneratorTicket({ snapshot, issueNumber, repositoryId, requestId, targetTaskDigest }) {
+export function deriveGeneratorTicket({
+  snapshot,
+  issueNumber,
+  repositoryId,
+  requestId,
+  targetTaskDigest,
+  callbackTaskDigest,
+}) {
   if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) {
     throw new Error('Generator projection is invalid');
   }
@@ -411,6 +501,7 @@ export function deriveGeneratorTicket({ snapshot, issueNumber, repositoryId, req
     assignedMachine: 'mac-b',
     authority: 'content-factory',
     targetTaskDigest,
+    callbackTaskDigest,
     instruction: request.instruction,
     createdAt,
   };
@@ -479,6 +570,7 @@ export async function bindGeneratorIssue({
   const ticket = deriveGeneratorTicket({
     snapshot, issueNumber, repositoryId, requestId,
     targetTaskDigest: bindings['mac-b'].taskDigest,
+    callbackTaskDigest: bindings['mac-a'].taskDigest,
   });
   const queued = createEvent({
     ticket,
@@ -535,6 +627,7 @@ export function derivePlatformTicket({ issue, repositoryId, targetTaskDigest }) 
     assignedMachine: 'mac-a',
     authority: 'product-control-plane',
     targetTaskDigest,
+    callbackTaskDigest: null,
     instruction: decodeBackendInstruction(requestSection.slice(2)),
     createdAt: requestedAt,
   };
@@ -628,6 +721,14 @@ export function planWake({ ticket, projection, machine, taskDigest, observedAt =
     return null;
   }
   if (machine === 'mac-a' && ticket.assignedMachine === 'mac-b'
+      && ticket.callbackTaskDigest !== taskDigest) {
+    return { action: 'STOP', code: 'callback_binding_mismatch', issueNumber: ticket.issueNumber };
+  }
+  if (machine === 'mac-a' && ticket.assignedMachine === 'mac-b'
+      && projection.state === 'HANDOFF_READY') {
+    return { action: 'HOST_RUNTIME', issueNumber: ticket.issueNumber, state: projection.state };
+  }
+  if (machine === 'mac-a' && ticket.assignedMachine === 'mac-b'
       && ['READY_TO_PLAY', 'NEEDS_HELP'].includes(projection.state)) {
     return { action: 'CONSUME_TERMINAL', issueNumber: ticket.issueNumber, state: projection.state };
   }
@@ -643,7 +744,8 @@ export function planWake({ ticket, projection, machine, taskDigest, observedAt =
 
 function wakePriority(left, right) {
   const actionOrder = {
-    CONSUME_TERMINAL: 0, MARK_OFFLINE: 1, CLAIM: 2, START: 3, CONTINUE: 4, STOP: 5,
+    CONSUME_TERMINAL: 0, HOST_RUNTIME: 1, MARK_OFFLINE: 2,
+    CLAIM: 3, START: 4, CONTINUE: 5, STOP: 6,
   };
   const byAction = (actionOrder[left.action] ?? 99) - (actionOrder[right.action] ?? 99);
   if (byAction !== 0) return byAction;
@@ -662,8 +764,16 @@ export function selectWakes(wakes, machine) {
   const monitoring = machine === 'mac-a'
     ? sorted.filter((wake) => wake.action === 'MARK_OFFLINE').slice(0, 10)
     : [];
+  const hosting = machine === 'mac-a'
+    ? sorted.find((wake) => wake.action === 'HOST_RUNTIME')
+    : null;
   const author = sorted.find((wake) => ['CLAIM', 'START', 'CONTINUE'].includes(wake.action));
-  return [...safeErrors, ...terminal, ...monitoring, ...(author ? [author] : [])];
+  return [
+    ...safeErrors,
+    ...terminal,
+    ...monitoring,
+    ...(hosting ? [hosting] : (author ? [author] : [])),
+  ];
 }
 
 async function loadProjection(transport, repo, issueNumber) {
@@ -689,9 +799,23 @@ function now(clock) {
   return clock().toISOString().replace(/\.\d{3}Z$/u, (value) => value);
 }
 
-export async function claimIssue({ transport, repo, issueNumber, machine, taskDigest, apply, clock = () => new Date() }) {
+export async function claimIssue({
+  transport,
+  repo,
+  issueNumber,
+  controlIssue,
+  machine,
+  taskDigest,
+  bridgeCommit,
+  apply,
+  clock = () => new Date(),
+}) {
   let current = await loadProjection(transport, repo, issueNumber);
   const { ticket } = current;
+  await requireExactMachineBinding({
+    transport, repo, controlIssue, machine, taskDigest, bridgeCommit,
+    ticketRepositoryId: ticket.repositoryId,
+  });
   if (ticket.assignedMachine !== machine || ticket.targetTaskDigest !== taskDigest) {
     throw new Error('ticket is assigned to another machine or task');
   }
@@ -744,21 +868,22 @@ export async function claimIssue({ transport, repo, issueNumber, machine, taskDi
 }
 
 function transitionEvidence(options) {
-  if (options.state === 'READY_TO_PLAY') {
-    return [
-      {
-        kind: 'git_head',
-        identity: `${options.headRepository}@${options.headRef}:${options.headSha}`,
-        url: `https://github.com/${options.headRepository}/commit/${options.headSha}`,
-        sha256: null,
-      },
-      {
+  if (['HANDOFF_READY', 'READY_TO_PLAY'].includes(options.state)) {
+    const evidence = [{
+      kind: 'git_head',
+      identity: `${options.headRepository}@${options.headRef}:${options.headSha}`,
+      url: `https://github.com/${options.headRepository}/commit/${options.headSha}`,
+      sha256: null,
+    }];
+    if (options.state === 'READY_TO_PLAY') {
+      evidence.push({
         kind: 'candidate',
         identity: `sha256:${options.candidateSha256}`,
         url: options.candidateUrl,
         sha256: options.candidateSha256,
-      },
-    ];
+      });
+    }
+    return evidence;
   }
   if (options.state === 'DONE') {
     return [{ kind: 'telegram_receipt', identity: options.receiptId, url: null, sha256: null }];
@@ -791,28 +916,61 @@ export async function advanceIssue({
 }) {
   const current = await loadProjection(transport, options.repo, options.issue);
   const { ticket, projection } = current;
-  if (options.machine === 'mac-a') {
-    const repositoryId = await transport.getRepositoryId(options.repo);
-    const bindings = machineBindingsFromIssue(
-      await transport.getIssue(options.repo, options.controlIssue),
-    );
-    const binding = bindings['mac-a'];
-    if (!binding || binding.taskDigest !== taskDigest
-        || binding.repositoryId !== repositoryId
-        || ticket.repositoryId !== repositoryId
-        || (bridgeCommit && binding.bridgeCommit !== bridgeCommit)) {
-      throw new Error('exact mac-a control binding is required for this transition');
-    }
+  const exactBinding = await requireExactMachineBinding({
+    transport,
+    repo: options.repo,
+    controlIssue: options.controlIssue,
+    machine: options.machine,
+    taskDigest,
+    bridgeCommit,
+    ticketRepositoryId: ticket.repositoryId,
+  });
+  if (options.machine === 'mac-a' && ticket.assignedMachine === 'mac-b'
+      && ticket.callbackTaskDigest !== exactBinding.binding.taskDigest) {
+    throw new Error('exact mac-a callback binding is required for this transition');
   }
-  if (options.state === 'READY_TO_PLAY') {
+  if (options.state === 'HANDOFF_READY'
+      && (ticket.assignedMachine !== 'mac-b'
+        || options.machine !== 'mac-b'
+        || ticket.targetTaskDigest !== taskDigest)) {
+    throw new Error('HANDOFF_READY belongs only to the assigned Mac B task');
+  }
+  if (ticket.assignedMachine === 'mac-b'
+      && ['HANDOFF_READY', 'READY_TO_PLAY'].includes(options.state)
+      && (!CONTENT_HEAD_REPOSITORIES.has(options.headRepository)
+        || options.headRef !== 'master')) {
+    throw new Error('Mac B handoff head must be merged master in an allowlisted content repository');
+  }
+  if (projection.state === 'HANDOFF_READY'
+      && ['READY_TO_PLAY', 'NEEDS_HELP'].includes(options.state)
+      && (options.machine !== 'mac-a' || ticket.callbackTaskDigest !== taskDigest)) {
+    throw new Error('post-handoff terminal transition belongs only to the exact Mac A callback task');
+  }
+  if (['HANDOFF_READY', 'READY_TO_PLAY'].includes(options.state)) {
     const remote = await transport.resolveRef(options.headRepository, options.headRef);
     if (remote !== options.headSha) throw new Error(`remote ${options.headRef} is ${remote}, not ${options.headSha}`);
+  }
+  if (options.state === 'READY_TO_PLAY') {
+    if (ticket.assignedMachine === 'mac-b' && projection.state === 'HANDOFF_READY') {
+      const handedOffHead = projection.events.at(-1).evidence.find(
+        (item) => item.kind === 'git_head',
+      );
+      const requestedHead = transitionEvidence(options).find((item) => item.kind === 'git_head');
+      if (!handedOffHead || canonicalJson(handedOffHead) !== canonicalJson(requestedHead)) {
+        throw new Error('READY_TO_PLAY head differs from HANDOFF_READY evidence');
+      }
+    }
     await verifyCandidateBytes(options.candidateUrl, options.candidateSha256, fetchImpl);
   }
+  const macAHostCompletion = options.machine === 'mac-a'
+    && ticket.assignedMachine === 'mac-b'
+    && projection.state === 'HANDOFF_READY'
+    && ['READY_TO_PLAY', 'NEEDS_HELP'].includes(options.state);
   if (options.state !== 'DONE'
       && options.state !== 'QUEUED:machine_offline'
       && !(options.state === 'NEEDS_HELP' && ['task_missing', 'machine_offline'].includes(options.errorCode)
         && options.machine === 'mac-a')
+      && !macAHostCompletion
       && (ticket.assignedMachine !== options.machine || ticket.targetTaskDigest !== taskDigest)) {
     throw new Error('transition belongs to another machine or task');
   }
@@ -827,6 +985,7 @@ export async function advanceIssue({
     evidence: transitionEvidence(options),
     errorCode: options.errorCode,
   });
+  const nextProjection = projectJournal(ticket, [...projection.events, event]);
   const result = await appendOnce({
     transport,
     repo: options.repo,
@@ -836,7 +995,9 @@ export async function advanceIssue({
     event,
     apply: options.apply,
   });
-  if (!options.apply) return { status: 'DRY_RUN', nextEvent: result.event, projection };
+  if (!options.apply) {
+    return { status: 'DRY_RUN', nextEvent: result.event, projection: nextProjection };
+  }
   const verified = await loadProjection(transport, options.repo, options.issue);
   if (verified.projection.lastEventDigest !== event.eventDigest) {
     throw new Error('transition is not the unique current event after write');
@@ -867,6 +1028,7 @@ export async function runCli(argv, {
       const result = await bootstrapMachine({
         transport, repo: options.repo, controlIssue: options.controlIssue,
         machine: options.machine, taskDigest, bridgeCommit: resolveHead(),
+        supersedeBindingDigest: options.supersedeBindingDigest,
         apply: options.apply, clock,
       });
       writeOut(`${JSON.stringify(result, null, 2)}\n`);
@@ -892,6 +1054,14 @@ export async function runCli(argv, {
       return 0;
     }
     if (options.command === 'observe') {
+      await requireExactMachineBinding({
+        transport,
+        repo: options.repo,
+        controlIssue: options.controlIssue,
+        machine: options.machine,
+        taskDigest,
+        bridgeCommit: resolveHead(),
+      });
       const issues = await transport.listOpenIssues(options.repo);
       const wakes = [];
       for (const issue of issues) {
@@ -919,7 +1089,8 @@ export async function runCli(argv, {
     if (options.command === 'claim') {
       const result = await claimIssue({
         transport, repo: options.repo, issueNumber: options.issue,
-        machine: options.machine, taskDigest, apply: options.apply, clock,
+        controlIssue: options.controlIssue, machine: options.machine,
+        taskDigest, bridgeCommit: resolveHead(), apply: options.apply, clock,
       });
       writeOut(`${JSON.stringify(result, null, 2)}\n`);
       return 0;

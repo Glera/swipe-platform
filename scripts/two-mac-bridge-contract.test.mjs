@@ -3,15 +3,18 @@ import assert from 'node:assert/strict';
 
 import {
   createMachineBinding,
+  createMachineHold,
   createEvent,
   decodeMachineBindingMarkers,
   decodeEventMarkers,
   decodeTicketMarkers,
   encodeEventMarker,
   encodeMachineBindingMarker,
+  encodeMachineHoldMarker,
   encodeTicketMarker,
   projectJournal,
   projectMachineBindings,
+  projectMachineBindingState,
   ticketDigest,
 } from './two-mac-bridge-contract.mjs';
 
@@ -39,6 +42,7 @@ function ticket(overrides = {}) {
     assignedMachine: 'mac-b',
     authority: 'content-factory',
     targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
     instruction: 'Rematerialize the exact legacy source through the reviewed path.',
     createdAt: '2026-08-11T09:00:00.000Z',
     ...overrides,
@@ -113,16 +117,37 @@ test('A to B to A journal becomes executable only after confirmed claim', () => 
   });
   append(events, {
     ticket: value,
-    state: 'READY_TO_PLAY',
+    state: 'HANDOFF_READY',
     actorMachine: 'mac-b',
     actorTaskDigest: B_TASK,
-    idempotencyKey: 'ready-434c',
+    idempotencyKey: 'handoff-434c',
     evidence: [{
       kind: 'git_head',
-      identity: `Glera/swipe-generator@${HEAD}`,
-      url: 'https://github.com/Glera/swipe-generator/commit/def',
+      identity: `Glera/swipe-generator@master:${HEAD}`,
+      url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`,
       sha256: null,
     }],
+  });
+  append(events, {
+    ticket: value,
+    state: 'READY_TO_PLAY',
+    actorMachine: 'mac-a',
+    actorTaskDigest: A_TASK,
+    idempotencyKey: 'ready-434c',
+    evidence: [
+      {
+        kind: 'git_head',
+        identity: `Glera/swipe-generator@master:${HEAD}`,
+        url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`,
+        sha256: null,
+      },
+      {
+        kind: 'candidate',
+        identity: `sha256:${'f'.repeat(64)}`,
+        url: 'https://candidate.example/two-dots',
+        sha256: 'f'.repeat(64),
+      },
+    ],
   });
   append(events, {
     ticket: value,
@@ -141,7 +166,7 @@ test('A to B to A journal becomes executable only after confirmed claim', () => 
   const projection = projectJournal(value, events);
   assert.equal(projection.state, 'DONE');
   assert.equal(projection.terminal, true);
-  assert.equal(projection.eventCount, 6);
+  assert.equal(projection.eventCount, 7);
 });
 
 test('exact replay is idempotent and changed bytes under one key fail closed', () => {
@@ -328,6 +353,181 @@ test('task disappearance after confirmed claim can still terminate fail-closed',
   assert.equal(projection.terminal, true);
 });
 
+test('Mac B exact handoff wakes Mac A host before terminal READY', () => {
+  const value = ticket();
+  const events = queue(value);
+  for (const [state, key] of [
+    ['CLAIM_PROPOSED', 'handoff-proposal'],
+    ['CLAIMED', 'handoff-claim'],
+    ['IN_PROGRESS', 'handoff-work'],
+    ['HANDOFF_READY', 'handoff-ready'],
+  ]) {
+    append(events, {
+      ticket: value,
+      state,
+      actorMachine: 'mac-b',
+      actorTaskDigest: B_TASK,
+      idempotencyKey: key,
+      evidence: state === 'HANDOFF_READY' ? [{
+        kind: 'git_head',
+        identity: `Glera/swipe-generator@master:${HEAD}`,
+        url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`,
+        sha256: null,
+      }] : [],
+    });
+  }
+  append(events, {
+    ticket: value,
+    state: 'READY_TO_PLAY',
+    actorMachine: 'mac-a',
+    actorTaskDigest: A_TASK,
+    idempotencyKey: 'hosted-ready',
+    evidence: [
+      {
+        kind: 'git_head',
+        identity: `Glera/swipe-generator@master:${HEAD}`,
+        url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`,
+        sha256: null,
+      },
+      {
+        kind: 'candidate',
+        identity: `sha256:${'f'.repeat(64)}`,
+        url: 'https://candidate.example/two-dots',
+        sha256: 'f'.repeat(64),
+      },
+    ],
+  });
+  const projection = projectJournal(value, events);
+  assert.equal(projection.state, 'READY_TO_PLAY');
+  assert.equal(projection.terminal, true);
+});
+
+test('Mac A cannot skip HANDOFF_READY for a Mac B ticket', () => {
+  const value = ticket();
+  const events = queue(value);
+  for (const [state, key] of [
+    ['CLAIM_PROPOSED', 'skip-proposal'],
+    ['CLAIMED', 'skip-claim'],
+    ['IN_PROGRESS', 'skip-work'],
+  ]) {
+    append(events, {
+      ticket: value, state, actorMachine: 'mac-b', actorTaskDigest: B_TASK,
+      idempotencyKey: key,
+    });
+  }
+  assert.throws(
+    () => {
+      const invalid = createEvent({
+        ticket: value,
+        previous: events.at(-1),
+        state: 'READY_TO_PLAY',
+        actorMachine: 'mac-a',
+        actorTaskDigest: A_TASK,
+        idempotencyKey: 'skip-handoff',
+        occurredAt: '2026-08-11T09:00:05.000Z',
+        evidence: [
+          {
+            kind: 'git_head',
+            identity: `Glera/swipe-generator@master:${HEAD}`,
+            url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`,
+            sha256: null,
+          },
+          {
+            kind: 'candidate', identity: `sha256:${'f'.repeat(64)}`,
+            url: 'https://candidate.example/two-dots', sha256: 'f'.repeat(64),
+          },
+        ],
+      });
+      projectJournal(value, [...events, invalid]);
+    },
+    /Mac A READY_TO_PLAY requires HANDOFF_READY/u,
+  );
+});
+
+test('handoff authority is exact-task-bound, Mac A-only, and exact-head-preserving', () => {
+  const value = ticket();
+  const events = queue(value);
+  for (const [state, key] of [
+    ['CLAIM_PROPOSED', 'authority-proposal'],
+    ['CLAIMED', 'authority-claim'],
+    ['IN_PROGRESS', 'authority-work'],
+  ]) {
+    append(events, {
+      ticket: value, state, actorMachine: 'mac-b', actorTaskDigest: B_TASK,
+      idempotencyKey: key,
+    });
+  }
+  assert.throws(() => createEvent({
+    ticket: value,
+    previous: events.at(-1),
+    state: 'HANDOFF_READY',
+    actorMachine: 'mac-b',
+    actorTaskDigest: B_TASK,
+    idempotencyKey: 'empty-handoff',
+    occurredAt: '2026-08-11T09:00:04.000Z',
+  }), /requires only exact git_head evidence/u);
+  append(events, {
+    ticket: value,
+    state: 'HANDOFF_READY',
+    actorMachine: 'mac-b',
+    actorTaskDigest: B_TASK,
+    idempotencyKey: 'authority-handoff',
+    evidence: [{
+      kind: 'git_head', identity: `Glera/swipe-generator@master:${HEAD}`,
+      url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`, sha256: null,
+    }],
+  });
+  const readyEvidence = [
+    {
+      kind: 'git_head', identity: `Glera/swipe-generator@master:${HEAD}`,
+      url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`, sha256: null,
+    },
+    {
+      kind: 'candidate', identity: `sha256:${'f'.repeat(64)}`,
+      url: 'https://candidate.example/two-dots', sha256: 'f'.repeat(64),
+    },
+  ];
+  assert.throws(() => createEvent({
+    ticket: value, previous: events.at(-1), state: 'READY_TO_PLAY',
+    actorMachine: 'mac-b', actorTaskDigest: B_TASK,
+    idempotencyKey: 'mac-b-terminal', occurredAt: '2026-08-11T09:00:05.000Z',
+    evidence: readyEvidence,
+  }), /wrong machine or task binding/u);
+  assert.throws(() => createEvent({
+    ticket: value, previous: events.at(-1), state: 'READY_TO_PLAY',
+    actorMachine: 'mac-a', actorTaskDigest: '9'.repeat(64),
+    idempotencyKey: 'wrong-callback', occurredAt: '2026-08-11T09:00:05.000Z',
+    evidence: readyEvidence,
+  }), /wrong machine or task binding/u);
+  const wrongHead = createEvent({
+    ticket: value, previous: events.at(-1), state: 'READY_TO_PLAY',
+    actorMachine: 'mac-a', actorTaskDigest: A_TASK,
+    idempotencyKey: 'wrong-head', occurredAt: '2026-08-11T09:00:05.000Z',
+    evidence: [
+      {
+        kind: 'git_head', identity: `Glera/swipe-generator@master:${'8'.repeat(40)}`,
+        url: `https://github.com/Glera/swipe-generator/commit/${'8'.repeat(40)}`, sha256: null,
+      },
+      readyEvidence[1],
+    ],
+  });
+  assert.throws(
+    () => projectJournal(value, [...events, wrongHead]),
+    /exact handed-off git_head/u,
+  );
+
+  const platform = ticket({
+    assignedMachine: 'mac-a', authority: 'product-control-plane',
+    targetTaskDigest: A_TASK, callbackTaskDigest: null,
+  });
+  assert.throws(() => createEvent({
+    ticket: platform, previous: null, state: 'HANDOFF_READY',
+    actorMachine: 'mac-a', actorTaskDigest: A_TASK,
+    idempotencyKey: 'platform-handoff', occurredAt: '2026-08-11T09:00:00.000Z',
+    evidence: [readyEvidence[0]],
+  }), /assigned Mac B task/u);
+});
+
 test('encoded event round-trips and malformed marker fails closed', () => {
   const value = ticket();
   const event = queue(value)[0];
@@ -364,6 +564,38 @@ test('machine binding hides raw task identity and conflicting bootstrap fails cl
   });
   assert.throws(
     () => projectMachineBindings(94, [marker, encodeMachineBindingMarker(other)]),
-    /conflicting mac-b machine bindings/u,
+    /conflicting active mac-b machine bindings/u,
   );
+});
+
+test('machine-readable HOLD retains stale binding evidence and activates only its replacement', () => {
+  const stale = createMachineBinding({
+    controlIssue: 94,
+    repositoryId: '123456789',
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    bridgeCommit: '7'.repeat(40),
+    registeredAt: '2026-08-11T09:00:00.000Z',
+  });
+  const hold = createMachineHold({
+    binding: stale,
+    heldAt: '2026-08-11T10:00:00.000Z',
+  });
+  const replacement = createMachineBinding({
+    ...stale,
+    bridgeCommit: HEAD,
+    registeredAt: '2026-08-11T10:00:01.000Z',
+  });
+  const bodies = [
+    encodeMachineBindingMarker(stale),
+    encodeMachineHoldMarker(hold),
+    encodeMachineBindingMarker(replacement),
+  ];
+  const state = projectMachineBindingState(94, bodies);
+  assert.equal(state.active['mac-b'].bindingDigest, replacement.bindingDigest);
+  assert.equal(state.held[stale.bindingDigest].taskDigest, B_TASK);
+  assert.equal(state.holds[0].bindingDigest, stale.bindingDigest);
+  assert.deepEqual(projectMachineBindings(94, [...bodies, encodeMachineHoldMarker(hold)]), {
+    'mac-b': replacement,
+  });
 });

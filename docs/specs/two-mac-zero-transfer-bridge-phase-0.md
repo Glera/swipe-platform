@@ -60,7 +60,8 @@ Issue body или один server-derived binding comment содержит immut
 - Issue repository ID/number и ticket ID;
 - original request ID/hash и mutation/parent identity при наличии;
 - source kind/repository/id/commit/tree;
-- assigned machine/authority и SHA-256 digest локальной target task identity;
+- assigned machine/authority, SHA-256 digest локальной target task identity и,
+  только для Mac B route, immutable callback digest exact Mac A owner task;
 - original instruction и canonical creation time.
 
 Append-only `two-mac.bridge-event.v1` comments содержат sequence, parent event
@@ -71,8 +72,10 @@ Projection, не labels/assignee/prose, определяет current state:
 
 ```text
 QUEUED → QUEUED:machine_offline → CLAIM_PROPOSED → CLAIMED → IN_PROGRESS
+                                                             ↘ HANDOFF_READY
                                                              ↘ READY_TO_PLAY
                                                              ↘ NEEDS_HELP
+HANDOFF_READY → READY_TO_PLAY | NEEDS_HELP
 READY_TO_PLAY | NEEDS_HELP → DONE
 ```
 
@@ -99,15 +102,34 @@ daemon/scheduler/runner. CLI:
 - dry-run по умолчанию, mutation только с `--apply`;
 - не читает/печатает GitHub token.
 
-Mac A authority transitions дополнительно сверяют local task с exact binding в
-control Issue; значение `--machine` само по себе authority не даёт.
+Каждый observer/claim/advance сначала сверяет local task и local bridge HEAD с
+единственным active binding в control Issue. Mac A terminal transition для Mac
+B ticket дополнительно обязан совпасть с immutable callback task digest самого
+ticket; значение `--machine` само по себе authority не даёт.
 
 Bootstrap выводит task identity локально, сверяет exact `meta/master` и пишет
 machine/task/bridge binding только append-only comment-ом в control Issue.
+Если там есть binding на старый bridge HEAD той же owner task, replacement требует явный
+`--supersede-binding-digest`: один bootstrap pass сначала пишет валидируемый
+`two-mac.bridge-machine-hold.v1`, перечитывает отсутствие active binding и
+только затем пишет replacement binding. Старый marker и его task digest
+остаются evidence, но HOLD binding не может пройти observer/claim/advance.
+Prose `HOLD` или обычный comment состояния не меняют.
+Потеря самой owner task или два одновременно записанных conflicting bootstrap
+не переопределяются автоматически: это typed STOP и отдельное operator
+authority decision; Phase 0 не создаёт новую task и не угадывает победителя.
 Локальный heartbeat уже привязан к этой Codex task, поэтому отдельный task DB
 или state file не нужен. Credential/permission/setting creation или activation
 — отдельное consolidated operator window. Mac B не получает production или
 Telegram credentials.
+
+Race receipt до введения этого контракта сохранён append-only:
+[Issue #94 comment 5251171648](https://github.com/Glera/p4g-workspace-meta/issues/94#issuecomment-5251171648),
+Mac B binding `2374f285f922355d62bb330614be38b0a72656c033cd813a99006f61de1820d5`
+на bridge `773545463e17faf8c05ca3743b432696e4c4aebd`, task digest
+`be9b2496185c314369ebb101cc9e18f0a32f6bef4c8ae929556fed09f44c5983`.
+Он не удаляется и обязан быть явно переведён в machine-readable HOLD внутри
+replacement bootstrap до появления нового active Mac B binding.
 
 ## 6. Candidate evidence (D5)
 
@@ -141,10 +163,16 @@ Heartbeat видит только assigned route и совпадающий local
 ticket digest; remote shell/prompt transport отсутствует.
 
 Terminal Mac B callback становится Issue event. Следующий Mac A heartbeat
-поднимает ту же Mac A task, которая проверяет exact evidence и использует
-existing system-specific Telegram notification path. Bot credential не
-передаётся на Mac B. Missing binding/task даёт typed `NEEDS_HELP` и никогда не
-создаёт произвольную новую task.
+поднимает ту же Mac A task. Если candidate требует detached live Lab host,
+Каждый Mac B ticket после implementation пишет intermediate `HANDOFF_READY`
+только для remote-verified `master` в `Glera/swipe-generator` или
+`Glera/playables`; direct Mac B terminal READY запрещён. Mac A
+с exact callback task binding хостит тот же handed-off head и только затем
+пишет terminal `READY_TO_PLAY` с проверенным HTTPS candidate либо typed
+`NEEDS_HELP`. После terminal evidence Mac A
+использует existing system-specific Telegram notification path. Bot credential
+не передаётся на Mac B. Missing binding/task даёт typed `NEEDS_HELP` и никогда
+не создаёт произвольную новую task.
 
 ## 9. Explicit non-scope
 

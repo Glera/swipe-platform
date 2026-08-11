@@ -49,6 +49,7 @@ function ticket(overrides = {}) {
     assignedMachine: 'mac-b',
     authority: 'content-factory',
     targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
     instruction: 'Exact Two Dots rematerialization handoff.',
     createdAt: '2026-08-11T09:00:00.000Z',
     ...overrides,
@@ -81,25 +82,35 @@ function issue(value = ticket(), events = [queue(value)]) {
   };
 }
 
-function memoryTransport(initialIssue, { onPost = null } = {}) {
+function memoryTransport(initialIssue, { onPost = null, control = null } = {}) {
   let current = structuredClone(initialIssue);
+  let controlState = structuredClone(control ?? (initialIssue.number === 94
+    ? initialIssue
+    : controlIssue([machineBinding('mac-b', B_TASK)])));
   const posts = [];
   let reads = 0;
   return {
     posts,
     get reads() { return reads; },
     async getRepositoryId() { return '123456789'; },
-    async listOpenIssues() { return [{ ...current, comments: undefined }]; },
-    async getIssue() { reads += 1; return structuredClone(current); },
+    async listOpenIssues() {
+      return current.number === 94 ? [] : [{ ...current, comments: undefined }];
+    },
+    async getIssue(repo, issueNumber) {
+      reads += 1;
+      if (issueNumber === 94 && current.number !== 94) return structuredClone(controlState);
+      return structuredClone(current);
+    },
     async postComment(repo, issueNumber, body) {
       posts.push({ repo, issueNumber, body });
-      current.comments.push({
-        id: String(current.comments.length + 1), body,
-        htmlUrl: `https://github.example/comments/${current.comments.length + 1}`,
+      const destination = issueNumber === 94 && current.number !== 94 ? controlState : current;
+      destination.comments.push({
+        id: String(destination.comments.length + 1), body,
+        htmlUrl: `https://github.example/comments/${destination.comments.length + 1}`,
         createdAt: '2026-08-11T09:00:01Z',
       });
-      if (onPost) current = await onPost({ current, posts }) ?? current;
-      return { id: current.comments.length };
+      if (destination === current && onPost) current = await onPost({ current, posts }) ?? current;
+      return { id: destination.comments.length };
     },
     async resolveRef() { return HEAD; },
   };
@@ -231,6 +242,13 @@ test('CLI is dry-run by default and never accepts a task digest or command paylo
     () => parseArgs(['claim', '--issue', '91', '--machine', 'mac-b', '--command', 'rm']),
     /unknown option/u,
   );
+  assert.equal(parseArgs([
+    'bootstrap', '--machine', 'mac-b', '--supersede-binding-digest', 'f'.repeat(64),
+  ]).supersedeBindingDigest, 'f'.repeat(64));
+  assert.throws(() => parseArgs([
+    'claim', '--issue', '91', '--machine', 'mac-b',
+    '--supersede-binding-digest', 'f'.repeat(64),
+  ]), /valid only for bootstrap/u);
   assert.throws(
     () => parseArgs(['project', '--issue', '91.5']),
     /strict integer/u,
@@ -267,14 +285,105 @@ test('bootstrap is exact-master bound, replay-safe, and conflicting task fails c
       transport, repo: 'Glera/p4g-workspace-meta', controlIssue: 94,
       machine: 'mac-b', taskDigest: A_TASK, bridgeCommit: HEAD, apply: true,
     }),
-    /conflicting mac-b bootstrap/u,
+    /explicit machine-readable supersession/u,
   );
+});
+
+test('replacement bootstrap requires explicit HOLD, preserves stale evidence, and replays once', async () => {
+  const stale = createMachineBinding({
+    controlIssue: 94,
+    repositoryId: '123456789',
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    bridgeCommit: '7'.repeat(40),
+    registeredAt: '2026-08-11T09:00:00.000Z',
+  });
+  const transport = memoryTransport(controlIssue([stale]));
+  const args = {
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    bridgeCommit: HEAD,
+    apply: true,
+    clock: () => new Date('2026-08-11T10:00:00.000Z'),
+  };
+  await assert.rejects(bootstrapMachine(args), /explicit machine-readable supersession/u);
+  await assert.rejects(
+    bootstrapMachine({ ...args, supersedeBindingDigest: 'f'.repeat(64) }),
+    /does not match the exact local task and repository/u,
+  );
+  assert.equal(transport.posts.length, 0);
+
+  const dryRun = await bootstrapMachine({
+    ...args, apply: false, supersedeBindingDigest: stale.bindingDigest,
+  });
+  assert.equal(dryRun.status, 'DRY_RUN');
+  assert.equal(dryRun.hold.bindingDigest, stale.bindingDigest);
+  assert.equal(transport.posts.length, 0);
+
+  const replacement = await bootstrapMachine({
+    ...args, supersedeBindingDigest: stale.bindingDigest,
+  });
+  assert.equal(replacement.status, 'BOOTSTRAPPED');
+  assert.equal(replacement.held[stale.bindingDigest].taskDigest, B_TASK);
+  assert.equal(replacement.binding.bridgeCommit, HEAD);
+  assert.equal(transport.posts.length, 2);
+
+  const replay = await bootstrapMachine({
+    ...args, supersedeBindingDigest: stale.bindingDigest,
+  });
+  assert.equal(replay.status, 'REUSE');
+  assert.equal(transport.posts.length, 2);
+});
+
+test('prose HOLD cannot authorize observation or replace the machine-readable stale binding', async () => {
+  const stale = createMachineBinding({
+    controlIssue: 94,
+    repositoryId: '123456789',
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    bridgeCommit: '7'.repeat(40),
+    registeredAt: '2026-08-11T09:00:00.000Z',
+  });
+  const control = controlIssue([stale]);
+  control.comments.push({
+    id: 'prose-hold',
+    body: 'HOLD — do not run this binding',
+    htmlUrl: 'https://github.example/prose-hold',
+    createdAt: '2026-08-11T09:01:00Z',
+  });
+  const transport = multiIssueTransport([control, issue(ticket())]);
+  const stdout = [];
+  const stderr = [];
+  const status = await runCli(['observe', '--machine', 'mac-b'], {
+    env: { CODEX_THREAD_ID: B_THREAD },
+    transport,
+    resolveHead: () => HEAD,
+    writeOut: (text) => stdout.push(text),
+    writeErr: (text) => stderr.push(text),
+  });
+  assert.equal(status, 1);
+  assert.equal(stdout.length, 0);
+  assert.match(stderr.join(''), /exact active mac-b machine binding is required/u);
+  await assert.rejects(bootstrapMachine({
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    bridgeCommit: HEAD,
+    apply: false,
+  }), /explicit machine-readable supersession/u);
+  assert.equal(transport.posts.length, 0);
 });
 
 test('Generator adapter derives exact Two Dots and Smash parent lineage from server projection', () => {
   const twoDots = deriveGeneratorTicket({
     snapshot: generatorSnapshot(), issueNumber: 91, repositoryId: '123456789',
     requestId: '434c895a-57ff-4f99-a888-bdbba5ffe378', targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
   });
   assert.equal(twoDots.parentRequestId, '6c267c01-1fc5-4137-a2c6-e81142d67972');
   assert.equal(twoDots.sourceCommit, 'b'.repeat(40));
@@ -296,7 +405,7 @@ test('Generator adapter derives exact Two Dots and Smash parent lineage from ser
   smash.releases = [{ releaseId: 'ab5e07b9-f129-4fc3-aa91-3880bb4f1df7' }];
   const bound = deriveGeneratorTicket({
     snapshot: smash, issueNumber: 82, repositoryId: '123456789',
-    requestId, targetTaskDigest: B_TASK,
+    requestId, targetTaskDigest: B_TASK, callbackTaskDigest: A_TASK,
   });
   assert.equal(bound.parentRequestId, 'ab5e07b9-f129-4fc3-aa91-3880bb4f1df7');
   assert.equal(bound.sourceId, 'smash-fest-v1');
@@ -309,14 +418,17 @@ test('Generator adapter fails closed on missing, duplicated, or parentless sourc
   assert.throws(() => deriveGeneratorTicket({
     snapshot: { ...base, agentTasks: [] }, issueNumber: 91,
     repositoryId: '123456789', requestId, targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
   }), /has 0 records/u);
   assert.throws(() => deriveGeneratorTicket({
     snapshot: { ...base, playableReworks: [base.playableReworks[0], base.playableReworks[0]] },
     issueNumber: 91, repositoryId: '123456789', requestId, targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
   }), /has 2 records/u);
   assert.throws(() => deriveGeneratorTicket({
     snapshot: { ...base, releases: [] }, issueNumber: 91,
     repositoryId: '123456789', requestId, targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
   }), /parent release identity is missing/u);
 });
 
@@ -446,11 +558,14 @@ test('one malformed bridge marker is a bounded STOP and does not wedge another I
     htmlUrl: 'https://github.com/Glera/p4g-workspace-meta/issues/97',
     updatedAt: '2026-08-11T09:00:00Z', comments: [],
   };
-  const transport = multiIssueTransport([corrupt, issue(ticket())]);
+  const transport = multiIssueTransport([
+    controlIssue([machineBinding('mac-b', B_TASK)]), corrupt, issue(ticket()),
+  ]);
   const stdout = [];
   const status = await runCli(['observe', '--machine', 'mac-b'], {
     env: { CODEX_THREAD_ID: B_THREAD }, transport,
     writeOut: (text) => stdout.push(text), writeErr: () => {},
+    resolveHead: () => HEAD,
   });
   assert.equal(status, 2);
   const output = JSON.parse(stdout.join(''));
@@ -485,11 +600,14 @@ test('observer routes only to the assigned bound task and Mac A consumes termina
   assert.deepEqual(planWake({ ...queued, machine: 'mac-b', taskDigest: A_TASK }), {
     action: 'STOP', code: 'task_binding_mismatch', issueNumber: 91,
   });
+  assert.deepEqual(planWake({ ...queued, machine: 'mac-a', taskDigest: '9'.repeat(64) }), {
+    action: 'STOP', code: 'callback_binding_mismatch', issueNumber: 91,
+  });
 
   const events = [queue(value)];
   for (const [state, id] of [
     ['CLAIM_PROPOSED', 'proposed'], ['CLAIMED', 'claimed'], ['IN_PROGRESS', 'started'],
-    ['READY_TO_PLAY', 'ready'],
+    ['HANDOFF_READY', 'handoff'],
   ]) {
     events.push(createEvent({
       ticket: value,
@@ -499,12 +617,31 @@ test('observer routes only to the assigned bound task and Mac A consumes termina
       actorTaskDigest: B_TASK,
       idempotencyKey: id,
       occurredAt: `2026-08-11T09:00:0${events.length}.000Z`,
-      evidence: state === 'READY_TO_PLAY' ? [{
-        kind: 'candidate', identity: 'sha256:proof',
-        url: 'https://candidate.example/two-dots', sha256: null,
+      evidence: state === 'HANDOFF_READY' ? [{
+        kind: 'git_head', identity: `Glera/swipe-generator@master:${HEAD}`,
+        url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`, sha256: null,
       }] : [],
     }));
   }
+  events.push(createEvent({
+    ticket: value,
+    previous: events.at(-1),
+    state: 'READY_TO_PLAY',
+    actorMachine: 'mac-a',
+    actorTaskDigest: A_TASK,
+    idempotencyKey: 'ready',
+    occurredAt: '2026-08-11T09:00:05.000Z',
+    evidence: [
+      {
+        kind: 'git_head', identity: `Glera/swipe-generator@master:${HEAD}`,
+        url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`, sha256: null,
+      },
+      {
+        kind: 'candidate', identity: `sha256:${'f'.repeat(64)}`,
+        url: 'https://candidate.example/two-dots', sha256: 'f'.repeat(64),
+      },
+    ],
+  }));
   const terminal = projectIssue(issue(value, events));
   assert.deepEqual(planWake({ ...terminal, machine: 'mac-a', taskDigest: A_TASK }), {
     action: 'CONSUME_TERMINAL', issueNumber: 91, state: 'READY_TO_PLAY',
@@ -522,6 +659,136 @@ test('observer releases at most one author wake and preserves Mac B priority 91 
     ...wakes,
     { action: 'CONSUME_TERMINAL', issueNumber: 108, state: 'READY_TO_PLAY' },
   ], 'mac-a').map((wake) => wake.issueNumber), [108, 91]);
+  assert.deepEqual(selectWakes([
+    { action: 'CLAIM', issueNumber: 105, state: 'QUEUED' },
+    { action: 'HOST_RUNTIME', issueNumber: 91, state: 'HANDOFF_READY' },
+  ], 'mac-a').map((wake) => wake.issueNumber), [91]);
+});
+
+test('Mac B handoff wakes Mac A runtime host, which records terminal READY', async () => {
+  const value = ticket();
+  const events = [queue(value)];
+  for (const [state, key] of [
+    ['CLAIM_PROPOSED', 'host-proposal'],
+    ['CLAIMED', 'host-claim'],
+    ['IN_PROGRESS', 'host-work'],
+  ]) {
+    events.push(createEvent({
+      ticket: value, previous: events.at(-1), state,
+      actorMachine: 'mac-b', actorTaskDigest: B_TASK,
+      idempotencyKey: key,
+      occurredAt: `2026-08-11T09:00:0${events.length}.000Z`,
+    }));
+  }
+  const transport = multiIssueTransport([
+    controlIssue([machineBinding('mac-a', A_TASK), machineBinding('mac-b', B_TASK)]),
+    issue(value, events),
+  ]);
+  const handoff = await advanceIssue({
+    transport,
+    options: parseArgs([
+      'advance', '--issue', '91', '--machine', 'mac-b', '--state', 'HANDOFF_READY',
+      '--head-repository', 'Glera/swipe-generator', '--head-ref', 'master',
+      '--head-sha', HEAD, '--apply',
+    ]),
+    taskDigest: B_TASK,
+    bridgeCommit: HEAD,
+    clock: () => new Date('2026-08-11T09:00:04.000Z'),
+  });
+  assert.equal(handoff.projection.state, 'HANDOFF_READY');
+  const projected = projectIssue(await transport.getIssue('Glera/p4g-workspace-meta', 91));
+  assert.deepEqual(planWake({ ...projected, machine: 'mac-a', taskDigest: A_TASK }), {
+    action: 'HOST_RUNTIME', issueNumber: 91, state: 'HANDOFF_READY',
+  });
+
+  const candidate = Buffer.from('<html>hosted exact candidate</html>', 'utf8');
+  const digest = sha256(candidate);
+  const ready = await advanceIssue({
+    transport,
+    options: parseArgs([
+      'advance', '--issue', '91', '--machine', 'mac-a', '--state', 'READY_TO_PLAY',
+      '--head-repository', 'Glera/swipe-generator', '--head-ref', 'master',
+      '--head-sha', HEAD, '--candidate-url', 'https://candidate.example/two-dots',
+      '--candidate-sha256', digest, '--apply',
+    ]),
+    taskDigest: A_TASK,
+    bridgeCommit: HEAD,
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      headers: { get: () => String(candidate.length) },
+      arrayBuffer: async () => Uint8Array.from(candidate).buffer,
+    }),
+    clock: () => new Date('2026-08-11T09:00:05.000Z'),
+  });
+  assert.equal(ready.projection.state, 'READY_TO_PLAY');
+  assert.equal(ready.projection.events.at(-2).actorMachine, 'mac-b');
+  assert.equal(ready.projection.events.at(-1).actorMachine, 'mac-a');
+});
+
+test('advance dry-run validates transition before append and cannot wedge the journal', async () => {
+  const value = ticket();
+  const events = [queue(value)];
+  for (const [state, key] of [
+    ['CLAIM_PROPOSED', 'dry-proposal'], ['CLAIMED', 'dry-claim'],
+  ]) {
+    events.push(createEvent({
+      ticket: value, previous: events.at(-1), state,
+      actorMachine: 'mac-b', actorTaskDigest: B_TASK,
+      idempotencyKey: key,
+      occurredAt: `2026-08-11T09:00:0${events.length}.000Z`,
+    }));
+  }
+  const transport = multiIssueTransport([
+    controlIssue([machineBinding('mac-b', B_TASK)]), issue(value, events),
+  ]);
+  await assert.rejects(advanceIssue({
+    transport,
+    options: parseArgs([
+      'advance', '--issue', '91', '--machine', 'mac-b', '--state', 'HANDOFF_READY',
+      '--head-repository', 'Glera/swipe-generator', '--head-ref', 'master',
+      '--head-sha', HEAD,
+    ]),
+    taskDigest: B_TASK,
+    bridgeCommit: HEAD,
+    clock: () => new Date('2026-08-11T09:00:03.000Z'),
+  }), /invalid transition CLAIMED -> HANDOFF_READY/u);
+  assert.equal(transport.posts.length, 0);
+  assert.equal(projectIssue(await transport.getIssue('Glera/p4g-workspace-meta', 91)).projection.state, 'CLAIMED');
+});
+
+test('Mac B handoff accepts only merged master from allowlisted content repositories', async () => {
+  const value = ticket();
+  const events = [queue(value)];
+  for (const [state, key] of [
+    ['CLAIM_PROPOSED', 'allow-proposal'], ['CLAIMED', 'allow-claim'],
+    ['IN_PROGRESS', 'allow-work'],
+  ]) {
+    events.push(createEvent({
+      ticket: value, previous: events.at(-1), state,
+      actorMachine: 'mac-b', actorTaskDigest: B_TASK,
+      idempotencyKey: key,
+      occurredAt: `2026-08-11T09:00:0${events.length}.000Z`,
+    }));
+  }
+  for (const [repository, ref] of [
+    ['Glera/swipe-backend', 'master'],
+    ['Glera/swipe-generator', 'codex/scratch'],
+  ]) {
+    const transport = multiIssueTransport([
+      controlIssue([machineBinding('mac-b', B_TASK)]), issue(value, events),
+    ]);
+    await assert.rejects(advanceIssue({
+      transport,
+      options: parseArgs([
+        'advance', '--issue', '91', '--machine', 'mac-b', '--state', 'HANDOFF_READY',
+        '--head-repository', repository, '--head-ref', ref, '--head-sha', HEAD,
+      ]),
+      taskDigest: B_TASK,
+      bridgeCommit: HEAD,
+    }), /merged master in an allowlisted content repository/u);
+    assert.equal(transport.posts.length, 0);
+  }
 });
 
 test('Mac A can record offline observation without taking Mac B execution authority', async () => {
@@ -558,7 +825,7 @@ test('Mac A authority transitions reject a self-asserted machine from an unbound
   await assert.rejects(advanceIssue({
     transport, options, taskDigest: B_TASK, bridgeCommit: HEAD,
     clock: () => new Date('2026-08-11T09:15:00.000Z'),
-  }), /exact mac-a control binding is required/u);
+  }), /exact active mac-a machine binding is required/u);
   assert.equal(transport.posts.length, 0);
 });
 
@@ -573,8 +840,10 @@ test('claim posts proposal, confirms after reread, then requires two independent
     transport,
     repo: 'Glera/p4g-workspace-meta',
     issueNumber: 91,
+    controlIssue: 94,
     machine: 'mac-b',
     taskDigest: B_TASK,
+    bridgeCommit: HEAD,
     apply: true,
     clock: () => times.shift(),
   });
@@ -594,10 +863,12 @@ test('duplicate claim replay does not post or execute twice', async () => {
     return () => new Date(`2026-08-11T09:00:0${++second}.000Z`);
   })();
   await claimIssue({ transport, repo: 'Glera/p4g-workspace-meta', issueNumber: 91,
-    machine: 'mac-b', taskDigest: B_TASK, apply: true, clock });
+    controlIssue: 94, machine: 'mac-b', taskDigest: B_TASK,
+    bridgeCommit: HEAD, apply: true, clock });
   const postCount = transport.posts.length;
   const replay = await claimIssue({ transport, repo: 'Glera/p4g-workspace-meta', issueNumber: 91,
-    machine: 'mac-b', taskDigest: B_TASK, apply: true, clock });
+    controlIssue: 94, machine: 'mac-b', taskDigest: B_TASK,
+    bridgeCommit: HEAD, apply: true, clock });
   assert.equal(replay.status, 'REUSE');
   assert.equal(transport.posts.length, postCount);
 });
@@ -628,7 +899,8 @@ test('concurrent sibling claim injected after proposal fails closed before execu
   });
   await assert.rejects(
     claimIssue({ transport, repo: 'Glera/p4g-workspace-meta', issueNumber: 91,
-      machine: 'mac-b', taskDigest: B_TASK, apply: true,
+      controlIssue: 94, machine: 'mac-b', taskDigest: B_TASK,
+      bridgeCommit: HEAD, apply: true,
       clock: () => new Date('2026-08-11T09:00:01.000Z') }),
     /forked journal/u,
   );
@@ -651,6 +923,7 @@ test('READY fetches exact HTTPS candidate bytes and rejects a mismatched digest'
   const events = [queue(value)];
   for (const [state, key] of [
     ['CLAIM_PROPOSED', 'proposal'], ['CLAIMED', 'claim'], ['IN_PROGRESS', 'work'],
+    ['HANDOFF_READY', 'handoff'],
   ]) {
     events.push(createEvent({
       ticket: value,
@@ -660,12 +933,16 @@ test('READY fetches exact HTTPS candidate bytes and rejects a mismatched digest'
       actorTaskDigest: B_TASK,
       idempotencyKey: key,
       occurredAt: `2026-08-11T09:00:0${events.length}.000Z`,
+      evidence: state === 'HANDOFF_READY' ? [{
+        kind: 'git_head', identity: `Glera/swipe-generator@master:${HEAD}`,
+        url: `https://github.com/Glera/swipe-generator/commit/${HEAD}`, sha256: null,
+      }] : [],
     }));
   }
   const candidate = Buffer.from('<html>exact candidate</html>', 'utf8');
   const digest = sha256(candidate);
   const argv = [
-    'advance', '--issue', '91', '--machine', 'mac-b', '--state', 'READY_TO_PLAY',
+    'advance', '--issue', '91', '--machine', 'mac-a', '--state', 'READY_TO_PLAY',
     '--head-repository', 'Glera/swipe-generator', '--head-ref', 'master',
     '--head-sha', HEAD, '--candidate-url', 'https://candidate.example/two-dots',
     '--candidate-sha256', digest, '--apply',
@@ -676,20 +953,27 @@ test('READY fetches exact HTTPS candidate bytes and rejects a mismatched digest'
     headers: { get: (name) => (name === 'content-length' ? String(candidate.length) : null) },
     arrayBuffer: async () => Uint8Array.from(candidate).buffer,
   });
-  const transport = memoryTransport(issue(value, events));
+  const transport = multiIssueTransport([
+    controlIssue([machineBinding('mac-a', A_TASK), machineBinding('mac-b', B_TASK)]),
+    issue(value, events),
+  ]);
   const result = await advanceIssue({
-    transport, options: parseArgs(argv), taskDigest: B_TASK,
+    transport, options: parseArgs(argv), taskDigest: A_TASK, bridgeCommit: HEAD,
     fetchImpl: async () => response(),
     clock: () => new Date('2026-08-11T09:00:04.000Z'),
   });
   assert.equal(result.status, 'APPLIED');
   assert.equal(result.projection.state, 'READY_TO_PLAY');
 
-  const mismatch = memoryTransport(issue(value, events));
+  const mismatch = multiIssueTransport([
+    controlIssue([machineBinding('mac-a', A_TASK), machineBinding('mac-b', B_TASK)]),
+    issue(value, events),
+  ]);
   await assert.rejects(advanceIssue({
     transport: mismatch,
     options: parseArgs(argv.map((item) => (item === digest ? 'f'.repeat(64) : item))),
-    taskDigest: B_TASK,
+    taskDigest: A_TASK,
+    bridgeCommit: HEAD,
     fetchImpl: async () => response(),
     clock: () => new Date('2026-08-11T09:00:04.000Z'),
   }), /do not match expected evidence/u);
@@ -703,6 +987,7 @@ test('runCli observe emits bounded wake JSON and no remote instruction text', as
   const status = await runCli(['observe', '--machine', 'mac-b'], {
     env: { CODEX_THREAD_ID: B_THREAD }, transport,
     writeOut: (text) => stdout.push(text), writeErr: () => {},
+    resolveHead: () => HEAD,
   });
   assert.equal(status, 0);
   const output = JSON.parse(stdout.join(''));

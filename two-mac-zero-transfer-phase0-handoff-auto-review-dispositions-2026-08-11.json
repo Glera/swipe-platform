@@ -1,0 +1,139 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P1",
+      "file": "scripts/two-mac-bridge-contract.mjs",
+      "line": 308,
+      "desc": "Mac A READY_TO_PLAY actor accepted any task digest on a Mac B ticket"
+    },
+    {
+      "id": "F002",
+      "severity": "P1",
+      "file": "scripts/two-mac-bridge-contract.mjs",
+      "line": 308,
+      "desc": "Mac A ticket terminal ownership became fail-open through the Mac A actor escape hatch"
+    },
+    {
+      "id": "F003",
+      "severity": "P2",
+      "file": "scripts/two-mac-bridge-contract.mjs",
+      "line": 84,
+      "desc": "Mac B could write terminal READY_TO_PLAY after its own HANDOFF_READY"
+    },
+    {
+      "id": "F004",
+      "severity": "P2",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 824,
+      "desc": "Mac A terminal evidence was not required to match the exact handed-off Git head"
+    },
+    {
+      "id": "F005",
+      "severity": "P3",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 849,
+      "desc": "Mac A and Mac B could race terminal events under one idempotency key after handoff"
+    },
+    {
+      "id": "F006",
+      "severity": "P3",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 631,
+      "desc": "Mac A tickets could enter HANDOFF_READY and become silently stranded"
+    },
+    {
+      "id": "F007",
+      "severity": "P2",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 970,
+      "desc": "advance dry-run and apply could append a structurally valid but transition-invalid event and wedge the journal"
+    },
+    {
+      "id": "F008",
+      "severity": "P2",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 942,
+      "desc": "HANDOFF_READY accepted an arbitrary readable repository and branch as a Mac A hosting instruction"
+    },
+    {
+      "id": "F009",
+      "severity": "P3",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 400,
+      "desc": "loss of the bound owner task has no automatic in-contract supersession path"
+    },
+    {
+      "id": "F010",
+      "severity": "P3",
+      "file": "scripts/two-mac-bridge-contract.mjs",
+      "line": 680,
+      "desc": "simultaneous conflicting first bootstraps leave a fail-closed control projection without automatic recovery"
+    },
+    {
+      "id": "F011",
+      "severity": "P3",
+      "file": "docs/specs/two-mac-zero-transfer-bridge-phase-0.md",
+      "line": 163,
+      "desc": "spec described HANDOFF_READY as conditional while the contract requires it for every Mac B READY path"
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "F001",
+      "action": "fixed"
+    },
+    {
+      "id": "F002",
+      "action": "fixed"
+    },
+    {
+      "id": "F003",
+      "action": "fixed"
+    },
+    {
+      "id": "F004",
+      "action": "fixed"
+    },
+    {
+      "id": "F005",
+      "action": "fixed"
+    },
+    {
+      "id": "F006",
+      "action": "fixed"
+    },
+    {
+      "id": "F007",
+      "action": "fixed"
+    },
+    {
+      "id": "F008",
+      "action": "fixed"
+    },
+    {
+      "id": "F009",
+      "action": "rejected",
+      "reason": "Current operator scope binds existing owner tasks and forbids creating a replacement task. Task loss remains a typed STOP requiring a new operator authority decision; automatic reassignment would violate exact task ownership."
+    },
+    {
+      "id": "F010",
+      "action": "rejected",
+      "reason": "The bounded correction addresses the observed single stale binding and remains fail-closed on simultaneous conflicting first bootstraps. Automatic winner selection or cross-task conflict recovery would add a broader control protocol outside Phase 0; return only if such a conflict is observed."
+    },
+    {
+      "id": "F011",
+      "action": "fixed"
+    }
+  ],
+  "verify": [
+    {
+      "command": "node --test scripts/two-mac-bridge-contract.test.mjs scripts/two-mac-bridge.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node --test 'scripts/*.test.mjs'",
+      "exitCode": 0
+    }
+  ]
+}
