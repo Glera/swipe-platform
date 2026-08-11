@@ -50,40 +50,44 @@ Cross-repo research каталога игровых классов и шабло
   авто-выбор), она НЕ даёт подписей/GO, явно сообщает об этом оператору и
   ограничивается статусом по STATE.md до восстановления frontier. Уже
   данные подписи остаются в
-- Транспорт заданий и фидбека между машинами/агентами — файлы в git
-  (ТЗ/квитанции/хэндоффы), не пересказ оператором.
+- Транспорт заданий и фидбека между машинами/агентами — durable GitHub Issue
+  events по Phase 0 contract; exact patch/evidence остаются файлами/refs в git.
+  Пересказ и перенос оператором не используются.
 - Контрольный док портфеля: `STATE.md` в корне — каждая оркестрирующая
   сессия читает его первым и обновляет последним.
 
-## Single-Mac Product Development Loop (операторское решение 09.08.2026)
+## Two-Mac Zero-Transfer Bridge Phase 0 (операторское решение 11.08.2026)
 
 - Полный контракт:
-  [docs/specs/single-mac-product-development-loop-v1.md](docs/specs/single-mac-product-development-loop-v1.md).
-  Прежний two-Mac contract superseded и не используется для routing/review.
-- Основной Mac — Product Control Plane и единственная development/merge
-  authority для platform/backend/feed/Labs, meta-repo и `STATE.md`. Один
-  активный platform-ticket; Codex implementer, Claude reviewer по требуемому
-  tier.
-- Второй Mac — Content Factory only: create/copy/variation, builds, tests,
-  traces и visual proof; максимум 2–3 `READY_TO_PLAY`. Никаких platform/backend
-  правок, merge-authority, production credentials, deploy/schedules или
-  `STATE.md` ownership.
-- Routing только по typed ingress: platform → main queue; content → factory;
-  content с platform dependency → `NEEDS_PLATFORM_CHANGE` + linked
-  platform-ticket. Model/provider не выбирает route.
-- Review input содержит ticket contract, acceptance, exact patch/head и
-  authority docs без авторского transcript/self-assessment. Bounded platform
-  patch получает один blind Claude review; core/irreversible gates сохраняют
-  exact-head CI и operator authority, но не cross-Mac ceremony.
-- Локальный spike/`wip/*` разрешён без тикета. До candidate/PR/merge/deploy
-  нужен durable ticket; готовую ветку импортируют без пересоздания.
-- Запрещены distributed merge queue, repo-lock/lease, quota optimizer, общая
-  agent platform и platform-worker на втором Mac. `swipe-agents` не является
-  dev-loop и не получает эту authority.
-- Первый vertical attended-only: GitHub Issue — единственная development
-  queue; узкий CLI может записать только `READY_TO_PLAY|NEEDS_HELP` и отправить
-  notification. Background runner, polling supervisor, автоматический запуск
-  Codex/Claude и generic candidate builder запрещены.
+  [docs/specs/two-mac-zero-transfer-bridge-phase-0.md](docs/specs/two-mac-zero-transfer-bridge-phase-0.md),
+  durable ticket/closure ledger —
+  [meta #94](https://github.com/Glera/p4g-workspace-meta/issues/94). Single-Mac
+  v1 и исходный two-Mac v1 superseded как operating authority, но их evidence
+  и merged default-off intake переиспользуются.
+- Mac A — Product Control Plane и единственная authority для meta/`STATE.md`,
+  platform/backend/feed, production/deploy и live Lab host. Mac B — Content
+  Factory author/merge owner только `swipe-generator` и `playables`; никаких
+  Telegram/backend/Render/production/publication credentials или authority.
+- Routing typed: platform → Mac A; mechanic/Labs create/copy/variation → Mac B;
+  platform dependency → `NEEDS_PLATFORM_CHANGE` + linked Mac A Issue. Никакой
+  model/provider/subscription выбор route не делает.
+- GitHub Issue — единственный durable ticket и transport. One-shot bridge pass
+  читает append-only exact events; существующая in-chat Codex heartbeat
+  возобновляет ту же bound task. Это не background runner или новый scheduler.
+  Claim требует proposal и два полных reread; fork/stale/replay/route/task
+  mismatch fail closed, offline ticket не крадётся и не переназначается.
+- Запрещены arbitrary remote-command API, distributed lease/repo lock, merge
+  queue, shared task DB, universal agent platform, quota optimizer и
+  `swipe-agents` integration. Local task binding выводится из локальной Codex
+  identity; оператор не переносит prompts/receipts/SHA/task IDs.
+- Mac B single author slot: сначала Two Dots #91, затем Smash #82, затем
+  Generator bridge, если владелец Mac B письменно не сериализовал иначе.
+  Arrows parked; Labs visual/performance/mobile polish ждёт terminal Phase 0.
+- Review tier следует реально затронутой границе. Bounded bridge/Labs patch —
+  один blind cross-provider review; backend/auth/shared authority — Tier 2.
+  New credential/permission/setting, destructive act или publication требуют
+  consolidated operator window; обычный reviewed merge/deploy без них следует
+  текущим CAS/CI правилам.
 
 ## Репозитории
 

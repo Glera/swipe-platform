@@ -1,0 +1,101 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P2",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 449,
+      "desc": "bind-generator allowed the same server-owned requestId to bind to two Issues, permitting duplicate execution"
+    },
+    {
+      "id": "F002",
+      "severity": "P2",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 838,
+      "desc": "one malformed bridge marker on any open meta Issue aborted the entire machine observation pass"
+    },
+    {
+      "id": "F003",
+      "severity": "P2",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 749,
+      "desc": "Mac A authority transitions trusted the self-asserted machine flag without checking the control-Issue task binding"
+    },
+    {
+      "id": "F004",
+      "severity": "P3",
+      "file": "scripts/two-mac-bridge-contract.mjs",
+      "line": 80,
+      "desc": "task disappearance after CLAIM_PROPOSED or CLAIMED had no typed fail-closed terminal transition"
+    },
+    {
+      "id": "F005",
+      "severity": "P3",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 590,
+      "desc": "observer advertised a task_binding_mismatch NEEDS_HELP transition that the state machine could not write"
+    },
+    {
+      "id": "F006",
+      "severity": "P3",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 374,
+      "desc": "bind-generator replay re-derived mutable Generator projection and could become non-idempotent after a successor release appeared"
+    },
+    {
+      "id": "F007",
+      "severity": "P3",
+      "file": "scripts/two-mac-bridge.mjs",
+      "line": 745,
+      "desc": "READY_TO_PLAY format-checked candidate URL and digest without fetching and byte-verifying the candidate"
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "F001",
+      "action": "fixed"
+    },
+    {
+      "id": "F002",
+      "action": "fixed"
+    },
+    {
+      "id": "F003",
+      "action": "fixed"
+    },
+    {
+      "id": "F004",
+      "action": "fixed"
+    },
+    {
+      "id": "F005",
+      "action": "fixed"
+    },
+    {
+      "id": "F006",
+      "action": "fixed"
+    },
+    {
+      "id": "F007",
+      "action": "fixed"
+    }
+  ],
+  "verify": [
+    {
+      "command": "node --test scripts/two-mac-bridge-contract.test.mjs scripts/two-mac-bridge.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node --test 'scripts/*.test.mjs'",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/two-mac-bridge.mjs bootstrap --machine mac-a",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/two-mac-bridge.mjs observe --machine mac-a",
+      "exitCode": 0
+    }
+  ]
+}

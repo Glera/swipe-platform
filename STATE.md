@@ -1,113 +1,71 @@
 # STATE.md — контрольный док портфеля
 
-## ▶ CANDIDATE DECISION LOOP v0 — DRAFT STACK READY, MERGE/LIVE GO PENDING (10.08)
+## ▶ TWO-MAC ZERO-TRANSFER BRIDGE PHASE 0 — ACTIVE (11.08)
 
-- Ticket [#91](https://github.com/Glera/p4g-workspace-meta/issues/91)
-  реализован candidate-only стеком: backend
-  [PR #63](https://github.com/Glera/swipe-backend/pull/63) `e0682cf8`, feed
-  [PR #32](https://github.com/Glera/feed-prototype/pull/32) `c5715c47`,
-  generator [PR #29](https://github.com/Glera/swipe-generator/pull/29)
-  `6062202b` и meta
-  [PR #93](https://github.com/Glera/p4g-workspace-meta/pull/93). Exact-head CI
-  всех трёх code PR terminal green; root suite 166/166.
-- READY notification теперь ведёт в один authenticated TMA review с исходной
-  просьбой, exact 9:16 candidate и чек-листом. Два продуктовых исхода:
-  append-only exact-user/dogfood accept через существующий Telegram approval
-  либо append-only rework с atomic approval fence, честным `superseded`,
-  server-owned lineage и одним successor/READY notification. Public
-  publication/activation отсутствует.
-- `0077` не мог хранить actor-bound decision, взаимоисключение, terminal fence
-  и durable successor lineage; узкая additive migration `0078` добавляет эти
-  server-owned факты без client-authored JSON и не выдумывает disposition для
-  historical closed rows. Backend race/replay/auth и чистый PG16, feed 390×844
-  browser flow, generator successor/one-notification и полные verify закрыты.
-- Один bounded blind Claude Fable high-effort review дал 1 P1, 3 P2 и 4 P3:
-  семь findings исправлены, rollout-compatibility F006 осознанно оставлен
-  fail-closed. Поэтому attended rollout только **Feed → Generator → Backend** с
-  paused candidate actions; machine-validated dispositions —
-  `labs-candidate-decision-loop-v0-auto-review-dispositions-2026-08-10.json`.
-- Mandatory add-mode evidence: Smash [#82](https://github.com/Glera/p4g-workspace-meta/issues/82),
-  [receipt](https://github.com/Glera/p4g-workspace-meta/issues/82#issuecomment-5241803721),
-  commit `58e80b1`, PR #83. Live Smash
-  `ab5e07b9-f129-4fc3-aa91-3880bb4f1df7`, Two Dots и Klondike не менялись.
-  Merge, deploy, live migration/restart, Telegram/candidate action и
-  publication не выполнялись. Единый packet:
-  `labs-candidate-decision-loop-v0-merge-rollout-packet-2026-08-10.md`, SHA-256
-  `afbdd145394d20d245b1c1131a4b5f7007fe0396c036f8c04496089e8b84f9eb`.
+- Durable contract и текущая closure matrix: meta
+  [Issue #94](https://github.com/Glera/p4g-workspace-meta/issues/94). Это не
+  возврат к двум равноправным platform-ячеям: Mac A остаётся Product Control
+  Plane, Mac B получает только `swipe-generator`/`playables` authoring и
+  обычную merge-authority своего content-контура.
+- Цель — после одного local bootstrap не переносить между машинами prompts,
+  receipts, SHA, task IDs или wake instructions. GitHub Issue — единственный
+  durable ticket/transport; один bounded heartbeat возобновляет ту же локальную
+  Codex-задачу. General scheduler/runner, remote-command API, provider picker,
+  merge queue, repo lease и shared task DB запрещены.
+- Phase 0 frozen D3–D7 как append-only Issue event chain с exact
+  ticket/request/parent/source identity, machine/task binding, replay-safe
+  idempotency и fail-closed fork/stale detection. До подтверждённого claim после
+  двух полных чтений исполнитель не стартует; offline Mac остаётся
+  `QUEUED:machine_offline` без reassignment.
+- Mac B single author slot: Two Dots legacy handoff на #91, затем Smash
+  manual-source admission на #82, затем bridge-owned Generator patch. Live Lab
+  остаётся detached exact master на Mac A; restart возможен только после exact
+  merged-SHA handoff.
+- Реализация/acceptance не может мутировать Arrows (operator-parked), принимать
+  или отклонять контент, публиковать/активировать roster/catalog либо выдавать
+  Mac B Telegram/backend/Render/production authority. Credentials/settings и
+  local heartbeats включаются только отдельным consolidated bootstrap window.
+- Terminal gate: zero-transfer A↔B smoke, offline/replay/task-missing proof,
+  Two Dots и Smash до `READY_TO_PLAY`, обязательный live Fast Lane three-edit
+  concurrency smoke и финальная closure matrix без неоднозначных хвостов. Labs
+  visual/performance/mobile polish до этого заблокирован решением оператора.
 
-## ▶ FAST LANE PARALLEL PREPARATION v1 — DRAFT STACK READY, LIVE GO PENDING (10.08)
+## ✅ CANDIDATE DECISION LOOP v0 — MERGED, LIVE, PASS (11.08)
 
-- Ticket [#84](https://github.com/Glera/p4g-workspace-meta/issues/84) реализован
-  candidate-only стеком: generator
-  [PR #27](https://github.com/Glera/swipe-generator/pull/27), feed
-  [PR #30](https://github.com/Glera/feed-prototype/pull/30), backend
-  [PR #62](https://github.com/Glera/swipe-backend/pull/62) и meta
-  [PR #87](https://github.com/Glera/p4g-workspace-meta/pull/87).
-  До 10 разных механик готовятся параллельно; source/platform head mutations
-  узко сериализованы, publication/activation остаётся одной FIFO lane.
-- READY получает immutable per-release candidate/review binding, durable
-  original-request linkage и один READY outbox event. Русские состояния:
-  «Готовится», «Готово к проверке», «Нужна помощь». In-platform review
-  воспроизводит exact frozen candidate в responsive slot с autoplay, manual
-  takeover, restart и terminal lifecycle; raw URL не является acceptance.
-- Детерминированная матрица закрывает 10 задач, реальную одновременность,
-  READY non-blocking, task-local failure, exact older-candidate identity,
-  request/notification association и две service-level publication попытки с
-  измеренным максимумом concurrency 1. Полные repo verify зелёные на exact
-  heads; изменчивые результаты и SHA зафиксированы в execution receipt/PR.
-- Один blind Claude Fable medium-effort review дал `GO_WITH_FINDINGS`: 2 P2 и
-  5 P3, все семь исправлены и покрыты regressions; валидируемая диспозиция —
-  `labs-fast-lane-parallel-v1-auto-review-dispositions-2026-08-10.json`.
-- Terminal audit не авторизовал прежний Live GO: Generator cancel завершает
-  только локальный journal, а backend не имеет terminal transition, очищающего
-  durable READY projection. Поэтому десять live Telegram-задач остаются STOP;
-  executable packet допускает после отдельного GO только exact merge/rollout
-  и zero-task/read-only smoke. Packet SHA-256:
-  `fb6a55f7b32ee81a7a3d8aa7c2e5e6b239ef23535c2cd6c76a8b7bafbfcf2395`.
-  Не выполнены merge, live DB migration/deploy, Lab restart, Telegram actions,
-  publication/activation или мутация сохранённых releases. Two Dots
-  `6c267c01-…`, Smash #82 и receipt-only #83 не менялись. Exact receipt:
-  `labs-fast-lane-parallel-v1-execution-receipt-2026-08-10.md`; единый attended
-  route: `FAST-LANE-PARALLEL-V1-LIVE-GO-2026-08-10.md`.
+- Meta/backend/feed/Generator stack merged and rolled out; backend DB graph is
+  live through the Candidate Decision Loop additive revision. Exact rollout
+  receipt and later Two Dots handoff are durable in
+  [Issue #91](https://github.com/Glera/p4g-workspace-meta/issues/91).
+- Authenticated TMA review, exact-user accept/rework fence, server-owned
+  successor lineage and one READY notification were smoke-tested. Public
+  publication/activation remains outside this loop. Implementation is closed;
+  Issue #91's current use for Two Dots does not reopen it.
 
-## ▶ SINGLE-MAC PRODUCT DEVELOPMENT LOOP v1 — LOCAL CANDIDATE READY (09.08)
+## ▶ FAST LANE PARALLEL PREPARATION v1 — CODE LIVE, ACCEPTANCE PENDING (11.08)
 
-- Оператор отменил модель двух равноправных development-ячеек. Main Mac —
-  единственный Product Control Plane для platform/backend/feed/Labs,
-  PR/merge/deploy, portfolio и `STATE.md`; Second Mac — Content Factory only
-  без platform/backend authority, credentials, deploy или STATE ownership.
-- Действующий контракт:
-  `docs/specs/single-mac-product-development-loop-v1.md`. Исторический
-  `docs/specs/two-mac-development-operating-model.md` помечен superseded;
-  нижняя two-Mac запись сохранена только как audit trail.
-- Routing v1 typed и детерминированный: Telegram platform change → одна очередь
-  Main Mac; Labs create/copy/variation → Content Factory; content dependency на
-  платформу → `NEEDS_PLATFORM_CHANGE` + linked platform-ticket. AI-router,
-  quota optimizer, distributed merge queue, repo-lock/lease и общая agent
-  platform запрещены.
-- Реализован local default-off candidate: Telegram Mini App intake → durable
-  backend request/Issue outbox → один complete GitHub Issue POST → attended
-  terminal receipt `READY_TO_PLAY|NEEDS_HELP` → durable Telegram notification,
-  отправляемая explicit one-shot CLI attended Main-Mac session. Оператор сам
-  CLI не запускает: он надиктовывает задачу, получает terminal notification и
-  открывает результат. GitHub Issues — единственная development queue;
-  background runner/scheduler/subscription launcher и generic candidate builder
-  отсутствуют. Stub→PATCH и genesis-comment подсистема удалены.
-- Exact branch/CI authority — draft PR meta #80, backend #61 и feed #28;
-  изменчивые heads и результаты не дублируются здесь. Checkpoints
-  `feac852`/`337609f` не являются ancestry и остались неизменными.
-- Bounded correction уменьшает transport/schema без нового lifecycle или
-  authority. Physical `0075↔0076`, full repo verify, negative proof и
-  один новый blind full review остаются обязательными gates; их результаты
-  фиксируются в PR/output, не в authority patch до собственного review.
-- Открыты только draft PR: meta #80, backend #61, feed #28. Не выполнены и не
-  авторизованы: real GitHub Issue/Telegram smoke, миграция живой БД,
-  merge/deploy, credentials/env/settings или runtime schedules. Они остаются
-  отдельными gates после операторского решения. Exact attended
-  инструкция без secrets:
-  `SINGLE-MAC-PRODUCT-DEVELOPMENT-LOOP-V1-LIVE-SMOKE-HANDOFF-2026-08-09.md`.
-  Content Factory и Second Mac не менялись; исходный dirty workspace не
-  затронут.
+- Meta/backend/feed/Generator stack from
+  [Issue #84](https://github.com/Glera/p4g-workspace-meta/issues/84) is merged
+  and included in the current live bytes. Deterministic tests prove ten
+  preparation slots, failure isolation, immutable candidates, one READY event
+  and a single publication writer.
+- Not yet terminal: the operator-mandated attended exact-user smoke must submit
+  at least three independent mechanic edits together, observe at least two in
+  `PREPARING`, obtain independent READY or typed FAILED/BLOCKED, prove failure
+  isolation and exactly one notification per READY. It runs only after Phase 0
+  bridge/bootstrap and current #91/#82 handoffs are safe; no accept/reject or
+  publication write is allowed.
+
+## ↪ SINGLE-MAC PRODUCT DEVELOPMENT LOOP v1 — FOUNDATION REUSED, MODEL SUPERSEDED (11.08)
+
+- Telegram platform intake, durable backend record, one Issue transport,
+  attended terminal status and Telegram notification are merged/default-off
+  foundations. The previous Single-Mac-only ownership model is superseded by
+  Issue #94; stale rollout PR #86 was closed without deleting its branch or
+  evidence.
+- No GitHub App/bridge flags, new credentials/settings or unattended code
+  execution were activated by this decision. Platform/backend/feed authority
+  remains exclusively Mac A; the only restored Mac B authority is its bounded
+  Content Factory repos.
 
 ## ▶ FIX MUTATION PIPELINE v0 ЗАВЕРШЁН: GO FAMILY A (09.08)
 
@@ -155,7 +113,12 @@
   Frozen terminal decision: **`GO FAMILY A`**; Family A в этой цели не
   запускалась и требует отдельного контракта.
 
-## ▶ TWO-MAC DEVELOPMENT MODEL ЗАФИКСИРОВАН; АВТОМАТИЗАЦИЯ НЕ НАЧАТА (09.08)
+## ↪ TWO-MAC DEVELOPMENT MODEL v1 — HISTORICAL, SUPERSEDED (09.08)
+
+Эта запись — audit trail решения 09.08, не текущая очередь и не authority.
+Модель равноправных development-ячеек была superseded Single-Mac решением, а
+узкий successor от 11.08 зафиксирован в Issue #94 и
+`docs/specs/two-mac-zero-transfer-bridge-phase-0.md`.
 
 - Целевая схема: две рабочие ячейки, на каждой Claude + Codex. Mac A владеет
   Product Platform/portfolio; Mac B — Playables/Labs/Engineering OS. Авторы
@@ -169,8 +132,9 @@
 - Живой Lab остаётся на Mac A из detached master; код/merge generator — Mac B.
   `swipe-agents` остаётся no-LLM production ops и не смешивается с Engineering
   OS. Repo-lock, merge queue и quota optimizer в v1 не строятся.
-- Authority: `docs/specs/two-mac-development-operating-model.md`. Исполняемый
-  handoff: `TWO-MAC-DEVELOPMENT-OPERATING-MODEL-HANDOFF-2026-08-09.md`.
+- Historical authority: `docs/specs/two-mac-development-operating-model.md`.
+  Исполняемый handoff `TWO-MAC-DEVELOPMENT-OPERATING-MODEL-HANDOFF-2026-08-09.md`
+  нельзя запускать как текущий dispatcher/lease/merge plan.
 - Первый полезный vertical после отдельного GO: mobile platform ticket →
   GitHub Issue → Mac A implementation + Tier 1 review → единая
   READY_TO_PLAY/NEEDS_HELP очередь → операторский наигрыш.

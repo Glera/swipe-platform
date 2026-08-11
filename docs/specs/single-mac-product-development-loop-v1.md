@@ -1,13 +1,16 @@
 # Single-Mac Product Development Loop v1
 
-Статус: **FROZEN как operating authority** (операторское решение 09.08.2026).
+Статус: **SUPERSEDED как operating authority решением 11.08.2026; merged
+default-off foundation остаётся reusable evidence**.
 
-Supersedes:
-`docs/specs/two-mac-development-operating-model.md`.
+Successor:
+`docs/specs/two-mac-zero-transfer-bridge-phase-0.md`.
 
-Эта модель определяет development ownership и routing. Продуктовый смысл
-остаётся в `VISION.md`; merge/deploy/publication/credential authority из
-`CLAUDE.md` не расширяется.
+Ниже сохранён frozen контракт 09.08. Его Telegram intake → durable backend
+record → one Issue → attended terminal status → Telegram notification уже
+влит и переиспользуется. Запрет Mac B на merge `swipe-generator`/`playables` и
+Single-Mac-only routing больше не действуют; остальные credential/publication
+границы сохраняются в successor и `CLAUDE.md`.
 
 ## 1. Топология
 
