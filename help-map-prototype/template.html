@@ -249,13 +249,13 @@ body{
   backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px)}
 .me-label{display:block; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
   color:var(--ink-dim); margin:0 0 6px}
-.me-row{display:flex; align-items:center; gap:11px}
+.me-row{display:flex; flex-direction:column; align-items:stretch; gap:8px}
 .me-paws{display:inline-flex; align-items:center; gap:6px; font-size:12px}
 .me-paws svg{width:14px; height:14px; fill:#C99B3F; flex:none}
 .me-paws b{font-weight:700; font-variant-numeric:tabular-nums}
 #me-coll{border:1px solid var(--panel-edge); background:var(--chip); color:var(--ink);
-  border-radius:10px; padding:6px 10px; font-family:inherit; font-size:11px; font-weight:600;
-  letter-spacing:.02em; cursor:pointer; transition:transform .16s var(--ease)}
+  border-radius:10px; padding:7px 10px; font-family:inherit; font-size:11px; font-weight:600;
+  letter-spacing:.02em; cursor:pointer; transition:transform .16s var(--ease); text-align:center}
 #me-coll:active{transform:scale(.96)}
 
 /* бланк сезона — бумажный документ поверх любой темы */
