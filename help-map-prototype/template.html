@@ -267,11 +267,12 @@ body.flying .marker.fresh .zone{animation:none !important}
   background:rgba(20,16,10,.45); opacity:0; pointer-events:none; transition:opacity .3s var(--ease)}
 #blankwrap.on{opacity:1; pointer-events:auto}
 #blankcard{width:min(360px, 92vw); max-height:86vh; overflow:auto; background:#F2EDE3; color:#2A2622;
-  border:1px solid #CFC5B4; border-radius:14px; padding:20px 18px 16px; position:relative;
+  border:1px solid #CFC5B4; border-radius:14px; padding:22px 20px 18px; position:relative;
   box-shadow:0 24px 60px -24px rgba(0,0,0,.55);
-  background-image:repeating-linear-gradient(#F2EDE3, #F2EDE3 27px, #D8CFC0 27px, #D8CFC0 28px);
-  background-position:0 54px;
   transform:translateY(12px) scale(.98); transition:transform .3s var(--ease)}
+/* вместо линованных полосок — тонкая пунктирная рамка-паспарту */
+#blankcard::after, #collcard::after{content:""; position:absolute; inset:7px;
+  border:1.5px dashed #CBB98F; border-radius:9px; pointer-events:none}
 #blankwrap.on #blankcard{transform:none}
 #blankclose{position:absolute; top:8px; left:10px; width:26px; height:26px; border:0; border-radius:50%;
   background:rgba(42,38,34,.08); color:#6B6259; font-size:15px; line-height:1; cursor:pointer}
@@ -282,7 +283,8 @@ body.flying .marker.fresh .zone{animation:none !important}
 #b-name{margin:6px 0 2px; font-size:20px; font-weight:600; letter-spacing:-.01em; max-width:80%}
 #b-sub{font-size:11px; color:#6B6259; letter-spacing:.05em; margin-bottom:12px}
 .bdesc{font-size:12.5px; line-height:1.55; color:#2A2622; margin:2px 0 6px}
-.bdesc details{display:inline}
+.bdesc .short{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.bdesc details{display:block; margin-top:3px}
 .bdesc summary{display:inline; cursor:pointer; color:#4A3F8F; list-style:none; font-size:12px}
 .bdesc summary::-webkit-details-marker{display:none}
 .bdesc .full{display:block; margin-top:6px; color:#6B6259}
@@ -754,6 +756,10 @@ function zoomAt(sx, sy, factor){
 let tween = null;
 function flyTo(k, ox, oy, dur){
   const a = { k: view.k, ox: view.ox, oy: view.oy }, t0 = performance.now();
+  // центр перелёта интерполируем в мировых координатах: если гнать ox/oy
+  // линейно при лог-масштабе, фокус уезжает вбок и «возвращается» к концу
+  const c0x = (vw / 2 - a.ox) / a.k, c0y = (vh / 2 - a.oy) / a.k;
+  const c1x = (vw / 2 - ox) / k,     c1y = (vh / 2 - oy) / k;
   dur = dur || 620;
   let started = false;
   // на время перелёта маркеры не анимируются сами по себе:
@@ -766,7 +772,8 @@ function flyTo(k, ox, oy, dur){
     const e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
     // интерполяция масштаба в лог-пространстве — движение читается ровнее
     view.k = a.k * Math.pow(k / a.k, e);
-    view.ox = a.ox + (ox - a.ox) * e; view.oy = a.oy + (oy - a.oy) * e;
+    const ccx = c0x + (c1x - c0x) * e, ccy = c0y + (c1y - c0y) * e;
+    view.ox = vw / 2 - ccx * view.k; view.oy = vh / 2 - ccy * view.k;
     // перелёт едет тем же дешёвым путём, что и жест
     if (u >= 1){ tween = null; gesturing = false; document.body.classList.remove("flying"); commit("конец перелёта"); }
     else { nudge(); requestAnimationFrame(self); }
@@ -813,8 +820,35 @@ const pointers = new Map();
 let panning = false, moved = 0, downTarget = null, pinch0 = 0, pinchK = 0, pinchMid = null;
 let touched = false;
 
+/* ------------------------------------------------------- инерция панорамы -- */
+const vel = { x: 0, y: 0, t: 0 };
+let glide = null;
+function startGlide(){
+  if (performance.now() - vel.t > 90) return false;   // палец замер перед отпусканием
+  if (Math.hypot(vel.x, vel.y) < 0.06) return false;  // слишком медленно — без заноса
+  let last = performance.now();
+  beginGesture();
+  const step = (now) => {
+    if (glide !== step) return;
+    const dt = Math.min(50, now - last); last = now;
+    const decay = Math.exp(-dt / 240);
+    vel.x *= decay; vel.y *= decay;
+    const ex = view.ox + vel.x * dt, ey = view.oy + vel.y * dt;
+    view.ox = ex; view.oy = ey;
+    nudge();
+    if (Math.abs(view.ox - ex) > 0.5) vel.x = 0;      // упёрлись в границу — гасим ось
+    if (Math.abs(view.oy - ey) > 0.5) vel.y = 0;
+    if (Math.hypot(vel.x, vel.y) < 0.02){ glide = null; endGesture(); return; }
+    requestAnimationFrame(step);
+  };
+  glide = step; requestAnimationFrame(step);
+  return true;
+}
+function stopGlide(){ glide = null; }
+
 stage.addEventListener("pointerdown", (e) => {
-  stopTween(); touched = true; beginGesture();
+  stopTween(); stopGlide(); vel.x = 0; vel.y = 0; vel.t = 0;
+  touched = true; beginGesture();
   // capture может бросить на синтетических/чужих pointerId — тогда жест просто
   // работает без захвата, но обработчик не должен падать до регистрации точки
   try { stage.setPointerCapture(e.pointerId); } catch (err) {}
@@ -836,6 +870,11 @@ stage.addEventListener("pointermove", (e) => {
   if (pointers.size === 1 && panning){
     moved += Math.abs(dx) + Math.abs(dy);
     if (moved > 5 && !stage.classList.contains("dragging")) stage.classList.add("dragging");
+    const now = performance.now();
+    const vdt = Math.max(1, now - (vel.t || now - 16));
+    vel.x = 0.75 * vel.x + 0.25 * (dx / vdt);
+    vel.y = 0.75 * vel.y + 0.25 * (dy / vdt);
+    vel.t = now;
     view.ox += dx; view.oy += dy;
     nudge();                       // синхронно: палец не ждёт кадра
   } else if (pointers.size === 2){
@@ -860,8 +899,10 @@ function endPointer(e){
   if (pointers.size === 0){
     pointerSeqAt = performance.now();
     if (panning && moved <= 5 && downTarget) tap(downTarget);
+    const wasPan = panning && moved > 5;
     panning = false; downTarget = null;
-    endGesture();                  // жест кончился — честная перерисовка
+    // бросок продолжает занос; без него — честная перерисовка сразу
+    if (!(wasPan && startGlide())) endGesture();
   }
 }
 stage.addEventListener("pointerup", endPointer, { passive: true });
@@ -877,7 +918,7 @@ stage.addEventListener("click", (e) => {
 });
 
 stage.addEventListener("wheel", (e) => {
-  e.preventDefault(); stopTween(); touched = true; clearSpider(); beginGesture();
+  e.preventDefault(); stopTween(); stopGlide(); touched = true; clearSpider(); beginGesture();
   let d = e.deltaY;
   if (e.deltaMode === 1) d *= 16; else if (e.deltaMode === 2) d *= vh;
   zoomAt(e.clientX, e.clientY, Math.pow(2, -d / 380));
@@ -886,8 +927,18 @@ stage.addEventListener("wheel", (e) => {
 
 stage.addEventListener("dblclick", (e) => { stopTween(); clearSpider(); beginGesture(); zoomAt(e.clientX, e.clientY, 2.2); endGesture(); });
 
-document.getElementById("zin").onclick = () => { stopTween(); touched = true; clearSpider(); beginGesture(); zoomAt(vw / 2, vh / 2, 1.8); endGesture(); };
-document.getElementById("zout").onclick = () => { stopTween(); touched = true; clearSpider(); beginGesture(); zoomAt(vw / 2, vh / 2, 1 / 1.8); endGesture(); };
+/* кнопки зума — плавный шаг вокруг центра, а не мгновенный прыжок */
+function zoomButton(f){
+  stopTween(); stopGlide(); touched = true; clearSpider();
+  const k0 = view.k;
+  const k1 = Math.max(kFit * Z_MIN, Math.min(kFit * Z_MAX, k0 * f));
+  if (k1 === k0) return;
+  const ox1 = vw / 2 - (vw / 2 - view.ox) * (k1 / k0);
+  const oy1 = vh / 2 - (vh / 2 - view.oy) * (k1 / k0);
+  flyTo(k1, ox1, oy1, 260);
+}
+document.getElementById("zin").onclick = () => zoomButton(1.8);
+document.getElementById("zout").onclick = () => zoomButton(1 / 1.8);
 document.getElementById("zhome").onclick = () => { stopTween(); closeBlank(); clearSpider(); homeView(true); };
 
 /* ------------------------------------------------------------- топонимы -- */
@@ -1297,7 +1348,10 @@ function openBlank(k){
   mediaIdx = 0; strip.style.transform = "";
   const desc = document.getElementById("b-desc");
   desc.textContent = "";
-  desc.append((k.desc || (k.type + " — " + k.city + ".")) + " ");
+  const shortEl = document.createElement("span");
+  shortEl.className = "short";
+  shortEl.textContent = k.desc || (k.type + " — " + k.city + ".");
+  desc.append(shortEl);
   const det = document.createElement("details");
   const sum = document.createElement("summary");
   sum.textContent = "читать запрос полностью…";

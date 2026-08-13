@@ -179,7 +179,7 @@
 
   /* ── бумажный бланк ── */
   .card{background:var(--paper);border:1px solid var(--edge);border-radius:12px;padding:18px 16px 16px;position:relative}
-  .card--ruled{background-image:repeating-linear-gradient(var(--paper),var(--paper) 27px,var(--rule) 27px,var(--rule) 28px);background-position:0 46px}
+  .card--ruled::after{content:"";position:absolute;inset:8px;border:1.5px dashed var(--edge);border-radius:8px;pointer-events:none}
   .stamp{position:absolute;top:12px;right:12px;transform:rotate(-7deg);border:2px solid var(--stamp);color:var(--stamp);border-radius:4px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:4px 7px;opacity:.9}
   .stamp--seal{border-color:var(--seal);color:var(--seal)}
   .case-title{font-family:var(--serif);font-size:21px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
