@@ -69,8 +69,12 @@
 - Review ladder: playable/content dogfood — technical checks + visual proof +
   операторский наигрыш без обязательного LLM review; bounded platform/Labs
   code — один blind cross-provider review; shared backend/migrations/auth/
-  money/release authority — cross-Mac frontier review, exact-head CI и
-  требуемая вторая подпись.
+  money/release authority — blind cross-Mac review, exact-head CI и требуемая
+  вторая подпись. Для code review дефолт — Claude Opus 5 с `high` effort.
+  Claude Fable используется только для исключительной frontier-эскалации и
+  только с `high`; `max` допускается лишь по отдельному явному запросу
+  оператора. Opus-review не заменяет frontier/operator authority на
+  необратимый акт.
 - Локальный spike и `wip/*`-ветка разрешены без тикета, но PR/candidate,
   передача другой машине, merge или deploy требуют durable ticket contract.
   Существующая ветка привязывается к тикету без пересоздания.
@@ -80,6 +84,44 @@
 - В v1 нет отдельного repo-lock, merge queue или quota optimizer. GitHub Issue
   — durable engineering record, Telegram/Mini App — операторский UX. Полный
   контракт: `docs/specs/two-mac-development-operating-model.md`.
+
+## Упрощение dev-процесса (операторское решение 13.08.2026)
+
+- **GO только по имени категории ядра.** Запрос дополнительного GO обязан
+  назвать одну категорию из исчерпывающего списка выше: `secrets/credentials`,
+  `money/payment`, `irreversible external act`, `foreign user data` либо
+  отдельно сохраняемый операторский акт `live DB migration`. Если категория
+  не названа и границы уже подписанного scope не изменились, новый GO не
+  существует и не запрашивается.
+- **Standing authority в неизменном подписанном scope** покрывает read-only
+  evidence, bounded correction, PR/CI/merge, один штатный reversible
+  deploy/restart и одну заранее описанную recovery. Оно не разрешает новые
+  credentials/settings/permissions/infrastructure, публикационное или
+  финансовое решение, destructive act, работу с чужими данными, расширение
+  scope, автоматический retry/rollback и live-миграцию БД. Любая live-миграция
+  пока остаётся отдельным операторским актом, даже если additive.
+- **Один review-раунд** означает один blind discovery со всей партией
+  findings, одну общую коррекцию всех P1/P2 и один узкий author-blind
+  delta-verification нового exact head. P3 по умолчанию не блокируют выпуск и
+  собираются в bounded polish batch. Изменение head аннулирует прежнюю
+  подпись, но требует delta-подпись, а не новый полный discovery. Новый полный
+  поиск запускается только по явному запросу оператора либо при расширении
+  scope/authority.
+- Durable receipt-файл в meta-repo создаётся только для canonical core/release
+  outcome. Tier 0/1 review, промежуточные раунды и обычные handoff/CI receipts
+  живут в PR/Issue/task output. Исторические review-серии доступны через git и
+  единый index, а не остаются в активном дереве.
+- `STATE.md` — короткий контрольный экран (целевой предел 150 строк), не
+  ledger: только активная очередь, production checkpoint, ближайшие решения и
+  парковки. История остаётся в git/Issue/PR.
+- Worktree GC проводится еженедельно только после raw census каждого repo.
+  Автоматически допустимы лишь clean, unlocked, inactive, merged/reachable
+  worktree без уникальных локальных commit; dirty/locked/unreachable требуют
+  ручной диспозиции. Пустой вывод helper не заменяет census.
+- До измерения 10–20 реальных two-Mac тикетов не строятся merge queue,
+  repo-lock/lease, quota optimizer, новый task-store/БД или новый dispatcher.
+  Пост-пилотное решение и конфликт portfolio-приоритетов принадлежат
+  оператору. Весь пакет пересматривается перед появлением живой аудитории.
 
 # Durable product decisions
 

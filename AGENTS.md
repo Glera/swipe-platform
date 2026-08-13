@@ -9,12 +9,17 @@ Cross-repo research каталога игровых классов и шабло
 [docs/mechanics/README.md](docs/mechanics/README.md). Это proposal для выбора
 и подготовки прототипов, не implementation status и не product authority.
 
-## Роли моделей и оркестрация (операторские решения 04.08 и 07.08.2026)
+## Роли моделей и оркестрация (операторские решения 04.08, 07.08 и 12.08.2026)
 
-- Оркестрация инициатив, архитектура, вкусовые решения и финальное ревью —
-  только frontier-модели (Claude Fable / Codex Sol max effort). Opus 5 —
-  исполнитель bounded-задач с критериями приёмки; Opus не оркестрирует
-  frontier-агентов и не принимает vision-решений.
+- Оркестрация инициатив, архитектура, вкусовые решения и финальные
+  vision/authority-решения — только frontier-модели. Для Claude Fable
+  используется `high` effort; `max` запрещён без отдельного явного запроса
+  оператора. Fable вызывается только как исключительная frontier-эскалация,
+  когда обычного code review недостаточно.
+- Обычный blind code review, включая exact-head review Tier 1/Tier 2, по
+  умолчанию выполняет Claude Opus 5 с `high` effort. Opus 5 может подписывать
+  code-review verdict, но не оркестрирует frontier-агентов, не принимает
+  vision/authority-решений и не заменяет требуемую подпись на необратимый акт.
 - Маршрутизация вниз — ответственность frontier-оркестратора, не оператора:
   frontier сам решает, какие задачи отдать Opus-субагентам, и сам ревьюит
   результат. Оператор не управляет выбором модели и не получает «даунгрейд»
@@ -40,7 +45,7 @@ Cross-repo research каталога игровых классов и шабло
   retry или rollback после ошибки требуют новой оценки, не выполняются по
   инерции.
 - Один владелец на контур в каждый момент; смена владельца — только через
-  письменный хэндофф. Второй frontier — адверсариальный ревьюер, не
+  письменный хэндофф. Независимый reviewer — адверсариальный ревьюер, не
   со-владелец.
 - Необратимые шаги (контур «ядро» в [CLAUDE.md](CLAUDE.md)) исполняются
   только со второй подписью: оператор или frontier-сессия поверх вердикта
@@ -48,12 +53,24 @@ Cross-repo research каталога игровых классов и шабло
 - Подпись привязана к уровню модели, не к сессии: если оркестрирующая
   сессия обнаруживает себя на не-frontier модели (даунгрейд клиента,
   авто-выбор), она НЕ даёт подписей/GO, явно сообщает об этом оператору и
-  ограничивается статусом по STATE.md до восстановления frontier. Уже
-  данные подписи остаются в
-- Транспорт заданий и фидбека между машинами/агентами — файлы в git
-  (ТЗ/квитанции/хэндоффы), не пересказ оператором.
+  ограничивается статусом по STATE.md до восстановления frontier. Уже данные
+  подписи остаются действительными для подписанного exact head.
+- Запрос GO обязан назвать категорию ядра из `CLAUDE.md`. Если категория не
+  названа, scope/authority не расширены и действие входит в standing authority,
+  агент продолжает сам и не создаёт процедурный GO. Любая live-миграция БД
+  пока остаётся отдельным операторским актом.
+- Standing authority неизменного подписанного scope: read-only evidence,
+  bounded correction, PR/CI/merge, один штатный reversible deploy/restart и
+  одна заранее описанная recovery. Оно не покрывает scope expansion, новые
+  secrets/credentials/settings/permissions/infrastructure, irreversible acts,
+  live DB migration, automatic retry/rollback или product/taste decision.
+- Транспорт между машинами — durable GitHub Issue/PR с exact identity. Если
+  handoff разрешает следующую работу, тот же record обязан содержать typed
+  discoverable wake; evidence и wake не разделяются. Отдельный файл нужен
+  только для canonical core/release outcome, не для Tier 0/1 review-раундов.
 - Контрольный док портфеля: `STATE.md` в корне — каждая оркестрирующая
-  сессия читает его первым и обновляет последним.
+  сессия читает его первым и обновляет последним. Это экран до 150 строк, не
+  исторический ledger.
 
 ## Две рабочие ячейки и тикеты (операторское решение 09.08.2026)
 
@@ -63,8 +80,13 @@ Cross-repo research каталога игровых классов и шабло
   может меняться, владелец линии — только через письменный handoff.
 - Review tier определяется реально затронутой authority-границей. Tier 0
   playable/content dogfood не требует модельного review; Tier 1 получает один
-  blind cross-provider review на том же Mac; Tier 2 — cross-Mac frontier
-  review, exact-head CI и нужный operator GO.
+  blind cross-provider review на том же Mac; Tier 2 — blind cross-Mac review,
+  exact-head CI и нужную вторую подпись. Один раунд = один discovery со всей
+  партией findings, общая коррекция P1/P2 и один узкий author-blind
+  delta-verification нового exact head; P3 не блокируют по умолчанию. Новый
+  полный discovery — только по явному запросу оператора либо при расширении
+  scope/authority. Дефолт reviewer для кода — Claude Opus 5 `high`; Fable
+  `high` — только явно обоснованная frontier-эскалация.
 - Review input содержит исходный ticket contract, acceptance criteria, exact
   patch/head и связанные authority docs, но не авторский транскрипт и
   самооценку.
@@ -73,7 +95,8 @@ Cross-repo research каталога игровых классов и шабло
   ветку привязывают к нему, не создают заново.
 - В v1 сериализация — один merge-authority + repo/path intent в тикете;
   отдельные repo-lock/lease и merge queue не строятся до фактической
-  необходимости после 10–20 тикетов.
+  необходимости после 10–20 тикетов. Пост-пилотное решение и конфликт
+  portfolio-приоритетов разрешает оператор.
 - `swipe-agents` не является dev-loop. Engineering OS живёт отдельно и не
   получает production credentials или Telegram bot authority.
 - Код `swipe-generator` принадлежит Mac B, но живой Lab до отдельного решения

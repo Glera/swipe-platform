@@ -1,7 +1,9 @@
 # Two-Mac Development Operating Model v1
 
 Статус: целевая operating model зафиксирована оператором 09.08.2026;
-автоматический диспетчер ещё не реализован. Исполняемый handoff:
+пилот фактически идёт через mobile intake, durable Issue wake и две линии;
+универсальный автоматический dispatcher не строится до решения по метрикам
+10–20 реальных тикетов. Исполняемый handoff:
 `TWO-MAC-DEVELOPMENT-OPERATING-MODEL-HANDOFF-2026-08-09.md`.
 
 ## 1. Цель
@@ -136,6 +138,13 @@ SUBMITTED → TRIAGED → QUEUED → IN_PROGRESS
 - Ошибка никогда не остаётся только в локальном логе: она даёт
   `NEEDS_HELP` с безопасным объяснением.
 - Принятие оператором относится к exact candidate, а не к названию ветки.
+- `NEEDS_HELP` не переносится оператором вручную. Не позднее следующего
+  доступного orchestration/heartbeat окна portfolio owner классифицирует его:
+  техническая проблема внутри standing authority возвращается line owner;
+  product/taste/новая authority идёт оператору; повторный failure либо
+  неоднозначный CAS завершается typed `STOP`.
+- Durable handoff, который разрешает следующую работу, в том же Issue/PR
+  содержит typed discoverable wake. Evidence без wake не считается dispatch.
 
 ## 8. Три ступени review
 
@@ -158,11 +167,19 @@ visual proof и операторский наигрыш. Модельного re
 - связанные authoritative docs и callers/tests;
 - без авторского плана, транскрипта и самооценки.
 
+Один раунд — это один discovery со всей партией findings, одна общая
+диспозиция/коррекция P1/P2 и один узкий author-blind delta-verification нового
+exact head. P3 не блокируют по умолчанию и собираются в одну bounded polish
+batch. Новый полный discovery выполняется только по явному запросу оператора
+или при расширении scope/authority.
+
 ### Tier 2 — core/shared authority
 
 Shared backend, миграции, auth, деньги, impact authority и release-инфра:
-review другой frontier-моделью с другого Mac, exact-head CI и требуемая
-операторская вторая подпись/GO.
+blind review с другого Mac, exact-head CI и требуемая вторая подпись по
+категории ядра из `CLAUDE.md`. После исправления P1/P2 новый head получает
+обязательную узкую delta-подпись; прежняя exact-head подпись недействительна,
+но полный discovery не повторяется автоматически.
 
 ## 9. Параллельная работа
 
@@ -174,6 +191,7 @@ review другой frontier-моделью с другого Mac, exact-head CI
   ждёт либо получает письменный handoff.
 - Merge-authority сериализует фактические merge без отдельной merge-системы.
 - Core/backend изменения не ведутся двумя авторами одновременно.
+- При конфликте portfolio-приоритетов последнее слово принадлежит оператору.
 - Активный Fast Lane rework может встретить CAS при merge в `playables`;
   это штатный durable failure/retry, а не повод строить новый lease в v1.
 
@@ -214,6 +232,10 @@ review → candidate → READY_TO_PLAY notification/inbox → operator decision`
 candidate, долю конфликтов и ручные повторяющиеся шаги. Затем выбрать между
 простым provider adapter и сохранением frontier-assisted запуска. Автоматический
 quota optimizer не является предусловием полезной системы.
+
+До этого решения запрещено добавлять новый task-store/БД, bridge/dispatcher,
+merge queue, repo-lock/lease или quota optimizer для лечения единичного
+transport-инцидента.
 
 ## 12. Критерии успеха пилота
 

@@ -19,16 +19,21 @@ worktree-копии игнорируются.
 
 ## 2. `worktree-status` — порядок в копиях репозиториев
 
-**Что это.** Read-only обзор всех git worktree шести репо.
+**Что это.** Read-only обзор git worktree репозиториев workspace. Его вывод —
+подсказка, а не authoritative census.
 
 **Как пользоваться.**
 ```
 node scripts/worktree-status.mjs
 ```
-Таблица: repo / branch / clean-dirty / merged / ahead-behind / дата / путь.
+Сначала получить raw census в каждом repo через `git worktree list
+--porcelain`; только затем запускать helper. Таблица helper: repo / branch /
+clean-dirty / merged / ahead-behind / дата / путь.
 В конце — блок «Safe to remove»: готовые команды `git worktree remove`
-ТОЛЬКО для копий, которые clean И влиты в origin/master И не main/locked.
-Скрипт никогда ничего не удаляет сам — копируешь команду руками, если согласен.
+ТОЛЬКО для копий, которые одновременно clean, merged/reachable, unlocked,
+inactive и без уникальных локальных commit. Dirty, locked и unreachable не
+удаляются автоматически. `No worktrees found` не доказывает пустой census.
+Скрипт никогда ничего не удаляет сам — команды проверяются по raw census.
 
 **Кейс.** Первый же прогон нашёл 7 копий, которые можно снести (6 у
 backend, 1 у feed) — это диск и, главное, голова: не надо помнить, «а что
@@ -48,9 +53,13 @@ backend, 1 у feed) — это диск и, главное, голова: не �
    base + staged + unstaged + untracked), выкидывает секреты (fail-closed),
    строит изолированный checkout;
 2. ревьюер смотрит diff + код и возвращает findings `F001…` с P1/P2/P3;
-3. автор обязан по КАЖДОМУ: исправить или отклонить с причиной —
+3. автор обязан по КАЖДОМУ: исправить или отклонить с причиной; все P1/P2
+   обрабатываются одной партией, P3 не блокируют по умолчанию —
    молча пропустить нельзя (валидатор не даст);
-4. повторяются verify-команды репо, резюме идёт в PR description.
+4. повторяются verify-команды и выполняется один узкий author-blind
+   delta-verification нового exact head; полного повторного discovery нет;
+5. единое резюме идёт в PR/Issue или task output, отдельный receipt-файл для
+   Tier 0/1 не создаётся.
 
 **Кейс.** Ты просишь агента добавить endpoint в swipe-backend. Перед
 коммитом он сам вызывает auto-review; ревьюер находит «P1: нет проверки
@@ -176,3 +185,7 @@ generator — он не спрашивает тебя, как проверять
 доказательств, которые можно посмотреть за минуту** — резюме auto-review,
 пара роликов visual-proof, зелёный чистый CI. Твоя роль смещается с
 «проверить всё» на «решить по доказательствам».
+
+Durable файл в meta-repo нужен только для canonical core/release outcome.
+Обычные review, CI, handoff и промежуточные диспозиции остаются в связанном
+PR/Issue; historical серии доступны через git-backed archive index.
