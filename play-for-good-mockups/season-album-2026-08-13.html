@@ -2,7 +2,7 @@
 <html lang="ru">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Play for Good — сезонный альбом, итерация 4 (13.08)</title>
+<title>Play for Good — сезонный альбом, итерация 5 (13.08)</title>
 <style>
   :root{
     --paper:#F2EDE3; --paper-2:#E9E2D5; --ink:#2A2622; --ink-soft:#6B6259;
@@ -39,35 +39,39 @@
   .phone{width:100%;max-width:378px;border:1px solid var(--edge);border-radius:22px;background:var(--paper-2);padding:16px 14px 20px;box-shadow:0 1px 0 var(--shadow),0 14px 34px -22px var(--shadow)}
   .phone--feed{background:var(--feed-bg);border-color:#20242F;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:470px}
 
-  /* ── HUD: уровень слева на всю высоту, справа сезон над друзьями ── */
+  /* ── HUD ── */
   .hudgrid{display:flex;gap:10px;align-items:stretch}
-  .lvltile{flex:none;width:78px;background:var(--feed-card);border:1px solid var(--feed-edge);border-radius:16px;
-    display:grid;place-items:center;position:relative}
-  .lvl__ring{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
-    background:conic-gradient(var(--paw-gold) var(--lvl,62%),#2A2F3E 0);padding:3.5px;transition:background .5s}
-  .lvl__core{width:100%;height:100%;border-radius:50%;background:#181C27;display:grid;place-items:center;
-    color:var(--feed-ink);font-weight:800;font-size:20px}
-  .lvl__plus{position:absolute;right:5px;bottom:5px;width:20px;height:20px;border-radius:50%;
-    background:var(--feed-green);color:#08130C;font-weight:800;font-size:14px;line-height:1;
+  .lvltile{flex:none;width:78px;position:relative}
+  .lvlframe{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .lvlframe rect{fill:none;stroke-width:3;vector-effect:non-scaling-stroke}
+  .lvlframe__bg{stroke:#2A2F3E}
+  .lvlframe__fg{stroke:var(--paw-gold);transition:stroke-dasharray .5s}
+  .lvl__ava{position:absolute;inset:5px;border-radius:12px;
+    background:radial-gradient(circle at 35% 28%,#55617F,#232838);display:grid;place-items:center;color:#8A93AA;font-size:24px}
+  .lvl__num{position:absolute;top:-6px;left:-6px;background:#0B0D12;border:1.5px solid var(--paw-gold);
+    border-radius:8px;padding:0 6px;font-weight:800;font-size:12px;color:var(--paw-gold);line-height:1.5}
+  .lvl__plus{position:absolute;right:-2px;bottom:-2px;width:19px;height:19px;border-radius:50%;
+    background:var(--feed-green);color:#08130C;font-weight:800;font-size:13px;line-height:1;
     display:grid;place-items:center;border:2px solid var(--feed-bg);cursor:pointer}
   .hudright{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
-  .sbar-row{display:flex;gap:8px;align-items:center}
-  .sbar{flex:1;background:var(--feed-card);border:1px solid var(--feed-edge);border-radius:14px;padding:7px 11px 8px;min-width:0}
-  .sbar__top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:5px}
+  .sbar{background:var(--feed-card);border:1px solid var(--feed-edge);border-radius:14px;padding:7px 11px 8px;min-width:0}
+  .sbar__top{display:flex;align-items:center;gap:6px;margin-bottom:5px}
   .sbar__name{color:var(--feed-ink);font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ibtn{flex:none;width:16px;height:16px;border-radius:50%;border:1px solid #3A415A;color:var(--feed-soft);
-    font-family:var(--mono);font-size:10px;display:grid;place-items:center;cursor:pointer}
-  .sbar__track{height:18px;border-radius:9px;background:#232838;overflow:hidden;position:relative}
+  .ibtn{flex:none;width:15px;height:15px;border-radius:50%;border:1px solid #3A415A;color:var(--feed-soft);
+    font-family:var(--mono);font-size:9.5px;display:grid;place-items:center;cursor:pointer}
+  .sbar__line{display:flex;align-items:center;gap:6px}
+  .barpaw{width:17px;height:17px;color:var(--paw-gold);flex:none}
+  .bargift{font-size:17px;flex:none;line-height:1;cursor:default}
+  .bargift.bounce{animation:bounce .6s;display:inline-block}
+  @keyframes bounce{0%,100%{transform:scale(1)}35%{transform:scale(1.3) rotate(-8deg)}70%{transform:scale(.95) rotate(4deg)}}
+  .sbar__track{flex:1;height:18px;border-radius:9px;background:#232838;overflow:hidden;position:relative}
   .sbar__fill{position:absolute;inset:0 auto 0 0;width:41.2%;border-radius:9px;
     background:linear-gradient(90deg,var(--feed-green),var(--paw-gold));transition:width .6s cubic-bezier(.2,.8,.3,1)}
   .bartext{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-weight:800;
     font-size:10.5px;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.02em;
     text-shadow:0 1px 2px rgba(0,0,0,.9),0 -1px 2px rgba(0,0,0,.9),1px 0 2px rgba(0,0,0,.9),-1px 0 2px rgba(0,0,0,.9)}
-  .gift{width:42px;height:42px;flex:none;border-radius:13px;background:var(--feed-card);border:1px solid var(--feed-edge);display:grid;place-items:center;font-size:21px}
-  .gift.bounce{animation:bounce .6s}
-  @keyframes bounce{0%,100%{transform:scale(1)}35%{transform:scale(1.25) rotate(-8deg)}70%{transform:scale(.95) rotate(4deg)}}
   .friends{display:flex;align-items:center;gap:6px;min-width:0}
-  .fr{width:28px;height:28px;border-radius:50%;border:1.5px solid #303649;background:radial-gradient(circle at 35% 30%,#4A5168,#232838);position:relative;flex:none}
+  .fr{width:28px;height:28px;border-radius:9px;border:1.5px solid #303649;background:radial-gradient(circle at 35% 30%,#4A5168,#232838);position:relative;flex:none}
   .fr--paw::after{content:"";position:absolute;right:-3px;bottom:-3px;width:12px;height:12px;border-radius:50%;
     background:var(--paw-gold) center/8px no-repeat url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230B0D12"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.2" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.4c3 0 5.2 2.3 5.2 4.6 0 1.9-1.6 3-3.4 3-1 0-1.3-.4-1.8-.4s-.8.4-1.8.4c-1.8 0-3.4-1.1-3.4-3 0-2.3 2.2-4.6 5.2-4.6z"/></svg>')}
   .fr--more{display:grid;place-items:center;background:#1B1F2B;color:var(--feed-soft);font-size:10.5px;font-weight:700}
@@ -76,7 +80,7 @@
   .feedbody{margin-top:14px;border:1px dashed #262B3A;border-radius:14px;flex:1;min-height:150px;display:grid;place-items:center;color:#3C4356;font-size:13px;text-align:center;cursor:pointer;user-select:none;padding:10px}
   .feedbody:active{background:#10131C}
 
-  /* нижняя навигация: лента по центру */
+  /* нижняя навигация: 4 слота, Лента пилюлей третьей (как в продукте) */
   .bnav{display:flex;justify-content:space-around;align-items:end;border-top:1px solid #20242F;padding:10px 4px 2px;margin-top:14px}
   .bnav__item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--feed-soft);font-size:9.5px;letter-spacing:.03em}
   .bnav__item span:first-child{font-size:15px;line-height:1}
@@ -111,25 +115,29 @@
   .case__sub{color:var(--feed-soft);font-size:12px;margin:2px 0 0}
   .car{position:relative}
   .car__strip{display:flex;transition:transform .35s ease}
-  .car__slide{flex:0 0 100%;height:170px;display:grid;place-items:center;color:#57607A;font-size:13px;
+  .car__slide{flex:0 0 100%;height:180px;display:grid;place-items:center;color:#57607A;font-size:13px;
     background:linear-gradient(160deg,#232A3D,#171B28)}
   .car__slide span{display:block;text-align:center}
   .car__slide .big{font-size:30px;opacity:.85}
-  .car__nav{position:absolute;top:42%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;
+  .car__nav{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;
     border:0;background:rgba(10,12,18,.55);color:#C9CFDE;cursor:pointer;font-size:13px;line-height:1;z-index:3}
   .car__nav--prev{left:8px}.car__nav--next{right:8px}
-  .car__dots{position:absolute;top:8px;left:0;right:0;display:flex;gap:5px;justify-content:center;z-index:3}
+  .car__dots{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:5px;justify-content:center;z-index:3}
   .car__dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);border:0;padding:0;cursor:pointer}
   .car__dot.on{background:#fff}
-  .mychip--over{position:absolute;top:8px;right:8px;z-index:3;display:inline-flex;align-items:center;gap:5px;
+  /* бар — на верхней грани медиа; вклад и точки — на нижней */
+  .mediatop{position:absolute;top:0;left:0;right:0;z-index:3;padding:8px 10px 18px;
+    background:linear-gradient(rgba(8,10,16,.92) 40%,transparent)}
+  .mediatop__track{height:20px;border-radius:10px;background:rgba(35,40,56,.85);overflow:hidden;position:relative}
+  .mediatop__fill{position:absolute;inset:0 auto 0 0;width:41.2%;background:linear-gradient(90deg,var(--feed-green),var(--paw-gold))}
+  .mediatop .bartext{font-size:11.5px}
+  .opened{margin-top:5px;font-size:10.5px;color:#C9CFDE;
+    text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  .opened b{color:var(--feed-green)}
+  .mychip--over{position:absolute;bottom:7px;right:8px;z-index:4;display:inline-flex;align-items:center;gap:5px;
     background:rgba(10,13,20,.72);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:4px 9px;
     color:var(--feed-ink);font-size:11px;font-weight:600;backdrop-filter:blur(4px)}
   .mychip--over svg{width:12px;height:12px;color:var(--paw-gold)}
-  .mediabar{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:20px 10px 8px;
-    background:linear-gradient(transparent,rgba(8,10,16,.9) 55%)}
-  .mediabar__track{height:20px;border-radius:10px;background:rgba(35,40,56,.85);overflow:hidden;position:relative}
-  .mediabar__fill{position:absolute;inset:0 auto 0 0;width:41.2%;background:linear-gradient(90deg,var(--feed-green),var(--paw-gold))}
-  .mediabar .bartext{font-size:11.5px}
   .case__desc{padding:12px 14px 0;color:#C7CDDD;font-size:12.5px;line-height:1.55}
   .case__desc details{display:inline}
   .case__desc summary{display:inline;cursor:pointer;color:var(--feed-accent);list-style:none;font-size:12px}
@@ -155,8 +163,6 @@
   .cere__pad{padding:14px 16px 18px}
   .cere__when{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--feed-soft);border:1px solid #2A3145;border-radius:14px;padding:3px 9px;margin-bottom:9px}
-  .cere__photo{height:150px;background:linear-gradient(160deg,#2A3040,#181C28);display:grid;place-items:center;color:#57607A;font-size:13px}
-  .cere__photo .big{font-size:32px;display:block}
   .cere__title{color:var(--feed-ink);font-family:var(--serif);font-weight:700;font-size:21px;margin:8px 0 4px}
   .cere__big{color:var(--feed-green);font-weight:800;font-size:17px;margin:2px 0}
   .cere__sub{color:var(--feed-soft);font-size:12.5px;margin:4px 0 0}
@@ -179,7 +185,6 @@
   .field--delivered .field__value{color:var(--seal)}
   .field--delivered .field__label{color:var(--ink)}
   .note{font-family:var(--serif);font-size:14px;line-height:1.55;color:var(--ink);margin:14px 0 0;padding-top:12px;border-top:1px solid var(--rule)}
-  .note em{font-style:italic;color:var(--ink-soft)}
   .paper-car{border:1px solid var(--edge);border-radius:10px;overflow:hidden;position:relative;margin:0 0 4px}
   .paper-car .car__slide{height:120px;background:var(--paper-2);color:var(--ink-soft)}
   .paper-car .car__nav{background:rgba(42,38,34,.35)}
@@ -199,16 +204,16 @@
 
 <div class="sheet">
   <header class="sheet__head">
-    <p class="eyebrow">Play for Good · сезонный альбом · итерация 4 · фидбек №3 вшит</p>
+    <p class="eyebrow">Play for Good · сезонный альбом · итерация 5 · фидбек №4 вшит</p>
     <h1>Сезон от первой лапки до кипсейка</h1>
-    <p>Уровень — один слева на всю высоту, с плюсиком добавления друзей; справа сезон
-    над друзьями; цифры по центру баров с обводкой; вкладки без «Я» — личное несёт
-    карта; кипсейк слит с итогом сезона в один бланк-квитанцию.</p>
+    <p>Лапка и подарок — начало и финиш бара; аватарки прямоугольные, прогресс уровня —
+    по периметру рамки; в нижней панели появились Коллекции; на экране кейса бар — на
+    верхней грани медиа, вклад и точки — на нижней.</p>
   </header>
 
   <h2 class="section">1 · Лента и дейлики</h2>
   <p class="section-sub">Тап по зоне геймплея = серия пройдена (демо). В дейликах —
-  «Забрать». Кнопочка ⓘ на сезонной плашке ведёт на экран кейса.</p>
+  «Забрать».</p>
   <div class="row">
     <figure>
       <div class="phone phone--feed" data-live>
@@ -219,18 +224,25 @@
         </div>
         <div class="hudgrid">
           <div class="lvltile">
-            <div class="lvl__ring" data-ring><div class="lvl__core">7</div></div>
+            <svg class="lvlframe" viewBox="0 0 78 92" preserveAspectRatio="none">
+              <rect class="lvlframe__bg" x="1.5" y="1.5" width="75" height="89" rx="15"/>
+              <rect class="lvlframe__fg" data-ring x="1.5" y="1.5" width="75" height="89" rx="15"
+                pathLength="100" stroke-dasharray="62 38"/>
+            </svg>
+            <div class="lvl__ava">🙂</div>
+            <span class="lvl__num">7</span>
             <span class="lvl__plus" title="добавить друга">+</span>
           </div>
           <div class="hudright">
-            <div class="sbar-row">
-              <div class="sbar">
-                <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
-                  <span class="ibtn" title="про сезон">i</span></div>
+            <div class="sbar">
+              <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
+                <span class="ibtn" title="про сезон">i</span></div>
+              <div class="sbar__line">
+                <svg class="barpaw"><use href="#paw" fill="currentColor"/></svg>
                 <div class="sbar__track"><div class="sbar__fill" data-fill></div>
                   <div class="bartext" data-count>41 205 / 100 000</div></div>
+                <span class="bargift" data-gift>🎁</span>
               </div>
-              <div class="gift" data-gift>🎁</div>
             </div>
             <div class="friends">
               <div class="fr fr--paw"></div><div class="fr fr--paw"></div><div class="fr"></div>
@@ -243,14 +255,16 @@
           <span style="font-size:11px;opacity:.7">(тап = серия пройдена, демо)</span></div>
         <div class="bnav">
           <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item"><span>🃏</span><span>Коллекции</span></div>
           <div class="bnav__item on bnav__item--main"><span>▶</span><span>Лента</span></div>
           <div class="bnav__item"><span>🗺</span><span>Карта</span></div>
         </div>
       </div>
-      <figcaption><b>Лента.</b> Плашка уровня слева равна по высоте сезону + друзьям;
-      плюсик в её нижнем углу — добавление друзей. Слова «уровень» нет — кольцо говорит
-      само. Цифры сбора — по центру бара, с обводкой. ⓘ подсказывает, что сезон
-      тапается. Внизу три вкладки, Лента по центру; личное («я») несёт карта.</figcaption>
+      <figcaption><b>Лента.</b> Лапка — старт бара, подарок — его финиш, всё в одной
+      строке. ⓘ приклеена к названию сезона. Аватар игрока — прямоугольная рамка:
+      прогресс уровня идёт по её периметру, номер уровня — в уголке, плюсик добавления
+      друзей — у правого нижнего угла. Друзья — такие же прямоугольные рамки. Внизу
+      четыре вкладки: Дейлики · Коллекции · Лента (пилюля, как в продукте) · Карта.</figcaption>
     </figure>
 
     <figure>
@@ -262,18 +276,25 @@
         </div>
         <div class="hudgrid">
           <div class="lvltile">
-            <div class="lvl__ring" data-ring><div class="lvl__core">7</div></div>
+            <svg class="lvlframe" viewBox="0 0 78 92" preserveAspectRatio="none">
+              <rect class="lvlframe__bg" x="1.5" y="1.5" width="75" height="89" rx="15"/>
+              <rect class="lvlframe__fg" data-ring x="1.5" y="1.5" width="75" height="89" rx="15"
+                pathLength="100" stroke-dasharray="62 38"/>
+            </svg>
+            <div class="lvl__ava">🙂</div>
+            <span class="lvl__num">7</span>
             <span class="lvl__plus" title="добавить друга">+</span>
           </div>
           <div class="hudright">
-            <div class="sbar-row">
-              <div class="sbar">
-                <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
-                  <span class="ibtn" title="про сезон">i</span></div>
+            <div class="sbar">
+              <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
+                <span class="ibtn" title="про сезон">i</span></div>
+              <div class="sbar__line">
+                <svg class="barpaw"><use href="#paw" fill="currentColor"/></svg>
                 <div class="sbar__track"><div class="sbar__fill" data-fill></div>
                   <div class="bartext" data-count>41 205 / 100 000</div></div>
+                <span class="bargift" data-gift>🎁</span>
               </div>
-              <div class="gift" data-gift>🎁</div>
             </div>
             <div class="friends">
               <div class="fr fr--paw"></div><div class="fr fr--paw"></div><div class="fr"></div>
@@ -296,6 +317,7 @@
         <div style="flex:1"></div>
         <div class="bnav">
           <div class="bnav__item on"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item"><span>🃏</span><span>Коллекции</span></div>
           <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
           <div class="bnav__item"><span>🗺</span><span>Карта</span></div>
         </div>
@@ -306,8 +328,8 @@
   </div>
 
   <h2 class="section">2 · Экран кейса и церемония</h2>
-  <p class="section-sub">Цифры на баре — по центру, жирные, с обводкой; €100 у подарка
-  на баре нет — расшифровка живёт в лестнице ниже.</p>
+  <p class="section-sub">Бар — на верхней грани медиа, под ним сумма уже открытого;
+  «мой вклад» и точки-странички — на нижней грани. Обе карточки — с листалками.</p>
   <div class="row">
     <figure>
       <div class="phone phone--feed" style="min-height:0">
@@ -324,14 +346,15 @@
             </div>
             <button class="car__nav car__nav--prev" type="button">‹</button>
             <button class="car__nav car__nav--next" type="button">›</button>
-            <div class="car__dots"></div>
-            <span class="mychip--over"><svg><use href="#paw" fill="currentColor"/></svg>Мой вклад · 1 340</span>
-            <div class="mediabar">
-              <div class="mediabar__track">
-                <div class="mediabar__fill"></div>
+            <div class="mediatop">
+              <div class="mediatop__track">
+                <div class="mediatop__fill"></div>
                 <div class="bartext">41 205 / 100 000</div>
               </div>
+              <div class="opened">уже открыто <b>€60</b> · впереди €100 и €300</div>
             </div>
+            <div class="car__dots"></div>
+            <span class="mychip--over"><svg><use href="#paw" fill="currentColor"/></svg>Мой вклад · 1 340</span>
           </div>
           <div class="case__desc">Мурка живёт в «Тёплом доме» четвёртый месяц. Приют просит
             корм на два месяца — около 40 кг.
@@ -365,15 +388,23 @@
           </div>
         </div>
       </div>
-      <figcaption><b>Экран кейса.</b> На баре — только цифры, по центру, жирно, с
-      обводкой; денежная расшифровка одна — в лестнице. Открывается по ⓘ или тапу по
-      сезонной плашке.</figcaption>
+      <figcaption><b>Экран кейса.</b> Бар лёг на верхнюю грань медиа; строка «уже открыто
+      €60» избавляет от сложения ступеней. «Мой вклад» и точки-странички — на нижней
+      грани медиа.</figcaption>
     </figure>
 
     <figure>
       <div class="phone phone--feed" style="min-height:0;display:flex;flex-direction:column;gap:16px">
         <div class="cere">
-          <div class="cere__photo"><span><span class="big">🏠</span>фото приюта «Тёплый дом»</span></div>
+          <div class="car" data-carousel>
+            <div class="car__strip">
+              <div class="car__slide"><span><span class="big">🏠</span>фото · приют «Тёплый дом»</span></div>
+              <div class="car__slide"><span><span class="big">🐈</span>фото · Мурка сегодня</span></div>
+            </div>
+            <button class="car__nav car__nav--prev" type="button">‹</button>
+            <button class="car__nav car__nav--next" type="button">›</button>
+            <div class="car__dots"></div>
+          </div>
           <div class="cere__pad">
             <span class="cere__when">сразу · подарок открыт</span>
             <div class="cere__title">Мы сделали это</div>
@@ -404,15 +435,15 @@
           </div>
         </div>
       </div>
-      <figcaption><b>Церемония и отчёт.</b> Одно событие для игрока: «приют получает
-      деньги» с фото приюта; отчёт приходит второй карточкой позже.</figcaption>
+      <figcaption><b>Церемония и отчёт.</b> Обе карточки с листалками; точки-странички —
+      внизу медиа.</figcaption>
     </figure>
   </div>
 
   <h2 class="section">3 · Когда сезон закрыт: один бланк-квитанция</h2>
-  <p class="section-sub">Кипсейк слит с итогом сезона: это один и тот же объект — бланк
-  сезона. Показывается один раз церемонией при закрытии, навсегда открывается тапом по
-  флажку сезона на карте; до отчёта приюта строки «передано» в нём нет.</p>
+  <p class="section-sub">Кипсейк слит с итогом сезона. Показывается церемонией при
+  закрытии; навсегда открывается тапом по флажку сезона на карте; до отчёта приюта
+  строки «передано» в нём нет.</p>
   <div class="row">
     <figure>
       <div class="phone">
@@ -449,9 +480,8 @@
           <p class="receipt-id">квитанция fc:9a41e0c7 · подтверждено сервером</p>
         </div>
       </div>
-      <figcaption><b>Бланк сезона = бывшие «итог» и «кипсейк» вместе.</b> Общие числа,
-      твой вклад, коллекция и серверная квитанция — в одном месте. Вечный вход — флажок
-      на карте с твоей лапкой.</figcaption>
+      <figcaption><b>Бланк сезона.</b> Общие числа, твой вклад, коллекция и серверная
+      квитанция — в одном месте; вечный вход — флажок на карте с твоей лапкой.</figcaption>
     </figure>
   </div>
 
@@ -462,11 +492,10 @@
         и в уровне. VIP-прибавка (когда появится) двигает только общий бар.</li>
       <li><b>Честное время глаголов.</b> На открытии — «приют получает»; «передано» —
         только с отчётом; до отчёта в бланке сезона этой строки нет.</li>
-      <li><b>Никакой лотереи.</b> Лестница объявляет только заранее обеспеченные ступени.</li>
-      <li><b>Карта — и список сезонов, и личное.</b> Отдельной вкладки «Я» нет: общий
-        масштаб и «где помогал я» показывает карта.</li>
-      <li><b>Полные условия кейса</b> доступны из бланка сезона/карты (место уточняем) —
-        вижен требует, чтобы правило было в досягаемости.</li>
+      <li><b>Никакой лотереи.</b> Лестница и строка «уже открыто» называют только заранее
+        обеспеченные ступени.</li>
+      <li><b>Карта — и список сезонов, и личное.</b> Отдельной вкладки «Я» нет.</li>
+      <li><b>Полные условия кейса</b> доступны из бланка сезона/карты (место уточняем).</li>
     </ul>
   </section>
 </div>
@@ -531,7 +560,7 @@
           state.paws += amount; state.lvl = Math.min(100, state.lvl + 3);
           count.textContent = `${fmt(state.paws)} / ${fmt(100000)}`;
           fill.style.width = (state.paws / 100000 * 100).toFixed(1) + '%';
-          ring.style.setProperty('--lvl', state.lvl + '%');
+          ring.setAttribute('stroke-dasharray', `${state.lvl} ${100 - state.lvl}`);
           gift.classList.add('bounce');
           setTimeout(() => gift.classList.remove('bounce'), 650);
         }, 850);
