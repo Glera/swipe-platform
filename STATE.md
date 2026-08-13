@@ -69,6 +69,11 @@ blocking friction в phone soak или polish batch.
 - Tier 0/1 review и обычные handoff/CI receipts живут в Issue/PR/task output;
   root-файл — только canonical core/release outcome. `NEEDS_HELP` сначала
   триажит оркестратор; разрешённый handoff обязан сам содержать typed wake.
+- Issue #102 закрепляет typed wake машинно: receipt +
+  `two-mac.control-wake.v1` публикуются атомарно helper-ом, heartbeat хранит
+  отдельно scanned/consumed cursors, а malformed targeted wake возвращает
+  `NEEDS_HELP`, не `no work`. Используется существующий heartbeat/owner, без
+  нового dispatcher, task или daemon.
 - До 10–20 реальных two-Mac тикетов не строить merge queue, repo-lock/lease,
   quota optimizer, task DB/store, новый bridge или dispatcher. Решение после
   пилота и конфликт portfolio-приоритетов принадлежат оператору.

@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  composeControlWakeComment,
+  createControlWake,
   createMachineBinding,
   createEvent,
   encodeEventMarker,
@@ -20,8 +22,11 @@ import {
   deriveTaskDigest,
   parseArgs,
   planWake,
+  publishControlWake,
   projectIssue,
   runCli,
+  scanControlWakeComments,
+  scanControlIssueWakes,
   selectWakes,
 } from './two-mac-bridge.mjs';
 
@@ -82,6 +87,15 @@ function issue(value = ticket(), events = [queue(value)]) {
   };
 }
 
+function nextCommentId(comments) {
+  const maximum = comments.reduce((value, comment) => (
+    /^[1-9][0-9]*$/u.test(String(comment.id)) && BigInt(comment.id) > value
+      ? BigInt(comment.id)
+      : value
+  ), 0n);
+  return String(maximum + 1n);
+}
+
 function memoryTransport(initialIssue, { onPost = null, control = null } = {}) {
   let current = structuredClone(initialIssue);
   let controlState = structuredClone(control ?? (initialIssue.number === 94
@@ -104,13 +118,14 @@ function memoryTransport(initialIssue, { onPost = null, control = null } = {}) {
     async postComment(repo, issueNumber, body) {
       posts.push({ repo, issueNumber, body });
       const destination = issueNumber === 94 && current.number !== 94 ? controlState : current;
+      const id = nextCommentId(destination.comments);
       destination.comments.push({
-        id: String(destination.comments.length + 1), body,
-        htmlUrl: `https://github.example/comments/${destination.comments.length + 1}`,
+        id, body,
+        htmlUrl: `https://github.example/comments/${id}`,
         createdAt: '2026-08-11T09:00:01Z',
       });
       if (destination === current && onPost) current = await onPost({ current, posts }) ?? current;
-      return { id: destination.comments.length };
+      return { id };
     },
     async resolveRef() { return HEAD; },
   };
@@ -141,12 +156,13 @@ function multiIssueTransport(initialIssues) {
     async postComment(repo, issueNumber, body) {
       const value = issues.get(issueNumber);
       posts.push({ repo, issueNumber, body });
+      const id = nextCommentId(value.comments);
       value.comments.push({
-        id: String(value.comments.length + 1), body,
-        htmlUrl: `https://github.example/issues/${issueNumber}/comments/${value.comments.length + 1}`,
+        id, body,
+        htmlUrl: `https://github.example/issues/${issueNumber}/comments/${id}`,
         createdAt: '2026-08-11T09:00:01Z',
       });
-      return { id: value.comments.length };
+      return { id };
     },
     async resolveRef() { return HEAD; },
   };
@@ -176,6 +192,25 @@ function machineBinding(machine, taskDigest) {
     bridgeCommit: HEAD,
     registeredAt: '2026-08-11T09:00:00.000Z',
   });
+}
+
+function controlWakeIssue(extraComments = []) {
+  const bindings = [machineBinding('mac-a', A_TASK), machineBinding('mac-b', B_TASK)];
+  return {
+    number: 94,
+    body: 'Phase 0 control',
+    htmlUrl: 'https://github.com/Glera/p4g-workspace-meta/issues/94',
+    updatedAt: '2026-08-13T08:24:52Z',
+    comments: [
+      ...bindings.map((binding, index) => ({
+        id: String(5277000001 + index),
+        body: encodeMachineBindingMarker(binding),
+        htmlUrl: `https://github.example/binding-${index}`,
+        createdAt: binding.registeredAt,
+      })),
+      ...extraComments,
+    ],
+  };
 }
 
 function generatorSnapshot(requestId = '434c895a-57ff-4f99-a888-bdbba5ffe378') {
@@ -257,6 +292,438 @@ test('CLI is dry-run by default and never accepts a task digest or command paylo
     () => parseArgs(['project', '--issue', '91', '--repo', 'Glera/other']),
     /allowlisted/u,
   );
+  assert.throws(
+    () => parseArgs([
+      'publish-wake', '--machine', 'mac-a', '--parent-comment-id', '5277813712',
+      '--verdict', 'NEEDS_HELP', '--body-file', '/tmp/receipt.md',
+    ]),
+    /--next-owner/u,
+  );
+  assert.throws(
+    () => parseArgs([
+      'scan-wakes', '--machine', 'mac-b', '--after-comment-id', '10', '--after-wake-id', '11',
+    ]),
+    /cannot exceed/u,
+  );
+});
+
+test('the real V17 nested-heading receipt is typed NEEDS_HELP instead of silent no-work', () => {
+  const receipt = `## MAC_A_V17_OPUS_REVIEW_NEEDS_HELP — blocking findings + same-owner correction wake
+
+Terminal verdict: **NEEDS_HELP**. PR #34 remains frozen.
+
+### MAC_B_V17_CORRECTION_WAKE — same existing owner only
+
+The same existing Mac B owner may perform one bounded correction pass for F001–F004.`;
+  const result = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [{
+      id: '5277813712',
+      body: receipt,
+      htmlUrl: 'https://github.com/Glera/p4g-workspace-meta/issues/94#issuecomment-5277813712',
+      createdAt: '2026-08-13T08:16:44Z',
+    }],
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    lastScannedCommentId: '5277580994',
+    lastConsumedWakeCommentId: '5277580994',
+  });
+  assert.deepEqual(result.attention, [{
+    action: 'NEEDS_HELP',
+    code: 'malformed_targeted_wake',
+    commentId: '5277813712',
+    commentUrl: 'https://github.com/Glera/p4g-workspace-meta/issues/94#issuecomment-5277813712',
+  }]);
+  assert.equal(result.nextWake, null);
+  assert.deepEqual(result.cursors, {
+    lastScannedCommentId: '5277813712',
+    lastConsumedWakeCommentId: '5277580994',
+    acknowledgeAfterHandlingCommentId: null,
+  });
+
+  const macA = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [{
+      id: '5277813712', body: receipt, htmlUrl: null,
+      createdAt: '2026-08-13T08:16:44Z',
+    }],
+    machine: 'mac-a',
+    taskDigest: A_TASK,
+    lastScannedCommentId: '5277580994',
+    lastConsumedWakeCommentId: '5277580994',
+  });
+  assert.deepEqual(macA.attention, []);
+});
+
+test('ordinary capitalization in a targeted legacy wake cannot become no-work', () => {
+  for (const body of [
+    '### Next owner: Mac B — continue the bounded correction',
+    '## Mac B Wake',
+    '### macB nextOwner',
+  ]) {
+    const result = scanControlWakeComments({
+      controlIssue: 94,
+      comments: [{ id: '5277813712', body, htmlUrl: null }],
+      machine: 'mac-b',
+      taskDigest: B_TASK,
+      callbackTaskDigest: A_TASK,
+      lastScannedCommentId: '0',
+      lastConsumedWakeCommentId: '0',
+    });
+    assert.deepEqual(result.attention.map((item) => [item.action, item.code]), [
+      ['NEEDS_HELP', 'malformed_targeted_wake'],
+    ]);
+  }
+});
+
+test('structured wake selection ignores the visible heading and advances cursors separately', () => {
+  const parent = {
+    id: '5277813712',
+    body: 'Mac A exact review receipt; no dispatch in this record.',
+    htmlUrl: 'https://github.example/parent',
+    createdAt: '2026-08-13T08:16:44Z',
+  };
+  const receiptBody = 'Correction is authorized on the same exact package.';
+  const wake = createControlWake({
+    controlIssue: 94,
+    parentCommentId: parent.id,
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'NEEDS_HELP',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+  });
+  const wakeComment = {
+    id: '5277887625',
+    body: composeControlWakeComment(receiptBody, wake),
+    htmlUrl: 'https://github.example/wake',
+    createdAt: '2026-08-13T08:24:52Z',
+  };
+  const result = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [parent, wakeComment],
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    lastScannedCommentId: parent.id,
+    lastConsumedWakeCommentId: parent.id,
+  });
+  assert.equal(result.attention.length, 0);
+  assert.equal(result.nextWake.commentId, wakeComment.id);
+  assert.equal(result.nextWake.receiptBody, receiptBody);
+  assert.equal(result.nextWake.wake.wakeId, wake.wakeId);
+  assert.deepEqual(result.cursors, {
+    lastScannedCommentId: wakeComment.id,
+    lastConsumedWakeCommentId: parent.id,
+    acknowledgeAfterHandlingCommentId: wakeComment.id,
+  });
+
+  const acknowledged = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [parent, wakeComment],
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    lastScannedCommentId: wakeComment.id,
+    lastConsumedWakeCommentId: wakeComment.id,
+  });
+  assert.equal(acknowledged.nextWake, null);
+  assert.equal(acknowledged.pendingWakeCount, 0);
+});
+
+test('malformed envelope is NEEDS_HELP and callback binding drift is STOP', () => {
+  const parent = {
+    id: '5277813712', body: 'Parent receipt.', htmlUrl: null,
+    createdAt: '2026-08-13T08:16:44Z',
+  };
+  const malformed = {
+    id: '5277887000',
+    body: '<!-- two-mac-bridge-control-wake:v1 payload=not+base64 -->',
+    htmlUrl: 'https://github.example/malformed',
+    createdAt: '2026-08-13T08:20:00Z',
+  };
+  const receiptBody = 'Exact bounded correction.';
+  const wrongCallbackWake = createControlWake({
+    controlIssue: 94,
+    parentCommentId: parent.id,
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: 'f'.repeat(64),
+    verdict: 'NEEDS_HELP',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+  });
+  const wrongCallback = {
+    id: '5277887625',
+    body: composeControlWakeComment(receiptBody, wrongCallbackWake),
+    htmlUrl: 'https://github.example/wrong-callback',
+    createdAt: '2026-08-13T08:24:52Z',
+  };
+  const result = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [parent, malformed, wrongCallback],
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    lastScannedCommentId: parent.id,
+    lastConsumedWakeCommentId: parent.id,
+  });
+  assert.deepEqual(result.attention.map((item) => [item.action, item.code]), [
+    ['NEEDS_HELP', 'malformed_targeted_wake'],
+    ['STOP', 'callback_task_binding_mismatch'],
+  ]);
+  assert.equal(result.nextWake, null);
+});
+
+test('an already-consumed wakeId suppresses a later exact semantic replay', () => {
+  const parent = { id: '10', body: 'Receipt.', htmlUrl: null };
+  const receiptBody = 'Perform one bounded correction.';
+  const first = createControlWake({
+    controlIssue: 94,
+    parentCommentId: parent.id,
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'NEEDS_HELP',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+  });
+  const replay = createControlWake({
+    controlIssue: 94,
+    parentCommentId: parent.id,
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'NEEDS_HELP',
+    receiptBody,
+    createdAt: '2026-08-13T08:25:52.000Z',
+  });
+  assert.equal(replay.wakeId, first.wakeId);
+  const result = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [
+      parent,
+      { id: '11', body: composeControlWakeComment(receiptBody, first), htmlUrl: null },
+      { id: '12', body: composeControlWakeComment(receiptBody, replay), htmlUrl: null },
+    ],
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    lastScannedCommentId: '11',
+    lastConsumedWakeCommentId: '11',
+  });
+  assert.equal(result.nextWake, null);
+  assert.equal(result.pendingWakeCount, 0);
+});
+
+test('STOP and AUTHORITY_REQUIRED are typed terminal wakes, not dispatch', () => {
+  for (const verdict of ['STOP', 'AUTHORITY_REQUIRED']) {
+    const parent = { id: '10', body: 'Receipt.', htmlUrl: null };
+    const receiptBody = `${verdict} exact lifecycle.`;
+    const wake = createControlWake({
+      controlIssue: 94,
+      parentCommentId: parent.id,
+      assignedMachine: 'mac-b',
+      targetTaskDigest: B_TASK,
+      callbackTaskDigest: A_TASK,
+      verdict,
+      receiptBody,
+      createdAt: '2026-08-13T08:24:52.000Z',
+    });
+    const result = scanControlWakeComments({
+      controlIssue: 94,
+      comments: [
+        parent,
+        { id: '11', body: composeControlWakeComment(receiptBody, wake), htmlUrl: null },
+      ],
+      machine: 'mac-b',
+      taskDigest: B_TASK,
+      callbackTaskDigest: A_TASK,
+      lastScannedCommentId: '10',
+      lastConsumedWakeCommentId: '10',
+    });
+    assert.equal(result.nextWake.action, verdict);
+    assert.equal(result.cursors.acknowledgeAfterHandlingCommentId, '11');
+  }
+});
+
+test('publish-wake posts receipt and route marker atomically, then the same scanner selects it', async () => {
+  const parent = {
+    id: '5277813712',
+    body: 'Exact Mac A review receipt.',
+    htmlUrl: 'https://github.example/parent',
+    createdAt: '2026-08-13T08:16:44Z',
+  };
+  const transport = multiIssueTransport([controlWakeIssue([parent])]);
+  const receiptBody = '## NEEDS_HELP\n\nResolve F001–F004 in one bounded correction.';
+  const published = await publishControlWake({
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    actorMachine: 'mac-a',
+    actorTaskDigest: A_TASK,
+    nextOwner: 'mac-b',
+    parentCommentId: parent.id,
+    verdict: 'NEEDS_HELP',
+    receiptBody,
+    bridgeCommit: HEAD,
+    apply: true,
+    clock: () => new Date('2026-08-13T08:24:52.000Z'),
+  });
+  assert.equal(published.status, 'APPLIED');
+  assert.equal(transport.posts.length, 1);
+  assert.equal(transport.posts[0].body.match(/two-mac-bridge-control-wake:v1/gu)?.length, 1);
+
+  const selected = await scanControlIssueWakes({
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    machine: 'mac-b',
+    lastScannedCommentId: parent.id,
+    lastConsumedWakeCommentId: parent.id,
+  });
+  assert.equal(selected.nextWake.commentId, published.commentId);
+  assert.equal(selected.nextWake.receiptBody, receiptBody);
+
+  const replayed = await publishControlWake({
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    actorMachine: 'mac-a',
+    actorTaskDigest: A_TASK,
+    nextOwner: 'mac-b',
+    parentCommentId: parent.id,
+    verdict: 'NEEDS_HELP',
+    receiptBody,
+    bridgeCommit: HEAD,
+    apply: true,
+    clock: () => new Date('2026-08-13T08:25:52.000Z'),
+  });
+  assert.equal(replayed.status, 'REPLAY');
+  assert.equal(replayed.commentId, published.commentId);
+  assert.equal(transport.posts.length, 1);
+});
+
+test('publish-wake cannot route nextOwner=mac-b without the exact active target binding', async () => {
+  const parent = {
+    id: '5277813712', body: 'Exact review receipt.', htmlUrl: null,
+    createdAt: '2026-08-13T08:16:44Z',
+  };
+  const control = controlWakeIssue([parent]);
+  control.comments = [control.comments[0], parent];
+  const transport = multiIssueTransport([control]);
+  await assert.rejects(publishControlWake({
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    actorMachine: 'mac-a',
+    actorTaskDigest: A_TASK,
+    nextOwner: 'mac-b',
+    parentCommentId: parent.id,
+    verdict: 'NEEDS_HELP',
+    receiptBody: 'Bounded correction.',
+    bridgeCommit: HEAD,
+    apply: true,
+  }), /exact active mac-b target binding/u);
+  assert.equal(transport.posts.length, 0);
+});
+
+test('publish-wake refuses a stale local bridge commit', async () => {
+  const parent = { id: '5277813712', body: 'Receipt.', htmlUrl: null };
+  const transport = multiIssueTransport([controlWakeIssue([parent])]);
+  await assert.rejects(publishControlWake({
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    actorMachine: 'mac-a',
+    actorTaskDigest: A_TASK,
+    nextOwner: 'mac-b',
+    parentCommentId: parent.id,
+    verdict: 'NEEDS_HELP',
+    receiptBody: 'Bounded correction.',
+    bridgeCommit: 'a'.repeat(40),
+    apply: true,
+  }), /exact active mac-a machine binding/u);
+  assert.equal(transport.posts.length, 0);
+});
+
+test('heartbeat CLI uses the contract selector and exposes both cursor high-water marks', async () => {
+  const parent = {
+    id: '5277813712',
+    body: 'Exact review receipt.',
+    htmlUrl: 'https://github.example/parent',
+    createdAt: '2026-08-13T08:16:44Z',
+  };
+  const receiptBody = 'Bounded correction is ready for Mac B.';
+  const wake = createControlWake({
+    controlIssue: 94,
+    parentCommentId: parent.id,
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'HANDOFF_READY',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+  });
+  const wakeComment = {
+    id: '5277887625',
+    body: composeControlWakeComment(receiptBody, wake),
+    htmlUrl: 'https://github.example/wake',
+    createdAt: '2026-08-13T08:24:52Z',
+  };
+  const transport = multiIssueTransport([controlWakeIssue([parent, wakeComment])]);
+  const stdout = [];
+  const status = await runCli([
+    'scan-wakes', '--machine', 'mac-b',
+    '--after-comment-id', parent.id,
+    '--after-wake-id', parent.id,
+  ], {
+    env: {},
+    transport,
+    writeOut: (value) => stdout.push(value),
+    writeErr: () => {},
+  });
+  assert.equal(status, 0);
+  const output = JSON.parse(stdout.join(''));
+  assert.equal(output.nextWake.commentId, wakeComment.id);
+  assert.deepEqual(output.cursors, {
+    lastScannedCommentId: wakeComment.id,
+    lastConsumedWakeCommentId: parent.id,
+    acknowledgeAfterHandlingCommentId: wakeComment.id,
+  });
+});
+
+test('heartbeat CLI exits typed attention for a structured STOP wake', async () => {
+  const parent = { id: '5277813712', body: 'Receipt.', htmlUrl: null };
+  const receiptBody = 'Stop this exact lifecycle.';
+  const wake = createControlWake({
+    controlIssue: 94,
+    parentCommentId: parent.id,
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'STOP',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+  });
+  const transport = multiIssueTransport([controlWakeIssue([
+    parent,
+    { id: '5277887625', body: composeControlWakeComment(receiptBody, wake), htmlUrl: null },
+  ])]);
+  const stdout = [];
+  const status = await runCli([
+    'scan-wakes', '--machine', 'mac-b',
+    '--after-comment-id', parent.id,
+    '--after-wake-id', parent.id,
+  ], {
+    env: {}, transport,
+    writeOut: (value) => stdout.push(value),
+    writeErr: () => {},
+  });
+  assert.equal(status, 2);
+  assert.equal(JSON.parse(stdout.join('')).nextWake.action, 'STOP');
 });
 
 test('task binding is derived locally and raw thread identity is absent', () => {

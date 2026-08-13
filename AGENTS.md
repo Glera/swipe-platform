@@ -65,6 +65,11 @@ Cross-repo research каталога игровых классов и шабло
 - Транспорт между машинами — durable GitHub Issue event по Phase 0 contract с
   exact refs/evidence. Разрешающий следующую работу handoff обязан в том же
   record содержать typed discoverable wake; evidence и wake не разделяются.
+  Control-Issue follow-up публикуется только через
+  `node scripts/two-mac-bridge.mjs publish-wake`, а heartbeat читает его через
+  `scan-wakes` с отдельными scanned/consumed cursors. Заголовок не является
+  dispatch; адресованный prose/malformed wake даёт
+  `NEEDS_HELP:malformed_targeted_wake`, а не `no work`.
   Отдельный файл нужен только для canonical core/release outcome, не для Tier
   0/1 review-раундов. Пересказ и перенос оператором не используются.
 - Контрольный док портфеля: `STATE.md` в корне — каждая оркестрирующая

@@ -68,6 +68,13 @@ Append-only `two-mac.bridge-event.v1` comments содержат sequence, parent
 ID/digest, ticket digest, state, actor machine/task digest, idempotency key,
 canonical time, exact evidence и bounded error code.
 
+Follow-up внутри control Issue, который разрешает работу существующему owner
+после review/`NEEDS_HELP`, использует `two-mac.control-wake.v1`. Human receipt
+и wake публикуются одним comment через `publish-wake`; marker содержит SHA-256
+точных human bytes, exact target/callback task digests, parent comment,
+verdict и собственный digest. Заголовок комментария не участвует в routing.
+`nextOwner` без валидного envelope не публикуется штатным helper.
+
 Projection, не labels/assignee/prose, определяет current state:
 
 ```text
@@ -93,6 +100,11 @@ stale parent, sequence gap, route mismatch или task mismatch fail closed.
 классифицирует frontier-оркестратор. Technical проблема внутри standing
 authority возвращается той же bound owner task; product/taste/new authority
 идёт оператору; repeated failure или CAS ambiguity завершается typed `STOP`.
+Control-Issue consumer ведёт отдельно `lastScannedCommentId` и
+`lastConsumedWakeCommentId`: первый доказывает чтение комментария, второй —
+принятый dispatch. Адресованный этой машине legacy/prose wake или malformed
+marker не превращается в `no work`, а даёт
+`NEEDS_HELP:malformed_targeted_wake`; binding mismatch остаётся typed `STOP`.
 
 ## 5. Host/credential boundary (D4)
 
@@ -101,8 +113,10 @@ authority возвращается той же bound owner task; product/taste/n
 daemon/scheduler/runner. CLI:
 
 - использует только allowlisted meta repository Issues;
-- получает task identity из локального `CODEX_THREAD_ID`, хранит/показывает
-  только SHA-256 digest;
+- для mutating commands получает task identity из локального
+  `CODEX_THREAD_ID`, хранит/показывает только SHA-256 digest; read-only
+  `scan-wakes` берёт route target из exact active machine binding и не
+  присваивает техническому heartbeat owner-authority;
 - не принимает task digest или arbitrary command как input;
 - dry-run по умолчанию, mutation только с `--apply`;
 - не читает/печатает GitHub token.
@@ -183,6 +197,13 @@ Terminal Mac B callback становится Issue event. Следующий Mac
 в том же append-only Issue event содержать typed discoverable wake. Evidence и
 wake нельзя разделять между комментариями: evidence без wake не является
 dispatch, а wake без exact evidence fail closed.
+
+Для control-Issue follow-up единственный штатный producer —
+`node scripts/two-mac-bridge.mjs publish-wake`; heartbeat читает его тем же
+selector, который покрыт contract-тестом:
+`node scripts/two-mac-bridge.mjs scan-wakes`. До полного перехода legacy
+заголовок может быть распознан только как malformed-targeted evidence и никогда
+как исполнимый dispatch.
 
 Review следует реально затронутой authority-границе. Один review-раунд — один
 blind discovery со всей партией findings, одна общая коррекция P1/P2 и один
