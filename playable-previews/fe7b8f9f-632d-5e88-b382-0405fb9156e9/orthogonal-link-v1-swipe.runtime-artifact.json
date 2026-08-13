@@ -1,0 +1,19 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "orthogonal-link-v1-swipe",
+  "digest": "sha256:c395f1908705d00c27e084233216f4173d4bb01f61ef8a34eebcb20fa3ad2312",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "0ff62288ef5fa0ff48dcac41a9d9157d18984b26",
+  "files": [
+    {
+      "path": "orthogonal-link-v1-swipe.html",
+      "bytes": 833,
+      "sha256": "sha256:f4089685eac7ef8f219aed3b765b520c811a0d6480c6b69905bdaab499207efb"
+    },
+    {
+      "path": "orthogonal-link-v1-swipe.payload.js",
+      "bytes": 66809,
+      "sha256": "sha256:7c2a4fb3075507791a18dc9e6e4a898801e9f9d982a690597b1a80cd04a81c8d"
+    }
+  ]
+}
