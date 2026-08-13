@@ -105,6 +105,11 @@ Control-Issue consumer ведёт отдельно `lastScannedCommentId` и
 принятый dispatch. Адресованный этой машине legacy/prose wake или malformed
 marker не превращается в `no work`, а даёт
 `NEEDS_HELP:malformed_targeted_wake`; binding mismatch остаётся typed `STOP`.
+Проверка malformed dispatch выполняется до продвижения scan cursor для каждого
+нового комментария. Terminal receipt с секцией `Next step`, назначающей работу
+Mac A/Mac B, включая обычные Markdown heading/list/quote формы, обязан в этом
+же scanner pass дать typed attention вместо `no work`; consumed cursor при этом
+не продвигается.
 
 ## 5. Host/credential boundary (D4)
 

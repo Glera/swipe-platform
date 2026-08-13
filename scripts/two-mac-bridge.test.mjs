@@ -356,6 +356,134 @@ The same existing Mac B owner may perform one bounded correction pass for F001�
   assert.deepEqual(macA.attention, []);
 });
 
+test('the real V18 terminal receipt is typed attention on its first scanner pass', () => {
+  const receipt = `## MAC_B_V18_HANDOFF_READY — exact F001–F004 correction for narrow Mac A delta review
+
+Terminal: \`HANDOFF_READY\`
+
+Required next step:
+- the same Mac A owner performs exactly one narrow author-blind Claude Opus 5 / effort \`high\` delta review
+- V16 recovery may continue only after unresolved P1/P2=\`0\`
+
+Boundaries preserved: no merge, restart, retry or recovery.`;
+  const receiptComment = {
+    id: '5278452171',
+    body: receipt,
+    htmlUrl: 'https://github.com/Glera/p4g-workspace-meta/issues/94#issuecomment-5278452171',
+    createdAt: '2026-08-13T09:22:18Z',
+  };
+  const laterBindingComment = {
+    id: '5278487691',
+    body: 'Phase 0 local binding: `mac-b`',
+    htmlUrl: 'https://github.example/mac-b-binding',
+    createdAt: '2026-08-13T09:25:42Z',
+  };
+  const result = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [receiptComment, laterBindingComment],
+    machine: 'mac-a',
+    taskDigest: A_TASK,
+    lastScannedCommentId: '5278314524',
+    lastConsumedWakeCommentId: '5277887625',
+  });
+  assert.deepEqual(result.attention, [{
+    action: 'NEEDS_HELP',
+    code: 'malformed_targeted_wake',
+    commentId: receiptComment.id,
+    commentUrl: receiptComment.htmlUrl,
+  }]);
+  assert.equal(result.nextWake, null);
+  assert.deepEqual(result.cursors, {
+    lastScannedCommentId: laterBindingComment.id,
+    lastConsumedWakeCommentId: '5277887625',
+    acknowledgeAfterHandlingCommentId: null,
+  });
+
+  const macB = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [receiptComment, laterBindingComment],
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    lastScannedCommentId: '5278314524',
+    lastConsumedWakeCommentId: '5277887625',
+  });
+  assert.deepEqual(macB.attention, []);
+});
+
+test('informational owner mentions and explicit holds are not treated as dispatch', () => {
+  for (const body of [
+    'Mac A owner remains idle.\n\nNext step: operator approval.',
+    'Required next step:\n- do not resume the same Mac A owner before authority is granted',
+  ]) {
+    const result = scanControlWakeComments({
+      controlIssue: 94,
+      comments: [{ id: '5278452171', body, htmlUrl: null }],
+      machine: 'mac-a',
+      taskDigest: A_TASK,
+      lastScannedCommentId: '0',
+      lastConsumedWakeCommentId: '0',
+    });
+    assert.deepEqual(result.attention, []);
+  }
+});
+
+test('a non-dispatch prohibition on the assignment line cannot hide the targeted wake', () => {
+  const result = scanControlWakeComments({
+    controlIssue: 94,
+    comments: [{
+      id: '5278452171',
+      body: 'Required next step:\n- do not merge or restart; the same Mac A owner must review the exact delta',
+      htmlUrl: null,
+    }],
+    machine: 'mac-a',
+    taskDigest: A_TASK,
+    lastScannedCommentId: '0',
+    lastConsumedWakeCommentId: '0',
+  });
+  assert.deepEqual(result.attention.map((item) => [item.action, item.code]), [
+    ['NEEDS_HELP', 'malformed_targeted_wake'],
+  ]);
+});
+
+test('markdown next-step headings and wrapped assignments cannot become no-work', () => {
+  for (const body of [
+    '**Required next step:**\n- the same Mac A owner performs the exact delta review',
+    '- Next step:\n  the same Mac A owner reviews the exact delta',
+    '> Next step:\n> - the same Mac A owner continues V16',
+    '1. Next step:\n- run the exact delta review\n  by the same Mac A owner',
+  ]) {
+    const result = scanControlWakeComments({
+      controlIssue: 94,
+      comments: [{ id: '5278452171', body, htmlUrl: null }],
+      machine: 'mac-a',
+      taskDigest: A_TASK,
+      lastScannedCommentId: '0',
+      lastConsumedWakeCommentId: '0',
+    });
+    assert.deepEqual(result.attention.map((item) => [item.action, item.code]), [
+      ['NEEDS_HELP', 'malformed_targeted_wake'],
+    ]);
+  }
+});
+
+test('next-step parser does not confuse other Mac product names or later context with an owner', () => {
+  for (const body of [
+    'Next step:\n- run the smoke on MacBook and Mac Air',
+    'Next step:\n- operator approval\n\nContext: Mac A previously ran the review',
+  ]) {
+    const result = scanControlWakeComments({
+      controlIssue: 94,
+      comments: [{ id: '5278452171', body, htmlUrl: null }],
+      machine: 'mac-a',
+      taskDigest: A_TASK,
+      lastScannedCommentId: '0',
+      lastConsumedWakeCommentId: '0',
+    });
+    assert.deepEqual(result.attention, []);
+  }
+});
+
 test('ordinary capitalization in a targeted legacy wake cannot become no-work', () => {
   for (const body of [
     '### Next owner: Mac B — continue the bounded correction',
