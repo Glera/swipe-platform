@@ -11,15 +11,15 @@
     "runtimeArtifactDigest": "sha256:26fb2c6fb2e2f87dd9da8248fadf903c2ee67dafb7bafa2f0776f11a0770334c"
   },
   "merge-locked-v1-swipe": {
-    "version": "5edeaf2660",
+    "version": "9ee97c9df8",
     "htmlBytes": 2375357,
-    "payloadBytes": 1439172,
+    "payloadBytes": 1440633,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "heavy",
-    "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
-    "runtimeArtifactDigest": "sha256:52acf60bc5c615bdcd0836b92d289f22e570395b67500b6a931577bda03abdb5"
+    "sourceCommit": "df2a7d7d427fbe259e7599c652045e51f6cec3e9",
+    "runtimeArtifactDigest": "sha256:4c8f85d164afeff99a072847111be9e0e67f9e49a29f58982de0604e408cb7a9"
   },
   "merge-second-board-v1-swipe": {
     "version": "9e29e6f499",
