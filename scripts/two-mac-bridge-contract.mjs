@@ -4,6 +4,7 @@ export const TICKET_SCHEMA = 'two-mac.bridge-ticket.v1';
 export const EVENT_SCHEMA = 'two-mac.bridge-event.v1';
 export const MACHINE_BINDING_SCHEMA = 'two-mac.bridge-machine-binding.v1';
 export const MACHINE_HOLD_SCHEMA = 'two-mac.bridge-machine-hold.v1';
+export const CONTROL_WAKE_SCHEMA = 'two-mac.control-wake.v1';
 
 export const MACHINES = Object.freeze(['mac-a', 'mac-b']);
 export const STATES = Object.freeze([
@@ -24,6 +25,8 @@ const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$/u;
 const ERROR_CODE = /^[a-z][a-z0-9_]{2,95}$/u;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
 const EVENT_ID = /^evt_[0-9a-f]{64}$/u;
+const WAKE_ID = /^wake_[0-9a-f]{64}$/u;
+const COMMENT_ID = /^[1-9][0-9]{0,31}$/u;
 
 const TICKET_KEYS = Object.freeze([
   'assignedMachine',
@@ -87,6 +90,27 @@ const MACHINE_HOLD_KEYS = Object.freeze([
   'repositoryId',
   'schema',
   'taskDigest',
+]);
+const CONTROL_WAKE_KEYS = Object.freeze([
+  'assignedMachine',
+  'bodySha256',
+  'callbackTaskDigest',
+  'controlIssue',
+  'createdAt',
+  'parentCommentId',
+  'schema',
+  'targetTaskDigest',
+  'verdict',
+  'wakeDigest',
+  'wakeId',
+]);
+
+const CONTROL_WAKE_VERDICTS = Object.freeze([
+  'AUTHORITY_REQUIRED',
+  'DONE',
+  'HANDOFF_READY',
+  'NEEDS_HELP',
+  'STOP',
 ]);
 
 const TRANSITIONS = new Map([
@@ -298,6 +322,105 @@ export function createMachineHold({ binding, heldAt }) {
   };
   hold.holdDigest = expectedMachineHoldDigest(hold);
   return validateMachineHold(hold);
+}
+
+function expectedControlWakeDigest(wake) {
+  return digestObject(wake, new Set(['wakeDigest']));
+}
+
+function expectedControlWakeId(wake) {
+  return `wake_${sha256(canonicalJson({
+    assignedMachine: wake.assignedMachine,
+    bodySha256: wake.bodySha256,
+    callbackTaskDigest: wake.callbackTaskDigest,
+    controlIssue: wake.controlIssue,
+    parentCommentId: String(wake.parentCommentId),
+    targetTaskDigest: wake.targetTaskDigest,
+    verdict: wake.verdict,
+  }))}`;
+}
+
+export function validateControlWake(wake) {
+  exactKeys(wake, CONTROL_WAKE_KEYS, 'control wake');
+  if (wake.schema !== CONTROL_WAKE_SCHEMA) throw new Error('control wake schema is invalid');
+  if (!WAKE_ID.test(String(wake.wakeId || ''))) throw new Error('control wake wakeId is invalid');
+  if (!Number.isSafeInteger(wake.controlIssue) || wake.controlIssue < 1) {
+    throw new Error('control wake controlIssue must be a positive strict integer');
+  }
+  if (!COMMENT_ID.test(String(wake.parentCommentId || ''))) {
+    throw new Error('control wake parentCommentId is invalid');
+  }
+  if (!MACHINES.includes(wake.assignedMachine)) {
+    throw new Error('control wake assignedMachine is invalid');
+  }
+  if (!SHA256.test(String(wake.targetTaskDigest || ''))) {
+    throw new Error('control wake targetTaskDigest is invalid');
+  }
+  if (wake.assignedMachine === 'mac-b') {
+    if (!SHA256.test(String(wake.callbackTaskDigest || ''))) {
+      throw new Error('Mac B control wake callbackTaskDigest is invalid');
+    }
+  } else if (wake.callbackTaskDigest !== null) {
+    throw new Error('Mac A control wake callbackTaskDigest must be null');
+  }
+  if (!CONTROL_WAKE_VERDICTS.includes(wake.verdict)) {
+    throw new Error('control wake verdict is invalid');
+  }
+  if (!SHA256.test(String(wake.bodySha256 || ''))) {
+    throw new Error('control wake bodySha256 is invalid');
+  }
+  canonicalInstant(wake.createdAt, 'control wake createdAt');
+  if (!SHA256.test(String(wake.wakeDigest || ''))
+      || wake.wakeDigest !== expectedControlWakeDigest(wake)) {
+    throw new Error('control wake digest does not match wake bytes');
+  }
+  const expectedWakeId = expectedControlWakeId(wake);
+  if (wake.wakeId !== expectedWakeId) {
+    throw new Error('control wake ID does not match route and receipt bytes');
+  }
+  return wake;
+}
+
+export function createControlWake({
+  controlIssue,
+  parentCommentId,
+  assignedMachine,
+  targetTaskDigest,
+  callbackTaskDigest = null,
+  verdict,
+  receiptBody,
+  createdAt,
+}) {
+  if (typeof receiptBody !== 'string' || receiptBody.length < 1
+      || Buffer.byteLength(receiptBody, 'utf8') > 32_768
+      || /[\0\r]/u.test(receiptBody)
+      || /two-mac-bridge-[a-z-]+:v1/u.test(receiptBody)) {
+    throw new Error('control wake receipt body is invalid');
+  }
+  const bodySha256 = sha256(receiptBody);
+  const wake = {
+    schema: CONTROL_WAKE_SCHEMA,
+    wakeId: expectedControlWakeId({
+      assignedMachine,
+      bodySha256,
+      callbackTaskDigest,
+      controlIssue,
+      parentCommentId: String(parentCommentId),
+      targetTaskDigest,
+      verdict,
+    }),
+    wakeDigest: '',
+    controlIssue,
+    parentCommentId: String(parentCommentId),
+    assignedMachine,
+    targetTaskDigest,
+    callbackTaskDigest,
+    verdict,
+    bodySha256,
+    createdAt,
+  };
+  wake.wakeDigest = expectedControlWakeDigest(wake);
+  return validateControlWake(wake);
 }
 
 function validateEvidence(evidence) {
@@ -622,6 +745,22 @@ export function encodeMachineHoldMarker(hold) {
   return encodeMarker('machine-hold', hold);
 }
 
+export function encodeControlWakeMarker(wake) {
+  validateControlWake(wake);
+  return encodeMarker('control-wake', wake);
+}
+
+export function composeControlWakeComment(receiptBody, wake) {
+  validateControlWake(wake);
+  if (sha256(receiptBody) !== wake.bodySha256) {
+    throw new Error('control wake receipt body does not match bodySha256');
+  }
+  if (/two-mac-bridge-[a-z-]+:v1/u.test(receiptBody)) {
+    throw new Error('control wake receipt body contains a bridge marker');
+  }
+  return `${receiptBody}\n\n${encodeControlWakeMarker(wake)}`;
+}
+
 export function decodeTicketMarkers(body) {
   return decodeMarkers(body, 'ticket').map(validateTicket);
 }
@@ -636,6 +775,30 @@ export function decodeMachineBindingMarkers(body) {
 
 export function decodeMachineHoldMarkers(body) {
   return decodeMarkers(body, 'machine-hold').map(validateMachineHold);
+}
+
+export function decodeControlWakeMarkers(body) {
+  return decodeMarkers(body, 'control-wake').map(validateControlWake);
+}
+
+export function decodeControlWakeComment(body) {
+  if (typeof body !== 'string') throw new Error('control wake comment body must be a string');
+  const markers = body.match(/<!--\s*two-mac-bridge-control-wake:v1[^>]*-->/gu) || [];
+  if (markers.length !== 1) {
+    throw new Error(`control wake comment must contain exactly one marker; found ${markers.length}`);
+  }
+  const marker = markers[0];
+  const delimiter = `\n\n${marker}`;
+  if (!body.endsWith(delimiter)) {
+    throw new Error('control wake marker must be the final atomic comment record');
+  }
+  const receiptBody = body.slice(0, -delimiter.length);
+  if (receiptBody.length < 1) throw new Error('control wake receipt body is empty');
+  const [wake] = decodeControlWakeMarkers(marker);
+  if (sha256(receiptBody) !== wake.bodySha256) {
+    throw new Error('control wake receipt body hash does not match marker');
+  }
+  return { receiptBody, wake };
 }
 
 export function projectMachineBindingState(controlIssueNumber, bodies) {

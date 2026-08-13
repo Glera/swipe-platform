@@ -158,7 +158,50 @@ Helper предназначен для test/acceptance workflow; release/cutover
 настоящие копии: feed — публичный checkout, generator — по read-only
 deploy key). Забыть downstream больше невозможно.
 
-## 6. VISION.md + AGENTS.md + docs-boundary lint — навигация для агентов
+## 6. Two-Mac control wake — receipt не теряется в prose
+
+Обычный terminal/handoff внутри ticket продолжает использовать
+`two-mac.bridge-event.v1`. Если review или `NEEDS_HELP` в control Issue #94
+разрешает новый шаг тому же owner, receipt и wake публикуются одним helper:
+
+```sh
+node scripts/two-mac-bridge.mjs publish-wake \
+  --machine mac-a \
+  --next-owner mac-b \
+  --parent-comment-id 5277813712 \
+  --verdict NEEDS_HELP \
+  --body-file /tmp/exact-receipt.md \
+  --apply
+```
+
+Для `publish-wake` локальные `CODEX_THREAD_ID` и bridge HEAD проверяются по
+active machine binding; mutating pass идёт под существующим local lock. Helper
+сам берёт exact target/callback task digests, связывает human body SHA-256 с
+`two-mac.control-wake.v1`, публикует один comment и перечитывает exact bytes.
+Прямой `gh issue comment` с фразой «Mac B wake» dispatch не создаёт.
+
+Heartbeat делает один read-only pass тем же selector, который тестируется:
+
+```sh
+node scripts/two-mac-bridge.mjs scan-wakes \
+  --machine mac-b \
+  --after-comment-id 5277813712 \
+  --after-wake-id 5277580994
+```
+
+Технический heartbeat не получает owner-authority и не обязан быть самой
+owner task: read-only selector маршрутизирует только в exact active binding
+целевой машины из Issue #94. Исполнение по-прежнему делает существующий owner.
+
+`lastScannedCommentId` обновляется после чтения; `lastConsumedWakeCommentId` —
+только после обработанного `nextWake` (на значение
+`acknowledgeAfterHandlingCommentId`). Если новый comment адресует Mac B через
+legacy heading/prose либо несёт повреждённый marker, результат — typed
+`NEEDS_HELP:malformed_targeted_wake`, не `no work`.
+`STOP` и `AUTHORITY_REQUIRED` возвращаются отдельным action и non-zero status,
+а не маскируются под обычный dispatch.
+
+## 7. VISION.md + AGENTS.md + docs-boundary lint — навигация для агентов
 
 **Что это.**
 - `VISION.md` — одна страница «куда движется продукт и чего не делаем»;

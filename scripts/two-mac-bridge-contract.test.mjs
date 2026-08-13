@@ -2,13 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  composeControlWakeComment,
+  createControlWake,
   createMachineBinding,
   createMachineHold,
   createEvent,
+  decodeControlWakeComment,
+  decodeControlWakeMarkers,
   decodeMachineBindingMarkers,
   decodeEventMarkers,
   decodeTicketMarkers,
   encodeEventMarker,
+  encodeControlWakeMarker,
   encodeMachineBindingMarker,
   encodeMachineHoldMarker,
   encodeTicketMarker,
@@ -83,6 +88,66 @@ test('ticket marker preserves exact request, parent, source and route identities
   assert.doesNotMatch(marker, /line one/u);
   assert.deepEqual(decodeTicketMarkers(`contract\n${marker}\nprose`), [value]);
   assert.equal(ticketDigest(decodeTicketMarkers(marker)[0]), ticketDigest(value));
+});
+
+test('control wake atomically binds one receipt body to one exact owner route', () => {
+  const receiptBody = '## NEEDS_HELP — exact review\n\nNext: bounded correction on the same owner.';
+  const wake = createControlWake({
+    controlIssue: 94,
+    parentCommentId: '5277813712',
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'NEEDS_HELP',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+  });
+  const comment = composeControlWakeComment(receiptBody, wake);
+  assert.doesNotMatch(encodeControlWakeMarker(wake), /bounded correction/u);
+  assert.deepEqual(decodeControlWakeMarkers(comment), [wake]);
+  assert.deepEqual(decodeControlWakeComment(comment), { receiptBody, wake });
+
+  const stopped = createControlWake({
+    ...wake,
+    verdict: 'STOP',
+    receiptBody,
+    createdAt: '2026-08-13T08:25:52.000Z',
+  });
+  const rebound = createControlWake({
+    ...wake,
+    callbackTaskDigest: 'f'.repeat(64),
+    receiptBody,
+    createdAt: '2026-08-13T08:26:52.000Z',
+  });
+  assert.notEqual(stopped.wakeId, wake.wakeId);
+  assert.notEqual(rebound.wakeId, wake.wakeId);
+
+  assert.throws(
+    () => decodeControlWakeComment(comment.replace('bounded correction', 'unbounded correction')),
+    /body hash does not match/u,
+  );
+  assert.throws(
+    () => composeControlWakeComment(`${receiptBody}\nchanged`, wake),
+    /does not match bodySha256/u,
+  );
+  assert.throws(
+    () => decodeControlWakeComment(`${comment}\ntrailing prose`),
+    /final atomic comment record/u,
+  );
+  const injectedBody = `${receiptBody}\n<!-- two-mac-bridge-machine-hold:v1 payload=quoted -->`;
+  assert.throws(
+    () => createControlWake({
+      controlIssue: 94,
+      parentCommentId: '5277813712',
+      assignedMachine: 'mac-b',
+      targetTaskDigest: B_TASK,
+      callbackTaskDigest: A_TASK,
+      verdict: 'NEEDS_HELP',
+      receiptBody: injectedBody,
+      createdAt: '2026-08-13T08:27:52.000Z',
+    }),
+    /receipt body is invalid/u,
+  );
 });
 
 test('A to B to A journal becomes executable only after confirmed claim', () => {

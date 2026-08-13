@@ -6,13 +6,17 @@
 // token and raw Codex task ID are never printed or stored by this script.
 
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import {
   canonicalJson,
+  composeControlWakeComment,
+  createControlWake,
   createMachineBinding,
   createMachineHold,
   createEvent,
+  decodeControlWakeComment,
   decodeEventMarkers,
   encodeMachineBindingMarker,
   encodeMachineHoldMarker,
@@ -42,6 +46,12 @@ const USAGE = `Usage:
   node scripts/two-mac-bridge.mjs project --issue N [--repo OWNER/REPO]
   node scripts/two-mac-bridge.mjs observe --machine mac-a|mac-b \\
     [--control-issue N] [--repo OWNER/REPO]
+  node scripts/two-mac-bridge.mjs scan-wakes --machine mac-a|mac-b \\
+    --after-comment-id ID --after-wake-id ID [--control-issue N]
+  node scripts/two-mac-bridge.mjs publish-wake --machine mac-a|mac-b \\
+    --next-owner mac-a|mac-b --parent-comment-id ID \\
+    --verdict HANDOFF_READY|NEEDS_HELP|AUTHORITY_REQUIRED|DONE|STOP \\
+    --body-file PATH [--control-issue N] [--apply]
   node scripts/two-mac-bridge.mjs bootstrap --machine mac-a|mac-b \\
     [--control-issue N] [--supersede-binding-digest SHA256] [--apply]
   node scripts/two-mac-bridge.mjs bind-platform --issue N --machine mac-a \\
@@ -86,6 +96,12 @@ export function parseArgs(argv) {
     receiptId: null,
     controlIssue: DEFAULT_CONTROL_ISSUE,
     requestId: null,
+    nextOwner: null,
+    parentCommentId: null,
+    verdict: null,
+    bodyFile: null,
+    afterCommentId: '0',
+    afterWakeId: '0',
     supersedeBindingDigest: null,
     generatorUrl: DEFAULT_GENERATOR_URL,
     apply: false,
@@ -122,6 +138,18 @@ export function parseArgs(argv) {
       options.controlIssue = Number(takeValue(rest, index, arg)); index += 1;
     } else if (arg === '--request-id') {
       options.requestId = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--next-owner') {
+      options.nextOwner = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--parent-comment-id') {
+      options.parentCommentId = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--verdict') {
+      options.verdict = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--body-file') {
+      options.bodyFile = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--after-comment-id') {
+      options.afterCommentId = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--after-wake-id') {
+      options.afterWakeId = takeValue(rest, index, arg); index += 1;
     } else if (arg === '--supersede-binding-digest') {
       options.supersedeBindingDigest = takeValue(rest, index, arg).toLowerCase(); index += 1;
     } else if (arg === '--generator-url') {
@@ -137,8 +165,8 @@ export function parseArgs(argv) {
     }
   }
   if (options.help) return options;
-  if (!['project', 'observe', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)) {
-    throw new Error('command must be project, observe, bootstrap, bind-platform, bind-generator, claim, or advance');
+  if (!['project', 'observe', 'scan-wakes', 'publish-wake', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)) {
+    throw new Error('command must be project, observe, scan-wakes, publish-wake, bootstrap, bind-platform, bind-generator, claim, or advance');
   }
   if (!REPOSITORY.test(options.repo)) throw new Error('--repo must be OWNER/REPO');
   if (options.repo !== DEFAULT_REPO) throw new Error(`--repo is allowlisted to ${DEFAULT_REPO}`);
@@ -146,11 +174,11 @@ export function parseArgs(argv) {
       && (!Number.isSafeInteger(options.issue) || options.issue < 1)) {
     throw new Error('--issue must be a positive strict integer');
   }
-  if (['observe', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)
+  if (['observe', 'scan-wakes', 'publish-wake', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)
       && !['mac-a', 'mac-b'].includes(options.machine)) {
     throw new Error('--machine must be mac-a or mac-b');
   }
-  if (['observe', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)
+  if (['observe', 'scan-wakes', 'publish-wake', 'bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(options.command)
       && (!Number.isSafeInteger(options.controlIssue) || options.controlIssue < 1)) {
     throw new Error('--control-issue must be a positive strict integer');
   }
@@ -166,8 +194,39 @@ export function parseArgs(argv) {
     if (!safeIdentity(options.requestId)) throw new Error('--request-id is invalid');
     validateGeneratorUrl(options.generatorUrl);
   }
+  if (options.command === 'scan-wakes') {
+    validateCursor(options.afterCommentId, '--after-comment-id');
+    validateCursor(options.afterWakeId, '--after-wake-id');
+    if (BigInt(options.afterWakeId) > BigInt(options.afterCommentId)) {
+      throw new Error('--after-wake-id cannot exceed --after-comment-id');
+    }
+  }
+  if (options.command === 'publish-wake') {
+    if (!['mac-a', 'mac-b'].includes(options.nextOwner)) {
+      throw new Error('--next-owner must be mac-a or mac-b');
+    }
+    validateCommentId(options.parentCommentId, '--parent-comment-id');
+    if (!['HANDOFF_READY', 'NEEDS_HELP', 'AUTHORITY_REQUIRED', 'DONE', 'STOP'].includes(options.verdict)) {
+      throw new Error('--verdict is invalid for publish-wake');
+    }
+    if (typeof options.bodyFile !== 'string' || options.bodyFile.length < 1 || /[\0\r\n]/u.test(options.bodyFile)) {
+      throw new Error('--body-file is invalid');
+    }
+  }
   if (options.command === 'advance') validateAdvanceOptions(options);
   return options;
+}
+
+function validateCommentId(value, label) {
+  if (typeof value !== 'string' || !/^[1-9][0-9]{0,31}$/u.test(value)) {
+    throw new Error(`${label} must be a positive decimal GitHub comment ID`);
+  }
+}
+
+function validateCursor(value, label) {
+  if (typeof value !== 'string' || !/^(?:0|[1-9][0-9]{0,31})$/u.test(value)) {
+    throw new Error(`${label} must be a non-negative decimal GitHub comment ID`);
+  }
 }
 
 function validateAdvanceOptions(options) {
@@ -332,6 +391,287 @@ function machineBindingStateFromIssue(issue) {
     issue.number,
     [issue.body, ...(issue.comments || []).map((comment) => comment.body)],
   );
+}
+
+function requireActiveTaskBinding({ issue, machine, taskDigest }) {
+  const state = machineBindingStateFromIssue(issue);
+  const binding = state.active[machine];
+  if (!binding || binding.taskDigest !== taskDigest) {
+    throw new Error(`exact active ${machine} task binding is required`);
+  }
+  return { binding, state };
+}
+
+function targetedWakeProse(body, machine) {
+  if (typeof body !== 'string') return false;
+  const letter = machine === 'mac-a' ? 'a' : 'b';
+  const machineToken = `mac[_ -]?${letter}`;
+  const targeted = new RegExp(
+    `(?:${machineToken}).{0,48}(?:wake|next\\s*owner)`
+      + `|(?:wake|next\\s*owner).{0,48}(?:${machineToken})`
+      + `|same\\s+existing\\s+(?:${machineToken})\\s+owner`,
+    'iu',
+  );
+  return body.split(/\n/u).some((line) => targeted.test(line));
+}
+
+function numericCommentId(comment) {
+  const value = String(comment?.id ?? '');
+  validateCommentId(value, 'comment.id');
+  return value;
+}
+
+export function scanControlWakeComments({
+  controlIssue,
+  comments,
+  machine,
+  taskDigest,
+  callbackTaskDigest = null,
+  lastScannedCommentId = '0',
+  lastConsumedWakeCommentId = '0',
+}) {
+  if (!Number.isSafeInteger(controlIssue) || controlIssue < 1) {
+    throw new Error('controlIssue must be a positive strict integer');
+  }
+  if (!Array.isArray(comments)) throw new Error('control wake comments must be an array');
+  if (!['mac-a', 'mac-b'].includes(machine) || !SHA256.test(String(taskDigest || ''))) {
+    throw new Error('control wake scanner identity is invalid');
+  }
+  if (machine === 'mac-b' && !SHA256.test(String(callbackTaskDigest || ''))) {
+    throw new Error('Mac B control wake scanner callback binding is invalid');
+  }
+  if (machine === 'mac-a' && callbackTaskDigest !== null) {
+    throw new Error('Mac A control wake scanner callback binding must be null');
+  }
+  validateCursor(lastScannedCommentId, 'lastScannedCommentId');
+  validateCursor(lastConsumedWakeCommentId, 'lastConsumedWakeCommentId');
+  if (BigInt(lastConsumedWakeCommentId) > BigInt(lastScannedCommentId)) {
+    throw new Error('lastConsumedWakeCommentId cannot exceed lastScannedCommentId');
+  }
+
+  const ordered = comments.map((comment) => ({
+    ...comment,
+    id: numericCommentId(comment),
+  })).sort((left, right) => (BigInt(left.id) < BigInt(right.id) ? -1 : 1));
+  const byId = new Map(ordered.map((comment) => [comment.id, comment]));
+  const observedThroughCommentId = ordered.reduce(
+    (maximum, comment) => (BigInt(comment.id) > BigInt(maximum) ? comment.id : maximum),
+    '0',
+  );
+  if (BigInt(lastScannedCommentId) > BigInt(observedThroughCommentId)
+      || BigInt(lastConsumedWakeCommentId) > BigInt(observedThroughCommentId)) {
+    throw new Error('control wake cursor exceeds the append-only comment high-water mark');
+  }
+
+  const attention = [];
+  const pending = [];
+  const seenWakeIds = new Set();
+  for (const comment of ordered) {
+    const body = String(comment.body || '');
+    const isNew = BigInt(comment.id) > BigInt(lastScannedCommentId);
+    const afterConsumed = BigInt(comment.id) > BigInt(lastConsumedWakeCommentId);
+    const markerLike = body.includes('two-mac-bridge-control-wake:v1');
+    if (!markerLike) {
+      if (isNew && targetedWakeProse(body, machine)) {
+        attention.push({
+          action: 'NEEDS_HELP',
+          code: 'malformed_targeted_wake',
+          commentId: comment.id,
+          commentUrl: comment.htmlUrl ?? null,
+        });
+      }
+      continue;
+    }
+
+    let decoded;
+    try {
+      decoded = decodeControlWakeComment(body);
+      if (decoded.wake.controlIssue !== controlIssue) {
+        throw new Error('control wake belongs to another control Issue');
+      }
+      const parent = byId.get(decoded.wake.parentCommentId);
+      if (!parent || BigInt(decoded.wake.parentCommentId) >= BigInt(comment.id)) {
+        throw new Error('control wake parent comment is missing or not earlier');
+      }
+    } catch {
+      if (isNew) {
+        attention.push({
+          action: 'NEEDS_HELP',
+          code: 'malformed_targeted_wake',
+          commentId: comment.id,
+          commentUrl: comment.htmlUrl ?? null,
+        });
+      }
+      continue;
+    }
+
+    const { wake, receiptBody } = decoded;
+    if (wake.assignedMachine !== machine) continue;
+    if (wake.targetTaskDigest !== taskDigest) {
+      if (afterConsumed) {
+        attention.push({
+          action: 'STOP',
+          code: 'target_task_binding_mismatch',
+          commentId: comment.id,
+          commentUrl: comment.htmlUrl ?? null,
+          wakeId: wake.wakeId,
+        });
+      }
+      continue;
+    }
+    if (wake.callbackTaskDigest !== callbackTaskDigest) {
+      if (afterConsumed) {
+        attention.push({
+          action: 'STOP',
+          code: 'callback_task_binding_mismatch',
+          commentId: comment.id,
+          commentUrl: comment.htmlUrl ?? null,
+          wakeId: wake.wakeId,
+        });
+      }
+      continue;
+    }
+    const alreadySeen = seenWakeIds.has(wake.wakeId);
+    seenWakeIds.add(wake.wakeId);
+    if (!afterConsumed || alreadySeen) continue;
+    const action = wake.verdict === 'STOP'
+      ? 'STOP'
+      : wake.verdict === 'AUTHORITY_REQUIRED'
+        ? 'AUTHORITY_REQUIRED'
+        : 'DISPATCH';
+    pending.push({
+      action,
+      commentId: comment.id,
+      commentUrl: comment.htmlUrl ?? null,
+      receiptBody,
+      wake,
+    });
+  }
+
+  const nextWake = pending.at(0) ?? null;
+  return {
+    schema: 'two-mac.control-wake-observation.v1',
+    machine,
+    cursors: {
+      lastScannedCommentId: observedThroughCommentId,
+      lastConsumedWakeCommentId,
+      acknowledgeAfterHandlingCommentId: nextWake?.commentId ?? null,
+    },
+    attention,
+    nextWake,
+    pendingWakeCount: pending.length,
+  };
+}
+
+export async function scanControlIssueWakes({
+  transport,
+  repo,
+  controlIssue,
+  machine,
+  lastScannedCommentId,
+  lastConsumedWakeCommentId,
+}) {
+  const issue = await transport.getIssue(repo, controlIssue);
+  const state = machineBindingStateFromIssue(issue);
+  const target = state.active[machine];
+  if (!target) throw new Error(`exact active ${machine} target binding is required`);
+  return scanControlWakeComments({
+    controlIssue,
+    comments: issue.comments,
+    machine,
+    taskDigest: target.taskDigest,
+    callbackTaskDigest: machine === 'mac-b' ? state.active['mac-a']?.taskDigest ?? null : null,
+    lastScannedCommentId,
+    lastConsumedWakeCommentId,
+  });
+}
+
+export async function publishControlWake({
+  transport,
+  repo,
+  controlIssue,
+  actorMachine,
+  actorTaskDigest,
+  nextOwner,
+  parentCommentId,
+  verdict,
+  receiptBody,
+  bridgeCommit,
+  apply,
+  clock = () => new Date(),
+}) {
+  const [issue, repositoryId] = await Promise.all([
+    transport.getIssue(repo, controlIssue),
+    transport.getRepositoryId(repo),
+  ]);
+  const { binding, state } = requireActiveTaskBinding({
+    issue, machine: actorMachine, taskDigest: actorTaskDigest,
+  });
+  if (binding.bridgeCommit !== bridgeCommit || binding.repositoryId !== repositoryId) {
+    throw new Error(`exact active ${actorMachine} machine binding is required`);
+  }
+  const target = state.active[nextOwner];
+  if (!target) throw new Error(`exact active ${nextOwner} target binding is required`);
+  const callbackTaskDigest = nextOwner === 'mac-b'
+    ? state.active['mac-a']?.taskDigest ?? null
+    : null;
+  if (!issue.comments.some((comment) => String(comment.id) === String(parentCommentId))) {
+    throw new Error('control wake parent comment does not exist');
+  }
+  const wake = createControlWake({
+    controlIssue,
+    parentCommentId,
+    assignedMachine: nextOwner,
+    targetTaskDigest: target.taskDigest,
+    callbackTaskDigest,
+    verdict,
+    receiptBody,
+    createdAt: now(clock),
+  });
+  const replay = issue.comments
+    .map((comment) => {
+      try {
+        const decoded = decodeControlWakeComment(String(comment.body || ''));
+        return decoded.wake.wakeId === wake.wakeId ? { comment, decoded } : null;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean)
+    .sort((left, right) => (
+      BigInt(String(left.comment.id)) < BigInt(String(right.comment.id)) ? -1 : 1
+    ))
+    .at(0);
+  if (replay) {
+    return {
+      status: 'REPLAY',
+      commentId: String(replay.comment.id),
+      commentUrl: replay.comment.htmlUrl ?? null,
+      wake: replay.decoded.wake,
+    };
+  }
+  const body = composeControlWakeComment(receiptBody, wake);
+  if (!apply) return { status: 'DRY_RUN', wake, body };
+
+  const posted = await transport.postComment(repo, controlIssue, body);
+  const commentId = String(posted?.id ?? '');
+  validateCommentId(commentId, 'posted comment ID');
+  if (BigInt(commentId) <= BigInt(parentCommentId)) {
+    throw new Error('posted control wake comment does not follow its parent');
+  }
+  const verifiedIssue = await transport.getIssue(repo, controlIssue);
+  const verifiedComment = verifiedIssue.comments.find((comment) => String(comment.id) === commentId);
+  if (!verifiedComment) throw new Error('posted control wake comment is not durable after write');
+  const decoded = decodeControlWakeComment(verifiedComment.body);
+  if (decoded.wake.wakeDigest !== wake.wakeDigest || decoded.receiptBody !== receiptBody) {
+    throw new Error('posted control wake comment bytes differ after write');
+  }
+  return {
+    status: 'APPLIED',
+    commentId,
+    commentUrl: verifiedComment.htmlUrl ?? null,
+    wake,
+  };
 }
 
 async function requireExactMachineBinding({
@@ -1023,6 +1363,21 @@ export async function runCli(argv, {
       writeOut(`${JSON.stringify(result.projection, null, 2)}\n`);
       return 0;
     }
+    if (options.command === 'scan-wakes') {
+      const result = await scanControlIssueWakes({
+        transport,
+        repo: options.repo,
+        controlIssue: options.controlIssue,
+        machine: options.machine,
+        lastScannedCommentId: options.afterCommentId,
+        lastConsumedWakeCommentId: options.afterWakeId,
+      });
+      writeOut(`${JSON.stringify(result, null, 2)}\n`);
+      return result.attention.length > 0
+        || ['STOP', 'AUTHORITY_REQUIRED'].includes(result.nextWake?.action)
+        ? 2
+        : 0;
+    }
     const taskDigest = deriveTaskDigest(env);
     if (options.command === 'bootstrap') {
       const result = await bootstrapMachine({
@@ -1049,6 +1404,25 @@ export async function runCli(argv, {
         controlIssue: options.controlIssue, requestId: options.requestId,
         generatorUrl: options.generatorUrl, taskDigest,
         bridgeCommit: resolveHead(), apply: options.apply, fetchImpl, clock,
+      });
+      writeOut(`${JSON.stringify(result, null, 2)}\n`);
+      return 0;
+    }
+    if (options.command === 'publish-wake') {
+      const receiptBody = readFileSync(options.bodyFile, 'utf8');
+      const result = await publishControlWake({
+        transport,
+        repo: options.repo,
+        controlIssue: options.controlIssue,
+        actorMachine: options.machine,
+        actorTaskDigest: taskDigest,
+        nextOwner: options.nextOwner,
+        parentCommentId: options.parentCommentId,
+        verdict: options.verdict,
+        receiptBody,
+        bridgeCommit: resolveHead(),
+        apply: options.apply,
+        clock,
       });
       writeOut(`${JSON.stringify(result, null, 2)}\n`);
       return 0;
@@ -1116,7 +1490,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.stderr.write(`STOP: ${error.message}\n`);
     process.exitCode = 1;
   }
-  if (parsed && parsed.apply && ['bootstrap', 'bind-platform', 'bind-generator', 'claim', 'advance'].includes(parsed.command) && !parsed.lockHeld) {
+  if (parsed && parsed.apply && ['bootstrap', 'bind-platform', 'bind-generator', 'publish-wake', 'claim', 'advance'].includes(parsed.command) && !parsed.lockHeld) {
     const args = [
       '-t', '0', lockPath(parsed.repo, parsed.machine),
       process.execPath, fileURLToPath(import.meta.url),

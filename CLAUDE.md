@@ -77,6 +77,14 @@
   после proposal и двух полных post-write чтений; replay exact-idempotent, а
   fork/stale/route/task mismatch fail closed. Offline Mac остаётся
   `QUEUED:machine_offline` без steal/reassignment.
+- Follow-up receipt, который разрешает следующий шаг существующему owner,
+  атомарно несёт `two-mac.control-wake.v1`: SHA-256 human receipt, exact
+  target/callback task binding, parent comment и verdict. Producer — только
+  `publish-wake`, consumer — `scan-wakes`; routing не зависит от заголовка.
+  Heartbeat хранит два cursor: последний прочитанный comment и последний
+  принятый wake. Адресованный malformed/prose wake обязан дать typed
+  `NEEDS_HELP:malformed_targeted_wake`, поэтому `no work` не может скрыть
+  потерянный dispatch.
 - Phase 0 не строит general scheduler/runner, arbitrary remote-command API,
   provider/subscription picker, distributed lease, repo lock, merge queue,
   shared task DB или agent platform. In-chat heartbeat — trigger существующей
