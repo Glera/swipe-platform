@@ -2,7 +2,7 @@
 <html lang="ru">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Play for Good — сезонный альбом, итерация 6 (13.08)</title>
+<title>Play for Good — сезонный альбом, итерация 7 (13.08)</title>
 <style>
   :root{
     --paper:#F2EDE3; --paper-2:#E9E2D5; --ink:#2A2622; --ink-soft:#6B6259;
@@ -211,7 +211,7 @@
 
 <div class="sheet">
   <header class="sheet__head">
-    <p class="eyebrow">Play for Good · сезонный альбом · итерация 6 · фидбек №5 вшит</p>
+    <p class="eyebrow">Play for Good · сезонный альбом · итерация 7 · фидбек №6 вшит</p>
     <h1>Сезон от первой лапки до кипсейка</h1>
     <p>Лапка теперь — колба градусника, приклеенная к бару общей обводкой; лапки на
     друзьях кликаются и улетают в общий сбор; на экране кейса бар оформлен идентично
@@ -454,7 +454,60 @@
     </figure>
   </div>
 
-  <h2 class="section">3 · Когда сезон закрыт: один бланк-квитанция</h2>
+  <h2 class="section">3 · Карта — вкладка, а не отдельный мир</h2>
+  <p class="section-sub">Карта живёт в той же контент-области, где играют механики:
+  верх (уровень · сезон · друзья) и низ (переходы) — как на любом экране. Внутри —
+  живой прототип: тап по флажку сразу открывает бланк сезона, «Коллекции» — попап.</p>
+  <div class="row">
+    <figure>
+      <div class="phone phone--feed" style="min-height:640px">
+        <div class="hudgrid">
+          <div class="lvltile">
+            <svg class="lvlframe" viewBox="0 0 78 92" preserveAspectRatio="none">
+              <rect class="lvlframe__bg" x="1.5" y="1.5" width="75" height="89" rx="15"/>
+              <rect class="lvlframe__fg" x="1.5" y="1.5" width="75" height="89" rx="15"
+                pathLength="100" stroke-dasharray="62 38"/>
+            </svg>
+            <div class="lvl__ava">🙂</div>
+            <span class="lvl__num">7</span>
+            <span class="lvl__plus" title="добавить друга">+</span>
+          </div>
+          <div class="hudright">
+            <div class="sbar">
+              <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
+                <span class="ibtn" title="про сезон">i</span></div>
+              <div class="sbar__line">
+                <div class="thermo">
+                  <span class="thermo__bulb"><svg><use href="#paw" fill="currentColor"/></svg></span>
+                  <div class="sbar__track"><div class="sbar__fill" style="width:41.2%"></div>
+                    <div class="bartext">41 205 / 100 000</div></div>
+                </div>
+                <span class="bargift">🎁</span>
+              </div>
+            </div>
+            <div class="friends">
+              <div class="fr fr--paw"></div><div class="fr fr--paw"></div><div class="fr"></div>
+              <div class="fr"></div><div class="fr fr--more">+2</div>
+              <span class="friends__cap">друзья</span>
+            </div>
+          </div>
+        </div>
+        <iframe src="../help-map-prototype/prototype.html" title="карта помощи"
+          style="flex:1;border:1px solid #20242F;border-radius:14px;margin-top:14px;min-height:400px;background:#0B0D12"></iframe>
+        <div class="bnav">
+          <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item"><span>🃏</span><span>Коллекции</span></div>
+          <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
+          <div class="bnav__item on"><span>🗺</span><span>Карта</span></div>
+        </div>
+      </div>
+      <figcaption><b>Карта как вкладка.</b> Живая: зум, кластеры, «Мой след» (лапки
+      счётом — аватар не дублируется, он уже в HUD), «Коллекции» попапом, тап по
+      флажку — сразу бланк сезона без промежуточных панелек.</figcaption>
+    </figure>
+  </div>
+
+  <h2 class="section">4 · Когда сезон закрыт: один бланк-квитанция</h2>
   <p class="section-sub">Кипсейк слит с итогом сезона. Показывается церемонией при
   закрытии; навсегда открывается тапом по флажку сезона на карте; до отчёта приюта
   строки «передано» в нём нет.</p>
