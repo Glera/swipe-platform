@@ -1,19 +1,19 @@
 {
   "schema": "runtime-artifact.v1",
   "playableId": "orthogonal-link-v1-swipe",
-  "digest": "sha256:c0b9d7886f5029ad13f909c991bbce2b26637bd42de3f4ae15bb0bb2d0c84379",
+  "digest": "sha256:a4ecae1cbeab7ba6c554c83a5ffe7b7a3031978d11ed958574e8a198450cecd7",
   "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
-  "sourceCommit": "dae6f2d114a57cd8c8799f5071a37b3b5f63820b",
+  "sourceCommit": "d961bba0edb70b7c0002d70d32a07ef4acfaa061",
   "files": [
     {
       "path": "orthogonal-link-v1-swipe.html",
       "bytes": 833,
-      "sha256": "sha256:9cc06cc1f40ef01bda6882c6d2fb0e9e20164cc584cfe2a50bfc2faa37eae374"
+      "sha256": "sha256:75f063d65db358af74247fb932cef30b1de5c0dbe0c315ebc2ed96267fa1a7e7"
     },
     {
       "path": "orthogonal-link-v1-swipe.payload.js",
-      "bytes": 66579,
-      "sha256": "sha256:fd2fbf79f0776f47dac76796cf49ef069649d45fa454d3c9803feb4a73f06be4"
+      "bytes": 66790,
+      "sha256": "sha256:4727c02bdd4ade344f3baee38f18930318afdc09d00352966c9590af39ef9805"
     }
   ]
 }
