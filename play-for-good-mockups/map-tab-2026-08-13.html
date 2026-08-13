@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Play for Good — карта как вкладка (всё разом)</title>
+<style>
+  :root{
+    --feed-bg:#0B0D12; --feed-card:#151823; --feed-edge:#262B3A;
+    --feed-ink:#F2F4F8; --feed-soft:#9AA1B4; --paw-gold:#E8B54A; --feed-green:#4FD08C;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; background:#06070B; display:grid; place-items:center;
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+  /* «телефон» на весь экран, но не шире 430px */
+  #app{width:min(430px,100vw); height:100dvh; max-height:100dvh; background:var(--feed-bg);
+    display:flex; flex-direction:column; padding:12px 12px 6px; overflow:hidden}
+  @media (min-width:500px){ #app{height:min(880px,96dvh); border:1px solid #20242F; border-radius:26px} }
+
+  .hudgrid{display:flex; gap:10px; align-items:stretch; flex:none}
+  .lvltile{flex:none; width:76px; position:relative}
+  .lvlframe{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+  .lvlframe rect{fill:none; stroke-width:3; vector-effect:non-scaling-stroke}
+  .lvlframe__bg{stroke:#2A2F3E}
+  .lvlframe__fg{stroke:var(--paw-gold)}
+  .lvl__ava{position:absolute; inset:5px; border-radius:12px;
+    background:radial-gradient(circle at 35% 28%,#55617F,#232838); display:grid; place-items:center;
+    color:#8A93AA; font-size:23px}
+  .lvl__num{position:absolute; top:-6px; left:-6px; background:#0B0D12; border:1.5px solid var(--paw-gold);
+    border-radius:8px; padding:0 6px; font-weight:800; font-size:12px; color:var(--paw-gold); line-height:1.5}
+  .lvl__plus{position:absolute; right:-2px; bottom:-2px; width:19px; height:19px; border-radius:50%;
+    background:var(--feed-green); color:#08130C; font-weight:800; font-size:13px; line-height:1;
+    display:grid; place-items:center; border:2px solid var(--feed-bg)}
+  .hudright{flex:1; display:flex; flex-direction:column; gap:8px; min-width:0}
+  .sbar{background:var(--feed-card); border:1px solid var(--feed-edge); border-radius:14px;
+    padding:7px 11px 8px; min-width:0}
+  .sbar__top{display:flex; align-items:center; gap:6px; margin-bottom:5px}
+  .sbar__name{color:var(--feed-ink); font-weight:700; font-size:12.5px; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis}
+  .ibtn{flex:none; width:15px; height:15px; border-radius:50%; border:1px solid #3A415A;
+    color:var(--feed-soft); font-family:ui-monospace,Menlo,monospace; font-size:9.5px;
+    display:grid; place-items:center}
+  .sbar__line{display:flex; align-items:center; gap:7px}
+  .thermo{display:flex; align-items:center; flex:1; min-width:0}
+  .thermo__bulb{width:28px; height:28px; border-radius:50%; background:#232838; border:1px solid #3A415A;
+    display:grid; place-items:center; flex:none; position:relative; z-index:2}
+  .thermo__bulb svg{width:15px; height:15px; fill:var(--paw-gold)}
+  .sbar__track{flex:1; height:18px; background:#232838; border:1px solid #3A415A; border-left:0;
+    border-radius:0 9px 9px 0; margin-left:-10px; overflow:hidden; position:relative}
+  .sbar__fill{position:absolute; inset:0 auto 0 0; width:41.2%;
+    background:linear-gradient(90deg,var(--feed-green),var(--paw-gold))}
+  .bartext{position:absolute; inset:0; display:grid; place-items:center;
+    font-family:ui-monospace,Menlo,monospace; font-weight:800; font-size:10.5px; color:#fff;
+    font-variant-numeric:tabular-nums; letter-spacing:.02em;
+    text-shadow:0 1px 2px rgba(0,0,0,.9),0 -1px 2px rgba(0,0,0,.9),1px 0 2px rgba(0,0,0,.9),-1px 0 2px rgba(0,0,0,.9)}
+  .bargift{font-size:17px; flex:none; line-height:1}
+  .friends{display:flex; align-items:center; gap:6px; min-width:0}
+  .fr{width:28px; height:28px; border-radius:9px; border:1.5px solid #303649;
+    background:radial-gradient(circle at 35% 30%,#4A5168,#232838); position:relative; flex:none}
+  .fr--paw::after{content:""; position:absolute; right:-3px; bottom:-3px; width:12px; height:12px;
+    border-radius:50%; background:var(--paw-gold) center/8px no-repeat
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230B0D12"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.2" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.4c3 0 5.2 2.3 5.2 4.6 0 1.9-1.6 3-3.4 3-1 0-1.3-.4-1.8-.4s-.8.4-1.8.4c-1.8 0-3.4-1.1-3.4-3 0-2.3 2.2-4.6 5.2-4.6z"/></svg>')}
+  .fr--more{display:grid; place-items:center; background:#1B1F2B; color:var(--feed-soft);
+    font-size:10.5px; font-weight:700}
+  .friends__cap{font-size:10.5px; color:var(--feed-soft); margin-left:2px}
+
+  #mapframe{flex:1; border:1px solid #20242F; border-radius:16px; margin-top:12px; min-height:0;
+    background:var(--feed-bg); width:100%}
+
+  .bnav{display:flex; justify-content:space-around; align-items:end; border-top:1px solid #20242F;
+    padding:9px 4px calc(4px + env(safe-area-inset-bottom)); margin-top:10px; flex:none}
+  .bnav__item{display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--feed-soft);
+    font-size:9.5px; letter-spacing:.03em}
+  .bnav__item span:first-child{font-size:15px; line-height:1}
+  .bnav__item--main span:first-child{font-size:16px; background:#1B2130; border:1px solid #2A3145;
+    border-radius:11px; padding:7px 14px}
+  .bnav__item.on{color:var(--feed-ink)}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="paw" viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.2" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.4c3 0 5.2 2.3 5.2 4.6 0 1.9-1.6 3-3.4 3-1 0-1.3-.4-1.8-.4s-.8.4-1.8.4c-1.8 0-3.4-1.1-3.4-3 0-2.3 2.2-4.6 5.2-4.6z"/></symbol>
+</svg>
+
+<div id="app">
+  <div class="hudgrid">
+    <div class="lvltile">
+      <svg class="lvlframe" viewBox="0 0 76 92" preserveAspectRatio="none">
+        <rect class="lvlframe__bg" x="1.5" y="1.5" width="73" height="89" rx="15"/>
+        <rect class="lvlframe__fg" x="1.5" y="1.5" width="73" height="89" rx="15"
+          pathLength="100" stroke-dasharray="62 38"/>
+      </svg>
+      <div class="lvl__ava">🙂</div>
+      <span class="lvl__num">7</span>
+      <span class="lvl__plus" title="добавить друга">+</span>
+    </div>
+    <div class="hudright">
+      <div class="sbar">
+        <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
+          <span class="ibtn" title="про сезон">i</span></div>
+        <div class="sbar__line">
+          <div class="thermo">
+            <span class="thermo__bulb"><svg><use href="#paw" fill="currentColor"/></svg></span>
+            <div class="sbar__track"><div class="sbar__fill"></div>
+              <div class="bartext">41 205 / 100 000</div></div>
+          </div>
+          <span class="bargift">🎁</span>
+        </div>
+      </div>
+      <div class="friends">
+        <div class="fr fr--paw"></div><div class="fr fr--paw"></div><div class="fr"></div>
+        <div class="fr"></div><div class="fr fr--more">+2</div>
+        <span class="friends__cap">друзья</span>
+      </div>
+    </div>
+  </div>
+
+  <iframe id="mapframe" src="../help-map-prototype/prototype.html" title="карта помощи"></iframe>
+
+  <div class="bnav">
+    <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+    <div class="bnav__item"><span>🃏</span><span>Коллекции</span></div>
+    <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
+    <div class="bnav__item on"><span>🗺</span><span>Карта</span></div>
+  </div>
+</div>
+</html>

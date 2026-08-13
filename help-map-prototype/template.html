@@ -244,18 +244,19 @@ body{
 
 /* ========================================================== личный слой === */
 #me{position:absolute; left:14px; top:calc(14px + env(safe-area-inset-top)); z-index:6;
-  display:flex; gap:6px}
-#me button{display:inline-flex; align-items:center; gap:7px; padding:9px 12px; border-radius:13px;
-  background:var(--panel); border:1px solid var(--panel-edge); color:var(--ink); cursor:pointer;
-  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-  font-family:inherit; font-size:12px; font-weight:600; letter-spacing:.02em;
-  transition:box-shadow .25s var(--ease), transform .16s var(--ease)}
-#me button:active{transform:scale(.96)}
-#me-paws svg{width:14px; height:14px; fill:#C99B3F; flex:none}
-#me-paws b{font-weight:700; font-variant-numeric:tabular-nums}
-#me-paws[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px #C99B3F}
-body.mine-only #markers .marker:not(.is-mine){opacity:.16; filter:saturate(.35)}
-#markers .marker{transition:opacity .35s var(--ease), filter .35s var(--ease)}
+  background:var(--panel); border:1px solid var(--panel-edge); border-radius:14px;
+  padding:8px 11px 9px; color:var(--ink);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px)}
+.me-label{display:block; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); margin:0 0 6px}
+.me-row{display:flex; align-items:center; gap:11px}
+.me-paws{display:inline-flex; align-items:center; gap:6px; font-size:12px}
+.me-paws svg{width:14px; height:14px; fill:#C99B3F; flex:none}
+.me-paws b{font-weight:700; font-variant-numeric:tabular-nums}
+#me-coll{border:1px solid var(--panel-edge); background:var(--chip); color:var(--ink);
+  border-radius:10px; padding:6px 10px; font-family:inherit; font-size:11px; font-weight:600;
+  letter-spacing:.02em; cursor:pointer; transition:transform .16s var(--ease)}
+#me-coll:active{transform:scale(.96)}
 
 /* бланк сезона — бумажный документ поверх любой темы */
 #blankwrap{position:absolute; inset:0; z-index:11; display:grid; place-items:center; padding:20px;
@@ -320,6 +321,13 @@ body.mine-only #markers .marker:not(.is-mine){opacity:.16; filter:saturate(.35)}
 .crow .cs{font-size:9.5px; letter-spacing:.09em; text-transform:uppercase; border:1px solid currentColor;
   border-radius:12px; padding:2px 7px; white-space:nowrap; color:#B8843A}
 .crow.live .cs{color:#4A3F8F}
+.crow .cfig{width:44px; height:50px; flex:none; border:1px solid #CFC5B4; border-radius:9px;
+  background:#E9E2D5; display:grid; place-items:center; position:relative; font-size:22px}
+.crow .cfig::after{content:""; position:absolute; left:8px; right:8px; bottom:5px; height:3px;
+  border-radius:2px; background:#CBB98F}
+.crow.none .cfig{border-style:dashed; background:transparent; font-size:12px; color:#9A8F7E;
+  font-weight:700}
+.crow.none .cfig::after{background:#D8CFC0}
 </style>
 </head>
 <body data-theme="paper">
@@ -342,11 +350,14 @@ body.mine-only #markers .marker:not(.is-mine){opacity:.16; filter:saturate(.35)}
 </div>
 
 <div id="me">
-  <button id="me-paws" type="button" aria-pressed="false" title="мой след на карте">
-    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="16.4" rx="5.1" ry="4.2"/><ellipse cx="5.6" cy="10.4" rx="2.5" ry="3.1"/><ellipse cx="18.4" cy="10.4" rx="2.5" ry="3.1"/><ellipse cx="9.4" cy="5.6" rx="2.3" ry="2.9"/><ellipse cx="14.6" cy="5.6" rx="2.3" ry="2.9"/></svg>
-    <b id="me-sum"></b>
-  </button>
-  <button id="me-coll" type="button">Коллекции</button>
+  <span class="me-label">Мой вклад:</span>
+  <div class="me-row">
+    <span class="me-paws">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="16.4" rx="5.1" ry="4.2"/><ellipse cx="5.6" cy="10.4" rx="2.5" ry="3.1"/><ellipse cx="18.4" cy="10.4" rx="2.5" ry="3.1"/><ellipse cx="9.4" cy="5.6" rx="2.3" ry="2.9"/><ellipse cx="14.6" cy="5.6" rx="2.3" ry="2.9"/></svg>
+      <b id="me-sum"></b>
+    </span>
+    <button id="me-coll" type="button">Мои Коллекции</button>
+  </div>
 </div>
 
 <div id="zoomctl">
@@ -362,7 +373,7 @@ body.mine-only #markers .marker:not(.is-mine){opacity:.16; filter:saturate(.35)}
 <div id="collwrap" hidden>
   <div id="collcard" role="dialog" aria-modal="true" aria-label="мои коллекции">
     <button id="collclose" aria-label="закрыть">×</button>
-    <h3>Мои коллекции</h3>
+    <h3>Мои Коллекции</h3>
     <div id="coll-rows"></div>
   </div>
 </div>
@@ -428,7 +439,8 @@ CASES.push(Object.assign(
   { active: true, photos: 0, myPaws: 1340, mySeries: 27, myColl: "6 из 9" }
 ));
 // личный след в закрытых сезонах (демо)
-Object.assign(CASES.find(k => k.id === 1),  { myPaws: 2210, mySeries: 44, myColl: "9 из 9" });
+Object.assign(CASES.find(k => k.id === 1),  { myPaws: 2210, mySeries: 44, myColl: "9 из 9",
+  statue: "🐈", statueName: "Тёплые лапы" });
 Object.assign(CASES.find(k => k.id === 13), { myPaws: 890,  mySeries: 18, myColl: "7 из 9" });
 
 function c(id, name, city, region, lat, lon, type, g, o, t, season, photos, mine){
@@ -1173,52 +1185,44 @@ function zoomToZone(n){
 }
 
 /* ------------------------------------------------------------ личный слой -- */
-/* Чип «Мой след»: лапки счётом (аватар живёт в HUD приложения и здесь не
-   дублируется — решение оператора 13.08). Тап по лапкам приглушает всё, где
-   меня не было; кнопка «Коллекции» разворачивает попап собранного. */
+/* Подложка «Мой вклад:»: сезоны и лапки одной строкой; аватар не дублируется —
+   он в HUD приложения. Участие различает только лапка на флажке (решение
+   оператора 13.08: приглушения чужих флажков нет). */
 const mineCases = CASES.filter(k => k.mine);
-const mePaws = document.getElementById("me-paws");
+function seasonPlural(n){ const m = n % 10, h = n % 100;
+  return (m === 1 && h !== 11) ? "сезон" : (m >= 2 && m <= 4 && (h < 10 || h > 20)) ? "сезона" : "сезонов"; }
 document.getElementById("me-sum").textContent =
+  mineCases.length + " " + seasonPlural(mineCases.length) + " · " +
   money.format(mineCases.reduce((s, k) => s + (k.myPaws || 0), 0)) + " лапок";
-function setMine(on){
-  document.body.classList.toggle("mine-only", on);
-  mePaws.setAttribute("aria-pressed", String(on));
-  if (on && mineCases.length){
-    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    for (const k of mineCases){
-      x0 = Math.min(x0, k.p[0]); x1 = Math.max(x1, k.p[0]);
-      y0 = Math.min(y0, k.p[1]); y1 = Math.max(y1, k.p[1]);
-    }
-    const w = Math.max(x1 - x0, 1e-6), h = Math.max(y1 - y0, 1e-6);
-    let k1 = Math.min(vw * 0.7 / w, vh * 0.6 / h);
-    k1 = Math.max(kFit * 1.2, Math.min(k1, kFit * Z_MAX * 0.5));
-    flyTo(k1, vw / 2 - (x0 + x1) / 2 * k1, vh / 2 - (y0 + y1) / 2 * k1, 700);
-  }
-}
-mePaws.addEventListener("click", (e) => {
-  e.stopPropagation();
-  setMine(!document.body.classList.contains("mine-only"));
-});
 
-/* попап собранных коллекций */
+/* попап «Мои Коллекции»: за собранную целиком коллекцию — статуэтка */
 const collWrap = document.getElementById("collwrap");
 function openColl(){
   const rows = document.getElementById("coll-rows");
   rows.textContent = "";
   for (const k of mineCases){
     if (!k.myColl) continue;
+    const done = !k.active && k.myColl === "9 из 9";
     const row = document.createElement("div");
-    row.className = "crow" + (k.active ? " live" : "");
-    const body = document.createElement("div");
-    body.className = "cn"; body.textContent = k.name;
-    const meta = document.createElement("div");
-    meta.className = "cm"; meta.textContent = k.season + " · " + k.myColl;
+    row.className = "crow" + (done ? "" : " none") + (k.active ? " live" : "");
+    const fig = document.createElement("div");
+    fig.className = "cfig";
+    fig.textContent = done ? (k.statue || "🐈") : k.myColl.replace(" из ", "/");
     const wrap = document.createElement("div");
-    wrap.style.flex = "1"; wrap.append(body, meta);
+    wrap.style.flex = "1";
+    const name = document.createElement("div");
+    name.className = "cn";
+    name.textContent = done ? "Статуэтка «" + (k.statueName || k.name) + "»" : k.name;
+    const meta = document.createElement("div");
+    meta.className = "cm";
+    meta.textContent = done
+      ? k.season + " · за собранную коллекцию целиком (9 из 9)"
+      : k.season + " · коллекция " + k.myColl + (k.active ? " — идёт сбор" : "");
+    wrap.append(name, meta);
     const st = document.createElement("span");
     st.className = "cs";
-    st.textContent = k.active ? "идёт" : (k.myColl === "9 из 9" ? "собрано" : "сезон завершён");
-    row.append(wrap, st);
+    st.textContent = k.active ? "идёт" : (done ? "статуэтка" : "сезон завершён");
+    row.append(fig, wrap, st);
     rows.appendChild(row);
   }
   collWrap.hidden = false;
