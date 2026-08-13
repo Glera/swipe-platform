@@ -89,6 +89,11 @@ stale parent, sequence gap, route mismatch или task mismatch fail closed.
 На одном физическом Mac mutating pass сериализован OS-released local file lock.
 Это не lease: нет expiry, stealing или automatic reassignment.
 
+`NEEDS_HELP` не позднее следующего доступного orchestration/heartbeat окна
+классифицирует frontier-оркестратор. Technical проблема внутри standing
+authority возвращается той же bound owner task; product/taste/new authority
+идёт оператору; repeated failure или CAS ambiguity завершается typed `STOP`.
+
 ## 5. Host/credential boundary (D4)
 
 Один exact meta script выполняет только один observation/transition pass и
@@ -174,6 +179,17 @@ Terminal Mac B callback становится Issue event. Следующий Mac
 не передаётся на Mac B. Missing binding/task даёт typed `NEEDS_HELP` и никогда
 не создаёт произвольную новую task.
 
+Каждый `HANDOFF_READY`/terminal callback, разрешающий следующую работу, обязан
+в том же append-only Issue event содержать typed discoverable wake. Evidence и
+wake нельзя разделять между комментариями: evidence без wake не является
+dispatch, а wake без exact evidence fail closed.
+
+Review следует реально затронутой authority-границе. Один review-раунд — один
+blind discovery со всей партией findings, одна общая коррекция P1/P2 и один
+узкий author-blind delta-verification нового exact head; P3 не блокируют по
+умолчанию. Для Tier 2 delta-подпись обязательна. Новый полный discovery —
+только по явному запросу оператора либо при scope/authority expansion.
+
 ## 9. Explicit non-scope
 
 - background/general runner or scheduler;
@@ -185,11 +201,14 @@ Terminal Mac B callback становится Issue event. Следующий Mac
 - publication/activation/catalog/roster writes;
 - Arrows parked-candidate mutation;
 - Labs visual/performance/mobile polish до terminal Phase 0.
+- новый bridge/dispatcher, task-store/DB, merge queue, repo-lock/lease или
+  quota optimizer до operator review метрик 10–20 реальных bridge tickets.
 
 ## 10. Ordering и acceptance
 
 Mac B single author slot: Two Dots #91 → Smash #82 → Generator bridge, если
 владелец Mac B не записал другую сериализацию durable comment-ом.
+При конфликте portfolio-приоритетов последнее слово принадлежит оператору.
 
 Phase 0 `DONE` только после:
 

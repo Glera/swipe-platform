@@ -95,6 +95,44 @@
   Two-Mac v1 сохранены как superseded audit trail; merged Single-Mac intake,
   Issue transport и terminal notification переиспользуются default-off.
 
+## Упрощение dev-процесса (операторское решение 13.08.2026)
+
+- **GO только по имени категории ядра.** Запрос дополнительного GO обязан
+  назвать одну категорию из исчерпывающего списка выше: `secrets/credentials`,
+  `money/payment`, `irreversible external act`, `foreign user data` либо
+  отдельно сохраняемый операторский акт `live DB migration`. Если категория
+  не названа и границы уже подписанного scope не изменились, новый GO не
+  существует и не запрашивается.
+- **Standing authority в неизменном подписанном scope** покрывает read-only
+  evidence, bounded correction, PR/CI/merge, один штатный reversible
+  deploy/restart и одну заранее описанную recovery. Оно не разрешает новые
+  credentials/settings/permissions/infrastructure, публикационное или
+  финансовое решение, destructive act, работу с чужими данными, расширение
+  scope, автоматический retry/rollback и live-миграцию БД. Любая live-миграция
+  пока остаётся отдельным операторским актом, даже если additive.
+- **Один review-раунд** означает один blind discovery со всей партией
+  findings, одну общую коррекцию всех P1/P2 и один узкий author-blind
+  delta-verification нового exact head. P3 по умолчанию не блокируют выпуск и
+  собираются в bounded polish batch. Изменение head аннулирует прежнюю
+  подпись, но требует delta-подпись, а не новый полный discovery. Новый полный
+  поиск запускается только по явному запросу оператора либо при расширении
+  scope/authority.
+- Durable receipt-файл в meta-repo создаётся только для canonical core/release
+  outcome. Tier 0/1 review, промежуточные раунды и обычные handoff/CI receipts
+  живут в PR/Issue/task output. Исторические review-серии доступны через git и
+  единый index, а не остаются в активном дереве.
+- `STATE.md` — короткий контрольный экран (целевой предел 150 строк), не
+  ledger: только активная очередь, production checkpoint, ближайшие решения и
+  парковки. История остаётся в git/Issue/PR.
+- Worktree GC проводится еженедельно только после raw census каждого repo.
+  Автоматически допустимы лишь clean, unlocked, inactive, merged/reachable
+  worktree без уникальных локальных commit; dirty/locked/unreachable требуют
+  ручной диспозиции. Пустой вывод helper не заменяет census.
+- До измерения 10–20 реальных Zero-Transfer Bridge тикетов не строятся merge
+  queue, repo-lock/lease, quota optimizer, новый task-store/БД, новый bridge
+  или dispatcher. Пост-пилотное решение и конфликт portfolio-приоритетов
+  принадлежат оператору. Пакет пересматривается перед живой аудиторией.
+
 # Durable product decisions
 
 - Swipe feed content continuation v1 has **no “more like this” button**. Demand

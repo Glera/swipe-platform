@@ -56,6 +56,14 @@ assignees: []
 - Candidate/PR identity: `none until exact candidate exists`
 - Evidence: `captured intake only`
 
+## Review contract
+
+- Discovery: `<not required | pending | exact review link>`
+- P1/P2 batch disposition: `<pending | exact summary link>`
+- Delta verification: `<not needed | pending | exact-head signature link>`
+- Deferred non-blocking P3: `<none | one bounded list>`
+- Full rediscovery requested by operator: `<no | exact request>`
+
 ## Safe operator status
 
 - Current summary: `Задача принята; изменения не опубликованы.`
@@ -66,6 +74,10 @@ assignees: []
 - [x] Ticket grants no automatic merge, deploy or publication authority.
 - [x] Original request and exact context remain linked to every candidate.
 - [x] Reviewer input excludes the author transcript/self-assessment.
+- [x] One review round is one discovery batch plus at most one narrow
+      author-blind delta verification; P3 does not block by default.
+- [x] An actionable handoff contains its typed discoverable wake in the same
+      Issue/PR record.
 - [x] Production/Telegram/GitHub credentials are not exposed to author or reviewer.
 - [x] No AI router, provider picker, repo-lock/lease or merge queue.
 - [x] `swipe-agents` is not part of this development loop.

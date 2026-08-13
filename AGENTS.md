@@ -9,12 +9,15 @@ Cross-repo research каталога игровых классов и шабло
 [docs/mechanics/README.md](docs/mechanics/README.md). Это proposal для выбора
 и подготовки прототипов, не implementation status и не product authority.
 
-## Роли моделей и оркестрация (операторские решения 04.08 и 07.08.2026)
+## Роли моделей и оркестрация (операторские решения 04.08, 07.08 и 12.08.2026)
 
-- Оркестрация инициатив, архитектура, вкусовые решения и финальное ревью —
-  только frontier-модели (Claude Fable / Codex Sol max effort). Opus 5 —
-  исполнитель bounded-задач с критериями приёмки; Opus не оркестрирует
-  frontier-агентов и не принимает vision-решений.
+- Оркестрация инициатив, архитектура, вкусовые решения и финальные
+  vision/authority-решения — только frontier-модели. Claude Fable вызывается
+  только как исключительная frontier-эскалация с явным обоснованием и effort
+  `high`; `max` запрещён без отдельного явного запроса оператора.
+- Обычный blind code review, включая exact-head Tier 1/Tier 2, по умолчанию
+  выполняет Claude Opus 5 с effort `high`. Opus может подписывать code verdict,
+  но не оркестрирует frontier-агентов и не заменяет vision/authority-подпись.
 - Маршрутизация вниз — ответственность frontier-оркестратора, не оператора:
   frontier сам решает, какие задачи отдать Opus-субагентам, и сам ревьюит
   результат. Оператор не управляет выбором модели и не получает «даунгрейд»
@@ -40,7 +43,7 @@ Cross-repo research каталога игровых классов и шабло
   retry или rollback после ошибки требуют новой оценки, не выполняются по
   инерции.
 - Один владелец на контур в каждый момент; смена владельца — только через
-  письменный хэндофф. Второй frontier — адверсариальный ревьюер, не
+  письменный хэндофф. Независимый reviewer — адверсариальный ревьюер, не
   со-владелец.
 - Необратимые шаги (контур «ядро» в [CLAUDE.md](CLAUDE.md)) исполняются
   только со второй подписью: оператор или frontier-сессия поверх вердикта
@@ -48,13 +51,25 @@ Cross-repo research каталога игровых классов и шабло
 - Подпись привязана к уровню модели, не к сессии: если оркестрирующая
   сессия обнаруживает себя на не-frontier модели (даунгрейд клиента,
   авто-выбор), она НЕ даёт подписей/GO, явно сообщает об этом оператору и
-  ограничивается статусом по STATE.md до восстановления frontier. Уже
-  данные подписи остаются в
-- Транспорт заданий и фидбека между машинами/агентами — durable GitHub Issue
-  events по Phase 0 contract; exact patch/evidence остаются файлами/refs в git.
-  Пересказ и перенос оператором не используются.
+  ограничивается статусом по STATE.md до восстановления frontier. Уже данные
+  подписи остаются действительными для подписанного exact head.
+- Запрос GO обязан назвать категорию ядра из `CLAUDE.md`. Если категория не
+  названа, scope/authority не расширены и действие входит в standing authority,
+  агент продолжает сам и не создаёт процедурный GO. Любая live-миграция БД
+  пока остаётся отдельным операторским актом.
+- Standing authority неизменного подписанного scope: read-only evidence,
+  bounded correction, PR/CI/merge, один штатный reversible deploy/restart и
+  одна заранее описанная recovery. Оно не покрывает scope expansion, новые
+  secrets/credentials/settings/permissions/infrastructure, irreversible acts,
+  live DB migration, automatic retry/rollback или product/taste decision.
+- Транспорт между машинами — durable GitHub Issue event по Phase 0 contract с
+  exact refs/evidence. Разрешающий следующую работу handoff обязан в том же
+  record содержать typed discoverable wake; evidence и wake не разделяются.
+  Отдельный файл нужен только для canonical core/release outcome, не для Tier
+  0/1 review-раундов. Пересказ и перенос оператором не используются.
 - Контрольный док портфеля: `STATE.md` в корне — каждая оркестрирующая
-  сессия читает его первым и обновляет последним.
+  сессия читает его первым и обновляет последним. Это экран до 150 строк, не
+  исторический ledger.
 
 ## Two-Mac Zero-Transfer Bridge Phase 0 (операторское решение 11.08.2026)
 
@@ -85,9 +100,19 @@ Cross-repo research каталога игровых классов и шабло
   Arrows parked; Labs visual/performance/mobile polish ждёт terminal Phase 0.
 - Review tier следует реально затронутой границе. Bounded bridge/Labs patch —
   один blind cross-provider review; backend/auth/shared authority — Tier 2.
+  Один раунд = один discovery со всей партией findings, общая коррекция P1/P2
+  и один узкий author-blind delta-verification нового exact head; P3 не
+  блокируют по умолчанию. Новый полный discovery — только по явному запросу
+  оператора либо при расширении scope/authority.
   New credential/permission/setting, destructive act или publication требуют
   consolidated operator window; обычный reviewed merge/deploy без них следует
   текущим CAS/CI правилам.
+- `NEEDS_HELP` не позднее следующего orchestration/heartbeat окна триажится
+  frontier-оркестратором: technical внутри standing authority → тому же owner;
+  product/taste/new authority → оператору; repeated failure/CAS ambiguity →
+  typed terminal `STOP`. Portfolio priority conflict решает оператор.
+- До измерения 10–20 реальных bridge tickets не добавлять новый dispatcher,
+  task-store/DB, merge queue, repo-lock/lease или quota optimizer.
 
 ## Репозитории
 
