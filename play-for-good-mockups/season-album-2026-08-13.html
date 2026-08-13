@@ -174,9 +174,9 @@
   .grand__s{color:var(--feed-soft);font-size:11px}
   .grand__prize{display:flex;align-items:center;gap:6px;margin-top:4px;color:var(--paw-gold);font-weight:700;font-size:12.5px}
   .grand__prize svg{width:13px;height:13px;fill:currentColor}
-  .seasonrow{display:flex;align-items:center;gap:8px;margin-top:10px}
-  .seasonrow .sbar__track{flex:1;height:18px}
-  .timer{flex:none;font-family:var(--mono);font-size:10px;color:var(--feed-soft);border:1px solid #2A3145;border-radius:12px;padding:3px 8px;letter-spacing:.04em}
+  .seasonrow{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin-top:10px}
+  .seasonrow .sbar__track{flex:none;height:18px;margin-left:0;border-left:1px solid #3A415A;border-radius:9px}
+  .grand__timer{margin-top:5px;font-family:var(--mono);font-size:10px;color:var(--feed-soft);letter-spacing:.05em}
   .medgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px;margin-top:14px}
   .med{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
   .med__ring{width:62px;height:62px;border-radius:50%;border:2.5px solid #3A415A;background:radial-gradient(circle at 35% 30%,#2E3650,#1B2130);display:grid;place-items:center;font-size:25px;position:relative}
@@ -508,12 +508,12 @@
             <div class="grand__t">Главный приз сезона</div>
             <div class="grand__s">за все 15 коллекций сезона Мурки</div>
             <div class="grand__prize"><svg><use href="#paw"/></svg>+5 000 лапок · статуэтка Мурки</div>
+            <div class="grand__timer">до конца сезона · 31 день</div>
           </div>
         </div>
         <div class="seasonrow">
           <div class="sbar__track"><div class="sbar__fill" style="width:30.4%"></div>
             <div class="bartext">айтемы · 41 / 135</div></div>
-          <span class="timer">до конца сезона · 31 день</span>
         </div>
         <div class="medgrid">
           <div class="med med--done"><div class="med__ring">🌅</div>
