@@ -108,6 +108,10 @@ body{
    стоят памяти; пульсирующие кольца композитор поднимет сам — у них анимация */
 .marker{position:absolute; left:0; top:0; width:0; height:0; pointer-events:auto}
 .marker.anim{transition:transform .42s var(--ease), opacity .3s var(--ease)}
+/* во время программного перелёта маркеры не анимируются сами — иначе
+   покадровая перекластеризация выглядит мельтешением */
+body.flying .marker, body.flying .marker.anim{transition:none !important}
+body.flying .marker.fresh .zone{animation:none !important}
 .marker.hidden{opacity:0; pointer-events:none}
 .marker.gone{display:none}
 .marker.live{z-index:3}  /* активный кейс всегда поверх зон */
@@ -277,6 +281,11 @@ body{
 .bstamp.live{border-color:#4A3F8F; color:#4A3F8F}
 #b-name{margin:6px 0 2px; font-size:20px; font-weight:600; letter-spacing:-.01em; max-width:80%}
 #b-sub{font-size:11px; color:#6B6259; letter-spacing:.05em; margin-bottom:12px}
+.bdesc{font-size:12.5px; line-height:1.55; color:#2A2622; margin:2px 0 6px}
+.bdesc details{display:inline}
+.bdesc summary{display:inline; cursor:pointer; color:#4A3F8F; list-style:none; font-size:12px}
+.bdesc summary::-webkit-details-marker{display:none}
+.bdesc .full{display:block; margin-top:6px; color:#6B6259}
 .bfields{display:flex; flex-direction:column; margin:4px 0}
 .brow{display:flex; align-items:baseline; gap:10px; padding:7px 0; border-bottom:1px solid #D8CFC0}
 .brow:last-child{border-bottom:0}
@@ -390,6 +399,7 @@ body{
       <button class="bmedia__nav next" type="button" aria-label="вперёд">›</button>
       <div class="bmedia__dots" id="b-media-dots"></div>
     </div>
+    <div class="bdesc" id="b-desc"></div>
     <dl class="bfields" id="b-fields"></dl>
     <p class="bnote" id="b-note"></p>
     <p class="bid" id="b-id"></p>
@@ -436,12 +446,18 @@ const CASES = [
 // активный кейс — живой янтарный флажок (тот же сезон, что в сезонном альбоме)
 CASES.push(Object.assign(
   c(17, "Корм для Мурки", "Лимасол", "Кипр", 34.6960, 33.0620, "Корм и лечение", 60, 60, 0, "Сезон 4", 0, true),
-  { active: true, photos: 0, myPaws: 1340, mySeries: 27, myColl: "6 из 9" }
+  { active: true, photos: 0, myPaws: 1340, mySeries: 27, myColl: "6 из 9",
+    desc: "Мурка живёт в «Тёплом доме» четвёртый месяц. Приют просит корм на два месяца — около 40 кг.",
+    descFull: "«Мурку принесли в мае с улицы Гладстонос. Она восстановилась и ждёт дом. Запас корма закончится в сентябре — просим сообщество помочь с кормом Royal Canin Sterilised или аналогом. Фото-отчёт о закупке пришлём в течение недели после получения.» — приют «Тёплый дом», июнь 2026" }
 ));
 // личный след в закрытых сезонах (демо)
 Object.assign(CASES.find(k => k.id === 1),  { myPaws: 2210, mySeries: 44, myColl: "9 из 9",
-  statue: "🐈", statueName: "Тёплые лапы" });
-Object.assign(CASES.find(k => k.id === 13), { myPaws: 890,  mySeries: 18, myColl: "7 из 9" });
+  statue: "🐈", statueName: "Тёплые лапы",
+  desc: "Приют кормит и лечит сорок уличных кошек Лимасола.",
+  descFull: "«Зимой животных стало вдвое больше — просили сообщество помочь с кормом и лечением на сезон. Всё купили, отчёт приложили: 6 фото.» — приют «Тёплые лапы», март 2026" });
+Object.assign(CASES.find(k => k.id === 13), { myPaws: 890,  mySeries: 18, myColl: "7 из 9",
+  desc: "Стерилизация уличных кошек района Экзархия.",
+  descFull: "«Колония на площади росла — просили помочь со стерилизацией тридцати кошек. Ветклиника-партнёр всё провела, отчёт с документами приложен.» — Афинский кошачий приют, май 2026" });
 
 function c(id, name, city, region, lat, lon, type, g, o, t, season, photos, mine){
   return { id, name, city, region, lat, lon, type, g, o, t, season, photos: photos || 0,
@@ -740,6 +756,9 @@ function flyTo(k, ox, oy, dur){
   const a = { k: view.k, ox: view.ox, oy: view.oy }, t0 = performance.now();
   dur = dur || 620;
   let started = false;
+  // на время перелёта маркеры не анимируются сами по себе:
+  // без этого перекластеризация каждого кадра выглядит мельтешением
+  document.body.classList.add("flying");
   const self = tween = (now) => {
     if (tween !== self) return;
     started = true;
@@ -749,7 +768,7 @@ function flyTo(k, ox, oy, dur){
     view.k = a.k * Math.pow(k / a.k, e);
     view.ox = a.ox + (ox - a.ox) * e; view.oy = a.oy + (oy - a.oy) * e;
     // перелёт едет тем же дешёвым путём, что и жест
-    if (u >= 1){ tween = null; gesturing = false; commit("конец перелёта"); }
+    if (u >= 1){ tween = null; gesturing = false; document.body.classList.remove("flying"); commit("конец перелёта"); }
     else { nudge(); requestAnimationFrame(self); }
   };
   beginGesture();
@@ -761,10 +780,11 @@ function flyTo(k, ox, oy, dur){
     tween = null;
     view.k = k; view.ox = ox; view.oy = oy;
     gesturing = false;
+    document.body.classList.remove("flying");
     commit("перелёт без кадров");
   }, 280);
 }
-function stopTween(){ tween = null; }
+function stopTween(){ tween = null; document.body.classList.remove("flying"); }
 
 /* Стартовый кадр собирается ИЗ ДАННЫХ, а не из константы: центр — центроид
    флажков, масштаб — чтобы все они поместились. Границы обязательны:
@@ -1175,11 +1195,11 @@ function zoomToZone(n){
   const b = n._box; if (!b) return;
   const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
   const w = Math.max(b[2] - b[0], 1e-6), h = Math.max(b[3] - b[1], 1e-6);
-  const fit = Math.min(vw * 0.55 / w, vh * 0.5 / h);
-  let k1 = Math.min(view.k * 7, fit);
-  k1 = Math.max(k1, view.k * 2);
-  k1 = Math.min(k1, kFit * Z_MAX);          // предел зума сильнее «заметного шага»
-  if (k1 <= view.k * 1.12){ spiderfy(n); return; }
+  // аккуратно вписываем область скопления в кадр — без принудительного
+  // перелёта «минимум в 2 раза», который проскакивал мимо и дробил зону
+  let k1 = Math.min(vw * 0.62 / w, vh * 0.55 / h);
+  k1 = Math.min(k1, kFit * Z_MAX);          // предел зума сильнее «вписывания»
+  if (k1 <= view.k * 1.25){ spiderfy(n); return; }
   clearSpider();
   flyTo(k1, vw / 2 - cx * k1, vh / 2 - cy * k1, 620);
 }
@@ -1275,6 +1295,19 @@ function openBlank(k){
     mdots.appendChild(d);
   });
   mediaIdx = 0; strip.style.transform = "";
+  const desc = document.getElementById("b-desc");
+  desc.textContent = "";
+  desc.append((k.desc || (k.type + " — " + k.city + ".")) + " ");
+  const det = document.createElement("details");
+  const sum = document.createElement("summary");
+  sum.textContent = "читать запрос полностью…";
+  const full = document.createElement("span");
+  full.className = "full";
+  full.textContent = k.descFull || ("«" + k.name + "»: " + k.type.toLowerCase() +
+    ", " + k.city + ". Полный текст запроса и документы приюта появятся здесь " +
+    "с реальными данными кейса.");
+  det.append(sum, full);
+  desc.appendChild(det);
   const fields = document.getElementById("b-fields");
   fields.textContent = "";
   fields.append(brow("Гарантия платформы", eur(k.g)));
