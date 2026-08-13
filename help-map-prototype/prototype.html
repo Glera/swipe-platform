@@ -448,16 +448,16 @@ const CASES = [
 // активный кейс — живой янтарный флажок (тот же сезон, что в сезонном альбоме)
 CASES.push(Object.assign(
   c(17, "Корм для Мурки", "Лимасол", "Кипр", 34.6960, 33.0620, "Корм и лечение", 60, 60, 0, "Сезон 4", 0, true),
-  { active: true, photos: 0, myPaws: 1340, mySeries: 27, myColl: "6 из 9",
+  { active: true, photos: 0, myPaws: 1340, mySeries: 27, myColl: "3 из 15",
     desc: "Мурка живёт в «Тёплом доме» четвёртый месяц. Приют просит корм на два месяца — около 40 кг.",
     descFull: "«Мурку принесли в мае с улицы Гладстонос. Она восстановилась и ждёт дом. Запас корма закончится в сентябре — просим сообщество помочь с кормом Royal Canin Sterilised или аналогом. Фото-отчёт о закупке пришлём в течение недели после получения.» — приют «Тёплый дом», июнь 2026" }
 ));
 // личный след в закрытых сезонах (демо)
-Object.assign(CASES.find(k => k.id === 1),  { myPaws: 2210, mySeries: 44, myColl: "9 из 9",
+Object.assign(CASES.find(k => k.id === 1),  { myPaws: 2210, mySeries: 44, myColl: "15 из 15",
   statue: "🐈", statueName: "Тёплые лапы",
   desc: "Приют кормит и лечит сорок уличных кошек Лимасола.",
   descFull: "«Зимой животных стало вдвое больше — просили сообщество помочь с кормом и лечением на сезон. Всё купили, отчёт приложили: 6 фото.» — приют «Тёплые лапы», март 2026" });
-Object.assign(CASES.find(k => k.id === 13), { myPaws: 890,  mySeries: 18, myColl: "7 из 9",
+Object.assign(CASES.find(k => k.id === 13), { myPaws: 890,  mySeries: 18, myColl: "11 из 15",
   desc: "Стерилизация уличных кошек района Экзархия.",
   descFull: "«Колония на площади росла — просили помочь со стерилизацией тридцати кошек. Ветклиника-партнёр всё провела, отчёт с документами приложен.» — Афинский кошачий приют, май 2026" });
 
@@ -1273,7 +1273,7 @@ function openColl(){
   rows.textContent = "";
   for (const k of mineCases){
     if (!k.myColl) continue;
-    const done = !k.active && k.myColl === "9 из 9";
+    const done = !k.active && k.myColl === "15 из 15";
     const row = document.createElement("div");
     row.className = "crow" + (done ? "" : " none") + (k.active ? " live" : "");
     const fig = document.createElement("div");
@@ -1287,8 +1287,8 @@ function openColl(){
     const meta = document.createElement("div");
     meta.className = "cm";
     meta.textContent = done
-      ? k.season + " · за собранную коллекцию целиком (9 из 9)"
-      : k.season + " · коллекция " + k.myColl + (k.active ? " — идёт сбор" : "");
+      ? k.season + " · главный приз за все 15 коллекций"
+      : k.season + " · коллекций " + k.myColl + (k.active ? " — идёт сбор" : "");
     wrap.append(name, meta);
     const st = document.createElement("span");
     st.className = "cs";
@@ -1370,7 +1370,7 @@ function openBlank(k){
   if (k.mine && k.myPaws)
     fields.append(brow("Ваш вклад", money.format(k.myPaws) + " лапок" +
       (k.mySeries ? " · " + k.mySeries + " серий" : "")));
-  if (k.myColl) fields.append(brow("Коллекция сезона", k.myColl));
+  if (k.myColl) fields.append(brow("Коллекции сезона", k.myColl));
   document.getElementById("b-note").textContent = k.active
     ? "Сбор идёт — бланк заполняется по мере открытия ступеней."
     : "Фото-отчёт приюта: " + k.photos + " фото.";

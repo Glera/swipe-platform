@@ -2,7 +2,7 @@
 <html lang="ru">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Play for Good — сезонный альбом, итерация 7 (13.08)</title>
+<title>Play for Good — сезонный альбом, итерация 8 (14.08)</title>
 <style>
   :root{
     --paper:#F2EDE3; --paper-2:#E9E2D5; --ink:#2A2622; --ink-soft:#6B6259;
@@ -165,6 +165,47 @@
   .ms__state{font-family:var(--mono);font-size:10px;color:var(--feed-soft);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
   .ms--done .ms__state{color:var(--feed-green)}
 
+  /* ── коллекции ── */
+  .grand{display:flex;gap:12px;align-items:center;background:#171C29;border:1px solid #2A3145;border-radius:14px;padding:11px 12px}
+  .grand__fig{width:50px;height:58px;flex:none;border:1px solid #3A3322;background:#221E15;border-radius:10px;display:grid;place-items:center;font-size:25px;position:relative}
+  .grand__fig::after{content:"";position:absolute;left:9px;right:9px;bottom:5px;height:3px;border-radius:2px;background:#4A3F28}
+  .grand__body{flex:1;min-width:0}
+  .grand__t{color:var(--feed-ink);font-weight:800;font-size:13px}
+  .grand__s{color:var(--feed-soft);font-size:11px}
+  .grand__prize{display:flex;align-items:center;gap:6px;margin-top:4px;color:var(--paw-gold);font-weight:700;font-size:12.5px}
+  .grand__prize svg{width:13px;height:13px;fill:currentColor}
+  .seasonrow{display:flex;align-items:center;gap:8px;margin-top:10px}
+  .seasonrow .sbar__track{flex:1;height:18px}
+  .timer{flex:none;font-family:var(--mono);font-size:10px;color:var(--feed-soft);border:1px solid #2A3145;border-radius:12px;padding:3px 8px;letter-spacing:.04em}
+  .medgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px;margin-top:14px}
+  .med{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+  .med__ring{width:62px;height:62px;border-radius:50%;border:2.5px solid #3A415A;background:radial-gradient(circle at 35% 30%,#2E3650,#1B2130);display:grid;place-items:center;font-size:25px;position:relative}
+  .med--done .med__ring{border-color:var(--feed-green)}
+  .med--done .med__ring::after{content:"✓";position:absolute;right:-3px;bottom:-3px;width:17px;height:17px;border-radius:50%;background:var(--feed-green);color:#08130C;font-size:11px;font-weight:800;display:grid;place-items:center;border:2px solid var(--feed-bg)}
+  .med__name{font-size:10.5px;color:var(--feed-ink);font-weight:600;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .med__sub{font-family:var(--mono);font-size:9.5px;color:var(--feed-soft)}
+  .med__sub b{color:var(--paw-gold);font-weight:700}
+  .cardgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .ccard{position:relative;border:1px solid #2A3145;border-radius:10px;background:#1B2130;aspect-ratio:3/4.1;display:grid;place-items:center;align-content:center;padding:8px 5px 6px;text-align:center}
+  .ccard__stars{position:absolute;top:-7px;left:0;right:0;display:flex;justify-content:center;gap:1px;font-size:9.5px;color:var(--paw-gold);text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  .ccard__name{font-size:9.5px;color:var(--feed-soft);line-height:1.3}
+  .ccard--got{background:linear-gradient(160deg,#2C3450,#1B2130);border-color:rgba(232,181,74,.55)}
+  .ccard--got .ccard__art{font-size:23px;line-height:1;margin-bottom:4px}
+  .ccard--got .ccard__name{color:var(--feed-ink);font-weight:600}
+  .collhead{display:flex;align-items:center;gap:10px;margin-top:2px}
+  .collhead__icon{width:38px;height:38px;flex:none;border-radius:50%;border:2px solid #3A415A;background:radial-gradient(circle at 35% 30%,#2E3650,#1B2130);display:grid;place-items:center;font-size:17px}
+  .collhead__t{flex:1;color:var(--feed-ink);font-weight:800;font-size:15px;min-width:0}
+  .collprize{display:inline-flex;align-items:center;gap:5px;background:#221E15;border:1px solid #3A3322;border-radius:16px;padding:5px 10px;color:var(--paw-gold);font-weight:700;font-size:12px}
+  .collprize svg{width:13px;height:13px;fill:currentColor}
+  .pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;color:var(--feed-soft)}
+  .pager b{font-family:var(--mono);font-size:11px;border:1px solid #2A3145;border-radius:10px;padding:3px 10px;color:var(--feed-ink)}
+  .pager button{width:26px;height:26px;border-radius:50%;border:0;background:#1B2130;color:#C9CFDE;cursor:pointer;font-size:13px;line-height:1}
+  .dropcard{width:150px;margin:14px auto 0;border:1.5px solid rgba(232,181,74,.65);border-radius:13px;background:linear-gradient(160deg,#2C3450,#1B2130);padding:16px 10px 12px;text-align:center;position:relative;box-shadow:0 14px 40px -18px rgba(232,181,74,.45)}
+  .dropcard .ccard__stars{font-size:12px;top:-9px}
+  .dropcard__art{font-size:38px;line-height:1}
+  .dropcard__name{color:var(--feed-ink);font-weight:700;font-size:12.5px;margin-top:7px}
+  .dropcard__coll{color:var(--feed-soft);font-size:10.5px;margin-top:2px}
+
   /* церемонии */
   .cere{background:var(--feed-card);border:1px solid var(--feed-edge);border-radius:16px;overflow:hidden;text-align:center}
   .cere__pad{padding:14px 16px 18px}
@@ -211,7 +252,7 @@
 
 <div class="sheet">
   <header class="sheet__head">
-    <p class="eyebrow">Play for Good · сезонный альбом · итерация 7 · фидбек №6 вшит</p>
+    <p class="eyebrow">Play for Good · сезонный альбом · итерация 8 · структура коллекций от оператора</p>
     <h1>Сезон от первой лапки до кипсейка</h1>
     <p>Лапка теперь — колба градусника, приклеенная к бару общей обводкой; лапки на
     друзьях кликаются и улетают в общий сбор; на экране кейса бар оформлен идентично
@@ -454,7 +495,152 @@
     </figure>
   </div>
 
-  <h2 class="section">3 · Карта — вкладка, а не отдельный мир</h2>
+  <h2 class="section">3 · Коллекции: альбом сезона</h2>
+  <p class="section-sub">15 коллекций по 9 айтемов; у каждой — название, иконка и свой
+  приз лапками. Главный приз сезона — памятная статуэтка и большой куш лапок за все 15.
+  Редкость айтемов — 1–5 звёзд.</p>
+  <div class="row">
+    <figure>
+      <div class="phone phone--feed" style="min-height:0">
+        <div class="grand">
+          <div class="grand__fig">🐈</div>
+          <div class="grand__body">
+            <div class="grand__t">Главный приз сезона</div>
+            <div class="grand__s">за все 15 коллекций сезона Мурки</div>
+            <div class="grand__prize"><svg><use href="#paw"/></svg>+5 000 лапок · статуэтка Мурки</div>
+          </div>
+        </div>
+        <div class="seasonrow">
+          <div class="sbar__track"><div class="sbar__fill" style="width:30.4%"></div>
+            <div class="bartext">айтемы · 41 / 135</div></div>
+          <span class="timer">до конца сезона · 31 день</span>
+        </div>
+        <div class="medgrid">
+          <div class="med med--done"><div class="med__ring">🌅</div>
+            <span class="med__name">Закат у моря</span><span class="med__sub">9/9 · <b>+300</b></span></div>
+          <div class="med med--done"><div class="med__ring">🧶</div>
+            <span class="med__name">Клубки и корзинки</span><span class="med__sub">9/9 · <b>+300</b></span></div>
+          <div class="med med--done"><div class="med__ring">🍂</div>
+            <span class="med__name">Осень в приюте</span><span class="med__sub">9/9 · <b>+300</b></span></div>
+          <div class="med"><div class="med__ring">🐾</div>
+            <span class="med__name">Лапы и усы</span><span class="med__sub">6/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🪟</div>
+            <span class="med__name">На подоконнике</span><span class="med__sub">4/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🌙</div>
+            <span class="med__name">Ночной дозор</span><span class="med__sub">2/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🥣</div>
+            <span class="med__name">Время обеда</span><span class="med__sub">0/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🧺</div>
+            <span class="med__name">Домик из коробки</span><span class="med__sub">0/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🎈</div>
+            <span class="med__name">Игры с Муркой</span><span class="med__sub">0/9 · +300</span></div>
+        </div>
+        <p style="color:var(--feed-soft);font-size:10.5px;text-align:center;margin:10px 0 2px">…и ещё 6 коллекций ниже</p>
+        <div class="bnav">
+          <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item on"><span>🃏</span><span>Коллекции</span></div>
+          <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
+          <div class="bnav__item"><span>🗺</span><span>Карта</span></div>
+        </div>
+      </div>
+      <figcaption><b>Альбом сезона.</b> Сверху — главный приз (статуэтка + большой куш
+      лапок за все 15), общий прогресс айтемов с нейтральным таймером сезона. Медальоны —
+      иконка + название + прогресс и приз коллекции; собранные — с галкой.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone phone--feed" style="min-height:0">
+        <div class="collhead">
+          <div class="collhead__icon">🐾</div>
+          <div class="collhead__t">Лапы и усы</div>
+          <span class="collprize"><svg><use href="#paw"/></svg>+300</span>
+        </div>
+        <div class="seasonrow" style="margin-top:9px">
+          <div class="sbar__track"><div class="sbar__fill" style="width:66.7%"></div>
+            <div class="bartext">6 / 9</div></div>
+        </div>
+        <div class="cardgrid">
+          <div class="ccard ccard--got"><span class="ccard__stars">★</span>
+            <div><div class="ccard__art">🐾</div><div class="ccard__name">След на песке</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★</span>
+            <div><div class="ccard__art">👃</div><div class="ccard__name">Мокрый нос</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★★</span>
+            <div><div class="ccard__art">🥛</div><div class="ccard__name">Усы в молоке</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★★</span>
+            <div><div class="ccard__art">🐈</div><div class="ccard__name">Потягушки</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★★★</span>
+            <div><div class="ccard__art">🧤</div><div class="ccard__name">Лапа в варежке</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★★★</span>
+            <div><div class="ccard__art">💤</div><div class="ccard__name">Сон кверху пузом</div></div></div>
+          <div class="ccard"><span class="ccard__stars">★★★★</span>
+            <div><div class="ccard__name">Первый снег<br>на усах</div></div></div>
+          <div class="ccard"><span class="ccard__stars">★★★★</span>
+            <div><div class="ccard__name">Отпечаток<br>в глине</div></div></div>
+          <div class="ccard"><span class="ccard__stars">★★★★★</span>
+            <div><div class="ccard__name">Лапа<br>в ладони</div></div></div>
+        </div>
+        <div class="pager">
+          <button type="button">‹</button><b>4 / 15</b><button type="button">›</button>
+        </div>
+        <div class="bnav">
+          <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item on"><span>🃏</span><span>Коллекции</span></div>
+          <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
+          <div class="bnav__item"><span>🗺</span><span>Карта</span></div>
+        </div>
+      </div>
+      <figcaption><b>Внутри коллекции.</b> Название с иконкой, приз коллекции лапками,
+      прогресс. Карточки: редкость звёздами 1–5 над карточкой, несобранные — рубашкой с
+      именем. Пейджер листает 15 коллекций.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone phone--feed" style="min-height:0;display:grid;align-content:center;justify-items:center;padding:28px 14px">
+        <div style="font-size:34px">🎁</div>
+        <div style="color:var(--feed-soft);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-top:6px">сундук за серию</div>
+        <div class="dropcard">
+          <span class="ccard__stars">★★★</span>
+          <div class="dropcard__art">🧤</div>
+          <div class="dropcard__name">Лапа в варежке</div>
+          <div class="dropcard__coll">коллекция «Лапы и усы» · 5/9</div>
+        </div>
+        <div style="color:var(--feed-ink);font-weight:700;font-size:14px;margin-top:14px">Новая карточка!</div>
+        <button class="cere__btn" type="button" style="max-width:200px;margin-top:12px">В альбом</button>
+      </div>
+      <figcaption><b>Дроп из сундука.</b> Карточка выпадает из сундука за серию; редкость
+      видна сразу. Дубли конвертируются — правило решим при реализации.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone phone--feed" style="min-height:0;display:flex;flex-direction:column;gap:16px">
+        <div class="cere">
+          <div class="cere__pad">
+            <span class="cere__when">коллекция собрана</span>
+            <div style="font-size:30px;margin-top:4px">🐾</div>
+            <div class="cere__title" style="font-size:19px">«Лапы и усы» — 9 из 9</div>
+            <div class="cere__big">+300 лапок в общий сбор</div>
+            <div class="cere__sub">лапки уже полетели в бар сезона</div>
+            <button class="cere__btn" type="button">Дальше</button>
+          </div>
+        </div>
+        <div class="cere">
+          <div class="cere__pad">
+            <span class="cere__when">все 15 коллекций · главный приз</span>
+            <div class="grand__fig" style="margin:8px auto 0;width:58px;height:66px;font-size:30px">🐈</div>
+            <div class="cere__title" style="font-size:19px">Статуэтка Мурки</div>
+            <div class="cere__big">+5 000 лапок в общий сбор</div>
+            <div class="cere__sub">память сезона — теперь в «Моих Коллекциях» на карте</div>
+            <button class="cere__btn" type="button">Ура!</button>
+          </div>
+        </div>
+      </div>
+      <figcaption><b>Две церемонии.</b> Закрытая коллекция даёт свои лапки сразу в бар;
+      сбор всех 15 — статуэтка сезона и большой куш. Статуэтка навсегда живёт в попапе
+      «Мои Коллекции» на карте.</figcaption>
+    </figure>
+  </div>
+
+  <h2 class="section">4 · Карта — вкладка, а не отдельный мир</h2>
   <p class="section-sub">Карта живёт в той же контент-области, где играют механики:
   верх (уровень · сезон · друзья) и низ (переходы) — как на любом экране. Внутри —
   живой прототип: тап по флажку сразу открывает бланк сезона, «Коллекции» — попап.</p>
@@ -507,7 +693,7 @@
     </figure>
   </div>
 
-  <h2 class="section">4 · Когда сезон закрыт: один бланк-квитанция</h2>
+  <h2 class="section">5 · Когда сезон закрыт: один бланк-квитанция</h2>
   <p class="section-sub">Кипсейк слит с итогом сезона. Показывается церемонией при
   закрытии; навсегда открывается тапом по флажку сезона на карте; до отчёта приюта
   строки «передано» в нём нет.</p>
@@ -539,8 +725,8 @@
               <span class="field__value">€ 160,00</span></div>
             <div class="field"><span class="field__label">Ваш вклад</span>
               <span class="field__value">1 340 лапок · 27 серий</span></div>
-            <div class="field"><span class="field__label">Коллекция сезона</span>
-              <span class="field__value">9 из 9</span></div>
+            <div class="field"><span class="field__label">Коллекции сезона</span>
+              <span class="field__value">15 из 15 · статуэтка</span></div>
           </div>
           <p class="note">Корм на два месяца доехал 3 сентября. Мурку забрали домой через
           неделю — приют прислал фотографию.</p>
