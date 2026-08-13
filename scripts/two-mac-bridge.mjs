@@ -402,17 +402,68 @@ function requireActiveTaskBinding({ issue, machine, taskDigest }) {
   return { binding, state };
 }
 
+function nextStepHeading(line) {
+  const normalized = line.trim()
+    .replace(/^(?:>\s+)?(?:#{1,6}\s*|[-*+]\s+|[0-9]+[.)]\s+)?/u, '')
+    .replace(/\*\*|__/gu, '')
+    .trim();
+  return normalized.match(
+    /^(?:(?:required|exact)\s+)?next\s+step\s*:\s*(.*)$|^следующ(?:ий|его)\s+шаг\s*:\s*(.*)$/iu,
+  );
+}
+
+function dispatchItemTargetsMachine(item, machine) {
+  const letter = machine === 'mac-a' ? 'a' : 'b';
+  const machineMention = new RegExp('\\bmac[_ -]?' + letter + '\\b', 'iu');
+  const dispatchVerb = /\b(?:consume(?:s|d|ing)?|continue(?:s|d|ing)?|dispatch(?:es|ed|ing)?|execute(?:s|d|ing)?|perform(?:s|ed|ing)?|receive(?:s|d|ing)?|resolve(?:s|d|ing)?|resume(?:s|d|ing)?|review(?:s|ed|ing)?|run(?:s|ning)?|take(?:s|n|ing)?)\b|(?:выполн|продолж|провер|получ|подхват|возобнов)/iu;
+  const negation = /\b(?:do|must|should)\s+not\b|\bnever\b|(?:^|\s)не(?:\s|$)/iu;
+  return item.split(/(?:[.;]\s+|[—–]\s*)/u).some((clause) => {
+    if (!machineMention.test(clause)) return false;
+    const action = dispatchVerb.exec(clause);
+    if (!action) return false;
+    return !negation.test(clause.slice(0, action.index));
+  });
+}
+
+function nextStepTargetsMachine(lines, machine) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const heading = nextStepHeading(lines[index]);
+    if (!heading) continue;
+    const items = [];
+    let current = String(heading[1] ?? heading[2] ?? '').trim();
+    for (let offset = 1; offset < 12 && index + offset < lines.length; offset += 1) {
+      const line = lines[index + offset].trim();
+      if (!line) {
+        if (current) items.push(current);
+        current = '';
+        break;
+      }
+      if (/^(?:#{1,6}\s+|\*\*[^*]+\*\*\s*:?)$/u.test(line)) break;
+      const bullet = line.match(/^(?:[-*+]\s+|[0-9]+[.)]\s+)(.*)$/u);
+      if (bullet) {
+        if (current) items.push(current);
+        current = bullet[1].trim();
+      } else {
+        current = current ? current + ' ' + line : line;
+      }
+    }
+    if (current) items.push(current);
+    if (items.some((item) => dispatchItemTargetsMachine(item, machine))) return true;
+  }
+  return false;
+}
+
 function targetedWakeProse(body, machine) {
   if (typeof body !== 'string') return false;
   const letter = machine === 'mac-a' ? 'a' : 'b';
   const machineToken = `mac[_ -]?${letter}`;
   const targeted = new RegExp(
     `(?:${machineToken}).{0,48}(?:wake|next\\s*owner)`
-      + `|(?:wake|next\\s*owner).{0,48}(?:${machineToken})`
-      + `|same\\s+existing\\s+(?:${machineToken})\\s+owner`,
+      + `|(?:wake|next\\s*owner).{0,48}(?:${machineToken})`,
     'iu',
   );
-  return body.split(/\n/u).some((line) => targeted.test(line));
+  const lines = body.split(/\n/u);
+  return lines.some((line) => targeted.test(line)) || nextStepTargetsMachine(lines, machine);
 }
 
 function numericCommentId(comment) {
