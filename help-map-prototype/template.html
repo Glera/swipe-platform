@@ -282,6 +282,63 @@ body{
   #readout{left:20px; bottom:156px}
   #hint{left:20px; bottom:180px; transform:none}
 }
+
+/* ========================================================== личный слой === */
+#me{position:absolute; left:14px; top:calc(14px + env(safe-area-inset-top)); z-index:6;
+  display:flex; gap:9px; align-items:center; padding:6px 12px 6px 6px; border-radius:14px;
+  background:var(--panel); border:1px solid var(--panel-edge); color:var(--ink); cursor:pointer;
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  transition:box-shadow .25s var(--ease), transform .16s var(--ease)}
+#me:active{transform:scale(.97)}
+#me[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px #C99B3F}
+.me-ava{position:relative; width:34px; height:42px; display:block; flex:none}
+.me-ava svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+.me-ava rect{fill:none; stroke-width:2.6; vector-effect:non-scaling-stroke}
+.me-ava .bg{stroke:var(--panel-edge)}
+.me-ava .fg{stroke:#C99B3F}
+.me-ava i{position:absolute; inset:4px; border-radius:7px; background:var(--chip);
+  display:grid; place-items:center; font-style:normal; font-size:14px}
+.me-ava b{position:absolute; top:-6px; left:-7px; background:var(--panel); border:1.5px solid #C99B3F;
+  color:#C99B3F; border-radius:7px; font-size:10px; font-weight:800; padding:0 4px; line-height:1.5}
+.me-txt{display:flex; flex-direction:column; line-height:1.3}
+.me-txt b{font-size:11.5px; letter-spacing:.02em}
+.me-txt em{font-style:normal; font-size:10px; color:var(--ink-dim)}
+body.mine-only #markers .marker:not(.is-mine){opacity:.16; filter:saturate(.35)}
+#markers .marker{transition:opacity .35s var(--ease), filter .35s var(--ease)}
+
+/* бланк сезона — бумажный документ поверх любой темы */
+#blankwrap{position:absolute; inset:0; z-index:11; display:grid; place-items:center; padding:20px;
+  background:rgba(20,16,10,.45); opacity:0; pointer-events:none; transition:opacity .3s var(--ease)}
+#blankwrap.on{opacity:1; pointer-events:auto}
+#blankcard{width:min(360px, 92vw); max-height:86vh; overflow:auto; background:#F2EDE3; color:#2A2622;
+  border:1px solid #CFC5B4; border-radius:14px; padding:20px 18px 16px; position:relative;
+  box-shadow:0 24px 60px -24px rgba(0,0,0,.55);
+  background-image:repeating-linear-gradient(#F2EDE3, #F2EDE3 27px, #D8CFC0 27px, #D8CFC0 28px);
+  background-position:0 54px;
+  transform:translateY(12px) scale(.98); transition:transform .3s var(--ease)}
+#blankwrap.on #blankcard{transform:none}
+#blankclose{position:absolute; top:8px; left:10px; width:26px; height:26px; border:0; border-radius:50%;
+  background:rgba(42,38,34,.08); color:#6B6259; font-size:15px; line-height:1; cursor:pointer}
+.bstamp{position:absolute; top:14px; right:14px; transform:rotate(-7deg); border:2px solid #B8843A;
+  color:#B8843A; border-radius:4px; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  padding:4px 7px; opacity:.9; font-weight:600}
+.bstamp.live{border-color:#4A3F8F; color:#4A3F8F}
+#b-name{margin:6px 0 2px; font-size:20px; font-weight:600; letter-spacing:-.01em; max-width:80%}
+#b-sub{font-size:11px; color:#6B6259; letter-spacing:.05em; margin-bottom:12px}
+.bfields{display:flex; flex-direction:column; margin:4px 0}
+.brow{display:flex; align-items:baseline; gap:10px; padding:7px 0; border-bottom:1px solid #D8CFC0}
+.brow:last-child{border-bottom:0}
+.brow dt{font-size:12.5px; color:#6B6259; flex:1; font-weight:400}
+.brow dd{margin:0; font-size:14.5px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
+.brow.seal dd{color:#B8843A}
+.brow.seal dt{color:#2A2622}
+.bnote{font-size:12.5px; line-height:1.5; color:#2A2622; margin:12px 0 0; padding-top:10px;
+  border-top:1px solid #D8CFC0}
+.bid{font-size:9.5px; color:#6B6259; letter-spacing:.08em; margin:10px 0 0; word-break:break-all}
+#s-blank{margin-top:12px; width:100%; padding:10px; border-radius:11px; border:1px solid var(--panel-edge);
+  background:var(--chip); color:var(--ink); font:600 12.5px/1.2 inherit; font-family:inherit;
+  letter-spacing:.02em; cursor:pointer}
+#s-blank:active{transform:translateY(1px)}
 </style>
 </head>
 <body data-theme="paper">
@@ -301,6 +358,17 @@ body{
 
 <div id="themes">
   <span class="sw-name" id="swname"></span>
+</div>
+
+<div id="me" role="button" tabindex="0" aria-pressed="false" title="мой след на карте">
+  <span class="me-ava">
+    <svg viewBox="0 0 34 42" preserveAspectRatio="none">
+      <rect class="bg" x="1.5" y="1.5" width="31" height="39" rx="9"/>
+      <rect class="fg" x="1.5" y="1.5" width="31" height="39" rx="9" pathLength="100" stroke-dasharray="62 38"/>
+    </svg>
+    <i>🙂</i><b>7</b>
+  </span>
+  <span class="me-txt"><b>Мой след</b><em id="me-sum"></em></span>
 </div>
 
 <div id="zoomctl">
@@ -328,6 +396,19 @@ body{
     <div class="hl" id="s-tr-cell"><dt>Передано</dt><dd id="s-t"></dd></div>
   </dl>
   <div class="foot"><span id="s-season"></span><span id="s-mine"></span></div>
+  <button id="s-blank" type="button">Бланк сезона</button>
+</div>
+
+<div id="blankwrap" hidden>
+  <div id="blankcard" role="dialog" aria-modal="true" aria-label="бланк сезона">
+    <button id="blankclose" aria-label="закрыть">×</button>
+    <span class="bstamp" id="b-stamp"></span>
+    <h3 id="b-name"></h3>
+    <div id="b-sub"></div>
+    <dl class="bfields" id="b-fields"></dl>
+    <p class="bnote" id="b-note"></p>
+    <p class="bid" id="b-id"></p>
+  </div>
 </div>
 
 <script>
@@ -367,11 +448,14 @@ const CASES = [
   c(15, "Лиссабон: дом для щенков",    "Лиссабон",    "Португалия", 38.7400, -9.1600, "Прививки",        2750, 2750, 2750, "Сезон 3", 5),
   c(16, "Краковская передержка",       "Краков",      "Польша",     50.0647, 19.9450, "Передержка",      2200, 2200, 2200, "Сезон 3", 3),
 ];
-// активный кейс — живой янтарный флажок
+// активный кейс — живой янтарный флажок (тот же сезон, что в сезонном альбоме)
 CASES.push(Object.assign(
-  c(17, "Приют «Морской бриз»", "Лимасол", "Кипр", 34.6960, 33.0620, "Вольеры и зимовка", 5000, 3150, 0, "Сезон 4", 0),
-  { active: true, photos: 0 }
+  c(17, "Корм для Мурки", "Лимасол", "Кипр", 34.6960, 33.0620, "Корм и лечение", 60, 60, 0, "Сезон 4", 0, true),
+  { active: true, photos: 0, myPaws: 1340, mySeries: 27 }
 ));
+// личный след в закрытых сезонах (демо)
+Object.assign(CASES.find(k => k.id === 1),  { myPaws: 2210, mySeries: 44, myColl: "9 из 9" });
+Object.assign(CASES.find(k => k.id === 13), { myPaws: 890,  mySeries: 18, myColl: "7 из 9" });
 
 function c(id, name, city, region, lat, lon, type, g, o, t, season, photos, mine){
   return { id, name, city, region, lat, lon, type, g, o, t, season, photos: photos || 0,
@@ -843,7 +927,7 @@ function flagNode(k){
   let n = flagNodes.get(k.id);
   if (n) return n;
   n = document.createElement("div");
-  n.className = "marker" + (k.active ? " live" : "");
+  n.className = "marker" + (k.active ? " live" : "") + (k.mine ? " is-mine" : "");
   n.dataset.case = k.id;
   n.innerHTML =
     '<div class="flag' + (k.active ? " act" : "") + '">' +
@@ -1003,6 +1087,7 @@ function layoutMarkers(z){
       const key = "z" + Math.min.apply(null, g.m);
       liveZones.add(key);
       const n = zoneNode(key), zone = n.firstChild;
+      n.classList.toggle("is-mine", g.m.some(i => CASES[i].mine));
       // и размер, и число зоны — это закрытые кейсы (FULFILLED-receipts)
       const closed = g.m.length;
       const d = zoneDiameter(closed);
@@ -1111,8 +1196,10 @@ function zoomToZone(n){
   clearSpider();
   flyTo(k1, vw / 2 - cx * k1, vh / 2 - cy * k1, 620);
 }
+let sheetCase = null;
 function openSheet(k){
   if (!k) return;
+  sheetCase = k;
   document.getElementById("s-name").textContent = k.name;
   document.getElementById("s-sub").textContent = k.city + " · " + k.region + " · " + k.type;
   const st = document.getElementById("s-st");
@@ -1135,6 +1222,86 @@ function closeSheet(){ sheet.classList.remove("on"); scrim.classList.remove("on"
 scrim.addEventListener("pointerdown", (e) => { e.stopPropagation(); closeSheet(); });
 scrim.addEventListener("click", (e) => { e.stopPropagation(); closeSheet(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
+
+/* ------------------------------------------------------------ личный слой -- */
+/* Чип «Мой след»: рамка-аватар с уровнем (язык сезонного альбома). Тап
+   приглушает всё, где меня не было: карта отвечает на вопрос «где помогал я»,
+   не переставая быть общей картой. */
+const mineCases = CASES.filter(k => k.mine);
+const meBtn = document.getElementById("me");
+function seasonPlural(n){ const m = n % 10, h = n % 100;
+  return (m === 1 && h !== 11) ? "сезон" : (m >= 2 && m <= 4 && (h < 10 || h > 20)) ? "сезона" : "сезонов"; }
+document.getElementById("me-sum").textContent =
+  mineCases.length + " " + seasonPlural(mineCases.length) + " · " +
+  money.format(mineCases.reduce((s, k) => s + (k.myPaws || 0), 0)) + " лапок";
+function setMine(on){
+  document.body.classList.toggle("mine-only", on);
+  meBtn.setAttribute("aria-pressed", String(on));
+  if (on && mineCases.length){
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const k of mineCases){
+      x0 = Math.min(x0, k.p[0]); x1 = Math.max(x1, k.p[0]);
+      y0 = Math.min(y0, k.p[1]); y1 = Math.max(y1, k.p[1]);
+    }
+    const w = Math.max(x1 - x0, 1e-6), h = Math.max(y1 - y0, 1e-6);
+    let k1 = Math.min(vw * 0.7 / w, vh * 0.6 / h);
+    k1 = Math.max(kFit * 1.2, Math.min(k1, kFit * Z_MAX * 0.5));
+    flyTo(k1, vw / 2 - (x0 + x1) / 2 * k1, vh / 2 - (y0 + y1) / 2 * k1, 700);
+  }
+}
+meBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  setMine(!document.body.classList.contains("mine-only"));
+});
+meBtn.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " "){ e.preventDefault(); meBtn.click(); }
+});
+
+/* ------------------------------------------------------- бланк сезона ------ */
+/* Бумажный документ (язык квитанций альбома): единый итог сезона. Инвариант
+   времени глаголов: строка «Передано приюту» существует только при t > 0. */
+const blankWrap = document.getElementById("blankwrap");
+function brow(label, value, seal){
+  const row = document.createElement("div");
+  row.className = "brow" + (seal ? " seal" : "");
+  const dt = document.createElement("dt"); dt.textContent = label;
+  const dd = document.createElement("dd"); dd.textContent = value;
+  row.append(dt, dd);
+  return row;
+}
+function openBlank(k){
+  const stamp = document.getElementById("b-stamp");
+  stamp.textContent = k.t ? "Передано" : (k.active ? "Идёт сбор" : "Сбор завершён");
+  stamp.classList.toggle("live", !!k.active);
+  document.getElementById("b-name").textContent = k.name;
+  document.getElementById("b-sub").textContent = k.season + " · " + k.city + ", " + k.region + " · " + k.type;
+  const fields = document.getElementById("b-fields");
+  fields.textContent = "";
+  fields.append(brow("Гарантия платформы", eur(k.g)));
+  fields.append(brow("Открыто подарками сообщества", eur(k.o)));
+  if (k.t) fields.append(brow("Передано приюту", eur(k.t), true));
+  if (k.mine && k.myPaws)
+    fields.append(brow("Ваш вклад", money.format(k.myPaws) + " лапок" +
+      (k.mySeries ? " · " + k.mySeries + " серий" : "")));
+  if (k.myColl) fields.append(brow("Коллекция сезона", k.myColl));
+  document.getElementById("b-note").textContent = k.active
+    ? "Сбор идёт — бланк заполняется по мере открытия ступеней."
+    : "Фото-отчёт приюта: " + k.photos + " фото.";
+  document.getElementById("b-id").textContent = k.t
+    ? "квитанция fc:" + ((2654435761 * k.id >>> 0).toString(16).padStart(8, "0")) + " · подтверждено сервером"
+    : "";
+  blankWrap.hidden = false;
+  setTimeout(() => blankWrap.classList.add("on"), 20);
+}
+function closeBlank(){
+  blankWrap.classList.remove("on");
+  setTimeout(() => { blankWrap.hidden = true; }, 300);
+}
+document.getElementById("s-blank").addEventListener("click", () => { if (sheetCase) openBlank(sheetCase); });
+document.getElementById("blankclose").addEventListener("click", closeBlank);
+blankWrap.addEventListener("click", (e) => { if (e.target === blankWrap) closeBlank(); });
+blankWrap.addEventListener("pointerdown", (e) => e.stopPropagation());
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeBlank(); });
 
 /* ------------------------------------------------ счётчик кадров (тройной тап) */
 /* Включается тройным тапом по бейджу «прототип · демо-данные». Меряет то, что
