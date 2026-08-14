@@ -100,6 +100,12 @@ runtime-контракта, выход за versioned bounds или любой �
 release plan, human gamefeel review и rollout authority. Нельзя неявно
 расширить `exact-user` candidate на всех игроков.
 
+Продуктовая поверхность и selective-promotion контракт зафиксированы как
+queued proposal в
+[developer-feed-selective-promotion-v0.md](developer-feed-selective-promotion-v0.md).
+Он не является implementation authority: реализация начнётся отдельным
+решением после уборки Feed/механик и новых сложных/параллельных dogfood-тестов.
+
 Для каждой механики source-agent и release-service запускают один и тот же
 непустой package script `test:<sourceId>:technical`; отсутствие профиля
 fail-closed блокирует каждый release, включая уже добавленную механику.
