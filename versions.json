@@ -199,15 +199,15 @@
     "runtimeArtifactDigest": "sha256:cbd5bd2d174acff8158919880331fee5a723f74d9020bf747454d723da2a86c5"
   },
   "solitaire-v1-swipe": {
-    "version": "dee840674f",
+    "version": "e98d0c616f",
     "htmlBytes": 1099,
-    "payloadBytes": 82219,
+    "payloadBytes": 90092,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "light",
-    "sourceCommit": "92f56c0aa218dbde5c8956370560840bfc78beef",
-    "runtimeArtifactDigest": "sha256:c90451a719e4657f447179d747b1806fc2f16f915de536ea13bad8545cf4c7d2"
+    "sourceCommit": "d62aca2e3f54ed8d5b25d99b78b0e25b344bf0a6",
+    "runtimeArtifactDigest": "sha256:ac1386a1aeaba481d91b34e224df634e5c35c586613813f08b27e10914316f82"
   },
   "orthogonal-link-v1-swipe": {
     "version": "4727c02bdd",
