@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
-  "builtAt": "2026-08-14 08:33 UTC",
-  "feedCommit": "df1ecda3f580094e10382fbd90329fb4d173451f",
+  "builtAt": "2026-08-14 20:35 UTC",
+  "feedCommit": "b236a99a608b4c2e60d3abb12c62b06e208ee9ad",
   "exportedPlayablesCommit": null,
-  "deployToolingCommit": "9b95fba80bfc27efce86edccda61c6db4508ca10",
+  "deployToolingCommit": "bdcd900d4258b39e6f4bd678f09c3036cd6ee4f1",
   "profileName": "cohort-operator",
   "profileFileSha256": "44298d1a7b0d0783f9bd51c82ac939b7146d9940d12b6cf2932ac03eafc5092f",
   "catalogDogfood": {
