@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab · Три комнаты v2 — актуализация 13.08</title>
+<style>
+  :root{
+    --bg:#0b0e11; --panel:#14181d; --panel2:#1a2027; --line:#242c34;
+    --ink:#e8ecef; --mut:#8a939c; --lime:#b7f04b; --lime-dim:#5f7a2e;
+    --red:#ff6b5e; --amber:#e8b84a;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:1240px;margin:0 auto;padding:24px 16px 80px}
+  @media(min-width:900px){.wrap{padding:32px 20px 80px}}
+  .kicker{font:600 11px/1.4 var(--mono);letter-spacing:.18em;color:var(--mut);text-transform:uppercase}
+  h1{font-size:clamp(22px,4vw,34px);margin:8px 0 6px;text-wrap:balance}
+  .lead{color:var(--mut);max-width:72ch;margin:0 0 18px}
+  .lead b{color:var(--ink)}
+
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 22px}
+  @media(min-width:900px){.stats{grid-template-columns:repeat(4,1fr)}}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .stat .n{font:700 20px/1.2 var(--mono);color:var(--lime)}
+  .stat .n.warn{color:var(--amber)}
+  .stat small{display:block;color:var(--mut);font-size:12px;margin-top:2px}
+
+  .tag{display:inline-block;border-radius:999px;padding:2px 9px;font:600 10px/1.6 var(--mono);
+    letter-spacing:.06em;text-transform:uppercase;vertical-align:2px;margin-left:6px;white-space:nowrap}
+  .tag-now{border:1px solid var(--lime-dim);color:var(--lime)}
+  .tag-plan{border:1px solid #6b5a2a;color:var(--amber)}
+  .tag-off{border:1px solid #4a2f2b;color:var(--red)}
+
+  .frame{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px}
+  @media(min-width:900px){.frame{padding:18px}}
+  .frame h3{margin:0 0 4px;font-size:16px}
+  .frame .sub{color:var(--mut);font-size:12.5px;margin:0 0 12px}
+  .frame .sub b{color:var(--ink)}
+
+  .grid{display:grid;gap:12px}
+  .g-phone{grid-template-columns:1fr}
+  .g-review{grid-template-columns:1fr}
+  .g-two{grid-template-columns:1fr}
+  @media(min-width:900px){
+    .g-phone{grid-template-columns:minmax(300px,360px) 1fr}
+    .g-review{grid-template-columns:220px 1fr 260px}
+    .g-two{grid-template-columns:1fr 1fr}
+  }
+  .pane{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:60px}
+  .pane h4{margin:0 0 8px;font-size:12px;color:var(--mut);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  .pane .sub{margin-bottom:0}
+
+  /* Телефон */
+  .phone{background:#0f1318;border:1px solid var(--line);border-radius:26px;padding:14px 12px;
+    max-width:360px;margin:0 auto;width:100%}
+  .phone .cap{font:600 10px var(--mono);color:var(--mut);text-align:center;letter-spacing:.1em;
+    text-transform:uppercase;margin-bottom:10px}
+  .notif{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 11px;
+    font-size:12.5px;margin-bottom:7px}
+  .notif b{display:block;font-size:12.5px}
+  .notif small{color:var(--mut)}
+  .notif.amber{border-color:#6b5a2a}
+  .candidate{background:var(--panel);border:1px solid var(--lime-dim);border-radius:14px;padding:12px;margin-top:10px}
+  .candidate .ttl{font-weight:600;font-size:13px}
+  .candidate .meta{color:var(--mut);font-size:11.5px;margin:2px 0 10px}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{border-radius:10px;padding:8px 12px;font:600 12px var(--sans);border:1px solid var(--line);
+    background:#0f1318;color:var(--ink)}
+  .btn.primary{background:var(--lime);color:#101403;border-color:var(--lime)}
+  .btn.ghost{color:var(--mut)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  .chip{display:inline-block;background:#0f1318;border:1px solid var(--line);border-radius:999px;
+    padding:3px 10px;font-size:12px;color:var(--ink);margin:0 4px 6px 0}
+  .chip.on{border-color:var(--lime);color:var(--lime)}
+
+  .player{display:flex;align-items:center;justify-content:center;background:#0f1318;border:1px dashed var(--line);
+    border-radius:12px;min-height:220px;color:var(--mut);font-size:13px;flex-direction:column;gap:8px;
+    text-align:center;padding:10px}
+  .metric{font:600 12px var(--mono);color:var(--lime)}
+  .keysbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .key{background:#0f1318;border:1px solid var(--line);border-bottom-width:3px;border-radius:8px;
+    padding:6px 12px;font:600 12px var(--mono)}
+  .key b{color:var(--lime);margin-right:6px}
+
+  .qitem{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0f1318;
+    border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin-bottom:6px;font-size:12.5px}
+  .qitem.cur{border-color:var(--lime)}
+  .qitem .t{font:600 10px var(--mono);color:var(--mut);white-space:nowrap}
+
+  .rooms-nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;position:sticky;top:0;z-index:5;
+    background:linear-gradient(var(--bg) 85%,transparent);padding:10px 0}
+  .room-btn{flex:1 1 160px;text-align:left;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:12px 14px;color:var(--ink);cursor:pointer;font:inherit}
+  .room-btn small{display:block;color:var(--mut);margin-top:3px;font-size:11.5px}
+  .room-btn.active{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime)}
+  .room-btn .num{font:700 11px/1 var(--mono);color:var(--lime);letter-spacing:.1em}
+  .room{display:none}
+  .room.active{display:block}
+  button:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+
+  .stage-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+  @media(min-width:900px){.stage-row{grid-template-columns:repeat(6,1fr)}}
+  .stage{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px}
+  .stage h5{margin:0 0 4px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+  .st{font:600 11px var(--mono)}
+  .st.ok{color:var(--lime)} .st.wait{color:var(--amber)} .st.off{color:var(--mut)} .st.bad{color:var(--red)}
+
+  .fl-line{display:flex;align-items:center;gap:10px;background:#0f1318;border:1px solid var(--line);
+    border-radius:10px;padding:9px 12px;margin-bottom:8px;font-size:13px;flex-wrap:wrap}
+  .fl-line .name{font-weight:600;min-width:140px}
+  .fl-chip{font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;border-radius:999px;
+    padding:2px 9px;border:1px solid var(--line);color:var(--mut);white-space:nowrap}
+  .fl-chip.ok{border-color:var(--lime-dim);color:var(--lime)}
+  .fl-chip.wait{border-color:#6b5a2a;color:var(--amber)}
+  .fl-chip.bad{border-color:#4a2f2b;color:var(--red)}
+
+  .grants{display:grid;grid-template-columns:1fr;gap:8px}
+  @media(min-width:700px){.grants{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}}
+  .grant{background:#0f1318;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:12px}
+  .grant b{display:block;font:600 11px var(--mono);margin-bottom:2px}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+  .dot.g{background:var(--lime)} .dot.r{background:var(--red)} .dot.x{background:#4a545e}
+  .danger{border:1px solid #3a2a26;background:#171113;border-radius:12px;padding:12px}
+  .danger h4{color:var(--red)}
+
+  .note{border-left:3px solid var(--lime);padding:8px 14px;background:var(--panel);border-radius:0 10px 10px 0;
+    color:var(--mut);font-size:13px;margin:14px 0}
+  .note b{color:var(--ink)}
+
+  .tablewrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:8px;min-width:560px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{color:var(--mut);font-weight:600;background:var(--panel2)}
+  td b{color:var(--lime);font-weight:600}
+  .foot{color:var(--mut);font-size:12px;margin-top:26px;line-height:1.7}
+  .foot code{font:11px var(--mono);color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Прототип · не код · итерация 2.2 · актуализация 13.08.2026</div>
+  <h1>Lab: три комнаты — итерация 2.2</h1>
+  <p class="lead">Во главе — один путь: <b>Telegram → открыть нужный объект → сразу понять
+  статус → проверить → принять решение</b>. Комнаты приняты как информационная архитектура,
+  получили имена-глаголы (<b>Проверить · Создать · Опубликовать</b>) и идут после телефонного
+  inbox, честных статусов и prefetch. Метки: <span class="tag tag-now">уже так</span> —
+  работает в master, <span class="tag tag-plan">план</span> — предлагаемое.</p>
+
+  <div class="stats">
+    <div class="stat"><span class="n warn">14</span><small>вкладок в шапке — не влезают даже на десктопе</small></div>
+    <div class="stat"><span class="n">4</span><small>Telegram-сигнала уже шлются: нужна помощь · готово · ожидает · опубликовано</small></div>
+    <div class="stat"><span class="n">×10</span><small>релизов Fast Lane готовятся параллельно, интейк сам берёт задачи</small></div>
+    <div class="stat"><span class="n warn">выкл</span><small>мост «Отсмотр с телефона» уже в master, но env-флаг не задан</small></div>
+  </div>
+
+  <!-- ================= ТЕЛЕФОН ================= -->
+  <div class="frame">
+    <h3>Телефон — первый вход <span class="tag tag-now">петля доработок уже так</span>
+      <span class="tag tag-plan">слайс 1 — inbox отсмотра</span></h3>
+    <p class="sub">День начинается не с открытия Lab, а с уведомления. Всё рутинное решается
+    из Telegram; Lab на компьютере остаётся для конвейера и торжественных решений.</p>
+    <div class="grid g-phone">
+      <div class="phone">
+        <div class="cap">Telegram · SwipeIt</div>
+        <div class="notif"><b>Доработка готова 🎉</b><small>Стрелочки · цикл 2 — можно сыграть кандидата</small></div>
+        <div class="notif amber"><b>! Нужна помощь</b><small>Two Dots: проверки механики не прошли;
+          изменения не опубликованы. Делать ничего не нужно — система ждёт диагностики
+          → Подробности</small></div>
+        <div class="notif"><b>Опубликовано</b><small>Сортинг · «осень» теперь в ленте → Открыть</small></div>
+        <div class="candidate">
+          <div class="ttl">Кандидат: Стрелочки · цикл 2</div>
+          <div class="meta">до/после · что изменилось — по-русски, без хэшей</div>
+          <div class="btnrow">
+            <button class="btn primary">Играть</button>
+            <button class="btn" disabled>Принять и опубликовать</button>
+            <button class="btn ghost" disabled>Ещё доработать…</button>
+          </div>
+          <div class="meta" style="margin:8px 0 0">Шаг за шагом: Играть → результат прохождения →
+          решение. До прохождения решение закрыто («Доступно после прохождения») — защита от
+          случайной публикации. Технические ID — под «Подробнее».</div>
+        </div>
+      </div>
+      <div>
+        <div class="pane" style="margin-bottom:10px">
+          <h4>Что уже приходит <span class="tag tag-now">уже так</span></h4>
+          <p class="sub">«Нужна помощь» с причиной по-русски · «Доработка готова» со ссылкой на
+          кандидата и кодом подтверждения · «Ожидает подтверждения» · «Опубликовано» с кнопкой
+          в ленту. Приёмка релиза — одно действие в Telegram, оно же единственный необратимый акт.</p>
+        </div>
+        <div class="pane" style="margin-bottom:10px">
+          <h4>Чего не хватает <span class="tag tag-plan">план</span></h4>
+          <p class="sub">«Утренний отсмотр готов: 14 кандидатов, из них 2 прототипа» — дайджест,
+          когда очередь вкуса наполнилась · «Прод ждёт решения»: помеченная серия, числа ленты
+          или релиз, висящий в «готово к проверке» дольше суток · журнал отправленных сигналов в Lab.
+          Контракт каждого сообщения (слайс 2): статус + причина + <b>ровно один следующий шаг</b> —
+          действие или честное «делать ничего не нужно».</p>
+        </div>
+        <div class="pane">
+          <h4>Отсмотр с телефона <span class="tag tag-off">в master, выключен флагом</span></h4>
+          <p class="sub">Мост на 10 видов отсмотра (уровни, серии, сеттинги, прототипы, приёмка…)
+          влит ещё 06.08: это компактный standalone-экран, не адаптация desktop-Lab. Слайс 1
+          (первый после Labs gate): smoke → включить <b>SWIPE_MOBILE_REVIEW_ENABLED</b> →
+          exact deep link из уведомления прямо в объект → следующее действие одной кнопкой,
+          технические ID — под «Подробнее».</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= НАВИГАЦИЯ ================= -->
+  <div class="rooms-nav">
+    <button class="room-btn active" data-room="r1"><span class="num">1 · УТРО</span><br>Проверить
+      <small>очередь вкуса · вердикт клавишей · контекст сбоку</small></button>
+    <button class="room-btn" data-room="r2"><span class="num">2 · ДЕНЬ</span><br>Создать
+      <small>заказы серий · Fast Lane доработок · фабрики и механики</small></button>
+    <button class="room-btn" data-room="r3"><span class="num">3 · НАДЗОР</span><br>Опубликовать
+      <small>каталог · ростер · числа · помеченные · состояние системы</small></button>
+  </div>
+
+  <!-- ================= КОМНАТА 1 ================= -->
+  <section class="room active" id="r1">
+    <div class="frame">
+      <h3>«Проверить» — комната одного жеста</h3>
+      <p class="sub">Всё подчинено циклу «посмотрел → вердикт → следующий уже прогрет».
+      Сливаются: <b>Отсмотр</b> · <b>Прототипы</b> · приёмка <b>Доработки</b> · <b>Память</b>
+      (боковой контекст). Зеркало этой комнаты — телефонный мост.</p>
+      <div class="grid g-review">
+        <div class="pane">
+          <h4>Очередь · 14 <span class="tag tag-plan">один поток — план</span></h4>
+          <div class="qitem cur"><span>Sort L3 · 8×7</span><span class="t">УРОВЕНЬ</span></div>
+          <div class="qitem"><span>Sort L4 · 6×5</span><span class="t">УРОВЕНЬ</span></div>
+          <div class="qitem"><span>Garden Curios</span><span class="t">СКИН</span></div>
+          <div class="qitem"><span>Серия «Утро» 1–5</span><span class="t">СЕРИЯ</span></div>
+          <div class="qitem"><span>Mix: pins+sort</span><span class="t">ПРОТОТИП</span></div>
+          <div class="qitem"><span>Стрелочки · цикл 2</span><span class="t">ДОРАБОТКА</span></div>
+          <p class="sub" style="margin-top:8px">Тип — ярлык, а не отдельная вкладка со своим
+          словарём вердиктов.</p>
+        </div>
+        <div class="pane">
+          <h4>Сцена</h4>
+          <div class="player">
+            <div>▶ playable · следующий уже прогрет в тёплом фрейме
+              <span class="tag tag-plan">prefetch — план</span></div>
+            <div class="metric">между вердиктами: 6.2 с · сегодня: 23 вердикта</div>
+            <div><span class="tag tag-plan">метрика на экране — план</span></div>
+          </div>
+          <div class="keysbar">
+            <span class="key"><b>L</b>Удачно</span>
+            <span class="key"><b>J</b>Проблемно</span>
+            <span class="key"><b>S</b>Не уверен</span>
+            <span class="key"><b>B</b>Сломан</span>
+            <span class="key"><b>R</b>В доработку…</span>
+            <span class="key"><b>M</b>Голос</span>
+          </div>
+          <p class="sub" style="margin-top:8px">Клавиши уже есть <span class="tag tag-now">уже так</span>;
+          пауза 420 мс и синхронный пересчёт архива из пути вердикта убраны
+          <span class="tag tag-now">уже так</span>. Осталось: тёплый фрейм и честная ошибка
+          вместо серого тоста при сбое сохранения.</p>
+        </div>
+        <div class="pane">
+          <h4>Контекст (бывш. «Память»)</h4>
+          <span class="chip on">интерес: движение</span>
+          <span class="chip">payoff поздний</span>
+          <span class="chip">6 цветов = верх</span>
+          <p class="sub">Что увидит следующий агент-генератор; тут же — теги по текущему кандидату.</p>
+          <h4 style="margin-top:12px">Серия</h4>
+          <p class="sub">Прохождение 3/5 · сундук не открыт. Чекбокс риска — только здесь, у контекста.</p>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>Что уже сделано руками волн 1–4:</b> рефреш очереди не сбрасывает позицию,
+    бандл уровня не перекачивается 25 раз (кэш по ревизии), дорогой опрос каталога ушёл в фон.
+    <b>Что даст комната:</b> три системы оценки — один жест и один словарь; руки не покидают
+    клавиатуру; каждая сэкономленная секунда умножается на 25–50 вердиктов утра.</div>
+  </section>
+
+  <!-- ================= КОМНАТА 2 ================= -->
+  <section class="room" id="r2">
+    <div class="frame">
+      <h3>«Создать» — комната производства</h3>
+      <p class="sub">Две ленты произодства в одном месте: <b>заказ серии</b> (бриф → публикация)
+      и <b>Fast Lane доработок</b> (телефон → агент → кандидат → Telegram). Сюда же переезжают
+      справочные <b>Фабрики</b> и <b>Механики</b>, форма ночных кампаний, <b>Уровни</b> и <b>Серии</b>.</p>
+      <div class="stage-row">
+        <div class="stage"><h5>Бриф</h5><span class="st ok">готов</span></div>
+        <div class="stage"><h5>Фабрики</h5><span class="st ok">v1 готова</span></div>
+        <div class="stage"><h5>Мир</h5><span class="st wait">выбор из 3</span></div>
+        <div class="stage"><h5>Уровни</h5><span class="st wait">отсмотр 13</span></div>
+        <div class="stage"><h5>Сборка</h5><span class="st off">ждёт</span></div>
+        <div class="stage"><h5>Публикация</h5><span class="st off">TMA</span></div>
+      </div>
+
+      <div class="pane" style="margin-bottom:12px">
+        <h4>Fast Lane · релизы механик <span class="tag tag-now">контур уже так</span>
+          <span class="tag tag-plan">переезд сюда из «Композера» — слайс 5а</span></h4>
+        <div class="fl-line"><span class="name">Стрелочки · цикл 2</span>
+          <span class="fl-chip wait">готово к проверке</span>
+          <span class="sub" style="font-size:11.5px">ждёт твоего «Принять» в Telegram</span></div>
+        <div class="fl-line"><span class="name">Two Dots · добавление</span>
+          <span class="fl-chip bad">нужна помощь</span>
+          <span class="sub" style="font-size:11.5px">проверки механики не прошли; изменения не опубликованы</span></div>
+        <div class="fl-line"><span class="name">Сортинг · правка подсказки</span>
+          <span class="fl-chip ok">в ленте</span>
+          <span class="sub" style="font-size:11.5px">опубликовано 12.08 · цикл 2 · предыдущая
+          попытка остановилась — в истории</span></div>
+        <p class="sub" style="margin-top:8px">Конвейер движется сам (интейк без клика, до 10 релизов
+        параллельно); человеку остаются вкусовые решения и один Approve. Ошибка не молчит:
+        «нужна помощь» остаётся до решения и дублируется в Telegram. Статус объекта — по голове
+        successor-цепочки: прежние остановки уходят в свёрнутую историю, а не висят рядом с
+        «в ленте» (слайс 2, lineage-правило).</p>
+      </div>
+
+      <div class="grid g-two">
+        <div class="pane">
+          <h4>Механики и Фабрики <span class="tag tag-now">read-only уже так</span></h4>
+          <p class="sub">Справочник семейств: base source, принятые вариации, фабрики и серии
+          механики — как этап конвейера, а не 4-я и 5-я вкладки шапки. Редактирование остаётся
+          в своих экранах.</p>
+        </div>
+        <div class="pane">
+          <h4>Ночные кампании</h4>
+          <p class="sub">Форма вариаций живёт здесь как способ пополнить конвейер. Мёртвый режим
+          «Серия уровней» уже выпилен <span class="tag tag-now">уже так</span>; двойной запуск
+          кампании закрыт защёлкой и идемпотентностью <span class="tag tag-now">уже так</span>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>Что даст комната:</b> у серии и у доработки — по одной двери; «два UI выбора
+    мира» и «три входа в rework» сращиваются в слайсе 5в — каждое слияние отдельным маленьким
+    PR и только по доказанной наигрышем боли; новые поверхности становятся этапами конвейера,
+    а не пятнадцатой вкладкой.</div>
+  </section>
+
+  <!-- ================= КОМНАТА 3 ================= -->
+  <section class="room" id="r3">
+    <div class="frame">
+      <h3>«Опубликовать» — комната торжественных решений</h3>
+      <p class="sub">Здесь ничего не делается быстро — осознанно: публикация, отзыв, надзор.
+      Остаются: <b>Каталог</b> · <b>Композер</b> (ростер) · <b>Числа ленты</b> ·
+      <b>Помеченные</b>. Новое — «Состояние системы».</p>
+      <div class="grid g-two">
+        <div class="pane">
+          <h4>Живая лента</h4>
+          <p class="sub">клиент c1681d8 · бэкенд 09fa0cd · ростер 13 юнитов<br>
+          <span class="st wait">⚠ 1 помеченная серия ждёт решения</span></p>
+        </div>
+        <div class="pane danger">
+          <h4>Необратимое</h4>
+          <p class="sub">Recall · Активация ростера · Approve чисел · Публикация.<br>
+          Модально: diff → последствия → подпись. Ошибка остаётся в модалке, пока её не закроешь
+          <span class="tag tag-now">уже так</span>; громкий незакрывающийся тост для сбоев
+          <span class="tag tag-now">уже так</span>.</p>
+        </div>
+      </div>
+      <div class="pane" style="margin-top:12px">
+        <h4>Состояние системы <span class="tag tag-plan">слайс 5б · вторичный экран</span></h4>
+        <div class="grants">
+          <div class="grant"><b><span class="dot g"></span>каталог: чтение</b>активен · 41 мин</div>
+          <div class="grant"><b><span class="dot g"></span>пометки: запись</b>активен · 12 мин</div>
+          <div class="grant"><b><span class="dot r"></span>аналитика: чтение</b>роут выключен на бэкенде</div>
+          <div class="grant"><b><span class="dot r"></span>отсмотр с телефона</b>env-флаг не задан на сервере Lab</div>
+          <div class="grant"><b><span class="dot g"></span>релизы механик</b>одноразовый допуск · через Telegram</div>
+          <div class="grant"><b><span class="dot x"></span>отзыв из каталога</b>не запрошен</div>
+          <div class="grant"><b><span class="dot x"></span>ростер: запись</b>не запрошен</div>
+          <div class="grant"><b><span class="dot x"></span>числа ленты: запись</b>не запрошен</div>
+          <div class="grant"><b><span class="dot g"></span>оценки: доставка</b>подключена</div>
+          <div class="grant"><b><span class="dot x"></span>личный тест в ленте</b>не запрошен</div>
+        </div>
+        <p class="sub" style="margin-top:10px">Все допуски в одном месте — вместо карточек,
+        разбросанных по вкладкам. Честная диагностика: «Lab включён, а роут на бэкенде
+        выключен» и «мост есть, но env-флаг не задан» перестают маскироваться под «нет
+        данных». Тут же — журнал отправленных Telegram-сигналов. Это вторичный экран;
+        контекстное «почему недоступно» у самих кнопок появляется раньше — в слайсе 2.</p>
+      </div>
+    </div>
+    <div class="note"><b>Что даст комната:</b> опасное собрано и выглядит опасным; рутина отсюда
+    убрана; обе ловушки конфигурации видны с порога, а не после часа недоумения.</div>
+  </section>
+
+  <!-- ================= КАРТА ПЕРЕЕЗДА ================= -->
+  <div class="frame" style="margin-top:20px">
+    <h3>Карта переезда: 14 вкладок + 2 панели → 3 комнаты</h3>
+    <div class="tablewrap">
+    <table>
+      <tr><th>Сейчас</th><th>Станет</th></tr>
+      <tr><td>Отсмотр · Прототипы · Доработка · Память</td>
+        <td><b>1 · Проверить</b> — один поток очереди, контекст сбоку, зеркало в телефоне</td></tr>
+      <tr><td>Заказы · Очередь (кампании) · Фабрики · Механики · Уровни · Серии · карточка «Отсмотр с телефона» · панель Fast Lane (сейчас в «Композере»)</td>
+        <td><b>2 · Создать</b> — этапы заказа + лента Fast Lane (переезд панели — слайс 5)</td></tr>
+      <tr><td>Каталог · Композер · Числа ленты · Помеченные</td>
+        <td><b>3 · Опубликовать</b> + «Состояние системы» (допуски · диагностика флагов · журнал уведомлений)</td></tr>
+    </table>
+    </div>
+    <p class="sub" style="margin-top:10px">Порядок работ (после Labs gate, решение S9):
+    <b>слайс 1</b> — телефонный inbox (smoke моста → флаг → exact deep links, 0.5–1 д);
+    <b>слайс 2</b> — честные статусы: В очереди · В работе · Можно проверить · Нужна помощь ·
+    Ждёт подтверждения · Опубликовано — одинаково в Telegram, Lab и ленте, у каждой блокировки
+    «почему» и «что дальше» (1–2 д); <b>слайс 3</b> — скорость отсмотра: prefetch и метрики пути
+    «Telegram → кандидат интерактивен», «решение → следующий готов» (1–2 д); <b>слайс 4</b> —
+    комнаты по готовому ТЗ этапа 1 (0.5–1 д); после телефонного наигрыша — <b>слайс 5а</b>
+    (единая очередь + переезд Fast Lane), <b>слайс 5б</b> («Состояние системы») и <b>5в</b> —
+    точечные слияния дублей отдельными PR (суммарно 2–4 д). Каждый — отдельный bounded PR;
+    комнаты — слой навигации над существующими view (те же данные, роуты и тесты).</p>
+  </div>
+
+  <p class="foot">Прототип «Три комнаты» · итерация 2.2 · 13.08.2026 ·
+  план: <code>docs/lab-simplification-plan-2026-08-13.md</code> ·
+  аудит: <code>docs/lab-audit-2026-08-05.md</code> ·
+  ТЗ этапа 1 + аддендум: <code>docs/lab-rooms-stage1-tz-2026-08-05.md</code> ·
+  итерация 1: <code>lab-rooms-mockup-2026-08-05.html</code></p>
+</div>
+<script>
+  const btns=document.querySelectorAll('.room-btn'),rooms=document.querySelectorAll('.room');
+  function go(id){btns.forEach(b=>b.classList.toggle('active',b.dataset.room===id));
+    rooms.forEach(r=>r.classList.toggle('active',r.id===id));}
+  btns.forEach(b=>b.addEventListener('click',()=>go(b.dataset.room)));
+  addEventListener('keydown',e=>{if(e.key==='1')go('r1');if(e.key==='2')go('r2');if(e.key==='3')go('r3');});
+</script>
+</body>
+</html>
