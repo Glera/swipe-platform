@@ -52,7 +52,9 @@ const USAGE = `Usage:
   node scripts/two-mac-bridge.mjs publish-wake --machine mac-a|mac-b \\
     --next-owner mac-a|mac-b --parent-comment-id ID \\
     --verdict HANDOFF_READY|NEEDS_HELP|AUTHORITY_REQUIRED|DONE|STOP \\
-    --body-file PATH [--control-issue N] [--apply]
+    --body-file PATH [--control-issue N] [--apply] \\
+    [--ticket-issue N --lineage-id lin_HEX \\
+     [--predecessor-wake-id wake_HEX] [--supersedes wake_HEX,wake_HEX,...]]
   node scripts/two-mac-bridge.mjs bootstrap --machine mac-a|mac-b \\
     [--control-issue N] [--supersede-binding-digest SHA256] [--apply]
   node scripts/two-mac-bridge.mjs bind-platform --issue N --machine mac-a \\
@@ -71,9 +73,36 @@ State evidence:
   NEEDS_HELP     --error-code CODE
   DONE           --receipt-id ID   (Mac A only)
 
+Wake lineage (publish-wake only): --ticket-issue and --lineage-id are required
+together, so a partial lineage is refused instead of guessed. An absent
+--predecessor-wake-id is null and an absent --supersedes is empty. Without any
+of the four options the published wake stays the exact v1 record.
+
 Mutations are dry-run unless --apply. The local task binding is derived from
 CODEX_THREAD_ID and compared to the ticket; it is never accepted as CLI input.
 `;
+
+const LINEAGE_OPTION_KEYS = Object.freeze([
+  'ticketIssue', 'lineageId', 'predecessorWakeId', 'supersedesWakeIds',
+]);
+
+// A lineage option is "absent" only as null: every parsed value (including an
+// unparsable --ticket-issue) counts as present so a partial lineage fails
+// closed here instead of silently publishing a v1 wake.
+function lineageOptionsPresent(options) {
+  return LINEAGE_OPTION_KEYS.some((key) => options[key] !== null);
+}
+
+// Field validation stays in the contract; this only shapes the declared claim.
+function controlWakeLineage(options) {
+  if (!lineageOptionsPresent(options)) return null;
+  return {
+    ticketIssue: options.ticketIssue,
+    lineageId: options.lineageId,
+    predecessorWakeId: options.predecessorWakeId,
+    supersedesWakeIds: options.supersedesWakeIds ?? [],
+  };
+}
 
 function takeValue(argv, index, option) {
   const value = argv[index + 1];
@@ -101,6 +130,10 @@ export function parseArgs(argv) {
     parentCommentId: null,
     verdict: null,
     bodyFile: null,
+    ticketIssue: null,
+    lineageId: null,
+    predecessorWakeId: null,
+    supersedesWakeIds: null,
     afterCommentId: '0',
     afterWakeId: '0',
     supersedeBindingDigest: null,
@@ -147,6 +180,14 @@ export function parseArgs(argv) {
       options.verdict = takeValue(rest, index, arg); index += 1;
     } else if (arg === '--body-file') {
       options.bodyFile = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--ticket-issue') {
+      options.ticketIssue = Number(takeValue(rest, index, arg)); index += 1;
+    } else if (arg === '--lineage-id') {
+      options.lineageId = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--predecessor-wake-id') {
+      options.predecessorWakeId = takeValue(rest, index, arg); index += 1;
+    } else if (arg === '--supersedes') {
+      options.supersedesWakeIds = takeValue(rest, index, arg).split(','); index += 1;
     } else if (arg === '--after-comment-id') {
       options.afterCommentId = takeValue(rest, index, arg); index += 1;
     } else if (arg === '--after-wake-id') {
@@ -202,6 +243,9 @@ export function parseArgs(argv) {
       throw new Error('--after-wake-id cannot exceed --after-comment-id');
     }
   }
+  if (options.command !== 'publish-wake' && lineageOptionsPresent(options)) {
+    throw new Error('lineage options are valid only for publish-wake');
+  }
   if (options.command === 'publish-wake') {
     if (!['mac-a', 'mac-b'].includes(options.nextOwner)) {
       throw new Error('--next-owner must be mac-a or mac-b');
@@ -212,6 +256,12 @@ export function parseArgs(argv) {
     }
     if (typeof options.bodyFile !== 'string' || options.bodyFile.length < 1 || /[\0\r\n]/u.test(options.bodyFile)) {
       throw new Error('--body-file is invalid');
+    }
+    // A partial lineage is invalid: the missing half is never inferred from the
+    // parent comment or the previous wake.
+    if (lineageOptionsPresent(options)
+        && (options.ticketIssue === null || options.lineageId === null)) {
+      throw new Error('--ticket-issue and --lineage-id are required together for a lineage wake');
     }
   }
   if (options.command === 'advance') validateAdvanceOptions(options);
@@ -736,6 +786,7 @@ export async function publishControlWake({
   receiptBody,
   bridgeCommit,
   apply,
+  lineage = null,
   clock = () => new Date(),
 }) {
   const [issue, repositoryId] = await Promise.all([
@@ -765,6 +816,8 @@ export async function publishControlWake({
     verdict,
     receiptBody,
     createdAt: now(clock),
+    // An absent lineage keeps the exact v1 record and its frozen wakeId.
+    lineage: lineage ?? null,
   });
   const replay = issue.comments
     .map((comment) => {
@@ -1560,6 +1613,7 @@ export async function runCli(argv, {
         receiptBody,
         bridgeCommit: resolveHead(),
         apply: options.apply,
+        lineage: controlWakeLineage(options),
         clock,
       });
       writeOut(`${JSON.stringify(result, null, 2)}\n`);

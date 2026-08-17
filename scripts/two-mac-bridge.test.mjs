@@ -1,11 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
 import {
   composeControlWakeComment,
   createControlWake,
   createMachineBinding,
   createEvent,
+  decodeControlWakeComment,
   encodeEventMarker,
   encodeMachineBindingMarker,
   encodeTicketMarker,
@@ -1306,6 +1310,183 @@ test('publish-wake refuses a stale local bridge commit', async () => {
     bridgeCommit: 'a'.repeat(40),
     apply: true,
   }), /exact active mac-a machine binding/u);
+  assert.equal(transport.posts.length, 0);
+});
+
+// The frozen v1 publish-wake record, captured from the pre-lineage writer for
+// this exact route/receipt/clock. Enabling the v2 writer must not move a single
+// byte of it while no lineage option is passed.
+const V1_GOLDEN = Object.freeze({
+  parentCommentId: '5277813712',
+  receiptBody: 'Bounded correction is ready for Mac B.',
+  createdAt: '2026-08-13T08:24:52.000Z',
+  wakeId: 'wake_627e99876f4dbadbe0b6a8b1375106e4a72fcc3cc1916c9b594a3d93b392ab27',
+  wakeDigest: '0a492932c10fba8a39007f6387856f632535774ae15da5ddf852e3e140d911e0',
+  commentSha256: '84be31006b55038506571a38d9b1c7c4feacb41a3f9f81be6f0bde245e87a17c',
+  keys: Object.freeze([
+    'assignedMachine', 'bodySha256', 'callbackTaskDigest', 'controlIssue', 'createdAt',
+    'parentCommentId', 'schema', 'targetTaskDigest', 'verdict', 'wakeDigest', 'wakeId',
+  ]),
+});
+
+const PUBLISH_WAKE_PARENT = Object.freeze({
+  id: V1_GOLDEN.parentCommentId,
+  body: 'Exact Mac A review receipt.',
+  htmlUrl: 'https://github.example/parent',
+  createdAt: '2026-08-13T08:16:44Z',
+});
+
+const LINEAGE_ARGS = Object.freeze([
+  '--ticket-issue', String(TIER2_TICKET_ISSUE), '--lineage-id', TIER2_LINEAGE,
+]);
+
+function publishWakeArgs(extra = [], bodyFile = '/tmp/receipt.md') {
+  return [
+    'publish-wake', '--machine', 'mac-a', '--next-owner', 'mac-b',
+    '--parent-comment-id', V1_GOLDEN.parentCommentId,
+    '--verdict', 'HANDOFF_READY', '--body-file', bodyFile,
+    ...extra,
+  ];
+}
+
+// One real CLI pass: the receipt body is a file on disk exactly as an operator
+// would pass it, and only the transport, clock and bridge HEAD are injected.
+async function runPublishWakeCli(extra, transport) {
+  const directory = mkdtempSync(path.join(tmpdir(), 'two-mac-wake-'));
+  const bodyFile = path.join(directory, 'receipt.md');
+  writeFileSync(bodyFile, V1_GOLDEN.receiptBody, 'utf8');
+  const stdout = [];
+  const stderr = [];
+  try {
+    const status = await runCli([...publishWakeArgs(extra, bodyFile), '--apply'], {
+      env: { CODEX_THREAD_ID: THREAD },
+      transport,
+      writeOut: (value) => stdout.push(value),
+      writeErr: (value) => stderr.push(value),
+      clock: () => new Date(V1_GOLDEN.createdAt),
+      resolveHead: () => HEAD,
+    });
+    return { status, stdout: stdout.join(''), stderr: stderr.join('') };
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+}
+
+test('publish-wake parses the four lineage options, including the comma-separated supersedes list', () => {
+  const predecessor = `wake_${'1'.repeat(64)}`;
+  const superseded = [`wake_${'2'.repeat(64)}`, `wake_${'3'.repeat(64)}`];
+  const options = parseArgs(publishWakeArgs([
+    ...LINEAGE_ARGS,
+    '--predecessor-wake-id', predecessor,
+    '--supersedes', superseded.join(','),
+  ]));
+  assert.equal(options.ticketIssue, TIER2_TICKET_ISSUE);
+  assert.equal(options.lineageId, TIER2_LINEAGE);
+  assert.equal(options.predecessorWakeId, predecessor);
+  assert.deepEqual(options.supersedesWakeIds, superseded);
+
+  const bare = parseArgs(publishWakeArgs());
+  assert.deepEqual(
+    [bare.ticketIssue, bare.lineageId, bare.predecessorWakeId, bare.supersedesWakeIds],
+    [null, null, null, null],
+  );
+  assert.throws(
+    () => parseArgs(['claim', '--issue', '91', '--machine', 'mac-b', ...LINEAGE_ARGS]),
+    /valid only for publish-wake/u,
+  );
+});
+
+test('publish-wake with lineage options posts one v2 wake carrying the exact declared lineage', async () => {
+  const transport = multiIssueTransport([controlWakeIssue([{ ...PUBLISH_WAKE_PARENT }])]);
+  const predecessor = `wake_${'1'.repeat(64)}`;
+  const superseded = [`wake_${'2'.repeat(64)}`, `wake_${'3'.repeat(64)}`];
+  const published = await runPublishWakeCli([
+    ...LINEAGE_ARGS,
+    '--predecessor-wake-id', predecessor,
+    '--supersedes', superseded.join(','),
+  ], transport);
+  assert.equal(published.status, 0);
+  assert.equal(transport.posts.length, 1);
+
+  const decoded = decodeControlWakeComment(transport.posts[0].body);
+  assert.equal(decoded.receiptBody, V1_GOLDEN.receiptBody);
+  assert.equal(decoded.wake.schema, 'two-mac.control-wake.v2');
+  assert.equal(decoded.wake.ticketIssue, TIER2_TICKET_ISSUE);
+  assert.equal(decoded.wake.lineageId, TIER2_LINEAGE);
+  assert.equal(decoded.wake.predecessorWakeId, predecessor);
+  assert.deepEqual(decoded.wake.supersedesWakeIds, superseded);
+
+  // The v2 identity is derived over the lineage, so the same route no longer
+  // collides with its frozen v1 wakeId.
+  const expected = createControlWake({
+    controlIssue: 94,
+    parentCommentId: V1_GOLDEN.parentCommentId,
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'HANDOFF_READY',
+    receiptBody: V1_GOLDEN.receiptBody,
+    createdAt: V1_GOLDEN.createdAt,
+    lineage: {
+      ticketIssue: TIER2_TICKET_ISSUE,
+      lineageId: TIER2_LINEAGE,
+      predecessorWakeId: predecessor,
+      supersedesWakeIds: superseded,
+    },
+  });
+  assert.equal(decoded.wake.wakeId, expected.wakeId);
+  assert.notEqual(decoded.wake.wakeId, V1_GOLDEN.wakeId);
+  assert.equal(JSON.parse(published.stdout).status, 'APPLIED');
+  assert.equal(JSON.parse(published.stdout).wake.wakeId, expected.wakeId);
+
+  // Absent optional flags are declared as an empty causal claim, never guessed
+  // from the parent comment or the previous wake.
+  const minimal = multiIssueTransport([controlWakeIssue([{ ...PUBLISH_WAKE_PARENT }])]);
+  assert.equal((await runPublishWakeCli([...LINEAGE_ARGS], minimal)).status, 0);
+  const minimalWake = decodeControlWakeComment(minimal.posts[0].body).wake;
+  assert.equal(minimalWake.schema, 'two-mac.control-wake.v2');
+  assert.equal(minimalWake.predecessorWakeId, null);
+  assert.deepEqual(minimalWake.supersedesWakeIds, []);
+});
+
+test('publish-wake without lineage options stays byte-identical to the frozen v1 wake', async () => {
+  const transport = multiIssueTransport([controlWakeIssue([{ ...PUBLISH_WAKE_PARENT }])]);
+  const published = await runPublishWakeCli([], transport);
+  assert.equal(published.status, 0);
+  assert.equal(transport.posts.length, 1);
+  assert.equal(sha256(transport.posts[0].body), V1_GOLDEN.commentSha256);
+  const decoded = decodeControlWakeComment(transport.posts[0].body);
+  assert.equal(decoded.wake.schema, 'two-mac.control-wake.v1');
+  assert.equal(decoded.wake.wakeId, V1_GOLDEN.wakeId);
+  assert.equal(decoded.wake.wakeDigest, V1_GOLDEN.wakeDigest);
+  assert.deepEqual(Object.keys(decoded.wake).sort(), [...V1_GOLDEN.keys]);
+});
+
+test('a partial or malformed lineage fails closed before publish-wake posts anything', async () => {
+  const partials = [
+    ['--ticket-issue', String(TIER2_TICKET_ISSUE)],
+    ['--lineage-id', TIER2_LINEAGE],
+    ['--predecessor-wake-id', `wake_${'1'.repeat(64)}`],
+    ['--supersedes', `wake_${'2'.repeat(64)}`],
+    ['--lineage-id', TIER2_LINEAGE, '--supersedes', `wake_${'2'.repeat(64)}`],
+    ['--ticket-issue', String(TIER2_TICKET_ISSUE), '--predecessor-wake-id', `wake_${'1'.repeat(64)}`],
+  ];
+  for (const partial of partials) {
+    const transport = multiIssueTransport([controlWakeIssue([{ ...PUBLISH_WAKE_PARENT }])]);
+    const refused = await runPublishWakeCli(partial, transport);
+    assert.equal(refused.status, 1);
+    assert.match(refused.stderr, /^STOP: --ticket-issue and --lineage-id are required together/u);
+    assert.equal(transport.posts.length, 0);
+    assert.throws(() => parseArgs(publishWakeArgs(partial)), /required together/u);
+  }
+
+  // Field validation stays in the contract; the CLI only surfaces it as STOP.
+  const transport = multiIssueTransport([controlWakeIssue([{ ...PUBLISH_WAKE_PARENT }])]);
+  const malformed = await runPublishWakeCli([
+    '--ticket-issue', String(TIER2_TICKET_ISSUE), '--lineage-id', 'lineage-1',
+  ], transport);
+  assert.equal(malformed.status, 1);
+  assert.match(malformed.stderr, /^STOP: control wake lineageId is invalid/u);
   assert.equal(transport.posts.length, 0);
 });
 
