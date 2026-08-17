@@ -1,19 +1,19 @@
 {
   "schema": "runtime-artifact.v1",
   "playableId": "smash-fest-v1-swipe",
-  "digest": "sha256:bd8d1ef9bc761f0fa9d4fd3fce3ec70430d8e0b0e81715786edace753d31491d",
+  "digest": "sha256:a3a05a57a3c79eb150374766378b9869f0c4e18945bd593ac65ce5e418453434",
   "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
-  "sourceCommit": "1568ca66398d10151268e7eff82c1d230c39f037",
+  "sourceCommit": "bdcd900d4258b39e6f4bd678f09c3036cd6ee4f1",
   "files": [
     {
       "path": "smash-fest-v1-swipe.html",
       "bytes": 1090,
-      "sha256": "sha256:103bfcf179d0b2cc8e028b7732cc5120844c1e598a80962eb489194b0f0578ba"
+      "sha256": "sha256:ae296a3e052cd813ab21adcafa75b341bc749b9cf2c320092daa274d95c6a86d"
     },
     {
       "path": "smash-fest-v1-swipe.payload.js",
-      "bytes": 155671,
-      "sha256": "sha256:c6d4c163edc52b8ced7e96fef52ca3da56752155eec72c974215766219b86303"
+      "bytes": 155674,
+      "sha256": "sha256:a62b0eeba7d1790708f5f02e248532fa87b0f3dcad0a908051fc703e88679600"
     }
   ]
 }
