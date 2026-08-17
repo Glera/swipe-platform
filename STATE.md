@@ -84,11 +84,20 @@
 состояния без ручного переноса prompt/ID/SHA; (3) #91/#92 сыграны и одна
 общая bounded polish batch закрыта; (4) exact-head CI зелёный, открытых
 P1/P2 и незавершённого deploy/migration окна нет.
-После terminal #114/#121 порядок Labs v2.3: принятый cross-repo phone-source
-→ S1 → S2 (S2a lineage presenter), S3 после S1, 5а/5б/5в после phone
-dogfood. Старый mobile-review флаг не включать: backend-роут отсутствует,
-старые PR (Backend #25/#30, Feed #13/#14, Generator #6, Agents #9/#10)
-имеют R7 NO-GO — пересборка на свежих masters.
+**Точка разблокировки Labs на Mac B (оператор 17.08)** — все четыре:
+(1) пакеты #114 `1d93128f…` и #121 `991f0e3c…` опубликованы и terminal
+(merged либо terminal STOP), local-only heads на Mac B не осталось;
+(2) Generator master чистый/актуальный; (3) `Glera/swipe-backend#72` —
+narrow Tier-2 verdict + terminal merge/disposition; (4) durable receipt
+Mac A в `#122`, что #114/#121 больше не блокируют Labs admission.
+После receipt — **сразу S2/S2a** (lineage presenter, статусы, комнаты):
+phone-source для S2a не требуется. S1 — только после принятого cross-repo
+phone-source контура `/api/admin/mobile-reviews`; S3 — после S1 и
+телефонного proof; 5а/5б/5в — после phone dogfood; Phase 0/три комнаты не
+переоткрывать. До receipt Labs — только read-only сверка и подготовка
+acceptance. Старый mobile-review флаг не включать: старые PR (Backend
+#25/#30, Feed #13/#14, Generator #6, Agents #9/#10) имеют R7 NO-GO —
+пересборка на свежих masters.
 
 ## Первая очередь после gate
 
