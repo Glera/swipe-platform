@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import {
+  CONTROL_WAKE_SCHEMA_V2,
   canonicalJson,
   composeControlWakeComment,
   createControlWake,
@@ -472,6 +473,64 @@ function numericCommentId(comment) {
   return value;
 }
 
+// Causal lineage state for one control Issue, accumulated in one forward pass
+// over ascending comment ids. A wake is classified against evidence that is
+// strictly earlier than itself, so the same comment list always yields the same
+// classification and no wake can silence itself with its own claim.
+function lineageKey(wake) {
+  return `${wake.ticketIssue}\0${wake.lineageId}`;
+}
+
+function createLineageIndex() {
+  return {
+    byWakeId: new Map(),
+    supersededByLineage: new Map(),
+    supersedeClaimLineages: new Map(),
+  };
+}
+
+function observeLineage(lineage, wake) {
+  if (!lineage.byWakeId.has(wake.wakeId)) lineage.byWakeId.set(wake.wakeId, wake);
+  if (wake.schema !== CONTROL_WAKE_SCHEMA_V2) return;
+  const key = lineageKey(wake);
+  const superseded = lineage.supersededByLineage.get(key) ?? new Set();
+  for (const supersededWakeId of wake.supersedesWakeIds) {
+    // Supersession claims are declarative and never recursive.
+    superseded.add(supersededWakeId);
+    const claimants = lineage.supersedeClaimLineages.get(supersededWakeId) ?? new Set();
+    claimants.add(key);
+    lineage.supersedeClaimLineages.set(supersededWakeId, claimants);
+  }
+  lineage.supersededByLineage.set(key, superseded);
+}
+
+export function classifyControlWake(wake, lineage) {
+  // A v1 wake carries no causal claim: it is classified exactly as before v2,
+  // and an absent supersession record is never a guessed noop.
+  if (wake.schema !== CONTROL_WAKE_SCHEMA_V2) return 'normal';
+  const key = lineageKey(wake);
+  const predecessor = wake.predecessorWakeId;
+  if (predecessor !== null) {
+    const known = lineage.byWakeId.get(predecessor);
+    if (known && known.schema === CONTROL_WAKE_SCHEMA_V2 && lineageKey(known) !== key) {
+      return 'ambiguous';
+    }
+    const claimants = lineage.supersedeClaimLineages.get(predecessor);
+    if (claimants && [...claimants].some((claimant) => claimant !== key)) return 'ambiguous';
+  }
+  // Exactly one thing is ever silenced: a STOP whose OWN named predecessor
+  // branch was explicitly superseded by a strictly earlier wake of the same
+  // lineage. The forward pass guarantees that set holds only earlier claims, so
+  // the proof is always about this branch and never about the lineage around it.
+  // A verdict that once looked terminal does not close a lineage: work can
+  // continue and mint a fresh dispatch, whose own STOP terminal is live. Every
+  // non-STOP verdict is execution evidence and is always delivered.
+  if (wake.verdict !== 'STOP' || predecessor === null) return 'normal';
+  return lineage.supersededByLineage.get(key)?.has(predecessor)
+    ? 'historical_noop'
+    : 'normal';
+}
+
 export function scanControlWakeComments({
   controlIssue,
   comments,
@@ -516,7 +575,9 @@ export function scanControlWakeComments({
 
   const attention = [];
   const pending = [];
+  const historicalNoopCommentIds = [];
   const seenWakeIds = new Set();
+  const lineage = createLineageIndex();
   for (const comment of ordered) {
     const body = String(comment.body || '');
     const isNew = BigInt(comment.id) > BigInt(lastScannedCommentId);
@@ -557,6 +618,12 @@ export function scanControlWakeComments({
     }
 
     const { wake, receiptBody } = decoded;
+    // Classify against strictly earlier evidence, then record this wake's own
+    // claim for the wakes that follow it. Lineage evidence is collected for
+    // every decoded wake in the Issue, including wakes routed to the other
+    // machine and wakes behind the cursor.
+    const classification = classifyControlWake(wake, lineage);
+    observeLineage(lineage, wake);
     if (wake.assignedMachine !== machine) continue;
     if (wake.targetTaskDigest !== taskDigest) {
       if (afterConsumed) {
@@ -585,6 +652,21 @@ export function scanControlWakeComments({
     const alreadySeen = seenWakeIds.has(wake.wakeId);
     seenWakeIds.add(wake.wakeId);
     if (!afterConsumed || alreadySeen) continue;
+    if (classification === 'historical_noop') {
+      // Deterministically acknowledged: never dispatched, never attention, and
+      // never an input a successor wake can be minted from.
+      historicalNoopCommentIds.push(comment.id);
+      continue;
+    }
+    if (classification === 'ambiguous') {
+      attention.push({
+        action: 'NEEDS_HELP',
+        code: 'ambiguous_wake_lineage',
+        commentId: comment.id,
+        commentUrl: comment.htmlUrl ?? null,
+        wakeId: wake.wakeId,
+      });
+    }
     const action = wake.verdict === 'STOP'
       ? 'STOP'
       : wake.verdict === 'AUTHORITY_REQUIRED'
@@ -592,6 +674,7 @@ export function scanControlWakeComments({
         : 'DISPATCH';
     pending.push({
       action,
+      classification,
       commentId: comment.id,
       commentUrl: comment.htmlUrl ?? null,
       receiptBody,
@@ -605,10 +688,14 @@ export function scanControlWakeComments({
     machine,
     cursors: {
       lastScannedCommentId: observedThroughCommentId,
+      // A historical noop must not block the consumed cursor: with no actionable
+      // wake left, acknowledging through the last noop is safe and terminates.
       lastConsumedWakeCommentId,
-      acknowledgeAfterHandlingCommentId: nextWake?.commentId ?? null,
+      acknowledgeAfterHandlingCommentId:
+        nextWake?.commentId ?? historicalNoopCommentIds.at(-1) ?? null,
     },
     attention,
+    historicalNoopCommentIds,
     nextWake,
     pendingWakeCount: pending.length,
   };
