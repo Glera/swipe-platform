@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  canonicalJson,
   composeControlWakeComment,
   createControlWake,
   createMachineBinding,
@@ -28,6 +29,14 @@ const B_TASK = 'b'.repeat(64);
 const REQUEST_HASH = 'c'.repeat(64);
 const HEAD = 'd'.repeat(40);
 const TREE = 'e'.repeat(40);
+const LINEAGE = `lin_${'9d68'.repeat(8)}`;
+
+// A tampered comment is written by the transport, not by the encoder: build the
+// marker bytes directly so validation runs on read, as it does on GitHub.
+function rawControlWakeMarker(payload) {
+  const encoded = Buffer.from(canonicalJson(payload), 'utf8').toString('base64url');
+  return `<!-- two-mac-bridge-control-wake:v1 payload=${encoded} -->`;
+}
 
 function ticket(overrides = {}) {
   return {
@@ -147,6 +156,174 @@ test('control wake atomically binds one receipt body to one exact owner route', 
       createdAt: '2026-08-13T08:27:52.000Z',
     }),
     /receipt body is invalid/u,
+  );
+});
+
+// F-roundtrip: v2 create/validate/digest round-trip through the same marker.
+test('v2 control wake round-trips one causal lineage through create and dual-read', () => {
+  const receiptBody = '## HANDOFF_READY — exact delta\n\nNext: the same owner continues.';
+  const predecessor = createControlWake({
+    controlIssue: 94,
+    parentCommentId: '5277813712',
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'HANDOFF_READY',
+    receiptBody: 'Predecessor dispatch on the exact same package.',
+    createdAt: '2026-08-13T08:20:00.000Z',
+    lineage: {
+      ticketIssue: 106,
+      lineageId: LINEAGE,
+      predecessorWakeId: null,
+      supersedesWakeIds: [],
+    },
+  });
+  const wake = createControlWake({
+    controlIssue: 94,
+    parentCommentId: '5277813712',
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'HANDOFF_READY',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+    lineage: {
+      ticketIssue: 106,
+      lineageId: LINEAGE,
+      predecessorWakeId: predecessor.wakeId,
+      supersedesWakeIds: [predecessor.wakeId],
+    },
+  });
+  assert.equal(wake.schema, 'two-mac.control-wake.v2');
+  assert.deepEqual(Object.keys(wake).sort(), [
+    'assignedMachine', 'bodySha256', 'callbackTaskDigest', 'controlIssue', 'createdAt',
+    'lineageId', 'parentCommentId', 'predecessorWakeId', 'schema', 'supersedesWakeIds',
+    'targetTaskDigest', 'ticketIssue', 'verdict', 'wakeDigest', 'wakeId',
+  ]);
+  assert.equal(predecessor.predecessorWakeId, null);
+  assert.deepEqual(predecessor.supersedesWakeIds, []);
+
+  const comment = composeControlWakeComment(receiptBody, wake);
+  assert.deepEqual(decodeControlWakeMarkers(comment), [wake]);
+  assert.deepEqual(decodeControlWakeComment(comment), { receiptBody, wake });
+
+  // The lineage is part of the identity: the same route with another causal
+  // claim is a different wake, and the v1 record of that route is a third one.
+  const v1 = createControlWake({
+    controlIssue: 94,
+    parentCommentId: '5277813712',
+    assignedMachine: 'mac-b',
+    targetTaskDigest: B_TASK,
+    callbackTaskDigest: A_TASK,
+    verdict: 'HANDOFF_READY',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+  });
+  assert.equal(v1.schema, 'two-mac.control-wake.v1');
+  assert.notEqual(wake.wakeId, v1.wakeId);
+  assert.notEqual(wake.wakeId, predecessor.wakeId);
+});
+
+// F-roundtrip: tampering with any lineage field breaks the wake digest, and the
+// supersedes bounds are enforced on read.
+test('v2 lineage tampering fails the wake digest and supersedes bounds are exact', () => {
+  const receiptBody = 'Exact bounded correction on the same package.';
+  const base = {
+    controlIssue: 94,
+    parentCommentId: '5277813712',
+    assignedMachine: 'mac-a',
+    targetTaskDigest: A_TASK,
+    callbackTaskDigest: null,
+    verdict: 'STOP',
+    receiptBody,
+    createdAt: '2026-08-13T08:24:52.000Z',
+  };
+  const other = `wake_${'1'.repeat(64)}`;
+  const wake = createControlWake({
+    ...base,
+    lineage: {
+      ticketIssue: 106,
+      lineageId: LINEAGE,
+      predecessorWakeId: other,
+      supersedesWakeIds: [],
+    },
+  });
+  for (const [field, value] of [
+    ['ticketIssue', 107],
+    ['lineageId', `lin_${'a'.repeat(32)}`],
+    ['predecessorWakeId', null],
+    ['supersedesWakeIds', [other]],
+  ]) {
+    assert.throws(
+      () => decodeControlWakeMarkers(rawControlWakeMarker({ ...wake, [field]: value })),
+      /digest does not match wake bytes/u,
+      `tampered ${field} must fail the wake digest`,
+    );
+  }
+  assert.deepEqual(decodeControlWakeMarkers(rawControlWakeMarker(wake)), [wake]);
+
+  const bounded = (supersedesWakeIds) => () => createControlWake({
+    ...base,
+    lineage: {
+      ticketIssue: 106,
+      lineageId: LINEAGE,
+      predecessorWakeId: null,
+      supersedesWakeIds,
+    },
+  });
+  const ids = Array.from({ length: 9 }, (item, index) => `wake_${String(index).repeat(64)}`);
+  assert.throws(bounded(ids), /at most 8 entries/u);
+  assert.doesNotThrow(bounded(ids.slice(0, 8)));
+  assert.throws(bounded([other, other]), /must be unique/u);
+  assert.throws(bounded(null), /at most 8 entries/u);
+  assert.throws(bounded(['wake_short']), /supersedesWakeIds entry is invalid/u);
+  assert.throws(
+    () => createControlWake({
+      ...base,
+      lineage: {
+        ticketIssue: 0,
+        lineageId: LINEAGE,
+        predecessorWakeId: null,
+        supersedesWakeIds: [],
+      },
+    }),
+    /ticketIssue must be a positive strict integer/u,
+  );
+  assert.throws(
+    () => createControlWake({
+      ...base,
+      lineage: {
+        ticketIssue: 106,
+        lineageId: 'lin_notHexAtAll',
+        predecessorWakeId: null,
+        supersedesWakeIds: [],
+      },
+    }),
+    /lineageId is invalid/u,
+  );
+  assert.throws(
+    () => createControlWake({
+      ...base,
+      lineage: { ticketIssue: 106, lineageId: LINEAGE, supersedesWakeIds: [] },
+    }),
+    /control wake lineage has unexpected fields/u,
+  );
+
+  // A self-superseding record cannot be minted (the wakeId hashes the claim)
+  // and a hand-written one fails closed on read.
+  assert.throws(
+    () => decodeControlWakeMarkers(
+      rawControlWakeMarker({ ...wake, supersedesWakeIds: [wake.wakeId] }),
+    ),
+    /cannot supersede itself/u,
+  );
+
+  // A v2 schema without the lineage fields is not a readable record.
+  const stripped = { ...wake };
+  delete stripped.supersedesWakeIds;
+  assert.throws(
+    () => decodeControlWakeMarkers(rawControlWakeMarker(stripped)),
+    /control wake has unexpected fields/u,
   );
 });
 

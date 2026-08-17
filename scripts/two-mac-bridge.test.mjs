@@ -677,6 +677,431 @@ test('STOP and AUTHORITY_REQUIRED are typed terminal wakes, not dispatch', () =>
   }
 });
 
+// Causal lineage fixtures, sanitized from the real Issue #94 V32–V37 control
+// chain of 13.08.2026: a Mac A → Mac B dispatch ping-pong where each new
+// dispatch supersedes the previous one, several late STOP terminals arrive from
+// branches that were already superseded, and one executed NEEDS_HELP terminal
+// closes the lineage. Comment ids are sequential placeholders inside the
+// observed range and package identity is replaced; only the causal shape and
+// the arrival order are the real ones.
+const TIER2_TICKET_ISSUE = 106;
+const TIER2_LINEAGE = `lin_${sha256('two-mac.issue-94.v32-v37').slice(0, 32)}`;
+const OTHER_LINEAGE = `lin_${sha256('two-mac.issue-94.unrelated').slice(0, 32)}`;
+
+const TIER2_BASE_COMMENT_ID = '5278600001';
+const TIER2_STEPS = Object.freeze([
+  {
+    name: 'w33', id: '5278600010', to: 'mac-b', verdict: 'HANDOFF_READY',
+    predecessor: null, supersedes: [],
+  },
+  {
+    name: 'w34', id: '5278600020', to: 'mac-b', verdict: 'HANDOFF_READY',
+    predecessor: 'w33', supersedes: ['w33'],
+  },
+  {
+    name: 't33stop', id: '5278600030', to: 'mac-a', verdict: 'STOP',
+    predecessor: 'w33', supersedes: [],
+  },
+  {
+    name: 'w35', id: '5278600040', to: 'mac-b', verdict: 'HANDOFF_READY',
+    predecessor: 'w34', supersedes: ['w34'],
+  },
+  {
+    name: 't34stop', id: '5278600050', to: 'mac-a', verdict: 'STOP',
+    predecessor: 'w34', supersedes: [],
+  },
+  {
+    name: 'w36', id: '5278600060', to: 'mac-b', verdict: 'HANDOFF_READY',
+    predecessor: 'w35', supersedes: ['w35'],
+  },
+  {
+    name: 't35stop', id: '5278600070', to: 'mac-a', verdict: 'STOP',
+    predecessor: 'w35', supersedes: [],
+  },
+  {
+    name: 'w37', id: '5278600080', to: 'mac-b', verdict: 'HANDOFF_READY',
+    predecessor: 'w36', supersedes: ['w36'],
+  },
+  {
+    name: 't36', id: '5278600090', to: 'mac-a', verdict: 'NEEDS_HELP',
+    predecessor: 'w36', supersedes: [],
+  },
+  {
+    name: 't37stop', id: '5278600100', to: 'mac-a', verdict: 'STOP',
+    predecessor: 'w37', supersedes: [],
+  },
+]);
+
+// An unrelated lineage interleaved into the same control Issue: its ids fall
+// between the tier-2 ids, and its last STOP arrives after the tier-2 lineage
+// was already closed by an executed terminal.
+const OTHER_BASE_COMMENT_ID = '5278600005';
+const OTHER_STEPS = Object.freeze([
+  {
+    name: 'w1', id: '5278600015', to: 'mac-b', verdict: 'HANDOFF_READY',
+    predecessor: null, supersedes: [],
+  },
+  {
+    name: 't1stop', id: '5278600025', to: 'mac-a', verdict: 'STOP',
+    predecessor: 'w1', supersedes: [],
+  },
+  {
+    name: 't2stop', id: '5278600095', to: 'mac-a', verdict: 'STOP',
+    predecessor: 'w1', supersedes: [],
+  },
+]);
+
+function chainInstant(index) {
+  return new Date(Date.parse('2026-08-13T10:00:00.000Z') + index * 60_000).toISOString();
+}
+
+function controlChain({
+  steps = TIER2_STEPS,
+  baseCommentId = TIER2_BASE_COMMENT_ID,
+  lineageId = TIER2_LINEAGE,
+  ticketIssue = TIER2_TICKET_ISSUE,
+  withLineage = true,
+} = {}) {
+  const ids = { base: baseCommentId };
+  const wakes = {};
+  const bodies = {};
+  const order = [];
+  const comments = [{
+    id: baseCommentId,
+    body: 'Exact Mac A review receipt; no dispatch in this record.',
+    htmlUrl: `https://github.example/c/${baseCommentId}`,
+    createdAt: chainInstant(0),
+  }];
+  steps.forEach((step, index) => {
+    const receiptBody = `Exact ${step.name} record on the same reviewed package.`;
+    const lineage = withLineage
+      ? {
+        ticketIssue,
+        lineageId,
+        predecessorWakeId: step.predecessor ? wakes[step.predecessor].wakeId : null,
+        supersedesWakeIds: step.supersedes.map((name) => wakes[name].wakeId),
+      }
+      : null;
+    const wake = createControlWake({
+      controlIssue: 94,
+      parentCommentId: comments.at(-1).id,
+      assignedMachine: step.to,
+      targetTaskDigest: step.to === 'mac-b' ? B_TASK : A_TASK,
+      callbackTaskDigest: step.to === 'mac-b' ? A_TASK : null,
+      verdict: step.verdict,
+      receiptBody,
+      createdAt: chainInstant(index + 1),
+      lineage,
+    });
+    ids[step.name] = step.id;
+    wakes[step.name] = wake;
+    bodies[step.name] = receiptBody;
+    order.push(step.name);
+    comments.push({
+      id: step.id,
+      body: composeControlWakeComment(receiptBody, wake),
+      htmlUrl: `https://github.example/c/${step.id}`,
+      createdAt: chainInstant(index + 1),
+    });
+  });
+  return {
+    ids,
+    wakes,
+    bodies,
+    comments,
+    through(name) {
+      return comments.slice(0, order.indexOf(name) + 2);
+    },
+  };
+}
+
+function scanAsMacA(comments, cursor) {
+  return scanControlWakeComments({
+    controlIssue: 94,
+    comments,
+    machine: 'mac-a',
+    taskDigest: A_TASK,
+    lastScannedCommentId: cursor,
+    lastConsumedWakeCommentId: cursor,
+  });
+}
+
+test('F-V34: a late STOP whose predecessor was superseded is a historical noop', () => {
+  const chain = controlChain();
+  // W35 supersedes W34, and only then does W34's own STOP terminal arrive.
+  assert.deepEqual(chain.wakes.w35.supersedesWakeIds, [chain.wakes.w34.wakeId]);
+  assert.equal(chain.wakes.t34stop.predecessorWakeId, chain.wakes.w34.wakeId);
+
+  const result = scanAsMacA(chain.through('t34stop'), chain.ids.w35);
+  assert.deepEqual(result.historicalNoopCommentIds, [chain.ids.t34stop]);
+  assert.equal(result.nextWake, null);
+  assert.equal(result.pendingWakeCount, 0);
+  assert.deepEqual(result.attention, []);
+  // The cursor still advances through the noop, so the pass terminates and no
+  // successor wake can be minted from it.
+  assert.deepEqual(result.cursors, {
+    lastScannedCommentId: chain.ids.t34stop,
+    lastConsumedWakeCommentId: chain.ids.w35,
+    acknowledgeAfterHandlingCommentId: chain.ids.t34stop,
+  });
+});
+
+test('F-V35: the historical-noop rule repeats for every superseded STOP branch', () => {
+  const chain = controlChain();
+  const result = scanAsMacA(chain.through('t35stop'), chain.ids.w34);
+  assert.deepEqual(result.historicalNoopCommentIds, [
+    chain.ids.t33stop,
+    chain.ids.t34stop,
+    chain.ids.t35stop,
+  ]);
+  assert.equal(result.nextWake, null);
+  assert.equal(result.pendingWakeCount, 0);
+  assert.deepEqual(result.attention, []);
+  assert.equal(result.cursors.acknowledgeAfterHandlingCommentId, chain.ids.t35stop);
+});
+
+test('F-V36: an executed terminal is never swallowed by a later supersession claim', () => {
+  const chain = controlChain();
+  // W37 supersedes W36 and T36 is W36's executed NEEDS_HELP terminal: a naive
+  // "predecessor is in some supersedes list" check marks T36 historical here
+  // and loses real execution evidence.
+  assert.deepEqual(chain.wakes.w37.supersedesWakeIds, [chain.wakes.w36.wakeId]);
+  assert.equal(chain.wakes.t36.predecessorWakeId, chain.wakes.w36.wakeId);
+
+  const result = scanAsMacA(chain.comments, chain.ids.w37);
+  assert.notEqual(result.nextWake, null);
+  assert.equal(result.nextWake.commentId, chain.ids.t36);
+  assert.equal(result.nextWake.classification, 'normal');
+  assert.equal(result.nextWake.action, 'DISPATCH');
+  assert.equal(result.nextWake.wake.wakeId, chain.wakes.t36.wakeId);
+  assert.equal(result.nextWake.receiptBody, chain.bodies.t36);
+  assert.equal(result.pendingWakeCount, 1);
+  assert.deepEqual(result.attention, []);
+  assert.equal(result.cursors.acknowledgeAfterHandlingCommentId, chain.ids.t36);
+
+  // Delivered and consumable exactly once.
+  const consumed = scanAsMacA(chain.comments, chain.ids.t36);
+  assert.equal(consumed.nextWake, null);
+  assert.equal(consumed.pendingWakeCount, 0);
+});
+
+test('F-V37: a STOP arriving after the lineage closed is a noop that mints nothing', () => {
+  const chain = controlChain();
+  // W37 is in no supersedes list: this is the lineage-closed branch of the rule.
+  const superseded = Object.values(chain.wakes).flatMap((wake) => wake.supersedesWakeIds);
+  assert.equal(superseded.includes(chain.wakes.w37.wakeId), false);
+  assert.equal(chain.wakes.t36.verdict, 'NEEDS_HELP');
+
+  const result = scanAsMacA(chain.comments, chain.ids.t36);
+  assert.deepEqual(result.historicalNoopCommentIds, [chain.ids.t37stop]);
+  assert.equal(result.nextWake, null);
+  assert.equal(result.pendingWakeCount, 0);
+  assert.deepEqual(result.attention, []);
+  assert.deepEqual(result.cursors, {
+    lastScannedCommentId: chain.ids.t37stop,
+    lastConsumedWakeCommentId: chain.ids.t36,
+    acknowledgeAfterHandlingCommentId: chain.ids.t37stop,
+  });
+});
+
+test('F-NEG-unrelated: another lineage in the same control Issue is never ignored', () => {
+  const tier2 = controlChain();
+  const other = controlChain({
+    steps: OTHER_STEPS,
+    baseCommentId: OTHER_BASE_COMMENT_ID,
+    lineageId: OTHER_LINEAGE,
+    ticketIssue: 121,
+  });
+  const comments = [...tier2.comments, ...other.comments];
+
+  const result = scanAsMacA(comments, '0');
+  assert.equal(result.nextWake.commentId, other.ids.t1stop);
+  assert.equal(result.nextWake.classification, 'normal');
+  assert.equal(result.nextWake.action, 'STOP');
+  assert.equal(result.pendingWakeCount, 3);
+  assert.deepEqual(result.historicalNoopCommentIds, [
+    tier2.ids.t33stop,
+    tier2.ids.t34stop,
+    tier2.ids.t35stop,
+    tier2.ids.t37stop,
+  ]);
+  assert.deepEqual(result.attention, []);
+
+  // Closing the tier-2 lineage never closes the unrelated one.
+  const afterClosure = scanAsMacA(comments, tier2.ids.t36);
+  assert.equal(afterClosure.nextWake.commentId, other.ids.t2stop);
+  assert.equal(afterClosure.nextWake.classification, 'normal');
+  assert.deepEqual(afterClosure.historicalNoopCommentIds, [tier2.ids.t37stop]);
+});
+
+test('a supersession claim from another lineage is ambiguous and fails closed', () => {
+  const base = { name: 'w1', id: '5278700010', to: 'mac-b', verdict: 'HANDOFF_READY' };
+  const terminal = { name: 't1stop', id: '5278700030', to: 'mac-a', verdict: 'STOP' };
+  const build = (claimLineage) => {
+    const chain = controlChain({
+      baseCommentId: '5278700001',
+      steps: [
+        { ...base, predecessor: null, supersedes: [] },
+        { ...terminal, predecessor: 'w1', supersedes: [] },
+      ],
+    });
+    const claimant = createControlWake({
+      controlIssue: 94,
+      parentCommentId: chain.ids.w1,
+      assignedMachine: 'mac-b',
+      targetTaskDigest: B_TASK,
+      callbackTaskDigest: A_TASK,
+      verdict: 'HANDOFF_READY',
+      receiptBody: 'Replacement dispatch minted outside this lineage.',
+      createdAt: chainInstant(9),
+      lineage: {
+        ...claimLineage,
+        predecessorWakeId: null,
+        supersedesWakeIds: [chain.wakes.w1.wakeId],
+      },
+    });
+    const claimComment = {
+      id: '5278700020',
+      body: composeControlWakeComment(
+        'Replacement dispatch minted outside this lineage.',
+        claimant,
+      ),
+      htmlUrl: 'https://github.example/c/5278700020',
+      createdAt: chainInstant(9),
+    };
+    return { chain, comments: [...chain.comments, claimComment] };
+  };
+
+  for (const claimLineage of [
+    { ticketIssue: TIER2_TICKET_ISSUE, lineageId: OTHER_LINEAGE },
+    { ticketIssue: 121, lineageId: TIER2_LINEAGE },
+  ]) {
+    const { chain, comments } = build(claimLineage);
+    const result = scanAsMacA(comments, '0');
+    assert.equal(result.nextWake.commentId, chain.ids.t1stop);
+    assert.equal(result.nextWake.classification, 'ambiguous');
+    assert.equal(result.nextWake.action, 'STOP');
+    assert.deepEqual(result.historicalNoopCommentIds, []);
+    assert.deepEqual(result.attention, [{
+      action: 'NEEDS_HELP',
+      code: 'ambiguous_wake_lineage',
+      commentId: chain.ids.t1stop,
+      commentUrl: `https://github.example/c/${chain.ids.t1stop}`,
+      wakeId: chain.wakes.t1stop.wakeId,
+    }]);
+  }
+
+  // The exact same shape inside one lineage is the provable historical noop.
+  const { chain, comments } = build({
+    ticketIssue: TIER2_TICKET_ISSUE,
+    lineageId: TIER2_LINEAGE,
+  });
+  const sameLineage = scanAsMacA(comments, '0');
+  assert.equal(sameLineage.nextWake, null);
+  assert.deepEqual(sameLineage.historicalNoopCommentIds, [chain.ids.t1stop]);
+  assert.deepEqual(sameLineage.attention, []);
+});
+
+test('F-V1-COMPAT: v1 markers keep the exact pre-lineage observation', () => {
+  const chain = controlChain({ withLineage: false });
+  assert.equal(chain.wakes.t34stop.schema, 'two-mac.control-wake.v1');
+  // Same fixture and same cursor as F-V34: without a causal claim in the record
+  // nothing may be guessed historical, so the late STOP stays actionable.
+  const result = scanAsMacA(chain.through('t34stop'), chain.ids.w35);
+  assert.deepEqual(result.historicalNoopCommentIds, []);
+  assert.equal(result.nextWake.classification, 'normal');
+
+  const { classification, ...legacyNextWake } = result.nextWake;
+  const { historicalNoopCommentIds, ...legacyObservation } = result;
+  assert.deepEqual({ ...legacyObservation, nextWake: legacyNextWake }, {
+    schema: 'two-mac.control-wake-observation.v1',
+    machine: 'mac-a',
+    cursors: {
+      lastScannedCommentId: chain.ids.t34stop,
+      lastConsumedWakeCommentId: chain.ids.w35,
+      acknowledgeAfterHandlingCommentId: chain.ids.t34stop,
+    },
+    attention: [],
+    nextWake: {
+      action: 'STOP',
+      commentId: chain.ids.t34stop,
+      commentUrl: `https://github.example/c/${chain.ids.t34stop}`,
+      receiptBody: chain.bodies.t34stop,
+      wake: chain.wakes.t34stop,
+    },
+    pendingWakeCount: 1,
+  });
+  // The observation is extended by exactly two fields, not reshaped.
+  assert.deepEqual(Object.keys(result), [
+    'schema', 'machine', 'cursors', 'attention', 'historicalNoopCommentIds',
+    'nextWake', 'pendingWakeCount',
+  ]);
+  assert.deepEqual(Object.keys(result.nextWake), [
+    'action', 'classification', 'commentId', 'commentUrl', 'receiptBody', 'wake',
+  ]);
+});
+
+test('F-DEDUPE-2829: a stale cursor and a manual redelivery yield exactly one record', () => {
+  const chain = controlChain();
+  // The #28/#29 delivery race observed on Issue #107: the same exact wake bytes
+  // are posted a second time while the reader cursor is still behind both.
+  const original = chain.comments.find((comment) => comment.id === chain.ids.t36);
+  const redelivered = {
+    ...original,
+    id: '5296770192',
+    htmlUrl: 'https://github.example/c/5296770192',
+  };
+  assert.equal(redelivered.body, original.body);
+  const comments = [...chain.comments, redelivered];
+
+  const result = scanAsMacA(comments, chain.ids.w37);
+  assert.equal(result.pendingWakeCount, 1);
+  assert.equal(result.nextWake.commentId, chain.ids.t36);
+  assert.equal(result.nextWake.classification, 'normal');
+  assert.deepEqual(result.historicalNoopCommentIds, [chain.ids.t37stop]);
+  assert.deepEqual(result.attention, []);
+  assert.equal(result.cursors.acknowledgeAfterHandlingCommentId, chain.ids.t36);
+
+  // Acknowledging the canonical record retires the duplicate too: no loss and
+  // no second delivery.
+  const acknowledged = scanAsMacA(comments, chain.ids.t36);
+  assert.equal(acknowledged.nextWake, null);
+  assert.equal(acknowledged.pendingWakeCount, 0);
+  assert.deepEqual(acknowledged.attention, []);
+});
+
+test('a lineage claim never bypasses the exact target binding check', () => {
+  const chain = controlChain();
+  const receiptBody = 'Late STOP bound to a stale Mac A task.';
+  const stale = createControlWake({
+    controlIssue: 94,
+    parentCommentId: chain.ids.t37stop,
+    assignedMachine: 'mac-a',
+    targetTaskDigest: 'f'.repeat(64),
+    callbackTaskDigest: null,
+    verdict: 'STOP',
+    receiptBody,
+    createdAt: chainInstant(20),
+    lineage: {
+      ticketIssue: TIER2_TICKET_ISSUE,
+      lineageId: TIER2_LINEAGE,
+      predecessorWakeId: chain.wakes.w37.wakeId,
+      supersedesWakeIds: [],
+    },
+  });
+  const comments = [...chain.comments, {
+    id: '5278600110',
+    body: composeControlWakeComment(receiptBody, stale),
+    htmlUrl: 'https://github.example/c/5278600110',
+    createdAt: chainInstant(20),
+  }];
+  const result = scanAsMacA(comments, chain.ids.t36);
+  assert.deepEqual(result.attention.map((item) => [item.action, item.code, item.commentId]), [
+    ['STOP', 'target_task_binding_mismatch', '5278600110'],
+  ]);
+  assert.equal(result.historicalNoopCommentIds.includes('5278600110'), false);
+});
+
 test('publish-wake posts receipt and route marker atomically, then the same scanner selects it', async () => {
   const parent = {
     id: '5277813712',

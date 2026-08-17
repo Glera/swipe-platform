@@ -5,6 +5,11 @@ export const EVENT_SCHEMA = 'two-mac.bridge-event.v1';
 export const MACHINE_BINDING_SCHEMA = 'two-mac.bridge-machine-binding.v1';
 export const MACHINE_HOLD_SCHEMA = 'two-mac.bridge-machine-hold.v1';
 export const CONTROL_WAKE_SCHEMA = 'two-mac.control-wake.v1';
+// v2 adds one declarative causal lineage to the same atomic wake record. The
+// comment marker envelope stays `two-mac-bridge-control-wake:v1`: the marker
+// version is the encoding, the payload `schema` is the record contract, and
+// both payload schemas are read from the same marker (dual-read).
+export const CONTROL_WAKE_SCHEMA_V2 = 'two-mac.control-wake.v2';
 
 export const MACHINES = Object.freeze(['mac-a', 'mac-b']);
 export const STATES = Object.freeze([
@@ -26,6 +31,7 @@ const ERROR_CODE = /^[a-z][a-z0-9_]{2,95}$/u;
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
 const EVENT_ID = /^evt_[0-9a-f]{64}$/u;
 const WAKE_ID = /^wake_[0-9a-f]{64}$/u;
+const LINEAGE_ID = /^lin_[0-9a-f]{16,64}$/u;
 const COMMENT_ID = /^[1-9][0-9]{0,31}$/u;
 
 const TICKET_KEYS = Object.freeze([
@@ -104,6 +110,33 @@ const CONTROL_WAKE_KEYS = Object.freeze([
   'wakeDigest',
   'wakeId',
 ]);
+
+const CONTROL_WAKE_V2_KEYS = Object.freeze([
+  'assignedMachine',
+  'bodySha256',
+  'callbackTaskDigest',
+  'controlIssue',
+  'createdAt',
+  'lineageId',
+  'parentCommentId',
+  'predecessorWakeId',
+  'schema',
+  'supersedesWakeIds',
+  'targetTaskDigest',
+  'ticketIssue',
+  'verdict',
+  'wakeDigest',
+  'wakeId',
+]);
+
+const CONTROL_WAKE_LINEAGE_KEYS = Object.freeze([
+  'lineageId',
+  'predecessorWakeId',
+  'supersedesWakeIds',
+  'ticketIssue',
+]);
+
+const CONTROL_WAKE_SUPERSEDES_LIMIT = 8;
 
 const CONTROL_WAKE_VERDICTS = Object.freeze([
   'AUTHORITY_REQUIRED',
@@ -329,7 +362,7 @@ function expectedControlWakeDigest(wake) {
 }
 
 function expectedControlWakeId(wake) {
-  return `wake_${sha256(canonicalJson({
+  const route = {
     assignedMachine: wake.assignedMachine,
     bodySha256: wake.bodySha256,
     callbackTaskDigest: wake.callbackTaskDigest,
@@ -337,12 +370,55 @@ function expectedControlWakeId(wake) {
     parentCommentId: String(wake.parentCommentId),
     targetTaskDigest: wake.targetTaskDigest,
     verdict: wake.verdict,
+  };
+  // v1 derivation is frozen: the same route bytes must keep the same wakeId
+  // so replay detection and already-consumed suppression stay exact.
+  if (wake.schema !== CONTROL_WAKE_SCHEMA_V2) return `wake_${sha256(canonicalJson(route))}`;
+  return `wake_${sha256(canonicalJson({
+    ...route,
+    lineageId: wake.lineageId,
+    predecessorWakeId: wake.predecessorWakeId,
+    schema: CONTROL_WAKE_SCHEMA_V2,
+    supersedesWakeIds: wake.supersedesWakeIds,
+    ticketIssue: wake.ticketIssue,
   }))}`;
 }
 
+function validateControlWakeLineage(wake) {
+  if (!Number.isSafeInteger(wake.ticketIssue) || wake.ticketIssue < 1) {
+    throw new Error('control wake ticketIssue must be a positive strict integer');
+  }
+  if (typeof wake.lineageId !== 'string' || !LINEAGE_ID.test(wake.lineageId)) {
+    throw new Error('control wake lineageId is invalid');
+  }
+  if (wake.predecessorWakeId !== null
+      && (typeof wake.predecessorWakeId !== 'string' || !WAKE_ID.test(wake.predecessorWakeId))) {
+    throw new Error('control wake predecessorWakeId must be null or one wake ID');
+  }
+  const supersedes = wake.supersedesWakeIds;
+  if (!Array.isArray(supersedes) || supersedes.length > CONTROL_WAKE_SUPERSEDES_LIMIT) {
+    throw new Error(
+      `control wake supersedesWakeIds must be an array with at most ${CONTROL_WAKE_SUPERSEDES_LIMIT} entries`,
+    );
+  }
+  if (supersedes.some((value) => typeof value !== 'string' || !WAKE_ID.test(value))) {
+    throw new Error('control wake supersedesWakeIds entry is invalid');
+  }
+  if (new Set(supersedes).size !== supersedes.length) {
+    throw new Error('control wake supersedesWakeIds must be unique');
+  }
+  if (supersedes.includes(wake.wakeId)) {
+    throw new Error('control wake cannot supersede itself');
+  }
+}
+
 export function validateControlWake(wake) {
-  exactKeys(wake, CONTROL_WAKE_KEYS, 'control wake');
-  if (wake.schema !== CONTROL_WAKE_SCHEMA) throw new Error('control wake schema is invalid');
+  const lineageBearing = Boolean(wake) && typeof wake === 'object' && !Array.isArray(wake)
+    && wake.schema === CONTROL_WAKE_SCHEMA_V2;
+  exactKeys(wake, lineageBearing ? CONTROL_WAKE_V2_KEYS : CONTROL_WAKE_KEYS, 'control wake');
+  if (!lineageBearing && wake.schema !== CONTROL_WAKE_SCHEMA) {
+    throw new Error('control wake schema is invalid');
+  }
   if (!WAKE_ID.test(String(wake.wakeId || ''))) throw new Error('control wake wakeId is invalid');
   if (!Number.isSafeInteger(wake.controlIssue) || wake.controlIssue < 1) {
     throw new Error('control wake controlIssue must be a positive strict integer');
@@ -370,6 +446,7 @@ export function validateControlWake(wake) {
     throw new Error('control wake bodySha256 is invalid');
   }
   canonicalInstant(wake.createdAt, 'control wake createdAt');
+  if (lineageBearing) validateControlWakeLineage(wake);
   if (!SHA256.test(String(wake.wakeDigest || ''))
       || wake.wakeDigest !== expectedControlWakeDigest(wake)) {
     throw new Error('control wake digest does not match wake bytes');
@@ -390,6 +467,7 @@ export function createControlWake({
   verdict,
   receiptBody,
   createdAt,
+  lineage = null,
 }) {
   if (typeof receiptBody !== 'string' || receiptBody.length < 1
       || Buffer.byteLength(receiptBody, 'utf8') > 32_768
@@ -398,29 +476,65 @@ export function createControlWake({
     throw new Error('control wake receipt body is invalid');
   }
   const bodySha256 = sha256(receiptBody);
-  const wake = {
-    schema: CONTROL_WAKE_SCHEMA,
-    wakeId: expectedControlWakeId({
-      assignedMachine,
-      bodySha256,
-      callbackTaskDigest,
-      controlIssue,
-      parentCommentId: String(parentCommentId),
-      targetTaskDigest,
-      verdict,
-    }),
-    wakeDigest: '',
+  const route = {
+    assignedMachine,
+    bodySha256,
+    callbackTaskDigest,
     controlIssue,
     parentCommentId: String(parentCommentId),
-    assignedMachine,
     targetTaskDigest,
-    callbackTaskDigest,
     verdict,
-    bodySha256,
-    createdAt,
   };
+  // Absent lineage emits the exact v1 record: v2 writing stays opt-in until a
+  // separate rollout step flips call sites.
+  const wake = lineage === null
+    ? {
+      schema: CONTROL_WAKE_SCHEMA,
+      wakeId: expectedControlWakeId(route),
+      wakeDigest: '',
+      controlIssue,
+      parentCommentId: String(parentCommentId),
+      assignedMachine,
+      targetTaskDigest,
+      callbackTaskDigest,
+      verdict,
+      bodySha256,
+      createdAt,
+    }
+    : controlWakeWithLineage({ route, lineage, createdAt });
   wake.wakeDigest = expectedControlWakeDigest(wake);
   return validateControlWake(wake);
+}
+
+function controlWakeWithLineage({ route, lineage, createdAt }) {
+  exactKeys(lineage, CONTROL_WAKE_LINEAGE_KEYS, 'control wake lineage');
+  const supersedesWakeIds = Array.isArray(lineage.supersedesWakeIds)
+    ? [...lineage.supersedesWakeIds]
+    : lineage.supersedesWakeIds;
+  const claim = {
+    lineageId: lineage.lineageId,
+    predecessorWakeId: lineage.predecessorWakeId,
+    schema: CONTROL_WAKE_SCHEMA_V2,
+    supersedesWakeIds,
+    ticketIssue: lineage.ticketIssue,
+  };
+  return {
+    schema: CONTROL_WAKE_SCHEMA_V2,
+    wakeId: expectedControlWakeId({ ...route, ...claim }),
+    wakeDigest: '',
+    controlIssue: route.controlIssue,
+    parentCommentId: route.parentCommentId,
+    assignedMachine: route.assignedMachine,
+    targetTaskDigest: route.targetTaskDigest,
+    callbackTaskDigest: route.callbackTaskDigest,
+    verdict: route.verdict,
+    bodySha256: route.bodySha256,
+    createdAt,
+    ticketIssue: lineage.ticketIssue,
+    lineageId: lineage.lineageId,
+    predecessorWakeId: lineage.predecessorWakeId,
+    supersedesWakeIds,
+  };
 }
 
 function validateEvidence(evidence) {
@@ -777,6 +891,8 @@ export function decodeMachineHoldMarkers(body) {
   return decodeMarkers(body, 'machine-hold').map(validateMachineHold);
 }
 
+// Dual-read: one marker kind carries both the v1 and the lineage-bearing v2
+// payload; `validateControlWake` dispatches on the payload schema.
 export function decodeControlWakeMarkers(body) {
   return decodeMarkers(body, 'control-wake').map(validateControlWake);
 }
