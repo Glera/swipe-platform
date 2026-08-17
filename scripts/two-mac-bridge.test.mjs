@@ -681,9 +681,9 @@ test('STOP and AUTHORITY_REQUIRED are typed terminal wakes, not dispatch', () =>
 // chain of 13.08.2026: a Mac A → Mac B dispatch ping-pong where each new
 // dispatch supersedes the previous one, several late STOP terminals arrive from
 // branches that were already superseded, and one executed NEEDS_HELP terminal
-// closes the lineage. Comment ids are sequential placeholders inside the
-// observed range and package identity is replaced; only the causal shape and
-// the arrival order are the real ones.
+// asks for help from a branch nothing superseded. Comment ids are sequential
+// placeholders inside the observed range and package identity is replaced; only
+// the causal shape and the arrival order are the real ones.
 const TIER2_TICKET_ISSUE = 106;
 const TIER2_LINEAGE = `lin_${sha256('two-mac.issue-94.v32-v37').slice(0, 32)}`;
 const OTHER_LINEAGE = `lin_${sha256('two-mac.issue-94.unrelated').slice(0, 32)}`;
@@ -734,7 +734,7 @@ const TIER2_STEPS = Object.freeze([
 
 // An unrelated lineage interleaved into the same control Issue: its ids fall
 // between the tier-2 ids, and its last STOP arrives after the tier-2 lineage
-// was already closed by an executed terminal.
+// already delivered an executed terminal.
 const OTHER_BASE_COMMENT_ID = '5278600005';
 const OTHER_STEPS = Object.freeze([
   {
@@ -748,6 +748,29 @@ const OTHER_STEPS = Object.freeze([
   {
     name: 't2stop', id: '5278600095', to: 'mac-a', verdict: 'STOP',
     predecessor: 'w1', supersedes: [],
+  },
+]);
+
+// One lineage where a terminal verdict is followed by more work: a NEEDS_HELP
+// terminal, then a fresh same-lineage dispatch that nothing supersedes, then
+// that dispatch's own STOP terminal. Nothing here is superseded at all.
+const REOPENED_BASE_COMMENT_ID = '5278800001';
+const REOPENED_STEPS = Object.freeze([
+  {
+    name: 'w1', id: '5278800010', to: 'mac-b', verdict: 'HANDOFF_READY',
+    predecessor: null, supersedes: [],
+  },
+  {
+    name: 't1help', id: '5278800020', to: 'mac-a', verdict: 'NEEDS_HELP',
+    predecessor: 'w1', supersedes: [],
+  },
+  {
+    name: 'wnext', id: '5278800030', to: 'mac-b', verdict: 'HANDOFF_READY',
+    predecessor: 't1help', supersedes: [],
+  },
+  {
+    name: 'tnextstop', id: '5278800040', to: 'mac-a', verdict: 'STOP',
+    predecessor: 'wnext', supersedes: [],
   },
 ]);
 
@@ -875,33 +898,108 @@ test('F-V36: an executed terminal is never swallowed by a later supersession cla
   assert.equal(result.nextWake.action, 'DISPATCH');
   assert.equal(result.nextWake.wake.wakeId, chain.wakes.t36.wakeId);
   assert.equal(result.nextWake.receiptBody, chain.bodies.t36);
-  assert.equal(result.pendingWakeCount, 1);
+  // T36 and the never-superseded T37stop terminal behind it.
+  assert.equal(result.pendingWakeCount, 2);
   assert.deepEqual(result.attention, []);
   assert.equal(result.cursors.acknowledgeAfterHandlingCommentId, chain.ids.t36);
 
-  // Delivered and consumable exactly once.
+  // Delivered and consumable exactly once: acknowledging T36 hands over to the
+  // next terminal rather than re-offering this one.
   const consumed = scanAsMacA(chain.comments, chain.ids.t36);
-  assert.equal(consumed.nextWake, null);
-  assert.equal(consumed.pendingWakeCount, 0);
+  assert.equal(consumed.nextWake.commentId, chain.ids.t37stop);
+  assert.equal(consumed.pendingWakeCount, 1);
+
+  // reg-P1-late-needs-help, the post-closure variant of the same rule: the
+  // lineage already delivered a NEEDS_HELP terminal (T36) AND W37 is superseded
+  // by a fresh dispatch, yet W37's own late NEEDS_HELP terminal is still real
+  // execution evidence and is delivered.
+  const extended = controlChain({
+    steps: [
+      ...TIER2_STEPS,
+      {
+        name: 'w38', id: '5278600110', to: 'mac-b', verdict: 'HANDOFF_READY',
+        predecessor: 'w37', supersedes: ['w37'],
+      },
+      {
+        name: 't37help', id: '5278600120', to: 'mac-a', verdict: 'NEEDS_HELP',
+        predecessor: 'w37', supersedes: [],
+      },
+    ],
+  });
+  const late = scanAsMacA(extended.comments, extended.ids.t37stop);
+  assert.deepEqual(extended.wakes.w38.supersedesWakeIds, [extended.wakes.w37.wakeId]);
+  assert.equal(late.nextWake.commentId, extended.ids.t37help);
+  assert.equal(late.nextWake.classification, 'normal');
+  assert.equal(late.nextWake.action, 'DISPATCH');
+  assert.equal(late.pendingWakeCount, 1);
+  assert.deepEqual(late.historicalNoopCommentIds, []);
+  assert.deepEqual(late.attention, []);
 });
 
-test('F-V37: a STOP arriving after the lineage closed is a noop that mints nothing', () => {
+test('F-V37: a late STOP on a never-superseded branch is delivered, not swallowed', () => {
   const chain = controlChain();
-  // W37 is in no supersedes list: this is the lineage-closed branch of the rule.
+  // W37 is in no supersedes list, so T37stop is the first and only terminal of a
+  // live branch. The earlier NEEDS_HELP terminal T36 belongs to a different
+  // branch and is not evidence about this one: silencing T37stop because "the
+  // lineage looked closed" would drop a real ordering terminal.
   const superseded = Object.values(chain.wakes).flatMap((wake) => wake.supersedesWakeIds);
   assert.equal(superseded.includes(chain.wakes.w37.wakeId), false);
   assert.equal(chain.wakes.t36.verdict, 'NEEDS_HELP');
+  assert.equal(chain.wakes.t37stop.predecessorWakeId, chain.wakes.w37.wakeId);
 
   const result = scanAsMacA(chain.comments, chain.ids.t36);
-  assert.deepEqual(result.historicalNoopCommentIds, [chain.ids.t37stop]);
-  assert.equal(result.nextWake, null);
-  assert.equal(result.pendingWakeCount, 0);
+  assert.deepEqual(result.historicalNoopCommentIds, []);
+  assert.equal(result.nextWake.commentId, chain.ids.t37stop);
+  assert.equal(result.nextWake.classification, 'normal');
+  assert.equal(result.nextWake.action, 'STOP');
+  assert.equal(result.nextWake.wake.wakeId, chain.wakes.t37stop.wakeId);
+  assert.equal(result.pendingWakeCount, 1);
   assert.deepEqual(result.attention, []);
   assert.deepEqual(result.cursors, {
     lastScannedCommentId: chain.ids.t37stop,
     lastConsumedWakeCommentId: chain.ids.t36,
     acknowledgeAfterHandlingCommentId: chain.ids.t37stop,
   });
+
+  // Delivered and consumable exactly once.
+  const consumed = scanAsMacA(chain.comments, chain.ids.t37stop);
+  assert.equal(consumed.nextWake, null);
+  assert.equal(consumed.pendingWakeCount, 0);
+});
+
+test('reg-P1-dispatch-after-close: a dispatch minted after a terminal keeps a live STOP', () => {
+  // The exact shape the removed closed-lineage arm swallowed: a NEEDS_HELP
+  // terminal, then work continues and a NEW dispatch is minted in the same
+  // lineage, and only then does that dispatch's own STOP terminal arrive. W_next
+  // is in no supersedes list, so its terminal is live in every direction.
+  const chain = controlChain({
+    baseCommentId: REOPENED_BASE_COMMENT_ID,
+    steps: REOPENED_STEPS,
+  });
+  const superseded = Object.values(chain.wakes).flatMap((wake) => wake.supersedesWakeIds);
+  assert.deepEqual(superseded, []);
+  assert.equal(chain.wakes.t1help.verdict, 'NEEDS_HELP');
+  assert.equal(chain.wakes.tnextstop.predecessorWakeId, chain.wakes.wnext.wakeId);
+
+  const result = scanAsMacA(chain.comments, chain.ids.t1help);
+  assert.equal(result.nextWake.commentId, chain.ids.tnextstop);
+  assert.equal(result.nextWake.classification, 'normal');
+  assert.equal(result.nextWake.action, 'STOP');
+  assert.equal(result.nextWake.wake.wakeId, chain.wakes.tnextstop.wakeId);
+  assert.equal(result.pendingWakeCount, 1);
+  assert.deepEqual(result.historicalNoopCommentIds, []);
+  assert.deepEqual(result.attention, []);
+  assert.equal(result.cursors.acknowledgeAfterHandlingCommentId, chain.ids.tnextstop);
+
+  // Consumable exactly once, and the earlier NEEDS_HELP terminal on the first
+  // branch is delivered too — nothing in this lineage is silenced.
+  const consumed = scanAsMacA(chain.comments, chain.ids.tnextstop);
+  assert.equal(consumed.nextWake, null);
+  assert.equal(consumed.pendingWakeCount, 0);
+  const fromStart = scanAsMacA(chain.comments, '0');
+  assert.equal(fromStart.pendingWakeCount, 2);
+  assert.equal(fromStart.nextWake.commentId, chain.ids.t1help);
+  assert.deepEqual(fromStart.historicalNoopCommentIds, []);
 });
 
 test('F-NEG-unrelated: another lineage in the same control Issue is never ignored', () => {
@@ -918,20 +1016,21 @@ test('F-NEG-unrelated: another lineage in the same control Issue is never ignore
   assert.equal(result.nextWake.commentId, other.ids.t1stop);
   assert.equal(result.nextWake.classification, 'normal');
   assert.equal(result.nextWake.action, 'STOP');
-  assert.equal(result.pendingWakeCount, 3);
+  assert.equal(result.pendingWakeCount, 4);
   assert.deepEqual(result.historicalNoopCommentIds, [
     tier2.ids.t33stop,
     tier2.ids.t34stop,
     tier2.ids.t35stop,
-    tier2.ids.t37stop,
   ]);
   assert.deepEqual(result.attention, []);
 
-  // Closing the tier-2 lineage never closes the unrelated one.
+  // A dense supersession record in the tier-2 lineage never silences a terminal
+  // of the unrelated one, whose own branch nothing ever superseded.
   const afterClosure = scanAsMacA(comments, tier2.ids.t36);
   assert.equal(afterClosure.nextWake.commentId, other.ids.t2stop);
   assert.equal(afterClosure.nextWake.classification, 'normal');
-  assert.deepEqual(afterClosure.historicalNoopCommentIds, [tier2.ids.t37stop]);
+  assert.equal(afterClosure.pendingWakeCount, 2);
+  assert.deepEqual(afterClosure.historicalNoopCommentIds, []);
 });
 
 test('a supersession claim from another lineage is ambiguous and fails closed', () => {
@@ -1055,19 +1154,27 @@ test('F-DEDUPE-2829: a stale cursor and a manual redelivery yield exactly one re
   const comments = [...chain.comments, redelivered];
 
   const result = scanAsMacA(comments, chain.ids.w37);
-  assert.equal(result.pendingWakeCount, 1);
+  // T36 and the live T37stop terminal; the redelivered T36 bytes are not a
+  // third wake.
+  assert.equal(result.pendingWakeCount, 2);
   assert.equal(result.nextWake.commentId, chain.ids.t36);
   assert.equal(result.nextWake.classification, 'normal');
-  assert.deepEqual(result.historicalNoopCommentIds, [chain.ids.t37stop]);
+  assert.deepEqual(result.historicalNoopCommentIds, []);
   assert.deepEqual(result.attention, []);
   assert.equal(result.cursors.acknowledgeAfterHandlingCommentId, chain.ids.t36);
 
   // Acknowledging the canonical record retires the duplicate too: no loss and
-  // no second delivery.
+  // no second delivery, only the genuinely next terminal remains.
   const acknowledged = scanAsMacA(comments, chain.ids.t36);
-  assert.equal(acknowledged.nextWake, null);
-  assert.equal(acknowledged.pendingWakeCount, 0);
+  assert.equal(acknowledged.pendingWakeCount, 1);
+  assert.equal(acknowledged.nextWake.commentId, chain.ids.t37stop);
   assert.deepEqual(acknowledged.attention, []);
+
+  // Once that is acknowledged as well, the duplicate still mints nothing.
+  const drained = scanAsMacA(comments, chain.ids.t37stop);
+  assert.equal(drained.nextWake, null);
+  assert.equal(drained.pendingWakeCount, 0);
+  assert.deepEqual(drained.attention, []);
 });
 
 test('a lineage claim never bypasses the exact target binding check', () => {

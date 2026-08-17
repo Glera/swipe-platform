@@ -60,8 +60,8 @@ export const OWNER_MACHINES = Object.freeze(['mac-a', 'mac-b']);
 export const OWNER_TASK_STATUSES = Object.freeze(['active', 'idle', 'unknown']);
 export const DELIVERY_STATES = Object.freeze(['ambiguous', 'delivered', 'pending']);
 
-// Sub-second jitter in a recorded observation must not mint a new idle epoch.
-export const OWNER_TASK_OBSERVATION_FLOOR_MS = 1_000;
+// Sub-second jitter in a recorded idle onset must not mint a new idle epoch.
+export const OWNER_TASK_IDLE_SINCE_FLOOR_MS = 1_000;
 
 export const OWNERS_AVAILABLE_MESSAGE = 'Оба мака свободны. Можно дать следующую задачу.';
 
@@ -85,7 +85,18 @@ const OWNERS_AVAILABILITY_STATE_KEYS = Object.freeze([
 ]);
 
 const BINDINGS_KEYS = Object.freeze(['macA', 'macB']);
-const OWNER_TASK_KEYS = Object.freeze(['machine', 'observedAt', 'status', 'taskDigest']);
+// Freshness and identity are two different facts about one owner task and never
+// share a field. `statusObservedAt` is re-read on every poll and answers only
+// "is this observation still recent enough to trust"; `idleSinceAt` is the onset
+// of the CURRENT status stretch and moves only when the status itself changes,
+// so it — and never the observation instant — carries idle-stretch identity.
+const OWNER_TASK_KEYS = Object.freeze([
+  'idleSinceAt',
+  'machine',
+  'status',
+  'statusObservedAt',
+  'taskDigest',
+]);
 const AVAILABILITY_KEYS = Object.freeze(['available', 'idleEpochId', 'reason']);
 const IDLE_EPOCH_RECEIPT_KEYS = Object.freeze([
   'deliveryState',
@@ -185,21 +196,27 @@ function ownerTaskReason(task) {
   if (typeof task.taskDigest !== 'string' || !SHA256.test(task.taskDigest)) {
     return 'owner_task_invalid';
   }
-  if (typeof task.observedAt !== 'string'
-      || !CANONICAL_INSTANT.test(task.observedAt)
-      || Number.isNaN(Date.parse(task.observedAt))) {
-    return 'owner_task_invalid';
+  for (const key of ['idleSinceAt', 'statusObservedAt']) {
+    if (typeof task[key] !== 'string'
+        || !CANONICAL_INSTANT.test(task[key])
+        || Number.isNaN(Date.parse(task[key]))) {
+      return 'owner_task_invalid';
+    }
   }
   if (!OWNER_TASK_STATUSES.includes(task.status)) return 'owner_task_invalid';
   return null;
 }
 
 /**
- * The idle epoch identifies one uninterrupted idle stretch. It is derived only
- * from facts that stay constant while nothing happens — both bindings, both
- * owner tasks with the instant they were observed to become idle, and the last
- * activity marker — so a repeated pass over an unchanged world yields the same
- * id and cannot mint a second message. `now` is deliberately absent.
+ * The idle epoch identifies one uninterrupted idle stretch. It hashes only
+ * stable identity — both bindings, both owner tasks with the onset of their
+ * current stretch, and the last activity marker — so a repeated pass over an
+ * unchanged world yields the same id and cannot mint a second message.
+ *
+ * `statusObservedAt` is deliberately absent, and so is `now`: an observation
+ * instant advances on every poll while nothing actually happens, so hashing it
+ * would re-mint the epoch every tick and announce the same idle stretch again
+ * and again. Freshness is proven separately, against the staleness bound.
  */
 function idleEpochIdFrom(state) {
   return sha256(canonicalJson({
@@ -208,10 +225,10 @@ function idleEpochIdFrom(state) {
     ownerTasks: [...state.ownerTasks]
       .sort((left, right) => left.machine.localeCompare(right.machine))
       .map((task) => ({
-        machine: task.machine,
-        observedAtFloor: Math.floor(
-          Date.parse(task.observedAt) / OWNER_TASK_OBSERVATION_FLOOR_MS,
+        idleSinceFloor: Math.floor(
+          Date.parse(task.idleSinceAt) / OWNER_TASK_IDLE_SINCE_FLOOR_MS,
         ),
+        machine: task.machine,
         taskDigest: task.taskDigest,
       })),
   }));
@@ -227,7 +244,7 @@ export function deriveOwnersAvailability(state, { now, stalenessMs } = {}) {
   if (!Number.isSafeInteger(stalenessMs) || stalenessMs < 1) {
     throw new Error('owners availability requires a positive staleness bound in milliseconds');
   }
-  const observedAt = instantFrom(now, 'owners availability').getTime();
+  const nowMs = instantFrom(now, 'owners availability').getTime();
   exactKeys(state.bindings, BINDINGS_KEYS, 'owners availability bindings');
   countOf(state.unreadTargetedWakes, 'owners availability unreadTargetedWakes');
   countOf(state.operatorDecisionCount, 'owners availability operatorDecisionCount');
@@ -259,8 +276,10 @@ export function deriveOwnersAvailability(state, { now, stalenessMs } = {}) {
   if (state.ownerTasks.some((task) => task.status === 'unknown')) {
     return refuse('owner_task_unknown');
   }
+  // Freshness is proven from the observation instant alone. A long idle stretch
+  // is not stale: only an owner nobody has looked at recently is.
   if (state.ownerTasks.some((task) => {
-    const age = observedAt - Date.parse(task.observedAt);
+    const age = nowMs - Date.parse(task.statusObservedAt);
     return age < 0 || age > stalenessMs;
   })) {
     return refuse('owner_task_stale');

@@ -35,12 +35,24 @@ function instant(offsetMs = 0) {
   return new Date(Date.parse(OBSERVED_AT) + offsetMs).toISOString();
 }
 
+// One owner task entry. Freshness (`statusObservedAt`, re-read every poll) and
+// idle-stretch identity (`idleSinceAt`, the onset of the current status) are
+// separate inputs, so a test can move either one without moving the other.
+function ownerTask(machine, {
+  taskDigest = machine === 'mac-a' ? A_TASK : B_TASK,
+  status = 'idle',
+  idleSinceAt,
+  statusObservedAt,
+} = {}) {
+  return { machine, taskDigest, status, idleSinceAt, statusObservedAt };
+}
+
 function idleState(overrides = {}) {
   return {
     bindings: { macA: 'c'.repeat(64), macB: 'd'.repeat(64) },
     ownerTasks: [
-      { machine: 'mac-a', taskDigest: A_TASK, status: 'idle', observedAt: instant(-60_000) },
-      { machine: 'mac-b', taskDigest: B_TASK, status: 'idle', observedAt: instant(-30_000) },
+      ownerTask('mac-a', { idleSinceAt: instant(-60_000), statusObservedAt: instant(-60_000) }),
+      ownerTask('mac-b', { idleSinceAt: instant(-30_000), statusObservedAt: instant(-30_000) }),
     ],
     unreadTargetedWakes: 0,
     activeSignals: [],
@@ -137,45 +149,38 @@ test('owners are available only when both bindings, both idle tasks and zero sig
 });
 
 test('an unknown, busy, stale or conflicting owner is a typed refusal, not an exception', () => {
-  const busy = (status) => idleState({
+  const withMacA = (overrides) => idleState({
     ownerTasks: [
-      { machine: 'mac-a', taskDigest: A_TASK, status, observedAt: instant(-60_000) },
-      { machine: 'mac-b', taskDigest: B_TASK, status: 'idle', observedAt: instant(-30_000) },
+      ownerTask('mac-a', {
+        idleSinceAt: instant(-60_000), statusObservedAt: instant(-60_000), ...overrides,
+      }),
+      ownerTask('mac-b', { idleSinceAt: instant(-30_000), statusObservedAt: instant(-30_000) }),
     ],
   });
   const cases = [
     [idleState({ bindings: { macA: null, macB: 'd'.repeat(64) } }), 'bindings_unknown'],
-    [busy('active'), 'owner_task_busy'],
-    [busy('unknown'), 'owner_task_unknown'],
-    [busy('paused'), 'owner_task_invalid'],
+    [withMacA({ status: 'active' }), 'owner_task_busy'],
+    [withMacA({ status: 'unknown' }), 'owner_task_unknown'],
+    [withMacA({ status: 'paused' }), 'owner_task_invalid'],
+    [withMacA({ idleSinceAt: undefined }), 'owner_task_invalid'],
+    [withMacA({ statusObservedAt: undefined }), 'owner_task_invalid'],
     [idleState({
       ownerTasks: [
-        { machine: 'mac-a', taskDigest: A_TASK, status: 'idle', observedAt: instant(-60_000) },
+        ownerTask('mac-a', { idleSinceAt: instant(-60_000), statusObservedAt: instant(-60_000) }),
       ],
     }), 'owner_task_missing'],
     [idleState({
       ownerTasks: [
         ...idleState().ownerTasks,
-        { machine: 'mac-b', taskDigest: 'e'.repeat(64), status: 'idle', observedAt: instant(0) },
+        ownerTask('mac-b', {
+          taskDigest: 'e'.repeat(64), idleSinceAt: instant(0), statusObservedAt: instant(0),
+        }),
       ],
     }), 'owner_task_conflicting'],
-    [idleState({
-      ownerTasks: [
-        {
-          machine: 'mac-a',
-          taskDigest: A_TASK,
-          status: 'idle',
-          observedAt: instant(-STALENESS_MS - 1),
-        },
-        { machine: 'mac-b', taskDigest: B_TASK, status: 'idle', observedAt: instant(-30_000) },
-      ],
-    }), 'owner_task_stale'],
-    [idleState({
-      ownerTasks: [
-        { machine: 'mac-a', taskDigest: A_TASK, status: 'idle', observedAt: instant(60_000) },
-        { machine: 'mac-b', taskDigest: B_TASK, status: 'idle', observedAt: instant(-30_000) },
-      ],
-    }), 'owner_task_stale'],
+    // Only the observation instant can go stale, and both directions of the
+    // bound refuse: too old to trust, and impossibly ahead of the clock.
+    [withMacA({ statusObservedAt: instant(-STALENESS_MS - 1) }), 'owner_task_stale'],
+    [withMacA({ statusObservedAt: instant(60_000) }), 'owner_task_stale'],
     [idleState({ unreadTargetedWakes: 1 }), 'unread_wakes'],
     [idleState({ activeSignals: ['handoff'] }), 'active_signals'],
   ];
@@ -214,15 +219,15 @@ test('an unknown, busy, stale or conflicting owner is a typed refusal, not an ex
 
 test('the idle epoch is stable while nothing happens and new after any activity', () => {
   const first = deriveOwnersAvailability(idleState(), { now: at(), stalenessMs: STALENESS_MS });
-  // A later pass over the unchanged world, and sub-second jitter in the
-  // recorded observation, are the same idle epoch.
+  // A later pass over the unchanged world, and sub-second jitter in the recorded
+  // idle onset, are the same idle epoch.
   const later = deriveOwnersAvailability(idleState(), {
     now: at(5 * 60 * 1000), stalenessMs: STALENESS_MS,
   });
   const jittered = deriveOwnersAvailability(idleState({
     ownerTasks: [
-      { machine: 'mac-a', taskDigest: A_TASK, status: 'idle', observedAt: instant(-59_600) },
-      { machine: 'mac-b', taskDigest: B_TASK, status: 'idle', observedAt: instant(-29_100) },
+      ownerTask('mac-a', { idleSinceAt: instant(-59_600), statusObservedAt: instant(-59_600) }),
+      ownerTask('mac-b', { idleSinceAt: instant(-29_100), statusObservedAt: instant(-29_100) }),
     ],
   }), { now: at(), stalenessMs: STALENESS_MS });
   assert.equal(later.idleEpochId, first.idleEpochId);
@@ -234,14 +239,18 @@ test('the idle epoch is stable while nothing happens and new after any activity'
     { bindings: { macA: 'c'.repeat(64), macB: 'f'.repeat(64) } },
     {
       ownerTasks: [
-        { machine: 'mac-a', taskDigest: A_TASK, status: 'idle', observedAt: instant(-60_000) },
-        { machine: 'mac-b', taskDigest: 'e'.repeat(64), status: 'idle', observedAt: instant(-30_000) },
+        ownerTask('mac-a', { idleSinceAt: instant(-60_000), statusObservedAt: instant(-60_000) }),
+        ownerTask('mac-b', {
+          taskDigest: 'e'.repeat(64),
+          idleSinceAt: instant(-30_000),
+          statusObservedAt: instant(-30_000),
+        }),
       ],
     },
     {
       ownerTasks: [
-        { machine: 'mac-a', taskDigest: A_TASK, status: 'idle', observedAt: instant(-60_000) },
-        { machine: 'mac-b', taskDigest: B_TASK, status: 'idle', observedAt: instant(-5_000) },
+        ownerTask('mac-a', { idleSinceAt: instant(-60_000), statusObservedAt: instant(-60_000) }),
+        ownerTask('mac-b', { idleSinceAt: instant(-5_000), statusObservedAt: instant(-5_000) }),
       ],
     },
   ]) {
@@ -251,6 +260,115 @@ test('the idle epoch is stable while nothing happens and new after any activity'
     assert.equal(changed.available, true);
     assert.notEqual(changed.idleEpochId, first.idleEpochId);
   }
+});
+
+test('re-observing an unchanged idle stretch is one epoch and exactly one message', () => {
+  // Three consecutive polls of the same world: `now` and every statusObservedAt
+  // advance, because that is what a poll does, while the idle onset and the last
+  // activity marker do not move. Freshness is re-proven each tick; identity is
+  // not re-minted, so the operator is told once.
+  const onset = { macA: instant(-60_000), macB: instant(-30_000) };
+  const poll = (offsetMs) => deriveOwnersAvailability(idleState({
+    ownerTasks: [
+      ownerTask('mac-a', {
+        idleSinceAt: onset.macA, statusObservedAt: instant(offsetMs - 1_000),
+      }),
+      ownerTask('mac-b', {
+        idleSinceAt: onset.macB, statusObservedAt: instant(offsetMs - 2_000),
+      }),
+    ],
+  }), { now: at(offsetMs), stalenessMs: STALENESS_MS });
+
+  const drive = (availabilities, startingReceipt) => {
+    let previousReceipt = startingReceipt;
+    const emitted = [];
+    for (const availability of availabilities) {
+      const transition = availabilityTransition({
+        previousReceipt, availability, operatorDecisionCount: 0,
+      });
+      if (!transition.emit) continue;
+      emitted.push(transition.idempotencyKey);
+      previousReceipt = receipt(availability.idleEpochId);
+    }
+    return { emitted, previousReceipt };
+  };
+
+  const ticks = [poll(0), poll(5 * 60_000), poll(10 * 60_000)];
+  for (const tick of ticks) {
+    assert.equal(tick.available, true);
+    assert.equal(tick.idleEpochId, ticks[0].idleEpochId);
+  }
+  const firstStretch = drive(ticks, null);
+  assert.deepEqual(firstStretch.emitted, [`owners-available:${ticks[0].idleEpochId}`]);
+
+  // A busy interlude: one owner picks up work, which is a status change and so a
+  // new onset. Nothing is emitted while busy.
+  const busy = deriveOwnersAvailability(idleState({
+    ownerTasks: [
+      ownerTask('mac-a', {
+        status: 'active',
+        idleSinceAt: instant(11 * 60_000),
+        statusObservedAt: instant(11 * 60_000),
+      }),
+      ownerTask('mac-b', { idleSinceAt: onset.macB, statusObservedAt: instant(11 * 60_000) }),
+    ],
+  }), { now: at(11 * 60_000), stalenessMs: STALENESS_MS });
+  assert.deepEqual(busy, { available: false, reason: 'owner_task_busy', idleEpochId: null });
+  assert.deepEqual(
+    drive([busy], firstStretch.previousReceipt).emitted,
+    [],
+  );
+
+  // Back to idle with a new onset: a genuinely different stretch, announced
+  // exactly once no matter how many polls observe it.
+  const resumedOnset = instant(20 * 60_000);
+  const resumed = [25, 30, 35].map((minutes) => deriveOwnersAvailability(idleState({
+    ownerTasks: [
+      ownerTask('mac-a', {
+        idleSinceAt: resumedOnset, statusObservedAt: instant(minutes * 60_000 - 1_000),
+      }),
+      ownerTask('mac-b', {
+        idleSinceAt: onset.macB, statusObservedAt: instant(minutes * 60_000 - 2_000),
+      }),
+    ],
+  }), { now: at(minutes * 60_000), stalenessMs: STALENESS_MS }));
+  for (const tick of resumed) {
+    assert.equal(tick.available, true);
+    assert.equal(tick.idleEpochId, resumed[0].idleEpochId);
+  }
+  assert.notEqual(resumed[0].idleEpochId, ticks[0].idleEpochId);
+  assert.deepEqual(
+    drive(resumed, firstStretch.previousReceipt).emitted,
+    [`owners-available:${resumed[0].idleEpochId}`],
+  );
+
+  // The two facts stay separable in both directions: an ancient onset with a
+  // fresh observation is a long idle stretch, not staleness...
+  const longIdle = deriveOwnersAvailability(idleState({
+    ownerTasks: [
+      ownerTask('mac-a', {
+        idleSinceAt: instant(-72 * 60 * 60_000), statusObservedAt: instant(-1_000),
+      }),
+      ownerTask('mac-b', {
+        idleSinceAt: instant(-72 * 60 * 60_000), statusObservedAt: instant(-2_000),
+      }),
+    ],
+  }), { now: at(), stalenessMs: STALENESS_MS });
+  assert.equal(longIdle.available, true);
+  // ...while a fresh onset nobody has re-observed inside the bound still fails
+  // quiet, exactly as before.
+  const unobserved = deriveOwnersAvailability(idleState({
+    ownerTasks: [
+      ownerTask('mac-a', {
+        idleSinceAt: instant(-1_000), statusObservedAt: instant(-STALENESS_MS - 1),
+      }),
+      ownerTask('mac-b', { idleSinceAt: instant(-1_000), statusObservedAt: instant(-2_000) }),
+    ],
+  }), { now: at(), stalenessMs: STALENESS_MS });
+  assert.deepEqual(
+    unobserved,
+    { available: false, reason: 'owner_task_stale', idleEpochId: null },
+  );
 });
 
 test('busy to idle emits once, idle to idle stays silent, a new epoch emits again', () => {
@@ -288,8 +406,12 @@ test('busy to idle emits once, idle to idle stays silent, a new epoch emits agai
   const afterWork = deriveOwnersAvailability(idleState({
     lastActivityMarker: 'comment:5296770300',
     ownerTasks: [
-      { machine: 'mac-a', taskDigest: A_TASK, status: 'idle', observedAt: instant(hour - 30_000) },
-      { machine: 'mac-b', taskDigest: B_TASK, status: 'idle', observedAt: instant(hour - 20_000) },
+      ownerTask('mac-a', {
+        idleSinceAt: instant(hour - 30_000), statusObservedAt: instant(hour - 30_000),
+      }),
+      ownerTask('mac-b', {
+        idleSinceAt: instant(hour - 20_000), statusObservedAt: instant(hour - 20_000),
+      }),
     ],
   }), { now: at(hour), stalenessMs: STALENESS_MS });
   assert.equal(afterWork.available, true);

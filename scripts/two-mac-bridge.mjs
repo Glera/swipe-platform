@@ -477,8 +477,6 @@ function numericCommentId(comment) {
 // over ascending comment ids. A wake is classified against evidence that is
 // strictly earlier than itself, so the same comment list always yields the same
 // classification and no wake can silence itself with its own claim.
-const LINEAGE_CLOSING_VERDICTS = new Set(['NEEDS_HELP', 'DONE']);
-
 function lineageKey(wake) {
   return `${wake.ticketIssue}\0${wake.lineageId}`;
 }
@@ -488,7 +486,6 @@ function createLineageIndex() {
     byWakeId: new Map(),
     supersededByLineage: new Map(),
     supersedeClaimLineages: new Map(),
-    closedLineages: new Set(),
   };
 }
 
@@ -505,7 +502,6 @@ function observeLineage(lineage, wake) {
     lineage.supersedeClaimLineages.set(supersededWakeId, claimants);
   }
   lineage.supersededByLineage.set(key, superseded);
-  if (LINEAGE_CLOSING_VERDICTS.has(wake.verdict)) lineage.closedLineages.add(key);
 }
 
 export function classifyControlWake(wake, lineage) {
@@ -522,15 +518,17 @@ export function classifyControlWake(wake, lineage) {
     const claimants = lineage.supersedeClaimLineages.get(predecessor);
     if (claimants && [...claimants].some((claimant) => claimant !== key)) return 'ambiguous';
   }
-  // STOP is the no-action ordering terminal and the only class that can ever be
-  // historical. Execution evidence and dispatches are delivered even when a
-  // later wake claims to supersede the branch they came from.
-  if (wake.verdict !== 'STOP') return 'normal';
-  if (predecessor !== null && lineage.supersededByLineage.get(key)?.has(predecessor)) {
-    return 'historical_noop';
-  }
-  if (lineage.closedLineages.has(key)) return 'historical_noop';
-  return 'normal';
+  // Exactly one thing is ever silenced: a STOP whose OWN named predecessor
+  // branch was explicitly superseded by a strictly earlier wake of the same
+  // lineage. The forward pass guarantees that set holds only earlier claims, so
+  // the proof is always about this branch and never about the lineage around it.
+  // A verdict that once looked terminal does not close a lineage: work can
+  // continue and mint a fresh dispatch, whose own STOP terminal is live. Every
+  // non-STOP verdict is execution evidence and is always delivered.
+  if (wake.verdict !== 'STOP' || predecessor === null) return 'normal';
+  return lineage.supersededByLineage.get(key)?.has(predecessor)
+    ? 'historical_noop'
+    : 'normal';
 }
 
 export function scanControlWakeComments({
