@@ -188,15 +188,15 @@
     "runtimeArtifactDigest": "sha256:1c6672c1ee59c4679d0c90ab4f538c03b4b727ce72f1a3d6f28d48635b603d1d"
   },
   "minesweeper-v1-swipe": {
-    "version": "781930de71",
+    "version": "9284b29f07",
     "htmlBytes": 1091,
-    "payloadBytes": 55565,
+    "payloadBytes": 56071,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "light",
-    "sourceCommit": "3f17df6b94cdd99ced6edeaf62f9657d09776d13",
-    "runtimeArtifactDigest": "sha256:cbd5bd2d174acff8158919880331fee5a723f74d9020bf747454d723da2a86c5"
+    "sourceCommit": "a212fa6eeeeb4f3cdcaef8634c906f5fdc6e2e72",
+    "runtimeArtifactDigest": "sha256:18818c7e6146ce5b984270da64310d14d5eccc53f19592ae86b8b4c5e5d0a56d"
   },
   "solitaire-v1-swipe": {
     "version": "ed58b200a3",

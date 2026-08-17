@@ -1,19 +1,19 @@
 {
   "schema": "runtime-artifact.v1",
   "playableId": "minesweeper-v1-swipe",
-  "digest": "sha256:cbd5bd2d174acff8158919880331fee5a723f74d9020bf747454d723da2a86c5",
+  "digest": "sha256:18818c7e6146ce5b984270da64310d14d5eccc53f19592ae86b8b4c5e5d0a56d",
   "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
-  "sourceCommit": "3f17df6b94cdd99ced6edeaf62f9657d09776d13",
+  "sourceCommit": "a212fa6eeeeb4f3cdcaef8634c906f5fdc6e2e72",
   "files": [
     {
       "path": "minesweeper-v1-swipe.html",
       "bytes": 1091,
-      "sha256": "sha256:810c4f7e3439cd2984f0b6fd4a2bcf5595786cde90d57fd6cce8ffd3af0d9a51"
+      "sha256": "sha256:60c3ec740b383108ffd6d21d70afc18ad04e5a66229cc5f5f148ba65dac0207a"
     },
     {
       "path": "minesweeper-v1-swipe.payload.js",
-      "bytes": 55565,
-      "sha256": "sha256:781930de7100a37d8c25e1581c7fef941f98555e853ce5d8cd552064da5010d5"
+      "bytes": 56071,
+      "sha256": "sha256:9284b29f0737f5843a4e962803435fd5f56711cd527c8b0117dfb5953aa9db24"
     }
   ]
 }
