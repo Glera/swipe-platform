@@ -1,6 +1,8 @@
 # Proposal: selective promotion из dev-ленты
 
 Статус: **QUEUED PROPOSAL — не implementation authority и не dispatch**.
+Reconciliation 18.08.2026 с текущей реальностью доставки:
+[developer-feed-selective-promotion-reconciliation-20260818.md](developer-feed-selective-promotion-reconciliation-20260818.md).
 
 Приоритет: не начинать реализацию до завершения текущей уборки Feed,
 механик и ещё одной серии сложных/параллельных Telegram rework dogfood.
