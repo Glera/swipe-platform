@@ -22,13 +22,17 @@
 //   "maxNotifications": 3
 // }
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const MAX_BODY = 64 * 1024;
 
 function fail(code, detail) {
-  const line = JSON.stringify({ at: new Date().toISOString(), code, detail });
+  const line = JSON.stringify(
+    detail === null
+      ? { at: new Date().toISOString(), code }
+      : { at: new Date().toISOString(), code, detail },
+  );
   try {
     const dir = stateDir();
     mkdirSync(dir, { recursive: true, mode: 0o700 });
@@ -52,11 +56,21 @@ if (!configPath) fail('usage_invalid', '--config is required');
 
 function stateDir() { return dirname(configPath); }
 
+function clearPendingMarker() {
+  try {
+    rmSync(join(stateDir(), 'pending-failure.json'), { force: true });
+  } catch {
+    // Best-effort: a stale marker is preferable to failing a healthy tick.
+  }
+}
+
 let config;
 try {
   config = JSON.parse(readFileSync(configPath, 'utf8'));
-} catch (error) {
-  fail('config_unreadable', String(error?.message ?? error));
+} catch {
+  // No detail: V8 parse errors embed a source snippet, and the config holds
+  // the durable device code.
+  fail('config_unreadable', null);
 }
 const baseUrl = typeof config.baseUrl === 'string' ? config.baseUrl.replace(/\/+$/u, '') : '';
 const deviceCode = typeof config.deviceCode === 'string' ? config.deviceCode : '';
@@ -79,10 +93,11 @@ async function post(path, body, bearer) {
     redirect: 'error',
     signal: AbortSignal.timeout(30_000),
   });
-  const raw = (await response.text()).slice(0, MAX_BODY);
+  const raw = await response.text();
+  if (raw.length > MAX_BODY) return { status: response.status, json: null, oversize: true };
   let json = null;
   try { json = JSON.parse(raw); } catch { /* non-JSON stays null */ }
-  return { status: response.status, json };
+  return { status: response.status, json, oversize: false };
 }
 
 const exchange = await post('/api/admin/device-auth/token', { deviceCode }).catch(
@@ -95,6 +110,7 @@ if (exchange.status !== 200 || typeof exchange.json?.access_token !== 'string') 
 }
 
 if (dryRun) {
+  clearPendingMarker();
   console.log(JSON.stringify({ schema: 'intake-drain-watcher-tick.v0', dryRun: true, auth: 'ok' }));
   process.exit(0);
 }
@@ -106,15 +122,26 @@ const drain = await post(
 ).catch((error) => fail('drain_transport', String(error?.message ?? error)));
 if (drain.status === 409) {
   // Another drain holds the single-flight lock — bounded refusal, healthy.
+  clearPendingMarker();
   console.log(JSON.stringify({ schema: 'intake-drain-watcher-tick.v0', drained: false, busy: true }));
   process.exit(0);
 }
-if (drain.status !== 200 || typeof drain.json !== 'object' || drain.json === null) {
-  fail('drain_refused', `status=${drain.status}`);
+if (drain.oversize) {
+  // The server very likely committed the drain; only the response is
+  // unreadable. A distinct code keeps this from masquerading as a refusal.
+  fail('drain_response_oversize', `status=${drain.status}`);
 }
+const receipt = drain.json;
+const sections = receipt !== null && typeof receipt === 'object' && !Array.isArray(receipt)
+  && receipt.schema === 'platform.development-intake.drain.receipt.v1'
+  && receipt.delivery !== null && typeof receipt.delivery === 'object'
+  && receipt.notifications !== null && typeof receipt.notifications === 'object';
+if (drain.status !== 200) fail('drain_refused', `status=${drain.status}`);
+if (!sections) fail('drain_unexpected_body', `status=${drain.status}`);
+clearPendingMarker();
 console.log(JSON.stringify({
   schema: 'intake-drain-watcher-tick.v0',
   drained: true,
-  delivery: drain.json.delivery ?? null,
-  notifications: drain.json.notifications ?? null,
+  delivery: receipt.delivery,
+  notifications: receipt.notifications,
 }));
