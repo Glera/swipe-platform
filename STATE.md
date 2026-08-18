@@ -1,99 +1,85 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 17.08.2026 (поздний вечер). За день: критический путь #114/#121
-закрыт, Labs unlocked, #107 реализован и выкачен до операционных гейтов,
-owners-available контур задеплоен с live-миграцией 0082. Это не ledger;
-читать первым, обновлять последним; предел — 150 строк.
+Обновлено: 18.08.2026, поздний вечер (terminal checkpoint перед test-day
+19.08). Не ledger; читать первым, обновлять последним; предел — 150 строк.
+**Активна заморозка деплоев/рестартов до конца операторского test-day.**
 
 ## Владение и транспорт
 
-- Mac A owner: Claude Fable сессия по письменному операторскому handoff
-  17.08.2026; Codex Mac A owner-сессия PARKED. Binding mac-a `f2c0e31a…`
-  не менялся; автоматики PAUSED; heartbeat `p4g` — read-only relay.
-- Очередь #94 пуста; все wake 17.08 терминальны. Транспорт переведён на
-  **v2 с causal lineage**: первый полный круг доказан на живом тикете —
-  dispatch `5317765274` (v2, `lin_346ec3d6…`) → Mac B scanner прочёл →
-  receipt `5317906443` (v2, та же линия, predecessor сохранён).
+- Mac A owner: Claude Fable по письменному handoff 17.08; Codex Mac A
+  PARKED (лимиты, возврат ~чт 20.08). Mac B: Codex, binding перепривязана
+  штатным bootstrap на meta `7808349…` (bindingDigest `ddb5b819…`).
+- Транспорт v2 (causal lineage) боевой: полный день S1/#136 прошёл через
+  wake→receipt циклы. FIFO #94 пуст, все линии терминальны.
+- Автоматики Codex PAUSED. Новый model-free слой: launchd
+  `com.p4g.intake-drain-watcher` (Mac A, тик 60с, без AI) — LIVE из
+  `-live/p4g-workspace-meta@16f1ec0`, грант `operator:flags:write`
+  до ~17.09.
 
-## #107 — implementation merged; rollout до операционных гейтов
+## Production checkpoint (18.08 вечер)
 
-- Ядро merged: meta PR #130 → master `0050a803…` (lineage v2, capability
-  profile, cadence; Tier-2: discovery STOP → одна коррекция → delta PASS
-  P1/P2=0). V2-writer merged: PR #131 → `6850a19…` (Tier-1 PASS). Приёмка
-  переносимая: v1-байты заморожены голденами; noop только для STOP при
-  явной supersession строго более ранним wake той же линии.
-- Rollout: шаги 1–6 DONE; dual-reader подтверждён на обеих машинах.
-  Остаток — операционный, за одной командой оператора «возобнови
-  heartbeat»: cadence adoption (2/15 мин) + включение
-  `ENABLE_OWNER_AVAILABILITY_NOTIFICATIONS` + первый живой busy→idle с
-  ровно одним сообщением. Capability profile: inline-ревьюеру нужна
-  стабильная runner-identity (наблюдение Mac B) — в adoption-пакет.
-- Receipts: старт `5316754362`, merge `5317438984`, live-rollout
-  `5319617693`; операторские решения: получатель = чат READY-карточек
-  (`5316947791`), GO на backend-пакет (`5317393190`).
+- **backend**: master `c512ce96…`; live = кандидат publish-run
+  `32171097358` (image `sha256:551cdcf4…`, manifest `06938c68…`);
+  **DB `0083_mobile_review_inbox`**. Флаги ON: ticket bridge,
+  ticket notifications, mobile review (+operator). Owners-available
+  флаг OFF (ждёт #136 piece 3). Deploy-id волатилен — источник истины
+  дашборд, не этот файл (урок CAS-клина 18.08).
+- **static**: swipe-platform `de8439d` (feed `8d960b7`, stamp `d89dace`);
+  Render build-pin = `8d960b7…` (актуален). В ленте живут: шит
+  «Изменения dev-ленты» (#118 slice 1), клавиатурный фикс форм,
+  intake-вертикаль.
+- **generator**: live detached `5af6f6df…` (S1-половина);
+  `SWIPE_MOBILE_REVIEW_ENABLED=1`; мост отсмотра подключён грантом
+  `operator.review:write`. Очередь durable: 1 parked (Short Drama
+  request). Мониторинг: три чистые адопции за 18.08, stderr Δ0.
+- **Интейк-петля целиком автоматическая**: кнопка → outbox → watcher
+  (≤60с) → drain → GitHub Issue + Telegram-пинг. Доказано на #134/#135
+  (второй круг: 19 мин доставка→прод).
 
-## Owners-available контур — LIVE (выключен)
+## Терминалы 18.08 (однострочно; детали в receipts)
 
-- `Glera/swipe-backend#73` merged после Tier-2 PASS (P1/P2=0): master
-  `d34bc1b8…`; publish `32059348353` (image `sha256:bd902d4c…`, manifest
-  `120daa77…`, алгебра LKG-forward `[0080,0081,0082]` доказана офлайн);
-  операторское подтверждение → один cutover `32063356466` PASS:
-  **live deploy `dep-da1mgdjm8hqs73be8ksg`**, live-миграция `0081→0082`
-  применена (DB-verify `job-da1mgqegekts738bpv80`), health 200.
-- Rollback boundary: LKG-пин = прежний live-образ `sha256:fd7c3bf5…`,
-  доказан CI против схемы 0082; откат миграции — отдельный акт (не
-  понадобился). Флаг OFF: роут не существует до включения.
+- #108 CLOSED терминально (receipt 5327569707; петли #134/#135 с
+  приёмкой на устройстве). #112, #129 закрыты административно.
+- S1 #133: обе половины merged (backend PR #74 → `8150ab25`, generator
+  PR #51 → `5af6f6df`), **live-миграция 0083** (receipt 5328682955 —
+  включая Render-флейк с применённой миграцией и CAS-клин координатора),
+  рантаймы предзагружены, флаги включены сетапом 18.08.
+- #136: drain endpoint (backend PR #75, Tier-2 PASS,
+  CLI-lock=ACCEPT_RECORDED_HAZARD) + watcher v0 (meta PR #137, Tier-1
+  FAIL→коррекция→delta PASS) — LIVE; piece 3 (conditional AI wake)
+  не начат. Сводный полиш-лист: #136 comment 5331552479.
+- #118: reconciliation заморожен v1 (операторские решения: carrier =
+  catalog, без «Команда тестирует», порядок diff-экран → promotion);
+  slice 1 (read-only шит) в проде; gap-лист/словари — comment 5329395150.
+- Generator polish batch (PR #49/#50), NEEDS_HELP-диспозиции #121/#112
+  (среда/flake, подтверждены rerun'ами), rebind mac-b — терминальны.
 
-## Терминальные результаты дня (кратко)
-
-- #114/#121 TERMINAL (подробности: receipts `5316412961`, `5314176665`).
-  Short Drama recovery PARKED (маршрут в `5316412961`).
-- Решения оператора reconciled: Smash PUBLISHED; Klondike successor
-  `8426a388…` — оператор принял в 11:46, **LIVE** (полный цикл
-  «замечание→LIVE» ≈ 5 минут); Pins LIVE с 13.08.
-- #119 — **уже в проде с 14.08**: PR #40 предок live-фида, деплой не
-  нужен; инженерный smoke на живом бандле PASS (receipt `5316621465`).
-  Остаток — casual визуальная проверка оператора, не блокирует.
-- Labs UNLOCKED (`#122` comment `5316419272`): S2a admitted; Mac B довёл
-  S2a до публикации (exact head `2e936bc…` → push + draft PR + native CI
-  + correction-only delta). S1 — за пересборкой phone-source контура.
-- Runtime: Generator live `61678b5b…` (координатор здоров); backend live
-  `dep-da1mgdjm8hqs73be8ksg`, image `bd902d4c…`, **DB 0082**.
-- Гранты Lab: flags до 16.09; `catalog:recall` истекает **~20.08**,
-  `feed-sequencing` ~30.08, `catalog:read`/`analytics:read` истекли —
-  батч переподтверждения картами Lab при удобном случае.
-- #120 NEEDS_HELP / #117 frozen fixture — без изменений.
-
-## Ближайшая очередь
+## Очередь (после test-day)
 
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
-| 1 | «Возобнови heartbeat» → cadence adoption + включение owners-available + первый живой busy→idle сигнал | оператор (команда) → Mac A | ждёт команды |
-| 2 | Батч грантов Lab (recall до ~20.08) + наигрыш #91/#92 + casual-проверка #119 | оператор | when convenient |
-| 3 | Labs S2a: push `2e936bc…` → draft PR → CI → delta review | Mac B | in progress |
-| 4 | #108 Telegram platform intake (контракт из #105 rescue → vertical) | Mac A | next |
-| 5 | PR #118 selective promotion: reconciliation контракта (+вход: accept уже публикует общие байты — diff по audience/roster-оси) | Mac A | после #108 |
-| 6 | Platform-половина #109 (после Labs S2a) | Mac A | queued |
-| 7 | Bounded polish batch: P3×3 (#130 discovery) + P3×5 (Tier-1 #131) + P3×2 (#73) + readiness-budget hardening (сессия оператора) + флейки/maxBuffer/path-space/sibling-пины | Mac A/B по путям | одна партия |
+| 1 | **Test-day 19.08**: три оси (механики ∥, платформа, S1 отсмотр с телефона), статусы в шите, duplicate/replay, NEEDS_HELP/terminal. Находки партией, не чинить на лету | оператор | назначен |
+| 2 | Один correction batch по находкам теста | Mac A/B по путям | после 1 |
+| 3 | S1 e2e acceptance: первый настоящий кандидат → инбокс → решение → Композер → terminal | оператор + Mac A | после 1 |
+| 4 | Playables PR #33 (build-pin fail-closed) — path-disjoint Tier-1 | Mac B | в очереди |
+| 5 | #118 promotion-половина: server-owned diff + «Продвинуть» для marble-sort; #109 следом | Mac A | после 2–3 |
+| 6 | #136 piece 3: exactly-once AI resume + owners-available хвост #107 (cadence, ровно одно idle-сообщение) | Mac A (+Codex после лимитов) | после 2 |
+| 7 | Polish batch единой партией (список: #136 c.5331552479) | Mac A/B | одна партия |
+| 8 | Гранты: подтвердить статус батча recall/read/analytics (шаг 2 сетапа); flags до 16.09; watcher до ~17.09 | оператор | проверить |
 
-## Действующие процессные решения 13.08
+## Действующие процессные решения 13.08 — без изменений
 
-- GO — только с названной категорией ядра; standing authority покрывает
-  read-only evidence, bounded correction, PR/CI/merge, один reversible
-  deploy/restart, одну заранее описанную recovery.
-- Один review-раунд: discovery → все P1/P2 разом → один узкий delta;
-  P3 — в bounded polish batch.
-- Tier 0/1 review и обычные receipts — в Issue/PR/task output.
-- До 10–20 two-Mac тикетов не строить merge queue, lock, quota optimizer,
-  task store или новый dispatcher.
-- Worktree cleanup — еженедельно после raw census; в census 17.08 вошли
-  новые: meta-107, swipe-generator-baseline/preview44/preview45,
-  swipe-backend-issue121-n001, swipe-backend-owners-available.
+- GO только с названной категорией ядра; standing authority: read-only
+  evidence, bounded correction, PR/CI/merge, один reversible
+  deploy/restart, одна описанная recovery.
+- Один review-раунд: discovery → все P1/P2 → один узкий delta; P3 — в
+  polish batch. Receipts Tier 0/1 — в Issue/PR.
+- До 10–20 two-Mac тикетов: без merge queue/lock/optimizer/task store.
+  (Счётчик ~15: решение о пост-пилотной инфраструктуре близко.)
 
-## Parked / не запускать сейчас
+## Parked / не запускать
 
-- S8 ad-матрица — до UA-плана; Short Drama recovery — вместе с ней.
-- S9 mobile review — после Labs gate; старые R7 NO-GO драфты не мержить.
-- #81 Family A publication — до founder taste и Labs gate.
-- Новая инфраструктура dev-dispatch, credentials, settings, permissions,
-  runner, DB/table или альтернативный successor-протокол — вне scope.
+- S8 ad-матрица + Short Drama recovery — до UA-плана (request в очереди
+  Generator). #81 Family A — до founder taste (#91/#92). #117/#120 —
+  disposition в гигиеническую партию. Старые R7 mobile-review PR —
+  NO-GO навсегда (S1 заменил). Новая инфраструктура вне #136 — вне scope.
