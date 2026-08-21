@@ -1,19 +1,19 @@
 {
   "schema": "runtime-artifact.v1",
   "playableId": "short-drama-swipe",
-  "digest": "sha256:01146f30bfd19b98acd29721338efce83efb5e67707d01d7ccde9afe31bbeb0f",
+  "digest": "sha256:1044200f7e0bce7397885a751c22fee750012049dfb413b030a6da8d302b0c37",
   "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
-  "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
+  "sourceCommit": "62f57c286b44cea7450b9e060c5b5c1534cc5b37",
   "files": [
     {
       "path": "short-drama-swipe.html",
       "bytes": 3930904,
-      "sha256": "sha256:e126e8c8b13be47ac9ddb5640837e98a0600749bc07031e7c694b4dacf01bbfc"
+      "sha256": "sha256:fb7072280d26fcbe5393882699339ea45d55123c7d8b092dd61481393e09ae04"
     },
     {
       "path": "short-drama-swipe.payload.js",
-      "bytes": 339256,
-      "sha256": "sha256:6d4b01c16c0216636e868fa88e143a692a6e3befe763e8368e728599f121db5f"
+      "bytes": 337210,
+      "sha256": "sha256:e8e0635411c45e73819badfeed7ca79536f1bccf2ec63fdb1ec62e356e03e2f6"
     },
     {
       "path": "short-drama-swipe.video-38352ee8e3.webm",

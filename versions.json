@@ -144,15 +144,15 @@
     "runtimeArtifactDigest": "sha256:64c25ad280ec254f4c3ed6324751e7f78c27b2a864a9bfa0f979974c81ef6c2e"
   },
   "short-drama-swipe": {
-    "version": "6d4b01c16c",
+    "version": "e8e0635411",
     "htmlBytes": 3930904,
-    "payloadBytes": 339256,
+    "payloadBytes": 337210,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 18806514,
     "mountCost": "heavy",
-    "sourceCommit": "138add5624183a7ba573abd993bedde6ec9cc5e1",
-    "runtimeArtifactDigest": "sha256:01146f30bfd19b98acd29721338efce83efb5e67707d01d7ccde9afe31bbeb0f"
+    "sourceCommit": "62f57c286b44cea7450b9e060c5b5c1534cc5b37",
+    "runtimeArtifactDigest": "sha256:1044200f7e0bce7397885a751c22fee750012049dfb413b030a6da8d302b0c37"
   },
   "merge-restoration-swipe": {
     "version": "5fb295be0a",
