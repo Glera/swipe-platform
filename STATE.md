@@ -1,6 +1,6 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 21.08.2026 (census 19–21.08 + письменный handback). Не ledger;
+Обновлено: 24.08.2026 (Issue #151 Mac A correction package). Не ledger;
 читать первым, обновлять последним; предел — 150 строк.
 **Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 
@@ -17,6 +17,18 @@
   `com.p4g.intake-drain-watcher` (Mac A, тик 60с, без AI) — LIVE из
   `-live/p4g-workspace-meta@16f1ec0`, грант `operator:flags:write`
   до ~17.09.
+- Первый writer после handback append-only перепривязал Mac A transport к
+  meta `8869029…`; Issue #151 Tier-2 review wake `5396329591` стоит на Mac B.
+
+## Активный correction batch 24.08
+
+- **#151 Mac A F1/F2**: Feed PR #48 exact-head CI + Tier-1 PASS;
+  backend PR #77 exact-head image/PostgreSQL CI SUCCESS, review-only Tier-2
+  пакет отправлен Mac B. Оба PR draft/unmerged; migration `0085` не live;
+  deploy/restart по-прежнему заморожены до отдельного слова оператора.
+- Scope: `Неактуально` для platform intake и release-less playable rework;
+  честные delivered/superseded/capability-gap проекции. Mac B F8/F2/F7/F6/F4
+  остаются отдельной content-половиной #151.
 
 ## Production checkpoint (18.08 вечер)
 
@@ -79,8 +91,8 @@
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
 | 1 | **Mobile soak**: три оси; первый запрос — marble-sort (=первый S1 E2E); находки партией | оператор | активен |
-| 2 | Correction batch подтверждённых находок (без deploy до слова оператора) | **Codex A** | после 1 |
-| 3 | #140 Escalation lane → #118 slice 2 → #109, последовательно | **Codex A** | после 2 |
+| 2 | #151 correction batch подтверждённых находок (без deploy до слова оператора) | **Codex A + Mac B по полосам** | Mac A PR+CI, Tier-2 review pending |
+| 3 | #140 Escalation lane → #118 slice 2 → #109, последовательно | **Codex A** | после terminal #151 |
 | 4 | Researcher R0: charter + scorecard, затем первая Tier-A партия | Fable | сейчас |
 | 5 | Mission Slice v0 execution contract (draft-for-decision) | Fable | сейчас |
 | 6 | S1 E2E-поддержка + Labs S3; затем Research Radar R1 по frozen charter | Mac B | S3 → R1 |
