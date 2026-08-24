@@ -1,14 +1,16 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 18.08.2026, поздний вечер (terminal checkpoint перед test-day
-19.08). Не ledger; читать первым, обновлять последним; предел — 150 строк.
-**Активна заморозка деплоев/рестартов до конца операторского test-day.**
+Обновлено: 21.08.2026 (census 19–21.08 + письменный handback). Не ledger;
+читать первым, обновлять последним; предел — 150 строк.
+**Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 
 ## Владение и транспорт
 
-- Mac A owner: Claude Fable по письменному handoff 17.08; Codex Mac A
-  PARKED (лимиты, возврат ~чт 20.08). Mac B: Codex, binding перепривязана
-  штатным bootstrap на meta `7808349…` (bindingDigest `ddb5b819…`).
+- **Handback 21.08 (операторское решение)**: авторство платформы Mac A →
+  Codex-сессия Mac A. Claude Fable удерживает portfolio/meta authority,
+  STATE/checkpoint, review-участие, продуктовые контракты (Mission Slice
+  v0, Researcher R0/R1) и frontier-эскалацию. Mac B: Codex, binding на
+  meta `7808349…` (bindingDigest `ddb5b819…`).
 - Транспорт v2 (causal lineage) боевой: полный день S1/#136 прошёл через
   wake→receipt циклы. FIFO #94 пуст, все линии терминальны.
 - Автоматики Codex PAUSED. Новый model-free слой: launchd
@@ -18,16 +20,17 @@
 
 ## Production checkpoint (18.08 вечер)
 
-- **backend**: master `c512ce96…`; live = кандидат publish-run
-  `32171097358` (image `sha256:551cdcf4…`, manifest `06938c68…`);
-  **DB `0083_mobile_review_inbox`**. Флаги ON: ticket bridge,
-  ticket notifications, mobile review (+operator). Owners-available
-  флаг OFF (ждёт #136 piece 3). Deploy-id волатилен — источник истины
-  дашборд, не этот файл (урок CAS-клина 18.08).
-- **static**: swipe-platform `de8439d` (feed `8d960b7`, stamp `d89dace`);
-  Render build-pin = `8d960b7…` (актуален). В ленте живут: шит
-  «Изменения dev-ленты» (#118 slice 1), клавиатурный фикс форм,
-  intake-вертикаль.
+- **backend**: master = merge PR #76; live = кандидат publish-run
+  `32348075736` (manifest `f364f701…`); **DB `0084_playable_admin_close`**
+  (live-миграция по GO 20.08). Флаги ON: ticket bridge, notifications,
+  mobile review (+operator). Owners-available OFF (ждёт #136 piece 3).
+  Deploy-id волатилен — истина в дашборде. Канонический LKG-digest брать
+  ТОЛЬКО из successful publish-run (урок 20.08).
+- **static**: swipe-platform `e5c7c7a` (feed source `8d960b7`, stamp
+  `2b13838`; short-drama-swipe экспортирован). Render build-pin =
+  `8d960b7…` (актуален). Playables master `62f57c28` (PR #33 fail-closed
+  build-pin + PR #34 Short Drama baseline). В ленте: шит dev-diff,
+  клавиатурный фикс, intake-вертикаль, фикс short-drama.
 - **generator**: live detached `5af6f6df…` (S1-половина);
   `SWIPE_MOBILE_REVIEW_ENABLED=1`; мост отсмотра подключён грантом
   `operator.review:write`. Очередь durable: 1 parked (Short Drama
@@ -35,6 +38,23 @@
 - **Интейк-петля целиком автоматическая**: кнопка → outbox → watcher
   (≤60с) → drain → GitHub Issue + Telegram-пинг. Доказано на #134/#135
   (второй круг: 19 мин доставка→прод).
+
+## Терминалы 19–21.08 (однострочно)
+
+- **#139 terminal**: административное закрытие release-less rework +
+  live-миграция **0084**; закрыты smash/solitaire/short-drama
+  (`done_outside_fast_lane`; short-drama — после baseline #34 и деплоя
+  `e5c7c7a`). merge-locked — иммутабельный capability-gap корень (→ #140).
+  Открыты честно: marble-sort (первый запрос soak) и merge-locked.
+- **#140 создан**: Escalation lane «вход один, полос две» — proposal,
+  первый пакет Codex A. **#141 merged**: шпаргалка
+  docs/specs/operator-decision-cheatsheet.md; gap-входы в #109/#118.
+- Playables (Mac B): PR #33 (deploy сам запекает feed SHA, fail-closed —
+  доказан живым деплоем 21.08) и PR #34 (Short Drama baseline, бинарники
+  только в concept store) — merged.
+- Стратегия 21.08: фокус на продуктовый proof — **Mission Slice v0**
+  (Fable) и **Researcher R0/R1** (charter Fable → R1 Mac B после S1/S3);
+  Finance v1-B остаётся PARKED.
 
 ## Терминалы 18.08 (однострочно; детали в receipts)
 
@@ -58,14 +78,15 @@
 
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
-| 1 | **Test-day 19.08**: три оси (механики ∥, платформа, S1 отсмотр с телефона), статусы в шите, duplicate/replay, NEEDS_HELP/terminal. Находки партией, не чинить на лету | оператор | назначен |
-| 2 | Один correction batch по находкам теста | Mac A/B по путям | после 1 |
-| 3 | S1 e2e acceptance: первый настоящий кандидат → инбокс → решение → Композер → terminal | оператор + Mac A | после 1 |
-| 4 | Playables PR #33 (build-pin fail-closed) — path-disjoint Tier-1 | Mac B | в очереди |
-| 5 | #118 promotion-половина: server-owned diff + «Продвинуть» для marble-sort; #109 следом | Mac A | после 2–3 |
-| 6 | #136 piece 3: exactly-once AI resume + owners-available хвост #107 (cadence, ровно одно idle-сообщение) | Mac A (+Codex после лимитов) | после 2 |
-| 7 | Polish batch единой партией (список: #136 c.5331552479) | Mac A/B | одна партия |
-| 8 | Гранты: подтвердить статус батча recall/read/analytics (шаг 2 сетапа); flags до 16.09; watcher до ~17.09 | оператор | проверить |
+| 1 | **Mobile soak**: три оси; первый запрос — marble-sort (=первый S1 E2E); находки партией | оператор | активен |
+| 2 | Correction batch подтверждённых находок (без deploy до слова оператора) | **Codex A** | после 1 |
+| 3 | #140 Escalation lane → #118 slice 2 → #109, последовательно | **Codex A** | после 2 |
+| 4 | Researcher R0: charter + scorecard, затем первая Tier-A партия | Fable | сейчас |
+| 5 | Mission Slice v0 execution contract (draft-for-decision) | Fable | сейчас |
+| 6 | S1 E2E-поддержка + Labs S3; затем Research Radar R1 по frozen charter | Mac B | S3 → R1 |
+| 7 | #136 piece 3 (exactly-once AI resume + owners-available хвост) | Codex A | после 3 |
+| 8 | Polish batch единой партией (#136 c.5331552479 + новые P3) | по путям | одна партия |
+| 9 | Гранты: батч recall/read/analytics не подтверждён; flags до 16.09; watcher до ~17.09; Tier-B доступы researcher (SensorTower MCP?/AppMagic/YT/Poki — чек-лист выдан) | оператор | открыт |
 
 ## Действующие процессные решения 13.08 — без изменений
 
