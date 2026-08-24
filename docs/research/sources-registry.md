@@ -15,8 +15,8 @@
 
 | Источник | Линза | Заметки |
 |---|---|---|
-| Poki (poki.com) | R+D | чарты; D: exclusive, ads-only, real-player playtesting (dev-аккаунт — когда повезём своё) |
-| CrazyGames | R+D | чарты+новинки; D: ads и IAP через SDK |
+| Poki (poki.com) | R+D | чарты: блок «Popular this week» на главной (/trending — 404); D: exclusive, ads-only, playtesting |
+| CrazyGames | R+D | чарты: /hot (страницы /t/trending, /t/puzzle — 404); consent-wall блокирует первичную игру без принятия трекинга; D: ads и IAP |
 | itch.io | R+D | popularity/trending; D: self-publishing |
 | NewGrounds / Y8 / Silvergames / Miniplay / Addicting Games / iogames.space / WebGamer / Now.gg / Gamejolt | R | вторичные чарты — подтверждение живучести жанра |
 | Каталоги порталов: github.com/devcem/HTML5-Game-Platforms; GameMonetize partners | R | пополнение этого реестра |
@@ -34,7 +34,10 @@
 
 ## Креативные тренды (Tier-A)
 
-TikTok Creative Center (Top Ads, покадровое внимание) · Meta Ad Library.
+TikTok Creative Center (Top Ads) — JS-gated, JSON-эндпоинт отдаёт 40101
+«no permission»: нужен attended-browser/сессия (Tier-C кандидат) · Meta Ad
+Library — 403 без авторизации: аналогично. Оба зафиксированы как отказные в
+R0 (24.08); UA-ось пока опирается на ST SOV.
 
 ## Ожидают решения
 
