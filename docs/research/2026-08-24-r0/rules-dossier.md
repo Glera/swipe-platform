@@ -133,7 +133,7 @@ Arrow Cube · fail-условие Tangled Rope · ad-origin кластеров 3
 Pixel Flow: pixelflowgame.com, playgama.com/game/pixel-flow · Colony
 Flow: colonyflow.games · Smash: smashfest.xyz (лучший свод правил) ·
 Screw: coolmathgames.com/0-get-a-screw, poki.com/en/g/screw-jam-puzzle ·
-Bus: gamepix.com/play/bus-jam, huhgames.com/game/bus-escape-traffic-jam ·
+Bus: huhgames.com/game/bus-escape-traffic-jam (⚠ gamepix.com/play/bus-jam из R0-ссылок оказался ДРУГОЙ игрой «Bus Collect» — поправлено lite-pack'ом 24.08; `com.rollic.busjam` как package не подтверждён, подтверждена Apple id6450176534) ·
 Queens: meowdoku.app, queensgames.org · Triple-tile:
 crazygames.com/game/3-tiles · Rollic help-центры Screw Jam / Bus Jam —
 образцовые первоисточники правил.
