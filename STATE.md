@@ -18,7 +18,9 @@
 - Автоматики Codex PAUSED. Новый model-free слой: launchd
   `com.p4g.intake-drain-watcher` (Mac A, тик 60с, без AI) — LIVE из
   `-live/p4g-workspace-meta@16f1ec0`, грант `operator:flags:write`
-  до ~17.09.
+  до ~17.09. #136 piece 3 собран в meta PR #175: exact binding,
+  single-flight/writer-lock, durable pending/attention/outcome-unknown,
+  полный bounded scan и ноль AI на пустом тике; **не активирован**.
 - Первый writer после handback append-only перепривязал Mac A transport к
   meta `8869029…`; PR #77/#78 Tier-2/delta и exact-head цепочки завершены.
 
@@ -84,8 +86,9 @@
   рантаймы предзагружены, флаги включены сетапом 18.08.
 - #136: drain endpoint (backend PR #75, Tier-2 PASS,
   CLI-lock=ACCEPT_RECORDED_HAZARD) + watcher v0 (meta PR #137, Tier-1
-  FAIL→коррекция→delta PASS) — LIVE; piece 3 (conditional AI wake)
-  не начат. Сводный полиш-лист: #136 comment 5331552479.
+  FAIL→коррекция→delta PASS) — LIVE. Piece 3 (conditional AI wake) —
+  package PR #175 после discovery + bounded N001 correction + final delta
+  PASS P1/P2=0; install/load/activation отдельно. Полиш: c.5331552479.
 - #118: reconciliation заморожен v1 (операторские решения: carrier =
   catalog, без «Команда тестирует», порядок diff-экран → promotion);
   slice 1 (read-only шит) в проде; gap-лист/словари — comment 5329395150.
@@ -97,7 +100,7 @@
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
 | 1 | #151 терминал: физическая приёмка 5 правок | оператор | backend 0086, Generator 09d12fc и Feed 9879e3d1 live; receipt `5407846339` |
-| 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | поднят операторским решением 25.08 |
+| 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | PR #175; code/review package готов, activation отдельно |
 | 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
 | 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
 | 5 | Researcher: R1 Queens full pack → Bus A; затем R2 #160 (запуск партий из Labs с телефона) | Mac B | после 1 |

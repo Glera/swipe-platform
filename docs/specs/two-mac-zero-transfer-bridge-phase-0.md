@@ -216,6 +216,11 @@ blind discovery со всей партией findings, одна общая ко�
 умолчанию. Для Tier 2 delta-подпись обязательна. Новый полный discovery —
 только по явному запросу оператора либо при scope/authority expansion.
 
+Host-local model-free consumer и его activation boundary определены в
+[two-mac-model-free-wake-gate-v1.md](two-mac-model-free-wake-gate-v1.md).
+Он переиспользует этот exact selector и causal lineage, не создаёт второй
+transport contract и не добавляет periodic AI fallback.
+
 ## 9. Explicit non-scope
 
 - background/general runner or scheduler;
