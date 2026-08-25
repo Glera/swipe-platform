@@ -22,8 +22,8 @@
   receipt contract review/CI green. Единственное fresh activation window STOP:
   Mac A bridge не разобрал nested `gh --paginate --slurp` до POST; Mac B
   `codex exec` завершился `1` до session identity. Bindings/config/receipt/wake
-  неизменны; Mac A старый gate healthy, Mac B старый gate требует fail-safe
-  reload без consume. Receipts `5412136852` + `5412190014`.
+  неизменны; старые gates восстановлены: Mac A idle, Mac B `owner_busy`, оба
+  healthy без consume. Receipts `5412136852` + `5412190014` + `5412445561`.
 - Первый writer после handback append-only перепривязал Mac A transport к
   meta `8869029…`; PR #77/#78 Tier-2/delta и exact-head цепочки завершены.
 
