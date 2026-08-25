@@ -24,7 +24,7 @@ approved-генератор даёт бесконечный контент
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
 | Codex A (Mac A) | WAITING_OPERATOR | GO `live DB migration` 0085→0086 + слово на рестарт генератора | rollout receipt → старт #136 p3 |
-| Mac B | Bus A R1: identity подтверждена, ждёт установки app на устройство | оператор: Play Store install `com.nt.games.busjam` | Bus A pack в meta |
+| Mac B | READY → R2 #160 (запуск research-партий из Labs) | — | первый узкий E2E R2 |
 | Fable (Mac A) | TERMINAL: mission-пакет закоммичен | — | поддержка исполнения слайса |
 | Оператор | 1 акт | — | пятистрочная приёмка #151 в клиенте |
 
@@ -111,7 +111,12 @@ standalone-генератор играется в Labs локально (unverif
   ждёт операторского GO (без автоматического implementation);
   Bus A [#172](https://github.com/Glera/p4g-workspace-meta/issues/172)
   запаркован после #159-генератора. Organic novice timing — отдельный
-  taste-гейт.
+  taste-гейт. **Bus A R1 TERMINAL (REFERENCE_READY, 25.08)** — пак в master
+  ([PR #183](https://github.com/Glera/p4g-workspace-meta/pull/183), build
+  com.nt.games.busjam 82.6.1/5625, receipt
+  [#172 c.5411800603](https://github.com/Glera/p4g-workspace-meta/issues/172#issuecomment-5411800603)).
+  Два полных R1-пака за один день; copy-тикеты (Queens #171, Bus — по
+  selection) ждут операторского GO.
 - Дальше: R2 #160 (запуск партий из Labs) после S3.
 - Ссылки: [#160](https://github.com/Glera/p4g-workspace-meta/issues/160),
   [charter](docs/specs/market-researcher-r0-r1-charter.md),
