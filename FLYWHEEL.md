@@ -24,7 +24,7 @@ approved-генератор даёт бесконечный контент
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
 | Codex A (Mac A) | WAITING_OPERATOR | GO `live DB migration` 0085→0086 + слово на рестарт генератора | rollout receipt → старт #136 p3 |
-| Mac B | READY → Queens R1 | — | Queens full pack в meta |
+| Mac B | READY → #159 генератор (standalone) | — | golden seed→spec_hash + 100+ уровней в Labs |
 | Fable (Mac A) | WAITING_OPERATOR | приёмка альбома | mission-пакет: коммит трека + план |
 | Оператор | 2 акта | — | (1) GO rollout + рестарт; (2) приёмка альбома |
 
@@ -101,14 +101,18 @@ standalone-генератор играется в Labs локально (unverif
 ## И5 — Researcher и копирование
 
 - Цель: постоянный приток свежих механик: найти → pack → копировать → candidate.
-- Факт: R0 закрыт 24.08 (shortlist, scorecard, lite-паки Queens/Bus,
-  [артефакты](docs/research/2026-08-24-r0/)); charter v1.1 заморожен.
-- Шаги: Queens R1 full pack (Mac B, device-capture по playbook) → CLASS-BRIEF/
-  copy-ticket → Bus A следующим тактом → R2 #160 (запуск партий из Labs).
-- «К тесту»: первый research-кандидат проходит цикл до playable-candidate.
-- Статус: Mac B берёт Queens сразу после delta-review #78.
+- Статус: **Queens R1 TERMINAL (REFERENCE_READY)** — пак в master
+  ([PR #170](https://github.com/Glera/p4g-workspace-meta/pull/170), receipt
+  [#160 c.5408793613](https://github.com/Glera/p4g-workspace-meta/issues/160#issuecomment-5408793613));
+  copy-ticket [#171](https://github.com/Glera/p4g-workspace-meta/issues/171)
+  ждёт операторского GO (без автоматического implementation);
+  Bus A [#172](https://github.com/Glera/p4g-workspace-meta/issues/172)
+  запаркован после #159-генератора. Organic novice timing — отдельный
+  taste-гейт.
+- Дальше: R2 #160 (запуск партий из Labs) после S3.
 - Ссылки: [#160](https://github.com/Glera/p4g-workspace-meta/issues/160),
-  [charter](docs/specs/market-researcher-r0-r1-charter.md).
+  [charter](docs/specs/market-researcher-r0-r1-charter.md),
+  [pack](docs/research/2026-08-25-r1-queens/README.md).
 
 ## Горизонты (без новых P1/P2)
 
