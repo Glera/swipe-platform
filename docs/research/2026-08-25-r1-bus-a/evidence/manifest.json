@@ -1,0 +1,75 @@
+{
+  "schema": "p4g.reference-evidence-manifest.v1",
+  "mechanicId": "dependency-holding-buffer",
+  "capturedAt": "2026-08-25",
+  "rawArtifactRoot": "host-local:.research-artifacts/bus-a-r1-20260825",
+  "rawManifestSha256": "2358aab827bb1f3dd42548a557ada54f6690ee5892567efbb257db3d1ad89479",
+  "accepted": [
+    {
+      "id": "BR1-E01",
+      "path": "initial/first-launch-clean.mp4",
+      "sha256": "5574651b6131330baad9093fd788898718a7882d15d562aefb6d9ca4918217d9",
+      "role": "first-launch-and-tutorial"
+    },
+    {
+      "id": "BR1-E02",
+      "path": "levels/level-002/gameplay-clean.mp4",
+      "sha256": "05dea09f4e44948b97d7acdc682ea829cab1fd7d544ed134f036777b6d9f25a1",
+      "role": "canonical-gameplay"
+    },
+    {
+      "id": "BR1-E03",
+      "path": "levels/level-003/after-red-and-buffer-orange.png",
+      "sha256": "375b2ccdea0cd739f2fe95fdd22e981be2e36d907da0a4bcce63e09bc6de7d57",
+      "role": "staging-causality"
+    },
+    {
+      "id": "BR1-E04",
+      "path": "levels/level-003/orange-bus-buffer-release.png",
+      "sha256": "99b5a9e1b43b4cc644d06020575897d2e5a26a6a525589d5e55ff30c429bafbc",
+      "role": "automatic-staged-boarding"
+    },
+    {
+      "id": "BR1-E05",
+      "path": "failures/level-004-buffer-full/fail-clean.mp4",
+      "sha256": "7da48222753ce3dc5d53fc8ed186ff2f2fc53b65c7e259362d69f62f671bc626",
+      "role": "capacity-fail-and-heart-loss"
+    },
+    {
+      "id": "BR1-E06",
+      "path": "failures/level-004-buffer-full/after-try-again.png",
+      "sha256": "3d18fdbdab899b58e69b048aa1e00c12df0b0e980130ea19daa2f5e29fed0cc1",
+      "role": "restart-initial-state"
+    },
+    {
+      "id": "BR1-E07",
+      "path": "progression/level-008-unlock/initial-or-unlock.png",
+      "sha256": "84a073f707bcb51819504bad61b66ad74f9a12435c305ab94443b17998ce0071",
+      "role": "undo-unlock"
+    },
+    {
+      "id": "BR1-E08",
+      "path": "assists/level-008-undo/undo-clean.mp4",
+      "sha256": "32f5174235877a099754a18711291d4b1abeab9ad7a378d3f47b93b075dcbf4d",
+      "role": "undo-assist"
+    },
+    {
+      "id": "BR1-E09",
+      "path": "scenario-level1-complete-idle-tap/clean.mp4",
+      "sha256": "14830eab63d9d2fdcc0844854f6570f68ca0e602ab8ade45f3ac654dbc51ca2d",
+      "role": "scenario-clean"
+    },
+    {
+      "id": "BR1-E10",
+      "path": "scenario-level1-complete-idle-tap/instrumented.mp4",
+      "sha256": "fe0c80deb7c4992df4f93de56c68ccfc7023d49932102e4ed261bccae8fc3d41",
+      "role": "scenario-instrumented"
+    }
+  ],
+  "qualifiedOrRejected": [
+    {"paths": ["levels/level-002/post-continue.png"], "reason": "automatic-profile-editor-not-mechanics-evidence"},
+    {"paths": ["initial/first-launch-clean.mp4:first-frame"], "reason": "operator-opened-store-surface-before-app-launch"},
+    {"paths": ["assists/level-008-undo/after-undo.png"], "reason": "rewarded-refill-icon-is-monetization-boundary-only"}
+  ],
+  "rawBytesCommitted": false
+}

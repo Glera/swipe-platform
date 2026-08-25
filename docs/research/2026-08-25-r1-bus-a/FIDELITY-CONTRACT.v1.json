@@ -1,0 +1,90 @@
+{
+  "schema": "p4g.fidelity-contract.v1",
+  "mechanicId": "dependency-holding-buffer",
+  "status": "provisional-until-operator-taste",
+  "authority": "reference-replication.v3.1",
+  "mustMatch": [
+    {
+      "id": "BR1-MM01",
+      "projection": "dependency-rule",
+      "requirements": [
+        "reachable-passenger-only",
+        "blocked-tap-no-op",
+        "no-gravity-or-compaction",
+        "per-color-count-multiple-of-three"
+      ],
+      "gate": "hard"
+    },
+    {
+      "id": "BR1-MM02",
+      "projection": "receiver-and-buffer-causality",
+      "requirements": [
+        "receiver-capacity-three",
+        "staging-capacity-five",
+        "leftmost-staging-placement",
+        "automatic-staged-match-boarding",
+        "receiver-advance-on-third-seat"
+      ],
+      "gate": "hard"
+    },
+    {
+      "id": "BR1-MM03",
+      "projection": "failure-and-recovery",
+      "requirements": ["atomic-overflow-policy", "exact-restart"],
+      "openDecision": "native-capacity-fail-vs-original-reject-or-deadlock",
+      "gate": "hard"
+    },
+    {
+      "id": "BR1-MM04",
+      "projection": "terminal-causality",
+      "requirements": ["automatic-final-terminal", "single-win-event"],
+      "timing": {
+        "referenceReactionBandSeconds": [4.2, 4.6],
+        "uncertaintySeconds": 0.1,
+        "shippingTolerance": null
+      },
+      "gate": "hard"
+    }
+  ],
+  "observedTimingBands": {
+    "passengerToReceiverSeconds": [0.8, 1.0],
+    "passengerToStagingSeconds": [0.4, 0.7],
+    "receiverSwapSeconds": [2.0, 2.4],
+    "method": "media-derived-not-input-latency"
+  },
+  "laterLayer": {
+    "countedTunnels": "requires-separate-fixture",
+    "includedInFirstSlice": false
+  },
+  "explicitNonRequirements": [
+    "bus-jam-or-rollic-identity",
+    "transport-road-or-stick-characters",
+    "native-layouts",
+    "lives-or-refill-timer",
+    "soft-currency-continuation",
+    "rewarded-or-banner-ads",
+    "no-ads-purchase",
+    "native-progression-meta",
+    "reference-copy-audio-or-exact-motion",
+    "color-only-token-identity"
+  ],
+  "blockingGaps": [
+    "operator-taste-disposition",
+    "organic-novice-duration",
+    "feed-takeover-input-witness",
+    "first-party-presentation-freeze",
+    "original-overflow-policy",
+    "future-receiver-visibility"
+  ],
+  "productionDeny": {
+    "referencePackage": "com.nt.games.busjam",
+    "forbiddenNamespaces": ["bus-a-r1-reference", "bus-jam", "rollic-capture"],
+    "forbiddenContent": [
+      "captured-layout-ids",
+      "captured-assets",
+      "capture-provenance",
+      "reference-transport-art",
+      "reference-copy"
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "schema": "p4g.presentation-profile.v1",
+  "mechanicId": "dependency-holding-buffer",
+  "status": "provisional-not-implementation-authority",
+  "identity": {
+    "kind": "first-party-original-required",
+    "metaphor": null,
+    "tokenShape": null,
+    "receiverShape": null,
+    "palette": null,
+    "typography": null,
+    "copy": null,
+    "mustNotUseTransportIdentity": true
+  },
+  "viewport": {
+    "orientation": "portrait",
+    "composition": "receiver-holding-area-dependency-board",
+    "gameplayTimer": false
+  },
+  "logicalProfile": {
+    "receiverCapacity": 3,
+    "holdingCapacity": 5,
+    "countedTunnelsInFirstSlice": false,
+    "exactReferenceBoards": false
+  },
+  "inputIntents": ["select-passenger", "restart"],
+  "optionalInputIntents": ["undo"],
+  "gestureMapping": {
+    "select": "single-tap",
+    "status": "feed-takeover-witness-required",
+    "mustNot": ["select-on-feed-takeover-swipe"]
+  },
+  "receiverVisibility": {
+    "status": "operator-taste-required",
+    "nativeObservation": "active-plus-one-next-preview",
+    "preferredOriginalCandidate": "fully-visible-short-sequence"
+  },
+  "overflowPolicy": {
+    "status": "operator-taste-required",
+    "nativeTwin": "fail-when-fifth-holding-tile-becomes-occupied",
+    "preferredOriginalCandidate": "reject-overflow-and-fail-only-on-proven-deadlock"
+  },
+  "failureEconomy": {
+    "lives": false,
+    "refillTimer": false,
+    "softCurrencyContinue": false,
+    "rewardedRevive": false,
+    "purchases": false
+  },
+  "assist": {
+    "undoEnabled": null,
+    "undoMonetized": false,
+    "explainHintEnabled": null,
+    "nativeExplainHintObserved": false
+  },
+  "accessibility": {
+    "colorOnly": false,
+    "secondaryTokenCueRequired": true
+  },
+  "terminal": {
+    "trigger": "final-full-receiver-departure",
+    "submitButton": false,
+    "singleEvent": true,
+    "motionProfile": null
+  },
+  "earlyLadder": {
+    "shape": "direct-then-interleave-then-irregular",
+    "colors": [2, 3, 4, 5],
+    "hiddenInformation": "excluded-from-first-slice",
+    "exactReferenceBoards": false
+  },
+  "unresolved": [
+    "original-metaphor-and-theme",
+    "token-and-receiver-shapes",
+    "palette-and-type",
+    "overflow-policy",
+    "future-receiver-visibility",
+    "undo-inclusion",
+    "motion-and-audio",
+    "organic-session-band",
+    "feed-takeover-mapping"
+  ],
+  "consumerGate": "fail-closed-until-copy-ticket-and-operator-taste"
+}

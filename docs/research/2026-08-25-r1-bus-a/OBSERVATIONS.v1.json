@@ -1,0 +1,90 @@
+{
+  "schema": "p4g.reference-observations.v1",
+  "mechanicId": "dependency-holding-buffer",
+  "reference": {
+    "title": "Bus Jam",
+    "publisher": "Rollic Games",
+    "packageId": "com.nt.games.busjam",
+    "versionName": "82.6.1",
+    "versionCode": 5625,
+    "iosAppId": "6450176534"
+  },
+  "capture": {
+    "date": "2026-08-25",
+    "processVersion": "reference-replication.v3.1",
+    "deviceClass": "Samsung SM-A326B / Android 11 / API 30",
+    "display": {"width": 720, "height": 1600, "densityDpi": 300, "refreshHz": 60},
+    "rawManifestSha256": "2358aab827bb1f3dd42548a557ada54f6690ee5892567efbb257db3d1ad89479",
+    "rawBytesCommitted": false
+  },
+  "rules": [
+    {"id": "BR1-R01", "property": "input", "value": "single-tap-visible-reachable-passenger", "confidence": "A"},
+    {"id": "BR1-R02", "property": "movementEligibility", "value": "orthogonal-empty-route-to-egress", "confidence": "B"},
+    {"id": "BR1-R03", "property": "blockedTap", "value": "no-op", "confidence": "A"},
+    {"id": "BR1-R04", "property": "gravity", "value": false, "confidence": "A"},
+    {"id": "BR1-R05", "property": "receiverCapacity", "value": 3, "confidence": "A"},
+    {"id": "BR1-R06", "property": "stagingCapacity", "value": 5, "confidence": "A"},
+    {"id": "BR1-R07", "property": "stagingPlacement", "value": "leftmost-free", "confidence": "A"},
+    {"id": "BR1-R08", "property": "matchingPassenger", "value": "boards-active-receiver", "confidence": "A"},
+    {"id": "BR1-R09", "property": "nonmatchingPassenger", "value": "enters-staging", "confidence": "A"},
+    {"id": "BR1-R10", "property": "receiverAdvance", "value": "automatic-on-third-seat", "confidence": "A"},
+    {"id": "BR1-R11", "property": "stagedAutoBoard", "value": "matching-passengers-board-after-receiver-change", "confidence": "A"},
+    {"id": "BR1-R12", "property": "visibleReceiverLookahead", "value": 1, "confidence": "A", "note": "active plus one next preview; later order not established"},
+    {"id": "BR1-R13", "property": "nativeOverflow", "value": "immediate-fail-on-fifth-staging-occupant", "confidence": "A"},
+    {"id": "BR1-R14", "property": "nativeRestart", "value": "give-up-minus-one-life-then-exact-try-again", "confidence": "A"},
+    {"id": "BR1-R15", "property": "win", "value": "automatic-after-final-full-receiver", "confidence": "A"},
+    {"id": "BR1-R16", "property": "gameplayTimerThroughLevel8", "value": false, "confidence": "A"},
+    {"id": "BR1-R17", "property": "countedTunnels", "value": "hidden-sequence-reveals-as-outlet-clears", "confidence": "B"},
+    {"id": "BR1-R18", "property": "firstAssist", "value": "undo-unlocks-at-level8", "confidence": "A"}
+  ],
+  "timing": {
+    "method": "10Hz media-derived grayscale motion windows",
+    "uncertaintySeconds": 0.1,
+    "passengerToReceiverSeconds": [0.8, 1.0, 0.9, 0.9],
+    "passengerToStagingSeconds": [0.4, 0.5, 0.6, 0.6, 0.7],
+    "receiverSwapSeconds": 2.2,
+    "finalReceiverToTerminalSeconds": 4.4,
+    "shippingTolerance": null,
+    "humanSolveTime": null
+  },
+  "pair": {
+    "scenarioId": "bus-a-r1-level1-complete-idle-tap-v1",
+    "cleanDurationSeconds": 7.873589,
+    "instrumentedDurationSeconds": 7.9953,
+    "startAHash": "047e7e3c1800ff00",
+    "distance": 0,
+    "threshold": 12,
+    "verification": "pass",
+    "latencyClaim": null
+  },
+  "progression": [
+    {"level": 1, "colors": 2, "feature": "direct-tutorial", "completed": true},
+    {"level": 2, "colors": 2, "feature": "parallel-depth-lanes", "completed": true},
+    {"level": 3, "colors": 2, "feature": "interleaving-staging-auto-board", "completed": true},
+    {"level": 4, "colors": 3, "feature": "capacity-fail-and-retry", "completed": true},
+    {"level": 5, "colors": 3, "feature": "one-counted-tunnel-3", "completed": true},
+    {"level": 6, "colors": 3, "feature": "two-counted-tunnels-2-2", "completed": true},
+    {"level": 7, "colors": 4, "feature": "irregular-mask", "completed": true},
+    {"level": 8, "colors": 5, "feature": "multi-tunnel-and-undo", "completed": false}
+  ],
+  "nativeEconomyBoundary": {
+    "lives": 5,
+    "lifeRefillMinutesApprox": 30,
+    "overflowExtraTiles": 2,
+    "overflowSoftCurrencyCost": 500,
+    "completionSoftCurrency": 10,
+    "videoMarkedSurfacesObserved": ["completion-x2", "undo-refill"],
+    "interacted": false
+  },
+  "gaps": [
+    "organic-novice-timing",
+    "feed-takeover-comfort",
+    "future-receiver-order-beyond-one-preview",
+    "over-capacity-staged-auto-board-order",
+    "exact-tunnel-count-serialization",
+    "explanatory-solver-hint-not-observed",
+    "audio-not-captured",
+    "first-party-overflow-policy",
+    "first-party-presentation"
+  ]
+}
