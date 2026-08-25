@@ -23,8 +23,8 @@ approved-генератор даёт бесконечный контент
 
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
-| Codex A (Mac A) | WAITING_OPERATOR | GO `live DB migration` 0085→0086 + слово на рестарт генератора | rollout receipt → старт #136 p3 |
-| Mac B | READY → R2 #160 (запуск research-партий из Labs) | — | первый узкий E2E R2 |
+| Codex A (Mac A) | WAITING_OPERATOR (приёмка 5 правок закрывает #151) | операторская пятистрочная приёмка | #136 p3 → #140 → #188 → mission #177 → #159 сервер |
+| Mac B | R2 остановлен: NEEDS_PLATFORM_CHANGE → [#188](https://github.com/Glera/p4g-workspace-meta/issues/188) (research-intake у Codex A) | ждёт handback #188; альтернатива — Queens copy #171 по GO | «Ресёрч-партия» в комнате «Создать» |
 | Fable (Mac A) | TERMINAL: mission-пакет закоммичен | — | поддержка исполнения слайса |
 | Оператор | 1 акт | — | пятистрочная приёмка #151 в клиенте |
 
