@@ -547,6 +547,18 @@ function createLineageIndex() {
   };
 }
 
+export function acceptedMachineTaskDigests(bindingState, machine) {
+  if (!['mac-a', 'mac-b'].includes(machine)) {
+    throw new Error('accepted machine task identity is invalid');
+  }
+  const active = bindingState?.active?.[machine] ?? null;
+  if (!active) return [];
+  const immediateHold = bindingState.holds
+    .filter((hold) => hold.machine === machine && hold.repositoryId === active.repositoryId)
+    .at(-1) ?? null;
+  return [...new Set([active.taskDigest, immediateHold?.taskDigest].filter(Boolean))];
+}
+
 function observeLineage(lineage, wake) {
   if (!lineage.byWakeId.has(wake.wakeId)) lineage.byWakeId.set(wake.wakeId, wake);
   if (wake.schema !== CONTROL_WAKE_SCHEMA_V2) return;
@@ -793,12 +805,17 @@ export async function scanControlIssueWakes({
   const state = machineBindingStateFromIssue(issue);
   const target = state.active[machine];
   if (!target) throw new Error(`exact active ${machine} target binding is required`);
+  const callback = machine === 'mac-b' ? state.active['mac-a'] ?? null : null;
   return scanControlWakeComments({
     controlIssue,
     comments: issue.comments,
     machine,
     taskDigest: target.taskDigest,
-    callbackTaskDigest: machine === 'mac-b' ? state.active['mac-a']?.taskDigest ?? null : null,
+    acceptedTaskDigests: acceptedMachineTaskDigests(state, machine),
+    callbackTaskDigest: callback?.taskDigest ?? null,
+    acceptedCallbackTaskDigests: machine === 'mac-b'
+      ? acceptedMachineTaskDigests(state, 'mac-a')
+      : [null],
     lastScannedCommentId,
     lastConsumedWakeCommentId,
   });
@@ -949,8 +966,12 @@ export async function bootstrapMachine({
         && existing.repositoryId === repositoryId) {
       if (supersedeBindingDigest) {
         const held = state.held[supersedeBindingDigest];
+        const immediateHeldDigest = state.holds
+          .filter((item) => item.machine === machine
+            && item.repositoryId === repositoryId)
+          .at(-1)?.bindingDigest ?? null;
         const heldTaskMatches = replaceOwnerTask
-          ? held?.taskDigest !== taskDigest
+          ? held?.taskDigest !== taskDigest && immediateHeldDigest === supersedeBindingDigest
           : held?.taskDigest === taskDigest;
         if (!held || held.machine !== machine || !heldTaskMatches
             || held.repositoryId !== repositoryId) {

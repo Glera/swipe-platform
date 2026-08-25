@@ -41,6 +41,10 @@ import {
   validateWakeGateState,
   wakePrompt,
 } from './two-mac-wake-gate-core.mjs';
+import {
+  bootstrapMachine,
+  scanControlIssueWakes,
+} from './two-mac-bridge.mjs';
 import { parseArgs, runWakeGate } from './two-mac-wake-gate.mjs';
 
 const A_SESSION = '019fb1a2-9d68-7c63-9bb4-84c3154fe353';
@@ -129,6 +133,29 @@ function rawControlComments(extra = []) {
     rawComment(3, 'Exact parent receipt.'),
     ...extra,
   ];
+}
+
+function bootstrapTransport(initialComments) {
+  const issue = {
+    number: 94,
+    body: 'Phase 0 control',
+    comments: structuredClone(initialComments),
+  };
+  return {
+    async resolveRef() { return HEAD; },
+    async getRepositoryId() { return '1305418803'; },
+    async getIssue() { return structuredClone(issue); },
+    async postComment(repo, issueNumber, body) {
+      const id = String(issue.comments.length + 1);
+      issue.comments.push({
+        id,
+        body,
+        htmlUrl: `https://github.example/comments/${id}`,
+        createdAt: `2026-08-25T11:00:${id.padStart(2, '0')}.000Z`,
+      });
+      return { id };
+    },
+  };
 }
 
 function compact(raw, scanned = '0') {
@@ -239,11 +266,11 @@ test('headless replacement accepts only the immediate held owner for queued FIFO
       bridgeCommit: HEAD,
       registeredAt: '2026-08-25T11:00:01.000Z',
     });
-    const hold = createMachineHold({ binding: stale, heldAt: '2026-08-25T11:00:02.000Z' });
+    const hold = createMachineHold({ binding: stale, heldAt: '2026-08-25T11:00:03.000Z' });
     const replacement = createMachineBinding({
       ...stale,
       taskDigest: B_TASK,
-      registeredAt: '2026-08-25T11:00:03.000Z',
+      registeredAt: '2026-08-25T11:00:02.000Z',
     });
     const wake = createControlWake({
       controlIssue: 94,
@@ -286,7 +313,7 @@ test('headless replacement accepts only the immediate held owner for queued FIFO
   }
 });
 
-test('Mac B carries one queued wake across simultaneous target and callback owner replacement', () => {
+test('Mac B carries one queued wake across bootstrap-produced target and callback replacement', async () => {
   const { root, config: value } = tempConfig({ machine: 'mac-b', codexSessionId: D_SESSION });
   try {
     const staleA = createMachineBinding({
@@ -297,13 +324,21 @@ test('Mac B carries one queued wake across simultaneous target and callback owne
       controlIssue: 94, repositoryId: '1305418803', machine: 'mac-b',
       taskDigest: C_TASK, bridgeCommit: HEAD, registeredAt: '2026-08-25T11:00:02.000Z',
     });
-    const holdA = createMachineHold({ binding: staleA, heldAt: '2026-08-25T11:00:03.000Z' });
-    const holdB = createMachineHold({ binding: staleB, heldAt: '2026-08-25T11:00:04.000Z' });
-    const replacementA = createMachineBinding({
-      ...staleA, taskDigest: B_TASK, registeredAt: '2026-08-25T11:00:05.000Z',
+    const transport = bootstrapTransport([
+      { id: '1', body: encodeMachineBindingMarker(staleA) },
+      { id: '2', body: encodeMachineBindingMarker(staleB) },
+    ]);
+    await bootstrapMachine({
+      transport, repo: 'Glera/p4g-workspace-meta', controlIssue: 94,
+      machine: 'mac-a', taskDigest: B_TASK, bridgeCommit: HEAD,
+      supersedeBindingDigest: staleA.bindingDigest, replaceOwnerTask: true, apply: true,
+      clock: () => new Date('2026-08-25T11:00:03.000Z'),
     });
-    const replacementB = createMachineBinding({
-      ...staleB, taskDigest: D_TASK, registeredAt: '2026-08-25T11:00:06.000Z',
+    await bootstrapMachine({
+      transport, repo: 'Glera/p4g-workspace-meta', controlIssue: 94,
+      machine: 'mac-b', taskDigest: D_TASK, bridgeCommit: HEAD,
+      supersedeBindingDigest: staleB.bindingDigest, replaceOwnerTask: true, apply: true,
+      clock: () => new Date('2026-08-25T11:00:05.000Z'),
     });
     const wake = createControlWake({
       controlIssue: 94,
@@ -321,16 +356,23 @@ test('Mac B carries one queued wake across simultaneous target and callback owne
         supersedesWakeIds: [],
       },
     });
-    const comments = compact([
-      rawComment(1, encodeMachineBindingMarker(staleA)),
-      rawComment(2, encodeMachineBindingMarker(staleB)),
-      rawComment(3, encodeMachineHoldMarker(holdA)),
-      rawComment(4, encodeMachineHoldMarker(holdB)),
-      rawComment(5, encodeMachineBindingMarker(replacementA)),
-      rawComment(6, encodeMachineBindingMarker(replacementB)),
-      rawComment(7, 'Exact parent receipt.'),
-      rawComment(8, composeControlWakeComment('Exact queued Mac B work.', wake)),
-    ]);
+    await transport.postComment(null, 94, 'Exact parent receipt.');
+    await transport.postComment(
+      null, 94, composeControlWakeComment('Exact queued Mac B work.', wake),
+    );
+    const cliScan = await scanControlIssueWakes({
+      transport,
+      repo: 'Glera/p4g-workspace-meta',
+      controlIssue: 94,
+      machine: 'mac-b',
+      lastScannedCommentId: '7',
+      lastConsumedWakeCommentId: '7',
+    });
+    assert.equal(cliScan.nextWake.wake.wakeId, wake.wakeId);
+    const issue = await transport.getIssue();
+    const comments = compact(issue.comments.map(
+      (comment) => rawComment(comment.id, comment.body),
+    ));
     const identity = assertExactBoundSession({ config: value, comments, localBridgeCommit: HEAD });
     assert.deepEqual(identity.acceptedTaskDigests, [D_TASK, C_TASK]);
     assert.deepEqual(identity.acceptedCallbackTaskDigests, [B_TASK, A_TASK]);
@@ -345,6 +387,7 @@ test('Mac B carries one queued wake across simultaneous target and callback owne
     });
     assert.equal(observed.kind, 'dispatch');
     assert.equal(observed.scan.nextWake.wake.wakeId, wake.wakeId);
+    assert.equal(observed.scan.nextWake.wake.wakeId, cliScan.nextWake.wake.wakeId);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

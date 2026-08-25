@@ -16,7 +16,10 @@ import {
   projectMachineBindingState,
   sha256,
 } from './two-mac-bridge-contract.mjs';
-import { scanControlWakeComments } from './two-mac-bridge.mjs';
+import {
+  acceptedMachineTaskDigests,
+  scanControlWakeComments,
+} from './two-mac-bridge.mjs';
 
 export const WAKE_GATE_CONFIG_SCHEMA = 'two-mac.wake-gate.config.v1';
 export const WAKE_GATE_STATE_SCHEMA = 'two-mac.wake-gate.state.v1';
@@ -485,18 +488,7 @@ export function assertExactBoundSession({ config, comments, localBridgeCommit })
   if (binding.bridgeCommit !== localBridgeCommit) {
     throw new Error(`exact active ${config.machine} bridge binding is required`);
   }
-  const immediateHeldTask = (machine, active) => {
-    const candidates = bindingState.holds
-      .filter((hold) => hold.machine === machine
-        && hold.repositoryId === active?.repositoryId
-        && Date.parse(hold.heldAt) < Date.parse(active?.registeredAt ?? ''))
-      .sort((left, right) => Date.parse(right.heldAt) - Date.parse(left.heldAt));
-    return candidates[0]?.taskDigest ?? null;
-  };
-  const acceptedTaskDigests = [...new Set([
-    localDigest,
-    immediateHeldTask(config.machine, binding),
-  ].filter(Boolean))];
+  const acceptedTaskDigests = acceptedMachineTaskDigests(bindingState, config.machine);
   const callbackBinding = config.machine === 'mac-b'
     ? bindingState.active['mac-a'] ?? null
     : null;
@@ -505,10 +497,7 @@ export function assertExactBoundSession({ config, comments, localBridgeCommit })
     throw new Error('exact active mac-a callback binding is required');
   }
   const acceptedCallbackTaskDigests = config.machine === 'mac-b'
-    ? [...new Set([
-      callbackTaskDigest,
-      immediateHeldTask('mac-a', callbackBinding),
-    ].filter(Boolean))]
+    ? acceptedMachineTaskDigests(bindingState, 'mac-a')
     : [null];
   return {
     taskDigest: localDigest,
