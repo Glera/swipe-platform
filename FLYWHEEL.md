@@ -19,14 +19,14 @@ approved-генератор даёт бесконечный контент
 поведение игроков улучшает следующий research
 ```
 
-## Снимок загрузки полос — 25.08 (терминал T1)
+## Снимок загрузки полос — 25.08 (терминал #177 author handoff)
 
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
-| Codex A (Mac A) | WAITING_OPERATOR (приёмка 5 правок закрывает #151) | операторская пятистрочная приёмка | #136 p3 → #140 → #188 → mission #177 → #159 сервер |
+| Codex A (Mac A) | #177 NEEDS_HELP: PR #79/#49 open; Feed review+CI PASS, backend CI PASS | один operator relay обязательного physical Mac B Tier-2 discovery | backend review → единая correction/delta при findings → merge/live handoff |
 | Mac B | R2 остановлен: NEEDS_PLATFORM_CHANGE → [#188](https://github.com/Glera/p4g-workspace-meta/issues/188) (research-intake у Codex A) | ждёт handback #188; альтернатива — Queens copy #171 по GO | «Ресёрч-партия» в комнате «Создать» |
 | Fable (Mac A) | TERMINAL: mission-пакет закоммичен | — | поддержка исполнения слайса |
-| Оператор | 1 акт | — | пятистрочная приёмка #151 в клиенте |
+| Оператор | 1 relay сейчас; live-акты позже отдельно | #136 transport activation STOP не переносит review автоматически | передать exact block из #177 c.5412283389 существующей Mac B owner-сессии |
 
 Порядок Mac A «mission раньше #159-сервера» принят по рекомендации
 Codex+Fable (мораторий вижена: mission — единственный новый продуктовый
@@ -71,17 +71,20 @@ standalone-генератор играется в Labs локально (unverif
 ## И3 — Сезоны / Mission (новый вижен)
 
 - Цель: founder dogfood первого настоящего кейса в стиле утверждённого альбома.
-- Факт-база: 10 показов 13–14.08, 55 решений, альбом итерации 8; vision-патчи
-  («лестница подарков», «кипсейк→бланк») пока НЕ в git; frontend-слайс уже в
-  master за гейтами; backend-ветка требует rebase + переделки формулы под
-  лестницу; D1–D5 из старого контракта #153 фактически отвечены показами.
-- Шаги: приёмка альбома (оператор, сегодня) → Fable: коммит патчей/реестра/
-  альбома в meta, #153 → implementation plan, ТЗ-дельта лестницы, поэкранный
-  delta-лист → Codex A: backend-слайс (rebase+лестница, cross-Mac review,
-  отдельный GO на live-миграцию) + вкус-слайс ленты → dogfood.
+- Факт-база: макеты утверждены; vision-патчи, реестр №1–60, альбом, канва,
+  implementation plan, ТЗ-дельта лестницы и поэкранный delta-list в meta.
+- Явный операторский override 25.08 запустил #177 сейчас, не перехватывая
+  #140/#151/#136. Backend PR #79 строит replacement-only ladder v2 и additive
+  migration 0087; Feed PR #49 строит bounded taste slice за default-off gates.
 - «К тесту»: полный цикл кейса READY→ACTIVE→вклады→UNLOCKED→FULFILLED на
   dogfood-пользователе.
-- Статус: **MOCKUPS APPROVED (показ №12, 25.08)** — дизайн замкнут; трек закоммичен в meta (VISION-патчи, реестр №1–60, альбом, канва); план: `docs/specs/mission-etap1-implementation-plan.md`. Ждёт слота Codex A после #140. Горизонт dogfood: ~неделя от старта слайса.
+- Статус: **IMPLEMENTATION HANDOFF NEEDS_HELP** — Feed PR #49 exact
+  `2fd1b7d1…`: CI SUCCESS, blind Opus discovery→correction→delta PASS,
+  P1/P2=0. Backend PR #79 exact `d5de28eb…`: PostgreSQL/roundtrip + image CI
+  SUCCESS; обязательный physical Mac B Tier-2 discovery ждёт одного operator
+  relay из [#177 c.5412283389](https://github.com/Glera/p4g-workspace-meta/issues/177#issuecomment-5412283389).
+  Live migration 0087, rollout/settings/restart и founder dogfood не запускались
+  и остаются отдельными операторскими актами после review/merge.
 
 ## И4 — Бесконечная любимая механика (#159)
 
