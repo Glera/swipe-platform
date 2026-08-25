@@ -1,5 +1,7 @@
 # Mission Slice v0 — execution contract (draft-for-decision)
 
+> **SUPERSEDED 25.08.2026** — решения D1–D5 отвечены показами №1–12 (`docs/play-for-good/play-for-good-surfaces-registry-v1.md`); действующий план: `mission-etap1-implementation-plan.md`.
+
 Статус: **DRAFT** — ждёт пяти операторских решений §D; после них FROZEN.
 Якорь: VISION.md (обещание игроку, impact-экономика, лестница §518,
 non-goals §551). Слайс покрывает ступени 1→2 лестницы: founder dogfood

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play for Good — что уже есть (показ 13.08)</title>
+<style>
+  :root{
+    --paper:#F2EDE3; --paper-2:#E9E2D5; --ink:#2A2622; --ink-soft:#6B6259;
+    --stamp:#4A3F8F; --seal:#B8843A; --rule:#D8CFC0; --edge:#CFC5B4;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --paper:#1C1917; --paper-2:#242019; --ink:#EDE6DA; --ink-soft:#A69B8C;
+      --stamp:#9A8CF0; --seal:#D9A85A; --rule:#3A342C; --edge:#3A342C; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+  .sheet{max-width:1180px;margin:0 auto;padding:36px 20px 72px}
+  .eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--stamp);margin:0 0 12px}
+  h1{font-family:ui-serif,Georgia,serif;font-weight:600;font-size:clamp(24px,4vw,34px);
+    letter-spacing:-.015em;margin:0 0 8px}
+  h2{font-family:ui-serif,Georgia,serif;font-weight:600;font-size:20px;margin:40px 0 6px}
+  p.lead{color:var(--ink-soft);font-size:15px;max-width:64ch;margin:0}
+  .links{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0 8px}
+  .links a{display:block;border:1px solid var(--edge);border-radius:12px;
+    background:var(--paper-2);padding:14px 18px;text-decoration:none;color:var(--ink);
+    min-width:240px}
+  .links a b{display:block;font-family:ui-serif,Georgia,serif;font-size:17px}
+  .links a span{font-size:13px;color:var(--ink-soft)}
+  .note{font-size:13px;color:var(--ink-soft);max-width:70ch}
+  .grid{display:grid;gap:22px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));margin-top:14px}
+  figure{margin:0}
+  figure img{width:100%;border:1px solid var(--edge);border-radius:14px;display:block;
+    background:#0a0c10}
+  figcaption{font-size:12.5px;color:var(--ink-soft);margin-top:6px}
+  figcaption b{color:var(--ink)}
+</style>
+<div class="sheet">
+  <p class="eyebrow">Play for Good · показ 13.08 · шаг 1</p>
+  <h1>Что уже есть: макеты, карта, живые mission-экраны</h1>
+  <p class="lead">Три двери ниже — то, что уже сделано и ни разу не показывалось
+  целиком. Скрины миссии — не рисунки: это production-билд ленты из master со
+  включённым mission-флагом и стабом бэкенда (числа — «Сезон Мурки» из макетов).</p>
+
+  <div class="links">
+    <a href="season-album-2026-08-13.html" style="outline:2px solid var(--stamp);outline-offset:-1px">
+      <b>⭐ Сезонный альбом — итерация 2</b>
+      <span>по фидбеку 13.08: лапки в бар, лестница подарков, карусели, архив-витрина</span>
+    </a>
+    <a href="../season-mockups-draft-2026-08-04.html">
+      <b>Сезонный блок — 3 листа</b>
+      <span>итог сезона · кипсейк · архив с дозакрытием</span>
+    </a>
+    <a href="map-tab-2026-08-13.html">
+      <b>Карта как вкладка — всё разом</b>
+      <span>верх и низ платформы + живая карта · «Мой вклад» · статуэтки</span>
+    </a>
+    <a href="../help-map-prototype/prototype.html">
+      <b>Карта помощи — прототип</b>
+      <span>реальная география · «тёплая бумага» · кластеры и spiderfy</span>
+    </a>
+    <a href="../play-for-good-surfaces-registry-v1.md">
+      <b>Реестр поверхностей v1</b>
+      <span>восстановленный список ~20 поверхностей со статусами (markdown)</span>
+    </a>
+  </div>
+
+  <h2>Mission-slice в master — как он выглядит уже сейчас</h2>
+  <p class="note">Выключен двойным гейтом (build-флаг + capability), поэтому в
+  живой ленте его не видно. Ниже — реальные экраны.</p>
+  <div class="grid">
+    <figure><img src="mission-screens/01-hud-case-bar.png" alt="HUD с баром кейса">
+      <figcaption><b>1 · HUD ленты.</b> Бар кейса «Корм для Мурки» + лапки вместо бейджа паззлов.</figcaption></figure>
+    <figure><img src="mission-screens/02-case-screen.png" alt="Экран кейса">
+      <figcaption><b>2 · Экран кейса.</b> Метр сообщества и четыре обязательных числа.</figcaption></figure>
+    <figure><img src="mission-screens/03-case-contract.png" alt="Контракт в один тап">
+      <figcaption><b>3 · Контракт в один тап.</b> Все поля закрытой funding-policy, точными wire-значениями.</figcaption></figure>
+    <figure><img src="mission-screens/04-contribution-card.png" alt="Церемония вклада">
+      <figcaption><b>4 · Церемония вклада.</b> «Ты принёс 20 лапок» — только после server receipt.</figcaption></figure>
+    <figure><img src="mission-screens/05-unlocked-ceremony.png" alt="Церемония UNLOCKED">
+      <figcaption><b>5 · UNLOCKED.</b> «Мы сделали это»: гарантировано / открыто игрой / подарок ждёт передачи.</figcaption></figure>
+    <figure><img src="mission-screens/06-fulfilled-ceremony.png" alt="Церемония FULFILLED">
+      <figcaption><b>6 · FULFILLED.</b> «Корм передан»: сумма · дата · приют, номер перевода.</figcaption></figure>
+    <figure><img src="mission-screens/07-case-history.png" alt="История вкладов">
+      <figcaption><b>7 · История.</b> Экран кейса после вклада: строка истории из receipt.</figcaption></figure>
+  </div>
+</div>

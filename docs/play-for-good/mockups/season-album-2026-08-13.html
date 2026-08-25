@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play for Good — сезонный альбом, итерация 8 (14.08)</title>
+<style>
+  :root{
+    --paper:#F2EDE3; --paper-2:#E9E2D5; --ink:#2A2622; --ink-soft:#6B6259;
+    --stamp:#4A3F8F; --seal:#B8843A; --rule:#D8CFC0; --edge:#CFC5B4;
+    --shadow:rgba(42,38,34,.10);
+    --serif:ui-serif,"Iowan Old Style",Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+    --feed-bg:#0B0D12; --feed-card:#151823; --feed-edge:#262B3A;
+    --feed-ink:#F2F4F8; --feed-soft:#9AA1B4; --paw-gold:#E8B54A;
+    --feed-green:#4FD08C; --feed-accent:#8B7BF0;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#1C1917; --paper-2:#242019; --ink:#EDE6DA; --ink-soft:#A69B8C;
+      --stamp:#9A8CF0; --seal:#D9A85A; --rule:#3A342C; --edge:#3A342C;
+      --shadow:rgba(0,0,0,.5);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .sheet{max-width:1220px;margin:0 auto;padding:40px 20px 72px}
+  .sheet__head{max-width:66ch;margin:0 0 36px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,36px);letter-spacing:-.015em;margin:0 0 10px;text-wrap:balance}
+  h2.section{font-family:var(--serif);font-weight:600;font-size:21px;margin:46px 0 4px}
+  .sheet__head p,.section-sub{margin:0;color:var(--ink-soft);font-size:15px;max-width:62ch}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--stamp);margin:0 0 14px}
+  .row{display:grid;gap:34px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start;margin-top:18px}
+  figure{margin:0;display:flex;flex-direction:column;gap:12px}
+  figcaption{font-size:13px;color:var(--ink-soft);max-width:44ch}
+  figcaption b{color:var(--ink);font-weight:600}
+
+  /* ── рамка телефона ── */
+  .phone{width:100%;max-width:378px;border:1px solid var(--edge);border-radius:22px;background:var(--paper-2);padding:16px 14px 20px;box-shadow:0 1px 0 var(--shadow),0 14px 34px -22px var(--shadow)}
+  .phone--feed{background:var(--feed-bg);border-color:#20242F;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:470px}
+
+  /* ── HUD ── */
+  .hudgrid{display:flex;gap:10px;align-items:stretch}
+  .lvltile{flex:none;width:78px;position:relative}
+  .lvlframe{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .lvlframe rect{fill:none;stroke-width:3;vector-effect:non-scaling-stroke}
+  .lvlframe__bg{stroke:#2A2F3E}
+  .lvlframe__fg{stroke:var(--paw-gold);transition:stroke-dasharray .5s}
+  .lvl__ava{position:absolute;inset:5px;border-radius:12px;
+    background:radial-gradient(circle at 35% 28%,#55617F,#232838);display:grid;place-items:center;color:#8A93AA;font-size:24px}
+  .lvl__num{position:absolute;top:-6px;left:-6px;background:#0B0D12;border:1.5px solid var(--paw-gold);
+    border-radius:8px;padding:0 6px;font-weight:800;font-size:12px;color:var(--paw-gold);line-height:1.5}
+  .lvl__plus{position:absolute;right:-2px;bottom:-2px;width:19px;height:19px;border-radius:50%;
+    background:var(--feed-green);color:#08130C;font-weight:800;font-size:13px;line-height:1;
+    display:grid;place-items:center;border:2px solid var(--feed-bg);cursor:pointer}
+  .hudright{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+  .sbar{background:var(--feed-card);border:1px solid var(--feed-edge);border-radius:14px;padding:7px 11px 8px;min-width:0}
+  .sbar__top{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+  .sbar__name{color:var(--feed-ink);font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ibtn{flex:none;width:15px;height:15px;border-radius:50%;border:1px solid #3A415A;color:var(--feed-soft);
+    font-family:var(--mono);font-size:9.5px;display:grid;place-items:center;cursor:pointer}
+  .sbar__line{display:flex;align-items:center;gap:7px}
+  .thermo{display:flex;align-items:center;flex:1;min-width:0}
+  .thermo__bulb{width:28px;height:28px;border-radius:50%;background:#232838;border:1px solid #3A415A;
+    display:grid;place-items:center;flex:none;position:relative;z-index:2}
+  .thermo__bulb svg{width:15px;height:15px;color:var(--paw-gold)}
+  .bargift{font-size:17px;flex:none;line-height:1;cursor:default}
+  .bargift.bounce{animation:bounce .6s;display:inline-block}
+  @keyframes bounce{0%,100%{transform:scale(1)}35%{transform:scale(1.3) rotate(-8deg)}70%{transform:scale(.95) rotate(4deg)}}
+  .sbar__track{flex:1;height:18px;background:#232838;border:1px solid #3A415A;border-left:0;
+    border-radius:0 9px 9px 0;margin-left:-10px;overflow:hidden;position:relative}
+  .sbar__fill{position:absolute;inset:0 auto 0 0;width:41.2%;
+    background:linear-gradient(90deg,var(--feed-green),var(--paw-gold));transition:width .6s cubic-bezier(.2,.8,.3,1)}
+  .bartext{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-weight:800;
+    font-size:10.5px;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.02em;
+    text-shadow:0 1px 2px rgba(0,0,0,.9),0 -1px 2px rgba(0,0,0,.9),1px 0 2px rgba(0,0,0,.9),-1px 0 2px rgba(0,0,0,.9)}
+  .friends{display:flex;align-items:center;gap:6px;min-width:0}
+  .fr{width:28px;height:28px;border-radius:9px;border:1.5px solid #303649;background:radial-gradient(circle at 35% 30%,#4A5168,#232838);position:relative;flex:none}
+  .fr--paw{cursor:pointer}
+  .fr--paw:active{transform:scale(.92)}
+  .fr--paw::after{content:"";position:absolute;right:-3px;bottom:-3px;width:12px;height:12px;border-radius:50%;
+    background:var(--paw-gold) center/8px no-repeat url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230B0D12"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.2" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.4c3 0 5.2 2.3 5.2 4.6 0 1.9-1.6 3-3.4 3-1 0-1.3-.4-1.8-.4s-.8.4-1.8.4c-1.8 0-3.4-1.1-3.4-3 0-2.3 2.2-4.6 5.2-4.6z"/></svg>')}
+  .fr--more{display:grid;place-items:center;background:#1B1F2B;color:var(--feed-soft);font-size:10.5px;font-weight:700}
+  .friends__cap{font-size:10.5px;color:var(--feed-soft);margin-left:2px}
+
+  .feedbody{margin-top:14px;border:1px dashed #262B3A;border-radius:14px;flex:1;min-height:150px;display:grid;place-items:center;color:#3C4356;font-size:13px;text-align:center;cursor:pointer;user-select:none;padding:10px}
+  .feedbody:active{background:#10131C}
+
+  /* нижняя навигация: 4 слота, Лента пилюлей третьей (как в продукте) */
+  .bnav{display:flex;justify-content:space-around;align-items:end;border-top:1px solid #20242F;padding:10px 4px 2px;margin-top:14px}
+  .bnav__item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--feed-soft);font-size:9.5px;letter-spacing:.03em}
+  .bnav__item span:first-child{font-size:15px;line-height:1}
+  .bnav__item--main span:first-child{font-size:16px;background:#1B2130;border:1px solid #2A3145;border-radius:11px;padding:7px 14px}
+  .bnav__item.on{color:var(--feed-ink)}
+
+  /* плашка вклада */
+  .toast{position:absolute;left:14px;right:14px;top:-72px;background:#1A1F2E;border:1px solid #2E3550;border-radius:13px;
+    padding:10px 14px;display:flex;gap:10px;align-items:center;transition:top .45s cubic-bezier(.2,.9,.3,1.1);z-index:5}
+  .toast.show{top:14px}
+  .toast__paw{color:var(--paw-gold);width:22px;height:22px;flex:none}
+  .toast__t{color:var(--feed-ink);font-weight:700;font-size:13.5px}
+  .toast__s{color:var(--feed-soft);font-size:11.5px}
+  .flyer{position:absolute;width:16px;height:16px;color:var(--paw-gold);z-index:6;pointer-events:none;
+    transition:transform .8s cubic-bezier(.3,.1,.3,1),opacity .8s;opacity:1}
+
+  /* дейлики */
+  .dailyhead{color:var(--feed-soft);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:16px 0 10px}
+  .quest{background:var(--feed-card);border:1px solid var(--feed-edge);border-radius:13px;padding:12px 13px;display:flex;align-items:center;gap:11px}
+  .quest + .quest{margin-top:9px}
+  .quest__check{width:26px;height:26px;border-radius:50%;background:rgba(79,208,140,.15);color:var(--feed-green);display:grid;place-items:center;font-size:13px;flex:none}
+  .quest__t{flex:1;color:var(--feed-ink);font-size:13.5px;font-weight:600}
+  .reward{display:inline-flex;align-items:center;gap:5px;background:#221E15;border:1px solid #3A3322;border-radius:16px;padding:5px 10px;color:var(--paw-gold);font-weight:700;font-size:12.5px}
+  .reward svg{width:14px;height:14px}
+  .claim{background:var(--paw-gold);border:0;border-radius:10px;color:#191305;font:700 12px var(--sans);padding:8px 13px;cursor:pointer;flex:none}
+  .claim:active{transform:translateY(1px)}
+
+  /* ── экран кейса ── */
+  .case{background:var(--feed-card);border:1px solid var(--feed-edge);border-radius:16px;overflow:hidden}
+  .case__head{padding:13px 14px 10px}
+  .case__title{color:var(--feed-ink);font-weight:800;font-size:17px;margin:0}
+  .case__sub{color:var(--feed-soft);font-size:12px;margin:2px 0 0}
+  .car{position:relative}
+  .car__strip{display:flex;transition:transform .35s ease}
+  .car__slide{flex:0 0 100%;height:180px;display:grid;place-items:center;color:#57607A;font-size:13px;
+    background:linear-gradient(160deg,#232A3D,#171B28)}
+  .car__slide span{display:block;text-align:center}
+  .car__slide .big{font-size:30px;opacity:.85}
+  .car__nav{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;
+    border:0;background:rgba(10,12,18,.55);color:#C9CFDE;cursor:pointer;font-size:13px;line-height:1;z-index:3}
+  .car__nav--prev{left:8px}.car__nav--next{right:8px}
+  .car__dots{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:5px;justify-content:center;z-index:3}
+  .car__dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);border:0;padding:0;cursor:pointer}
+  .car__dot.on{background:#fff}
+  /* бар — на верхней грани медиа; вклад и точки — на нижней */
+  .mediatop{position:absolute;top:0;left:0;right:0;z-index:3;padding:8px 10px 18px;
+    background:linear-gradient(rgba(8,10,16,.92) 40%,transparent)}
+  .mediatop__line{display:flex;align-items:center;gap:7px}
+  .mediatop .thermo__bulb{background:rgba(35,40,56,.95)}
+  .mediatop .sbar__track{height:20px;background:rgba(35,40,56,.85)}
+  .mediatop .bartext{font-size:11.5px}
+  .opened{margin:2px 0 0 35px;font-size:10.5px;color:#C9CFDE;
+    text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  .opened b{color:var(--feed-green)}
+  .mychip--over{position:absolute;bottom:7px;right:8px;z-index:4;display:inline-flex;align-items:center;gap:5px;
+    background:rgba(10,13,20,.72);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:4px 9px;
+    color:var(--feed-ink);font-size:11px;font-weight:600;backdrop-filter:blur(4px)}
+  .mychip--over svg{width:12px;height:12px;color:var(--paw-gold)}
+  .case__desc{padding:12px 14px 0;color:#C7CDDD;font-size:12.5px;line-height:1.55}
+  .case__desc details{display:inline}
+  .case__desc summary{display:inline;cursor:pointer;color:var(--feed-accent);list-style:none;font-size:12px}
+  .case__desc summary::-webkit-details-marker{display:none}
+  .ladder{margin:16px 14px 16px;display:flex;flex-direction:column;gap:8px}
+  .ladder__title{color:var(--feed-ink);font-size:13.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;margin-bottom:4px}
+  .ladder__title span{font-size:24px}
+  .ms{display:flex;gap:11px;align-items:center;background:#171C29;border:1px solid #232938;border-radius:12px;padding:10px 12px}
+  .ms__icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;flex:none;background:#222839}
+  .ms--done .ms__icon{background:rgba(79,208,140,.15)}
+  .ms--cur .ms__icon{background:rgba(232,181,74,.15)}
+  .ms__body{flex:1;min-width:0}
+  .ms__sum{color:var(--feed-ink);font-weight:800;font-size:14px}
+  .ms--done .ms__sum{color:var(--feed-green)}
+  .ms__cap{color:var(--feed-soft);font-size:11.5px}
+  .ms__bar{height:4px;border-radius:2px;background:#232838;margin-top:6px;overflow:hidden}
+  .ms__bar i{display:block;height:100%;width:41%;background:var(--paw-gold)}
+  .ms__state{font-family:var(--mono);font-size:10px;color:var(--feed-soft);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+  .ms--done .ms__state{color:var(--feed-green)}
+
+  /* ── коллекции ── */
+  .grand{display:flex;gap:12px;align-items:center;background:#171C29;border:1px solid #2A3145;border-radius:14px;padding:11px 12px}
+  .grand__fig{width:50px;height:58px;flex:none;border:1px solid #3A3322;background:#221E15;border-radius:10px;display:grid;place-items:center;font-size:25px;position:relative}
+  .grand__fig::after{content:"";position:absolute;left:9px;right:9px;bottom:5px;height:3px;border-radius:2px;background:#4A3F28}
+  .grand__body{flex:1;min-width:0}
+  .grand__t{color:var(--feed-ink);font-weight:800;font-size:13px}
+  .grand__s{color:var(--feed-soft);font-size:11px}
+  .grand__prize{display:flex;align-items:center;gap:6px;margin-top:4px;color:var(--paw-gold);font-weight:700;font-size:12.5px}
+  .grand__prize svg{width:13px;height:13px;fill:currentColor}
+  .seasonrow{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin-top:10px}
+  .seasonrow .sbar__track{flex:none;height:18px;margin-left:0;border-left:1px solid #3A415A;border-radius:9px}
+  .grand__timer{margin-top:5px;font-family:var(--mono);font-size:10px;color:var(--feed-soft);letter-spacing:.05em}
+  .medgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px;margin-top:14px}
+  .med{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+  .med__ring{width:62px;height:62px;border-radius:50%;border:2.5px solid #3A415A;background:radial-gradient(circle at 35% 30%,#2E3650,#1B2130);display:grid;place-items:center;font-size:25px;position:relative}
+  .med--done .med__ring{border-color:var(--feed-green)}
+  .med--done .med__ring::after{content:"✓";position:absolute;right:-3px;bottom:-3px;width:17px;height:17px;border-radius:50%;background:var(--feed-green);color:#08130C;font-size:11px;font-weight:800;display:grid;place-items:center;border:2px solid var(--feed-bg)}
+  .med__name{font-size:10.5px;color:var(--feed-ink);font-weight:600;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .med__sub{font-family:var(--mono);font-size:9.5px;color:var(--feed-soft)}
+  .med__sub b{color:var(--paw-gold);font-weight:700}
+  .cardgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .ccard{position:relative;border:1px solid #2A3145;border-radius:10px;background:#1B2130;aspect-ratio:3/4.1;display:grid;place-items:center;align-content:center;padding:8px 5px 6px;text-align:center}
+  .ccard__stars{position:absolute;top:-7px;left:0;right:0;display:flex;justify-content:center;gap:1px;font-size:9.5px;color:var(--paw-gold);text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  .ccard__name{font-size:9.5px;color:var(--feed-soft);line-height:1.3}
+  .ccard--got{background:linear-gradient(160deg,#2C3450,#1B2130);border-color:rgba(232,181,74,.55)}
+  .ccard--got .ccard__art{font-size:23px;line-height:1;margin-bottom:4px}
+  .ccard--got .ccard__name{color:var(--feed-ink);font-weight:600}
+  .collhead{display:flex;align-items:center;gap:10px;margin-top:2px}
+  .collhead__icon{width:38px;height:38px;flex:none;border-radius:50%;border:2px solid #3A415A;background:radial-gradient(circle at 35% 30%,#2E3650,#1B2130);display:grid;place-items:center;font-size:17px}
+  .collhead__t{flex:1;color:var(--feed-ink);font-weight:800;font-size:15px;min-width:0}
+  .collprize{display:inline-flex;align-items:center;gap:5px;background:#221E15;border:1px solid #3A3322;border-radius:16px;padding:5px 10px;color:var(--paw-gold);font-weight:700;font-size:12px}
+  .collprize svg{width:13px;height:13px;fill:currentColor}
+  .pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;color:var(--feed-soft)}
+  .pager b{font-family:var(--mono);font-size:11px;border:1px solid #2A3145;border-radius:10px;padding:3px 10px;color:var(--feed-ink)}
+  .pager button{width:26px;height:26px;border-radius:50%;border:0;background:#1B2130;color:#C9CFDE;cursor:pointer;font-size:13px;line-height:1}
+  .dropcard{width:150px;margin:14px auto 0;border:1.5px solid rgba(232,181,74,.65);border-radius:13px;background:linear-gradient(160deg,#2C3450,#1B2130);padding:16px 10px 12px;text-align:center;position:relative;box-shadow:0 14px 40px -18px rgba(232,181,74,.45)}
+  .dropcard .ccard__stars{font-size:12px;top:-9px}
+  .dropcard__art{font-size:38px;line-height:1}
+  .dropcard__name{color:var(--feed-ink);font-weight:700;font-size:12.5px;margin-top:7px}
+  .dropcard__coll{color:var(--feed-soft);font-size:10.5px;margin-top:2px}
+
+  /* церемонии */
+  .cere{background:var(--feed-card);border:1px solid var(--feed-edge);border-radius:16px;overflow:hidden;text-align:center}
+  .cere__pad{padding:14px 16px 18px}
+  .cere__when{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--feed-soft);border:1px solid #2A3145;border-radius:14px;padding:3px 9px;margin-bottom:9px}
+  .cere__title{color:var(--feed-ink);font-family:var(--serif);font-weight:700;font-size:21px;margin:8px 0 4px}
+  .cere__big{color:var(--feed-green);font-weight:800;font-size:17px;margin:2px 0}
+  .cere__sub{color:var(--feed-soft);font-size:12.5px;margin:4px 0 0}
+  .cere__ref{font-family:var(--mono);font-size:10px;color:#5E6678;margin-top:8px}
+  .cere__btn{margin-top:13px;width:100%;background:var(--feed-green);border:0;border-radius:11px;color:#08130C;font:700 14px var(--sans);padding:12px;cursor:pointer}
+  .cere .car .car__slide{height:150px}
+
+  /* ── бумажный бланк ── */
+  .card{background:var(--paper);border:1px solid var(--edge);border-radius:12px;padding:18px 16px 16px;position:relative}
+  .card--ruled::after{content:"";position:absolute;inset:8px;border:1.5px dashed var(--edge);border-radius:8px;pointer-events:none}
+  .stamp{position:absolute;top:12px;right:12px;transform:rotate(-7deg);border:2px solid var(--stamp);color:var(--stamp);border-radius:4px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:4px 7px;opacity:.9}
+  .stamp--seal{border-color:var(--seal);color:var(--seal)}
+  .case-title{font-family:var(--serif);font-size:21px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
+  .case-sub{font-family:var(--mono);font-size:11px;color:var(--ink-soft);letter-spacing:.06em;margin:0 0 12px}
+  .fields{display:flex;flex-direction:column;margin:14px 0 4px}
+  .field{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule)}
+  .field:last-child{border-bottom:0}
+  .field__label{font-size:13px;color:var(--ink-soft);flex:1}
+  .field__value{font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;white-space:nowrap}
+  .field--delivered .field__value{color:var(--seal)}
+  .field--delivered .field__label{color:var(--ink)}
+  .note{font-family:var(--serif);font-size:14px;line-height:1.55;color:var(--ink);margin:14px 0 0;padding-top:12px;border-top:1px solid var(--rule)}
+  .paper-car{border:1px solid var(--edge);border-radius:10px;overflow:hidden;position:relative;margin:0 0 4px}
+  .paper-car .car__slide{height:120px;background:var(--paper-2);color:var(--ink-soft)}
+  .paper-car .car__nav{background:rgba(42,38,34,.35)}
+  .paper-car .car__dot{background:rgba(42,38,34,.3)}
+  .paper-car .car__dot.on{background:var(--ink-soft)}
+  .receipt-id{font-family:var(--mono);font-size:10px;color:var(--ink-soft);letter-spacing:.08em;margin-top:10px}
+  .legend{margin:52px 0 0;padding-top:22px;border-top:1px solid var(--rule);max-width:70ch}
+  .legend h2{font-family:var(--serif);font-size:18px;margin:0 0 10px;font-weight:600}
+  .legend ul{margin:0;padding-left:18px;color:var(--ink-soft);font-size:14px}
+  .legend li{margin:0 0 7px}
+  .legend b{color:var(--ink)}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="paw" viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.2" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.4c3 0 5.2 2.3 5.2 4.6 0 1.9-1.6 3-3.4 3-1 0-1.3-.4-1.8-.4s-.8.4-1.8.4c-1.8 0-3.4-1.1-3.4-3 0-2.3 2.2-4.6 5.2-4.6z"/></symbol>
+</svg>
+
+<div class="sheet">
+  <header class="sheet__head">
+    <p class="eyebrow">Play for Good · сезонный альбом · итерация 8 · структура коллекций от оператора</p>
+    <h1>Сезон от первой лапки до кипсейка</h1>
+    <p>Лапка теперь — колба градусника, приклеенная к бару общей обводкой; лапки на
+    друзьях кликаются и улетают в общий сбор; на экране кейса бар оформлен идентично
+    главному, под ним лаконичное «уже собрано €60».</p>
+  </header>
+
+  <h2 class="section">1 · Лента и дейлики</h2>
+  <p class="section-sub">Тап по зоне геймплея = серия пройдена (демо). В дейликах —
+  «Забрать».</p>
+  <div class="row">
+    <figure>
+      <div class="phone phone--feed" data-live>
+        <div class="toast">
+          <svg class="toast__paw"><use href="#paw" fill="currentColor"/></svg>
+          <div><div class="toast__t">+20 лапок в общий сбор</div>
+          <div class="toast__s">и +20 к твоему уровню</div></div>
+        </div>
+        <div class="hudgrid">
+          <div class="lvltile">
+            <svg class="lvlframe" viewBox="0 0 78 92" preserveAspectRatio="none">
+              <rect class="lvlframe__bg" x="1.5" y="1.5" width="75" height="89" rx="15"/>
+              <rect class="lvlframe__fg" data-ring x="1.5" y="1.5" width="75" height="89" rx="15"
+                pathLength="100" stroke-dasharray="62 38"/>
+            </svg>
+            <div class="lvl__ava">🙂</div>
+            <span class="lvl__num">7</span>
+            <span class="lvl__plus" title="добавить друга">+</span>
+          </div>
+          <div class="hudright">
+            <div class="sbar">
+              <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
+                <span class="ibtn" title="про сезон">i</span></div>
+              <div class="sbar__line">
+                <div class="thermo">
+                  <span class="thermo__bulb"><svg><use href="#paw" fill="currentColor"/></svg></span>
+                  <div class="sbar__track"><div class="sbar__fill" data-fill></div>
+                    <div class="bartext" data-count>41 205 / 100 000</div></div>
+                </div>
+                <span class="bargift" data-gift>🎁</span>
+              </div>
+            </div>
+            <div class="friends">
+              <div class="fr fr--paw"></div><div class="fr fr--paw"></div><div class="fr"></div>
+              <div class="fr"></div><div class="fr fr--more">+2</div>
+              <span class="friends__cap">друзья</span>
+            </div>
+          </div>
+        </div>
+        <div class="feedbody" data-earn="20">геймплей · механика играет один раунд<br>
+          <span style="font-size:11px;opacity:.7">(тап = серия пройдена, демо)</span></div>
+        <div class="bnav">
+          <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item"><span>🃏</span><span>Коллекции</span></div>
+          <div class="bnav__item on bnav__item--main"><span>▶</span><span>Лента</span></div>
+          <div class="bnav__item"><span>🗺</span><span>Карта</span></div>
+        </div>
+      </div>
+      <figcaption><b>Лента.</b> Лапка — колба градусника: круглая подложка с общей
+      обводкой с треком. Лапки на аватарках друзей — кликабельные: тап забирает лапки
+      активного друга в общий сбор («спасибо другу за игру») — повод заводить друзей и
+      пинать их активничать. Свои серии дают и уровень; чужие лапки — только общий бар.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone phone--feed" data-live>
+        <div class="toast">
+          <svg class="toast__paw"><use href="#paw" fill="currentColor"/></svg>
+          <div><div class="toast__t">+20 лапок в общий сбор</div>
+          <div class="toast__s">и +20 к твоему уровню</div></div>
+        </div>
+        <div class="hudgrid">
+          <div class="lvltile">
+            <svg class="lvlframe" viewBox="0 0 78 92" preserveAspectRatio="none">
+              <rect class="lvlframe__bg" x="1.5" y="1.5" width="75" height="89" rx="15"/>
+              <rect class="lvlframe__fg" data-ring x="1.5" y="1.5" width="75" height="89" rx="15"
+                pathLength="100" stroke-dasharray="62 38"/>
+            </svg>
+            <div class="lvl__ava">🙂</div>
+            <span class="lvl__num">7</span>
+            <span class="lvl__plus" title="добавить друга">+</span>
+          </div>
+          <div class="hudright">
+            <div class="sbar">
+              <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
+                <span class="ibtn" title="про сезон">i</span></div>
+              <div class="sbar__line">
+                <div class="thermo">
+                  <span class="thermo__bulb"><svg><use href="#paw" fill="currentColor"/></svg></span>
+                  <div class="sbar__track"><div class="sbar__fill" data-fill></div>
+                    <div class="bartext" data-count>41 205 / 100 000</div></div>
+                </div>
+                <span class="bargift" data-gift>🎁</span>
+              </div>
+            </div>
+            <div class="friends">
+              <div class="fr fr--paw"></div><div class="fr fr--paw"></div><div class="fr"></div>
+              <div class="fr"></div><div class="fr fr--more">+2</div>
+              <span class="friends__cap">друзья</span>
+            </div>
+          </div>
+        </div>
+        <div class="dailyhead">Ежедневные задания</div>
+        <div class="quest">
+          <div class="quest__check">✓</div>
+          <div class="quest__t">Зайти в игру</div>
+          <button class="claim" type="button" data-earn="20">Забрать</button>
+        </div>
+        <div class="quest" style="opacity:.8">
+          <div class="quest__check" style="background:#232838;color:var(--feed-soft)">1/3</div>
+          <div class="quest__t">Пройти 3 серии</div>
+          <span class="reward"><svg><use href="#paw" fill="currentColor"/></svg>+60</span>
+        </div>
+        <div style="flex:1"></div>
+        <div class="bnav">
+          <div class="bnav__item on"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item"><span>🃏</span><span>Коллекции</span></div>
+          <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
+          <div class="bnav__item"><span>🗺</span><span>Карта</span></div>
+        </div>
+      </div>
+      <figcaption><b>Дейлики.</b> Тот же верх и низ; «Забрать» — тот же полёт лапок
+      и та же плашка.</figcaption>
+    </figure>
+  </div>
+
+  <h2 class="section">2 · Экран кейса и церемония</h2>
+  <p class="section-sub">Бар — на верхней грани медиа, под ним сумма уже открытого;
+  «мой вклад» и точки-странички — на нижней грани. Обе карточки — с листалками.</p>
+  <div class="row">
+    <figure>
+      <div class="phone phone--feed" style="min-height:0">
+        <div class="case">
+          <div class="case__head">
+            <p class="case__title">Корм для Мурки на два месяца</p>
+            <p class="case__sub">Приют «Тёплый дом» · Лимасол · сезон 4</p>
+          </div>
+          <div class="car" data-carousel>
+            <div class="car__strip">
+              <div class="car__slide"><span><span class="big">🐈</span>фото · Мурка в приюте</span></div>
+              <div class="car__slide"><span><span class="big">▶</span>видео · история Мурки</span></div>
+              <div class="car__slide"><span><span class="big">📷</span>фото · вольер приюта</span></div>
+            </div>
+            <button class="car__nav car__nav--prev" type="button">‹</button>
+            <button class="car__nav car__nav--next" type="button">›</button>
+            <div class="mediatop">
+              <div class="mediatop__line">
+                <div class="thermo">
+                  <span class="thermo__bulb"><svg><use href="#paw" fill="currentColor"/></svg></span>
+                  <div class="sbar__track"><div class="sbar__fill" style="width:41.2%"></div>
+                    <div class="bartext">41 205 / 100 000</div></div>
+                </div>
+                <span class="bargift">🎁</span>
+              </div>
+              <div class="opened">уже собрано <b>€60</b></div>
+            </div>
+            <div class="car__dots"></div>
+            <span class="mychip--over"><svg><use href="#paw" fill="currentColor"/></svg>Мой вклад · 1 340</span>
+          </div>
+          <div class="case__desc">Мурка живёт в «Тёплом доме» четвёртый месяц. Приют просит
+            корм на два месяца — около 40 кг.
+            <details><summary>читать запрос полностью…</summary>
+            <span style="display:block;margin-top:6px;color:#9AA1B4">«Мурку принесли в мае
+            с улицы Гладстонос. Она восстановилась и ждёт дом. Запас корма закончится в
+            сентябре — просим сообщество помочь с кормом Royal Canin Sterilised или
+            аналогом. Фото-отчёт о закупке пришлём в течение недели после получения.» —
+            приют «Тёплый дом», июнь 2026</span></details></div>
+          <div class="ladder">
+            <div class="ladder__title"><span>🎁</span>Подарки сезона</div>
+            <div class="ms ms--done">
+              <div class="ms__icon">✓</div>
+              <div class="ms__body"><div class="ms__sum">€60</div>
+                <div class="ms__cap">гарантированный подарок</div></div>
+              <span class="ms__state">открыт</span>
+            </div>
+            <div class="ms ms--cur">
+              <div class="ms__icon">🎁</div>
+              <div class="ms__body"><div class="ms__sum">€100</div>
+                <div class="ms__cap">за 100 000 лапок сообщества</div>
+                <div class="ms__bar"><i></i></div></div>
+              <span class="ms__state">41%</span>
+            </div>
+            <div class="ms">
+              <div class="ms__icon">🔒</div>
+              <div class="ms__body"><div class="ms__sum">€300</div>
+                <div class="ms__cap">за 500 000 лапок сообщества</div></div>
+              <span class="ms__state">впереди</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption><b>Экран кейса.</b> Бар на верхней грани медиа оформлен идентично
+      главному экрану: лапка-градусник слева, подарок справа. Под баром — лаконичное
+      «уже собрано €60». «Мой вклад» и точки-странички — на нижней грани.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone phone--feed" style="min-height:0;display:flex;flex-direction:column;gap:16px">
+        <div class="cere">
+          <div class="car" data-carousel>
+            <div class="car__strip">
+              <div class="car__slide"><span><span class="big">🏠</span>фото · приют «Тёплый дом»</span></div>
+              <div class="car__slide"><span><span class="big">🐈</span>фото · Мурка сегодня</span></div>
+            </div>
+            <button class="car__nav car__nav--prev" type="button">‹</button>
+            <button class="car__nav car__nav--next" type="button">›</button>
+            <div class="car__dots"></div>
+          </div>
+          <div class="cere__pad">
+            <span class="cere__when">сразу · подарок открыт</span>
+            <div class="cere__title">Мы сделали это</div>
+            <div class="cere__big">Приют получает €160</div>
+            <div class="cere__sub">€60 гарантия платформы + €100 открыто сообществом ·
+              141 780 лапок</div>
+            <button class="cere__btn" type="button">Ура!</button>
+          </div>
+        </div>
+        <div class="cere">
+          <div class="car" data-carousel>
+            <div class="car__strip">
+              <div class="car__slide"><span><span class="big">📦</span>фото · корм привезли</span></div>
+              <div class="car__slide"><span><span class="big">▶</span>видео · Мурка обедает</span></div>
+              <div class="car__slide"><span><span class="big">🏠</span>фото · Мурку забрали домой</span></div>
+            </div>
+            <button class="car__nav car__nav--prev" type="button">‹</button>
+            <button class="car__nav car__nav--next" type="button">›</button>
+            <div class="car__dots"></div>
+          </div>
+          <div class="cere__pad">
+            <span class="cere__when">через несколько дней · отчёт приюта</span>
+            <div class="cere__title" style="font-size:19px">Помнишь, мы собрали €160 для Мурки?</div>
+            <div class="cere__sub">Приют потратил их на корм и прислал отчёт —
+              Мурку уже забрали домой.</div>
+            <div class="cere__ref">перевод fc:9a41e0c7 · записано в историю приюта</div>
+            <button class="cere__btn" type="button">Спасибо</button>
+          </div>
+        </div>
+      </div>
+      <figcaption><b>Церемония и отчёт.</b> Обе карточки с листалками; точки-странички —
+      внизу медиа.</figcaption>
+    </figure>
+  </div>
+
+  <h2 class="section">3 · Коллекции: альбом сезона</h2>
+  <p class="section-sub">15 коллекций по 9 айтемов; у каждой — название, иконка и свой
+  приз лапками. Главный приз сезона — памятная статуэтка и большой куш лапок за все 15.
+  Редкость айтемов — 1–5 звёзд.</p>
+  <div class="row">
+    <figure>
+      <div class="phone phone--feed" style="min-height:0">
+        <div class="grand">
+          <div class="grand__fig">🐈</div>
+          <div class="grand__body">
+            <div class="grand__t">Главный приз сезона</div>
+            <div class="grand__s">за все 15 коллекций сезона Мурки</div>
+            <div class="grand__prize"><svg><use href="#paw"/></svg>+5 000 лапок · статуэтка Мурки</div>
+            <div class="grand__timer">до конца сезона · 31 день</div>
+          </div>
+        </div>
+        <div class="seasonrow">
+          <div class="sbar__track"><div class="sbar__fill" style="width:30.4%"></div>
+            <div class="bartext">айтемы · 41 / 135</div></div>
+        </div>
+        <div class="medgrid">
+          <div class="med med--done"><div class="med__ring">🌅</div>
+            <span class="med__name">Закат у моря</span><span class="med__sub">9/9 · <b>+300</b></span></div>
+          <div class="med med--done"><div class="med__ring">🧶</div>
+            <span class="med__name">Клубки и корзинки</span><span class="med__sub">9/9 · <b>+300</b></span></div>
+          <div class="med med--done"><div class="med__ring">🍂</div>
+            <span class="med__name">Осень в приюте</span><span class="med__sub">9/9 · <b>+300</b></span></div>
+          <div class="med"><div class="med__ring">🐾</div>
+            <span class="med__name">Лапы и усы</span><span class="med__sub">6/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🪟</div>
+            <span class="med__name">На подоконнике</span><span class="med__sub">4/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🌙</div>
+            <span class="med__name">Ночной дозор</span><span class="med__sub">2/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🥣</div>
+            <span class="med__name">Время обеда</span><span class="med__sub">0/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🧺</div>
+            <span class="med__name">Домик из коробки</span><span class="med__sub">0/9 · +300</span></div>
+          <div class="med"><div class="med__ring">🎈</div>
+            <span class="med__name">Игры с Муркой</span><span class="med__sub">0/9 · +300</span></div>
+        </div>
+        <p style="color:var(--feed-soft);font-size:10.5px;text-align:center;margin:10px 0 2px">…и ещё 6 коллекций ниже</p>
+        <div class="bnav">
+          <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item on"><span>🃏</span><span>Коллекции</span></div>
+          <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
+          <div class="bnav__item"><span>🗺</span><span>Карта</span></div>
+        </div>
+      </div>
+      <figcaption><b>Альбом сезона.</b> Сверху — главный приз (статуэтка + большой куш
+      лапок за все 15), общий прогресс айтемов с нейтральным таймером сезона. Медальоны —
+      иконка + название + прогресс и приз коллекции; собранные — с галкой.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone phone--feed" style="min-height:0">
+        <div class="collhead">
+          <div class="collhead__icon">🐾</div>
+          <div class="collhead__t">Лапы и усы</div>
+          <span class="collprize"><svg><use href="#paw"/></svg>+300</span>
+        </div>
+        <div class="seasonrow" style="margin-top:9px">
+          <div class="sbar__track"><div class="sbar__fill" style="width:66.7%"></div>
+            <div class="bartext">6 / 9</div></div>
+        </div>
+        <div class="cardgrid">
+          <div class="ccard ccard--got"><span class="ccard__stars">★</span>
+            <div><div class="ccard__art">🐾</div><div class="ccard__name">След на песке</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★</span>
+            <div><div class="ccard__art">👃</div><div class="ccard__name">Мокрый нос</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★★</span>
+            <div><div class="ccard__art">🥛</div><div class="ccard__name">Усы в молоке</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★★</span>
+            <div><div class="ccard__art">🐈</div><div class="ccard__name">Потягушки</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★★★</span>
+            <div><div class="ccard__art">🧤</div><div class="ccard__name">Лапа в варежке</div></div></div>
+          <div class="ccard ccard--got"><span class="ccard__stars">★★★</span>
+            <div><div class="ccard__art">💤</div><div class="ccard__name">Сон кверху пузом</div></div></div>
+          <div class="ccard"><span class="ccard__stars">★★★★</span>
+            <div><div class="ccard__name">Первый снег<br>на усах</div></div></div>
+          <div class="ccard"><span class="ccard__stars">★★★★</span>
+            <div><div class="ccard__name">Отпечаток<br>в глине</div></div></div>
+          <div class="ccard"><span class="ccard__stars">★★★★★</span>
+            <div><div class="ccard__name">Лапа<br>в ладони</div></div></div>
+        </div>
+        <div class="pager">
+          <button type="button">‹</button><b>4 / 15</b><button type="button">›</button>
+        </div>
+        <div class="bnav">
+          <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item on"><span>🃏</span><span>Коллекции</span></div>
+          <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
+          <div class="bnav__item"><span>🗺</span><span>Карта</span></div>
+        </div>
+      </div>
+      <figcaption><b>Внутри коллекции.</b> Название с иконкой, приз коллекции лапками,
+      прогресс. Карточки: редкость звёздами 1–5 над карточкой, несобранные — рубашкой с
+      именем. Пейджер листает 15 коллекций.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone phone--feed" style="min-height:0;display:grid;align-content:center;justify-items:center;padding:28px 14px">
+        <div style="font-size:34px">🎁</div>
+        <div style="color:var(--feed-soft);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-top:6px">сундук за серию</div>
+        <div class="dropcard">
+          <span class="ccard__stars">★★★</span>
+          <div class="dropcard__art">🧤</div>
+          <div class="dropcard__name">Лапа в варежке</div>
+          <div class="dropcard__coll">коллекция «Лапы и усы» · 5/9</div>
+        </div>
+        <div style="color:var(--feed-ink);font-weight:700;font-size:14px;margin-top:14px">Новая карточка!</div>
+        <button class="cere__btn" type="button" style="max-width:200px;margin-top:12px">В альбом</button>
+      </div>
+      <figcaption><b>Дроп из сундука.</b> Карточка выпадает из сундука за серию; редкость
+      видна сразу. Дубли конвертируются — правило решим при реализации.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone phone--feed" style="min-height:0;display:flex;flex-direction:column;gap:16px">
+        <div class="cere">
+          <div class="cere__pad">
+            <span class="cere__when">коллекция собрана</span>
+            <div style="font-size:30px;margin-top:4px">🐾</div>
+            <div class="cere__title" style="font-size:19px">«Лапы и усы» — 9 из 9</div>
+            <div class="cere__big">+300 лапок в общий сбор</div>
+            <div class="cere__sub">лапки уже полетели в бар сезона</div>
+            <button class="cere__btn" type="button">Дальше</button>
+          </div>
+        </div>
+        <div class="cere">
+          <div class="cere__pad">
+            <span class="cere__when">все 15 коллекций · главный приз</span>
+            <div class="grand__fig" style="margin:8px auto 0;width:58px;height:66px;font-size:30px">🐈</div>
+            <div class="cere__title" style="font-size:19px">Статуэтка Мурки</div>
+            <div class="cere__big">+5 000 лапок в общий сбор</div>
+            <div class="cere__sub">память сезона — теперь в «Моих Коллекциях» на карте</div>
+            <button class="cere__btn" type="button">Ура!</button>
+          </div>
+        </div>
+      </div>
+      <figcaption><b>Две церемонии.</b> Закрытая коллекция даёт свои лапки сразу в бар;
+      сбор всех 15 — статуэтка сезона и большой куш. Статуэтка навсегда живёт в попапе
+      «Мои Коллекции» на карте.</figcaption>
+    </figure>
+  </div>
+
+  <h2 class="section">4 · Карта — вкладка, а не отдельный мир</h2>
+  <p class="section-sub">Карта живёт в той же контент-области, где играют механики:
+  верх (уровень · сезон · друзья) и низ (переходы) — как на любом экране. Внутри —
+  живой прототип: тап по флажку сразу открывает бланк сезона, «Коллекции» — попап.</p>
+  <div class="row">
+    <figure>
+      <div class="phone phone--feed" style="min-height:640px">
+        <div class="hudgrid">
+          <div class="lvltile">
+            <svg class="lvlframe" viewBox="0 0 78 92" preserveAspectRatio="none">
+              <rect class="lvlframe__bg" x="1.5" y="1.5" width="75" height="89" rx="15"/>
+              <rect class="lvlframe__fg" x="1.5" y="1.5" width="75" height="89" rx="15"
+                pathLength="100" stroke-dasharray="62 38"/>
+            </svg>
+            <div class="lvl__ava">🙂</div>
+            <span class="lvl__num">7</span>
+            <span class="lvl__plus" title="добавить друга">+</span>
+          </div>
+          <div class="hudright">
+            <div class="sbar">
+              <div class="sbar__top"><span class="sbar__name">Корм для Мурки</span>
+                <span class="ibtn" title="про сезон">i</span></div>
+              <div class="sbar__line">
+                <div class="thermo">
+                  <span class="thermo__bulb"><svg><use href="#paw" fill="currentColor"/></svg></span>
+                  <div class="sbar__track"><div class="sbar__fill" style="width:41.2%"></div>
+                    <div class="bartext">41 205 / 100 000</div></div>
+                </div>
+                <span class="bargift">🎁</span>
+              </div>
+            </div>
+            <div class="friends">
+              <div class="fr fr--paw"></div><div class="fr fr--paw"></div><div class="fr"></div>
+              <div class="fr"></div><div class="fr fr--more">+2</div>
+              <span class="friends__cap">друзья</span>
+            </div>
+          </div>
+        </div>
+        <iframe src="../help-map-prototype/prototype.html" title="карта помощи"
+          style="flex:1;border:1px solid #20242F;border-radius:14px;margin-top:14px;min-height:400px;background:#0B0D12"></iframe>
+        <div class="bnav">
+          <div class="bnav__item"><span>☑</span><span>Дейлики</span></div>
+          <div class="bnav__item"><span>🃏</span><span>Коллекции</span></div>
+          <div class="bnav__item bnav__item--main"><span>▶</span><span>Лента</span></div>
+          <div class="bnav__item on"><span>🗺</span><span>Карта</span></div>
+        </div>
+      </div>
+      <figcaption><b>Карта как вкладка.</b> Живая: зум, кластеры, «Мой след» (лапки
+      счётом — аватар не дублируется, он уже в HUD), «Коллекции» попапом, тап по
+      флажку — сразу бланк сезона без промежуточных панелек.</figcaption>
+    </figure>
+  </div>
+
+  <h2 class="section">5 · Когда сезон закрыт: один бланк-квитанция</h2>
+  <p class="section-sub">Кипсейк слит с итогом сезона. Показывается церемонией при
+  закрытии; навсегда открывается тапом по флажку сезона на карте; до отчёта приюта
+  строки «передано» в нём нет.</p>
+  <div class="row">
+    <figure>
+      <div class="phone">
+        <div class="card card--ruled">
+          <span class="stamp stamp--seal">Передано</span>
+          <p class="case-title">Сезон Мурки</p>
+          <p class="case-sub">12 июня — 31 августа · приют «Тёплый дом»</p>
+          <div class="paper-car car" data-carousel>
+            <div class="car__strip">
+              <div class="car__slide"><span>📋 запрос приюта · июнь</span></div>
+              <div class="car__slide"><span>📦 фото · корм доехал</span></div>
+              <div class="car__slide"><span>🏠 фото · Мурка дома</span></div>
+            </div>
+            <button class="car__nav car__nav--prev" type="button">‹</button>
+            <button class="car__nav car__nav--next" type="button">›</button>
+            <div class="car__dots"></div>
+          </div>
+          <div class="fields">
+            <div class="field"><span class="field__label">Лапки сообщества</span>
+              <span class="field__value">141 780</span></div>
+            <div class="field"><span class="field__label">Гарантия платформы</span>
+              <span class="field__value">€ 60,00</span></div>
+            <div class="field"><span class="field__label">Открыто подарками сообщества</span>
+              <span class="field__value">€ 100,00</span></div>
+            <div class="field field--delivered"><span class="field__label">Передано приюту</span>
+              <span class="field__value">€ 160,00</span></div>
+            <div class="field"><span class="field__label">Ваш вклад</span>
+              <span class="field__value">1 340 лапок · 27 серий</span></div>
+            <div class="field"><span class="field__label">Коллекции сезона</span>
+              <span class="field__value">15 из 15 · статуэтка</span></div>
+          </div>
+          <p class="note">Корм на два месяца доехал 3 сентября. Мурку забрали домой через
+          неделю — приют прислал фотографию.</p>
+          <p class="receipt-id">квитанция fc:9a41e0c7 · подтверждено сервером</p>
+        </div>
+      </div>
+      <figcaption><b>Бланк сезона.</b> Общие числа, твой вклад, коллекция и серверная
+      квитанция — в одном месте; вечный вход — флажок на карте с твоей лапкой.</figcaption>
+    </figure>
+  </div>
+
+  <section class="legend">
+    <h2>Что держит инварианты в этой итерации</h2>
+    <ul>
+      <li><b>Лапки — не кошелёк.</b> Личного счётчика нет; заработанное сразу в общем баре
+        и в уровне. VIP-прибавка (когда появится) двигает только общий бар.</li>
+      <li><b>Честное время глаголов.</b> На открытии — «приют получает»; «передано» —
+        только с отчётом; до отчёта в бланке сезона этой строки нет.</li>
+      <li><b>Никакой лотереи.</b> Лестница и строка «уже открыто» называют только заранее
+        обеспеченные ступени.</li>
+      <li><b>Карта — и список сезонов, и личное.</b> Отдельной вкладки «Я» нет.</li>
+      <li><b>Полные условия кейса</b> доступны из бланка сезона/карты (место уточняем).</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+  // карусели
+  document.querySelectorAll('[data-carousel]').forEach((car) => {
+    const strip = car.querySelector('.car__strip');
+    const slides = car.querySelectorAll('.car__slide');
+    const dotsBox = car.querySelector('.car__dots');
+    let i = 0;
+    slides.forEach((_, n) => {
+      const d = document.createElement('button');
+      d.type = 'button'; d.className = 'car__dot' + (n ? '' : ' on');
+      d.addEventListener('click', () => go(n));
+      dotsBox.appendChild(d);
+    });
+    const go = (n) => {
+      i = (n + slides.length) % slides.length;
+      strip.style.transform = `translateX(-${i * 100}%)`;
+      dotsBox.querySelectorAll('.car__dot').forEach((d, k) => d.classList.toggle('on', k === i));
+    };
+    car.querySelector('.car__nav--prev').addEventListener('click', () => go(i - 1));
+    car.querySelector('.car__nav--next').addEventListener('click', () => go(i + 1));
+  });
+
+  // прилёт лапок: свои серии/дейлики + лапки активных друзей
+  const fmt = (n) => n.toLocaleString('ru-RU').replace(/ /g, ' ');
+  document.querySelectorAll('.phone[data-live]').forEach((phone) => {
+    const state = { paws: 41205, lvl: 62, busy: false, timer: null };
+    const toast = phone.querySelector('.toast');
+    const toastT = toast.querySelector('.toast__t');
+    const toastS = toast.querySelector('.toast__s');
+    const fill = phone.querySelector('[data-fill]');
+    const count = phone.querySelector('[data-count]');
+    const ring = phone.querySelector('[data-ring]');
+    const gift = phone.querySelector('[data-gift]');
+    const earn = (srcEl, amount, toLevel, sub) => {
+      if (state.busy) return false; state.busy = true;
+      toastT.textContent = `+${amount} лапок в общий сбор`;
+      toastS.textContent = sub;
+      toast.classList.add('show');
+      clearTimeout(state.timer);
+      const barBox = fill.getBoundingClientRect();
+      const srcBox = srcEl.getBoundingClientRect();
+      const host = phone.getBoundingClientRect();
+      const flyers = Math.max(2, Math.min(5, Math.round(amount / 5)));
+      for (let k = 0; k < flyers; k++) {
+        const f = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        f.setAttribute('class', 'flyer');
+        f.innerHTML = '<use href="#paw" fill="currentColor"/>';
+        const x0 = srcBox.left - host.left + srcBox.width * (flyers === 1 ? 0.4 : 0.1 + k * (0.7 / flyers));
+        const y0 = srcBox.top - host.top + Math.min(40, srcBox.height * 0.4);
+        f.style.left = x0 + 'px'; f.style.top = y0 + 'px';
+        phone.appendChild(f);
+        const dx = (barBox.left - host.left + barBox.width * 0.5) - x0;
+        const dy = (barBox.top - host.top) - y0;
+        requestAnimationFrame(() => setTimeout(() => {
+          f.style.transform = `translate(${dx}px,${dy}px) scale(.5)`;
+          f.style.opacity = '0';
+        }, k * 90));
+        setTimeout(() => f.remove(), 1100 + k * 90);
+      }
+      setTimeout(() => {
+        state.paws += amount;
+        if (toLevel) state.lvl = Math.min(100, state.lvl + 3);
+        count.textContent = `${fmt(state.paws)} / ${fmt(100000)}`;
+        fill.style.width = (state.paws / 100000 * 100).toFixed(1) + '%';
+        ring.setAttribute('stroke-dasharray', `${state.lvl} ${100 - state.lvl}`);
+        gift.classList.add('bounce');
+        setTimeout(() => gift.classList.remove('bounce'), 650);
+      }, 850);
+      state.timer = setTimeout(() => { toast.classList.remove('show'); state.busy = false; }, 2400);
+      return true;
+    };
+    phone.querySelectorAll('[data-earn]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const amount = Number(trigger.dataset.earn) || 20;
+        earn(trigger, amount, true, `и +${amount} к твоему уровню`);
+      });
+    });
+    phone.querySelectorAll('.fr').forEach((friend) => {
+      friend.addEventListener('click', () => {
+        if (!friend.classList.contains('fr--paw')) return;
+        if (earn(friend, 5, false, 'спасибо другу за игру'))
+          setTimeout(() => friend.classList.remove('fr--paw'), 900);
+      });
+    });
+  });
+</script>
+</html>
