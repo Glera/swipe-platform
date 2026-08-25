@@ -26,6 +26,7 @@ import {
   deriveGeneratorTicket,
   derivePlatformTicket,
   deriveTaskDigest,
+  executeGh,
   parseArgs,
   planWake,
   publishControlWake,
@@ -1580,6 +1581,50 @@ test('task binding is derived locally and raw thread identity is absent', () => 
   assert.equal(deriveTaskDigest({ CODEX_THREAD_ID: B_THREAD }), B_TASK);
   assert.doesNotMatch(B_TASK, new RegExp(B_THREAD.slice(0, 8), 'u'));
   assert.throws(() => deriveTaskDigest({}), /CODEX_THREAD_ID is required/u);
+});
+
+test('native GitHub transport allocates a bounded journal-sized buffer and reports ENOBUFS safely', () => {
+  let invocation = null;
+  const output = executeGh(['api', '--paginate', 'example'], '/tmp/example',
+    (executable, args, options) => {
+      invocation = { executable, args, options };
+      return { status: 0, stdout: '[]', stderr: '' };
+    });
+
+  assert.equal(output, '[]');
+  assert.equal(invocation.executable, 'gh');
+  assert.deepEqual(invocation.args, ['api', '--paginate', 'example']);
+  assert.equal(invocation.options.cwd, '/tmp/example');
+  assert.equal(invocation.options.maxBuffer, 64 * 1024 * 1024);
+
+  const bufferError = Object.assign(new Error('spawnSync gh ENOBUFS'), { code: 'ENOBUFS' });
+  assert.throws(
+    () => executeGh(['api', '--paginate', 'example'], '/tmp/example', () => ({
+      status: null,
+      stdout: '[{"body":"partial durable journal',
+      stderr: '',
+      error: bufferError,
+    })),
+    (error) => {
+      assert.equal(error.message, 'gh process failed (ENOBUFS)');
+      assert.doesNotMatch(error.message, /partial durable journal/u);
+      return true;
+    },
+  );
+
+  assert.throws(
+    () => executeGh(['api', '--paginate', 'example'], '/tmp/example', () => ({
+      status: 1,
+      stdout: '[{"body":"remote journal must stay private"}]',
+      stderr: '',
+      error: null,
+    })),
+    (error) => {
+      assert.equal(error.message, 'gh failed with exit status 1');
+      assert.doesNotMatch(error.message, /remote journal/u);
+      return true;
+    },
+  );
 });
 
 test('bootstrap is exact-master bound, replay-safe, and conflicting task fails closed', async () => {

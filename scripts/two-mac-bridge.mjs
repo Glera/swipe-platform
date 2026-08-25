@@ -42,6 +42,7 @@ const PRIORITY_ISSUES = new Map([[91, 0], [82, 1]]);
 const DEFAULT_CONTROL_ISSUE = 94;
 const DEFAULT_GENERATOR_URL = 'http://127.0.0.1:4317/v1/playable-releases';
 const OFFLINE_OBSERVATION_MS = 15 * 60 * 1000;
+const GH_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
 
 const USAGE = `Usage:
   node scripts/two-mac-bridge.mjs project --issue N [--repo OWNER/REPO]
@@ -351,14 +352,26 @@ export function deriveTaskDigest(env) {
   return sha256(`codex-thread-v1\0${threadId}`);
 }
 
-function executeGh(args, cwd = process.cwd()) {
-  const result = spawnSync('gh', args, {
+export function executeGh(args, cwd = process.cwd(), run = spawnSync) {
+  const result = run('gh', args, {
     cwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    // The control Issue is append-only and already exceeds Node's ~1 MiB
+    // spawnSync default. Keep the transport bounded, but size the bound for
+    // the durable journal instead of mistaking ENOBUFS + partial stdout for a
+    // malformed GitHub response.
+    maxBuffer: GH_MAX_BUFFER_BYTES,
   });
+  if (result.error) {
+    const code = typeof result.error.code === 'string' ? ` (${result.error.code})` : '';
+    throw new Error(`gh process failed${code}`);
+  }
   if (result.status !== 0) {
-    throw new Error((result.stderr || result.stdout || 'gh failed').trim());
+    // stdout can contain the partial Issue journal even on a failed process;
+    // never copy those remote bodies into an exception or operator log.
+    const stderr = String(result.stderr || '').trim();
+    throw new Error(stderr || `gh failed with exit status ${result.status}`);
   }
   return result.stdout;
 }
