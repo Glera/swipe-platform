@@ -210,15 +210,15 @@
     "runtimeArtifactDigest": "sha256:a7b877fd60966f6ae6f71b84b43a2d9a45418a76fb3865cf3499196bf73171e9"
   },
   "orthogonal-link-v1-swipe": {
-    "version": "b77a9b5341",
+    "version": "f9ce40edce",
     "htmlBytes": 833,
-    "payloadBytes": 67495,
+    "payloadBytes": 67781,
     "assetBytes": 0,
     "assets": [],
     "mediaBytes": 0,
     "mountCost": "light",
-    "sourceCommit": "d9b1b76c7521f05bf1e7bed6a0b475e6a3604e3b",
-    "runtimeArtifactDigest": "sha256:406e610129a20686e512a13167e865d44a5a595f5cb22b80a23156639d1718de"
+    "sourceCommit": "6e2f576c94c7e382b1fee1ebeeb8c2cea2b1c02c",
+    "runtimeArtifactDigest": "sha256:6d2f93cc0c48ec16af16154bbe3557441b4c15a10162c3371b2cdfec305e6059"
   },
   "smash-fest-v1-swipe": {
     "version": "a62b0eeba7",
