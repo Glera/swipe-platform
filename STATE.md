@@ -19,10 +19,11 @@
   `com.p4g.intake-drain-watcher` (Mac A, тик 60с, без AI) — LIVE из
   `-live/p4g-workspace-meta@16f1ec0`, грант `operator:flags:write`
   до ~17.09. #136 piece 3: PR #175/#181 и headless-idle PR #184 merged;
-  receipt contract review/CI green. Единственная свежая activation остановлена
-  до POST: bridge не разобрал nested `gh --paginate --slurp` response.
-  Mac A возвращён на `ec9a080…`, gate/intake healthy; bindings, Mac B и wake
-  `5410446094` не затронуты. STOP receipt `5412136852`.
+  receipt contract review/CI green. Единственное fresh activation window STOP:
+  Mac A bridge не разобрал nested `gh --paginate --slurp` до POST; Mac B
+  `codex exec` завершился `1` до session identity. Bindings/config/receipt/wake
+  неизменны; Mac A старый gate healthy, Mac B старый gate требует fail-safe
+  reload без consume. Receipts `5412136852` + `5412190014`.
 - Первый writer после handback append-only перепривязал Mac A transport к
   meta `8869029…`; PR #77/#78 Tier-2/delta и exact-head цепочки завершены.
 
@@ -91,8 +92,9 @@
   FAIL→коррекция→delta PASS) — LIVE. Piece 3 (conditional AI wake) —
   package PR #175 после discovery + bounded N001 correction + final delta
   PASS P1/P2=0; PR #181 merged. PR #184 добавил signed mode-0600 owner receipt,
-  review/CI green; activation typed STOP
-  `github_transport_paginated_slurp_shape_invalid`. Полиш: c.5331552479.
+  review/CI green; combined activation typed STOP
+  `github_transport_paginated_slurp_shape_invalid` +
+  `headless_owner_session_creation_failed`. Полиш: c.5331552479.
 - #118: reconciliation заморожен v1 (операторские решения: carrier =
   catalog, без «Команда тестирует», порядок diff-экран → promotion);
   slice 1 (read-only шит) в проде; gap-лист/словари — comment 5329395150.
@@ -104,7 +106,7 @@
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
 | 1 | #151 терминал: физическая приёмка 5 правок | оператор | backend 0086, Generator 09d12fc и Feed 9879e3d1 live; receipt `5407846339` |
-| 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | PR #175/#181/#184 merged; activation STOP до POST на nested pagination shape; нужен отдельный parser disposition |
+| 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | PR #175/#181/#184 merged; activation STOP: GitHub parser Mac A + headless exec Mac B; нужен отдельный disposition |
 | 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
 | 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
 | 5 | Researcher: R1 Queens full pack → Bus A; затем R2 #160 (запуск партий из Labs с телефона) | Mac B | после 1 |
