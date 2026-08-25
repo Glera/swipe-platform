@@ -1,6 +1,6 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 25.08.2026 (Issue #151 F7 Tier-2 review pending). Не ledger;
+Обновлено: 25.08.2026 (#151 backend/DB/Generator live; Feed/приёмка pending). Не ledger;
 читать первым, обновлять последним; предел — 150 строк.
 **Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 **Портфельная доска маховика: [FLYWHEEL.md](FLYWHEEL.md).**
@@ -13,45 +13,45 @@
   v0, Researcher R0/R1) и frontier-эскалацию. Mac B: Codex, binding на
   meta `7808349…` (bindingDigest `ddb5b819…`).
 - Транспорт v2 (causal lineage) боевой: полный день S1/#136 прошёл через
-  wake→receipt циклы. В линии #151 один review-only wake F7 ожидает Mac B;
-  terminal receipt по нему ещё не получен.
+  wake→receipt циклы. #151 F7 получил cross-Mac delta PASS; merge, rollout
+  и Generator adoption закрыты receipt `5407651598`.
 - Автоматики Codex PAUSED. Новый model-free слой: launchd
   `com.p4g.intake-drain-watcher` (Mac A, тик 60с, без AI) — LIVE из
   `-live/p4g-workspace-meta@16f1ec0`, грант `operator:flags:write`
   до ~17.09.
 - Первый writer после handback append-only перепривязал Mac A transport к
-  meta `8869029…`; PR #77 Tier-2/delta завершены. F7 review-only wake
-  `5405313554` опубликован byte-exact в той же causal lineage; Mac B pending.
+  meta `8869029…`; PR #77/#78 Tier-2/delta и exact-head цепочки завершены.
 
-## Активный correction batch 24.08
+## Активный correction batch 24–25.08
 
 - **#151 Mac A F1/F2**: backend PR #77 merged as `e5348e2c…`, Feed PR #48
   merged as `9879e3d1…`; post-merge Browser/PostgreSQL/Feed CI SUCCESS.
-  Migration `0085` не live; deploy/restart заморожены до отдельного слова.
+  Backend-половина live; Feed static ещё на source `8d960b7…` и ждёт
+  отдельного обычного rollout перед физической приёмкой.
 - **#151 F7**: второй явно разрешённый correction-only пакет закрыл replay
   lock-order P1; focused `94`, full suite `1718` pass, финальный Opus delta
-  PASS P1/P2=0. Backend PR #78 exact head `b0119200…`, draft/CLEAN/MERGEABLE;
-  image CI `32808894854` и PostgreSQL `32808894928` SUCCESS, включая
-  isolated PG16 `0086` roundtrip. Обязательный cross-Mac Tier-2 review ждёт
-  Mac B по wake `5405313554`; merge/migrations/deploy/restart запрещены.
+  PASS P1/P2=0. PR #78 merged: backend master `33d147a2…`; master CI
+  `32825299025/32825299055` SUCCESS. Publish `32826628556`, cutover
+  `32826900075` SUCCESS; DB live на `0086`; Generator live `09d12fc…`.
 
-## Production checkpoint (18.08 вечер)
+## Production checkpoint (25.08)
 
-- **backend**: master = merge PR #76; live = кандидат publish-run
-  `32348075736` (manifest `f364f701…`); **DB `0084_playable_admin_close`**
-  (live-миграция по GO 20.08). Флаги ON: ticket bridge, notifications,
+- **backend**: master/live `33d147a2…`; publish `32826628556`, image
+  `sha256:e20f9514…`, manifest `9933c1b1…`; live deploy
+  `dep-da6l56qjnfac73b3ivvg`; **DB `0086_playable_rework_attention`**
+  (0085+0086 по explicit GO). Флаги ON: ticket bridge, notifications,
   mobile review (+operator). Owners-available OFF (ждёт #136 piece 3).
   Deploy-id волатилен — истина в дашборде. Канонический LKG-digest брать
   ТОЛЬКО из successful publish-run (урок 20.08).
-- **static**: swipe-platform `e5c7c7a` (feed source `8d960b7`, stamp
+- **static**: swipe-platform `a4738663…` (feed source `8d960b7`, stamp
   `2b13838`; short-drama-swipe экспортирован). Render build-pin =
   `8d960b7…` (актуален). Playables master `62f57c28` (PR #33 fail-closed
   build-pin + PR #34 Short Drama baseline). В ленте: шит dev-diff,
   клавиатурный фикс, intake-вертикаль, фикс short-drama.
-- **generator**: live detached `5af6f6df…` (S1-половина);
+- **generator**: live detached `09d12fc…`, tree `daaa9467…`;
   `SWIPE_MOBILE_REVIEW_ENABLED=1`; мост отсмотра подключён грантом
   `operator.review:write`. Очередь durable: 1 parked (Short Drama
-  request). Мониторинг: три чистые адопции за 18.08, stderr Δ0.
+  request). Один штатный restart 25.08, post-restart health PASS.
 - **Интейк-петля целиком автоматическая**: кнопка → outbox → watcher
   (≤60с) → drain → GitHub Issue + Telegram-пинг. Доказано на #134/#135
   (второй круг: 19 мин доставка→прод).
@@ -95,7 +95,7 @@
 
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
-| 1 | #151 терминал: delta-review PR #78 (head 6285a076) → merge → один rollout 0085+0086 (GO-категория live DB migration) → restart генератора на 09d12fc → физическая приёмка 5 правок | Codex A + Mac B + оператор | delta-wake застрял в transport старой bound-сессии; обход — pre-sign + byte-exact relay |
+| 1 | #151 терминал: Feed PR #48 static rollout → физическая приёмка 5 правок | Codex A + оператор | backend 0086 и Generator 09d12fc live; static Feed ещё не обновлён |
 | 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | поднят операторским решением 25.08 |
 | 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
 | 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
