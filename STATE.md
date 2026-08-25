@@ -1,6 +1,6 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 25.08.2026 (#151 backend/DB/Generator live; Feed/приёмка pending). Не ledger;
+Обновлено: 25.08.2026 (#151 все surfaces live; физическая приёмка pending). Не ledger;
 читать первым, обновлять последним; предел — 150 строк.
 **Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 **Портфельная доска маховика: [FLYWHEEL.md](FLYWHEEL.md).**
@@ -26,8 +26,8 @@
 
 - **#151 Mac A F1/F2**: backend PR #77 merged as `e5348e2c…`, Feed PR #48
   merged as `9879e3d1…`; post-merge Browser/PostgreSQL/Feed CI SUCCESS.
-  Backend-половина live; Feed static ещё на source `8d960b7…` и ждёт
-  отдельного обычного rollout перед физической приёмкой.
+  Backend-половина live; Feed static rollout `4e0ec0ec…` live, exact-user
+  profile сохранён; diff только `index.html` + `release.json`, mechanics unchanged.
 - **#151 F7**: второй явно разрешённый correction-only пакет закрыл replay
   lock-order P1; focused `94`, full suite `1718` pass, финальный Opus delta
   PASS P1/P2=0. PR #78 merged: backend master `33d147a2…`; master CI
@@ -43,10 +43,11 @@
   mobile review (+operator). Owners-available OFF (ждёт #136 piece 3).
   Deploy-id волатилен — истина в дашборде. Канонический LKG-digest брать
   ТОЛЬКО из successful publish-run (урок 20.08).
-- **static**: swipe-platform `a4738663…` (feed source `8d960b7`, stamp
-  `2b13838`; short-drama-swipe экспортирован). Render build-pin =
-  `8d960b7…` (актуален). Playables master `62f57c28` (PR #33 fail-closed
-  build-pin + PR #34 Short Drama baseline). В ленте: шит dev-diff,
+- **static**: swipe-platform `4e0ec0ec…` (feed source `9879e3d1…`, stamp
+  `0d18e85`; no mechanic export, `versions.json` byte-identical). Playables
+  master `6e45905d…`; exact-user profile `42692410` сохранён. Deploy tooling
+  включает fail-closed build-pin PR #33; Short Drama baseline PR #34 неизменён.
+  В ленте: шит dev-diff,
   клавиатурный фикс, intake-вертикаль, фикс short-drama.
 - **generator**: live detached `09d12fc…`, tree `daaa9467…`;
   `SWIPE_MOBILE_REVIEW_ENABLED=1`; мост отсмотра подключён грантом
@@ -95,7 +96,7 @@
 
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
-| 1 | #151 терминал: Feed PR #48 static rollout → физическая приёмка 5 правок | Codex A + оператор | backend 0086 и Generator 09d12fc live; static Feed ещё не обновлён |
+| 1 | #151 терминал: физическая приёмка 5 правок | оператор | backend 0086, Generator 09d12fc и Feed 9879e3d1 live; receipt `5407846339` |
 | 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | поднят операторским решением 25.08 |
 | 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
 | 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
