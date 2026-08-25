@@ -1,6 +1,6 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 25.08.2026 (#177 author handoff; backend review NEEDS_HELP). Не ledger;
+Обновлено: 25.08.2026 (#177 code/review merge terminal; live-акты не начаты). Не ledger;
 читать первым, обновлять последним; предел — 150 строк.
 **Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 **Портфельная доска маховика: [FLYWHEEL.md](FLYWHEEL.md).**
@@ -39,11 +39,11 @@
   `32825299025/32825299055` SUCCESS. Publish `32826628556`, cutover
   `32826900075` SUCCESS; DB live на `0086`; Generator live `09d12fc…`.
 - **#177 Mission build slice (явный override порядка после #140)**: backend
-  PR #79 (`d5de28eb…`, migration 0087) — PostgreSQL/roundtrip и image CI
-  SUCCESS, но обязательный physical Mac B Tier-2 discovery ждёт одного
-  operator relay (`#177 c.5412283389`). Feed PR #49 (`2fd1b7d1…`) — CI
-  SUCCESS, blind Opus discovery→correction→delta PASS, P1/P2=0. Никаких
-  live migration/deploy/restart/settings действий не было.
+  PR #79 merged как `00d3310d…` (migration 0087); physical Mac B Tier-2
+  STOP→единая correction→delta PASS, P1/P2=0. Feed PR #49 merged как
+  `c25af39e…`; blind Opus discovery→correction→delta PASS, P1/P2=0.
+  Exact-master PostgreSQL/roundtrip/browser и Feed CI SUCCESS. Никаких live
+  migration/deploy/static rollout/restart/settings действий не было.
 
 ## Production checkpoint (25.08)
 
@@ -116,7 +116,7 @@
 | 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
 | 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
 | 5 | Researcher: R1 Queens full pack → Bus A; затем R2 #160 (запуск партий из Labs с телефона) | Mac B | после 1 |
-| 6 | Mission #177: ladder 0087 + taste slice | Codex A; review Mac B | PR #79/#49 open; Feed PASS, backend CI green; NEEDS_HELP: один relay Tier-2 review, затем correction/delta и отдельные live-акты |
+| 6 | Mission #177: ladder 0087 + taste slice | оператор после code terminal | PR #79/#49 merged, review+master CI PASS; отдельно: GO на live 0087, rollout/settings/restart и founder dogfood |
 | 7 | #159 Infinite favorite-mechanic stream v0 | платформа | после 2–4, приоритет оператора |
 | 8 | Labs S3 (полный Labs-control с телефона) | Mac B | после 5/по приоритету |
 | 9 | Polish единой партией (#136 c.5331552479, P3 #77 ×9, P3 #78 ×3, generator trust-path/порты; transport-polish входит в п.2) + census старых draft-PR | по путям | одна партия |

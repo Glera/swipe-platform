@@ -19,14 +19,14 @@ approved-генератор даёт бесконечный контент
 поведение игроков улучшает следующий research
 ```
 
-## Снимок загрузки полос — 25.08 (терминал #177 author handoff)
+## Снимок загрузки полос — 25.08 (терминал #177 code/review merge)
 
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
-| Codex A (Mac A) | #177 NEEDS_HELP: PR #79/#49 open; Feed review+CI PASS, backend CI PASS | один operator relay обязательного physical Mac B Tier-2 discovery | backend review → единая correction/delta при findings → merge/live handoff |
+| Codex A (Mac A) | #177 MERGED: backend/Feed review+master CI PASS | live-акты вне code authority | операторский GO на 0087/rollout → founder dogfood |
 | Mac B | R2 остановлен: NEEDS_PLATFORM_CHANGE → [#188](https://github.com/Glera/p4g-workspace-meta/issues/188) (research-intake у Codex A) | ждёт handback #188; альтернатива — Queens copy #171 по GO | «Ресёрч-партия» в комнате «Создать» |
 | Fable (Mac A) | TERMINAL: mission-пакет закоммичен | — | поддержка исполнения слайса |
-| Оператор | 1 relay сейчас; live-акты позже отдельно | #136 transport activation STOP не переносит review автоматически | передать exact block из #177 c.5412283389 существующей Mac B owner-сессии |
+| Оператор | отдельные live-акты #177 | migration 0087 и rollout не входят в code merge | GO: zero-evidence preflight+0087, затем rollout/settings/restart и founder dogfood |
 
 Порядок Mac A «mission раньше #159-сервера» принят по рекомендации
 Codex+Fable (мораторий вижена: mission — единственный новый продуктовый
@@ -78,13 +78,13 @@ standalone-генератор играется в Labs локально (unverif
   migration 0087; Feed PR #49 строит bounded taste slice за default-off gates.
 - «К тесту»: полный цикл кейса READY→ACTIVE→вклады→UNLOCKED→FULFILLED на
   dogfood-пользователе.
-- Статус: **IMPLEMENTATION HANDOFF NEEDS_HELP** — Feed PR #49 exact
-  `2fd1b7d1…`: CI SUCCESS, blind Opus discovery→correction→delta PASS,
-  P1/P2=0. Backend PR #79 exact `d5de28eb…`: PostgreSQL/roundtrip + image CI
-  SUCCESS; обязательный physical Mac B Tier-2 discovery ждёт одного operator
-  relay из [#177 c.5412283389](https://github.com/Glera/p4g-workspace-meta/issues/177#issuecomment-5412283389).
-  Live migration 0087, rollout/settings/restart и founder dogfood не запускались
-  и остаются отдельными операторскими актами после review/merge.
+- Статус: **CODE/REVIEW MERGED · WAITING_OPERATOR LIVE ACTS** — Backend PR #79
+  merged как `00d3310d…` после physical Mac B Tier-2
+  STOP→correction→delta PASS; Feed PR #49 merged как `c25af39e…` после blind
+  Opus discovery→correction→delta PASS. Exact-master PostgreSQL/roundtrip,
+  real-backend browser closure и Feed lint/build CI SUCCESS. Live migration
+  0087, rollout/settings/restart и founder dogfood не запускались и остаются
+  отдельными операторскими актами.
 
 ## И4 — Бесконечная любимая механика (#159)
 
