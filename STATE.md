@@ -1,6 +1,6 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 25.08.2026 (#136 headless activation STOP; прежний gate восстановлен). Не ledger;
+Обновлено: 25.08.2026 (#136 transport activation STOP; прежний gate восстановлен). Не ledger;
 читать первым, обновлять последним; предел — 150 строк.
 **Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 **Портфельная доска маховика: [FLYWHEEL.md](FLYWHEEL.md).**
@@ -11,17 +11,18 @@
   Codex-сессия Mac A. Claude Fable удерживает portfolio/meta authority,
   STATE/checkpoint, review-участие, продуктовые контракты (Mission Slice
   v0, Researcher R0/R1) и frontier-эскалацию. Mac B: Codex, binding на
-  meta `7808349…` (bindingDigest `ddb5b819…`).
+  meta `0fbce08…` (bindingDigest `f885760a…`).
 - Транспорт v2 (causal lineage) боевой: полный день S1/#136 прошёл через
   wake→receipt циклы. #151 F7 получил cross-Mac delta PASS; merge, rollout
   и Generator adoption закрыты receipt `5407651598`.
 - Автоматики Codex PAUSED. Новый model-free слой: launchd
   `com.p4g.intake-drain-watcher` (Mac A, тик 60с, без AI) — LIVE из
   `-live/p4g-workspace-meta@16f1ec0`, грант `operator:flags:write`
-  до ~17.09. #136 piece 3: PR #175 + headless correction PR #181 merged;
-  однократная activation остановлена до смены binding: завершённый CLI-owner
-  не сохраняет writer-lock. Mac A возвращён на `ec9a080…`, gate/intake healthy;
-  Mac B и wake `5410446094` не затронуты. Receipt `5411685298`.
+  до ~17.09. #136 piece 3: PR #175/#181 и headless-idle PR #184 merged;
+  receipt contract review/CI green. Единственная свежая activation остановлена
+  до POST: bridge не разобрал nested `gh --paginate --slurp` response.
+  Mac A возвращён на `ec9a080…`, gate/intake healthy; bindings, Mac B и wake
+  `5410446094` не затронуты. STOP receipt `5412136852`.
 - Первый writer после handback append-only перепривязал Mac A transport к
   meta `8869029…`; PR #77/#78 Tier-2/delta и exact-head цепочки завершены.
 
@@ -89,8 +90,9 @@
   CLI-lock=ACCEPT_RECORDED_HAZARD) + watcher v0 (meta PR #137, Tier-1
   FAIL→коррекция→delta PASS) — LIVE. Piece 3 (conditional AI wake) —
   package PR #175 после discovery + bounded N001 correction + final delta
-  PASS P1/P2=0; PR #181 merged/CI green, activation typed STOP
-  `issue136_headless_idle_lock_absent`. Полиш: c.5331552479.
+  PASS P1/P2=0; PR #181 merged. PR #184 добавил signed mode-0600 owner receipt,
+  review/CI green; activation typed STOP
+  `github_transport_paginated_slurp_shape_invalid`. Полиш: c.5331552479.
 - #118: reconciliation заморожен v1 (операторские решения: carrier =
   catalog, без «Команда тестирует», порядок diff-экран → promotion);
   slice 1 (read-only шит) в проде; gap-лист/словари — comment 5329395150.
@@ -102,7 +104,7 @@
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
 | 1 | #151 терминал: физическая приёмка 5 правок | оператор | backend 0086, Generator 09d12fc и Feed 9879e3d1 live; receipt `5407846339` |
-| 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | PR #175/#181 merged; activation STOP, нужен bounded headless-idle receipt contract |
+| 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | PR #175/#181/#184 merged; activation STOP до POST на nested pagination shape; нужен отдельный parser disposition |
 | 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
 | 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
 | 5 | Researcher: R1 Queens full pack → Bus A; затем R2 #160 (запуск партий из Labs с телефона) | Mac B | после 1 |
