@@ -1,6 +1,6 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 25.08.2026 (#177 code/review merge terminal; live-акты не начаты). Не ledger;
+Обновлено: 25.08.2026 (#177 live DB migration 0087 DONE; rollout не начат). Не ledger;
 читать первым, обновлять последним; предел — 150 строк.
 **Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 **Портфельная доска маховика: [FLYWHEEL.md](FLYWHEEL.md).**
@@ -42,15 +42,16 @@
   PR #79 merged как `00d3310d…` (migration 0087); physical Mac B Tier-2
   STOP→единая correction→delta PASS, P1/P2=0. Feed PR #49 merged как
   `c25af39e…`; blind Opus discovery→correction→delta PASS, P1/P2=0.
-  Exact-master PostgreSQL/roundtrip/browser и Feed CI SUCCESS. Никаких live
-  migration/deploy/static rollout/restart/settings действий не было.
+  Exact-master PostgreSQL/roundtrip/browser и Feed CI SUCCESS. Live DB migration
+  `0087_mission_gift_ladder` выполнена один раз после zero-evidence preflight;
+  receipt `5414632287`. Deploy/static rollout/restart/settings не выполнялись.
 
 ## Production checkpoint (25.08)
 
-- **backend**: master/live `33d147a2…`; publish `32826628556`, image
+- **backend**: master `00d3310d…`, live `33d147a2…`; publish `32826628556`, image
   `sha256:e20f9514…`, manifest `9933c1b1…`; live deploy
-  `dep-da6l56qjnfac73b3ivvg`; **DB `0086_playable_rework_attention`**
-  (0085+0086 по explicit GO). Флаги ON: ticket bridge, notifications,
+  `dep-da6l56qjnfac73b3ivvg`; **DB `0087_mission_gift_ladder`**
+  (zero-evidence preflight + один explicit-GO upgrade). Флаги ON: ticket bridge, notifications,
   mobile review (+operator). Owners-available OFF (ждёт #136 piece 3).
   Deploy-id волатилен — истина в дашборде. Канонический LKG-digest брать
   ТОЛЬКО из successful publish-run (урок 20.08).
@@ -116,7 +117,7 @@
 | 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
 | 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
 | 5 | Researcher: R1 Queens full pack → Bus A; затем R2 #160 (запуск партий из Labs с телефона) | Mac B | после 1 |
-| 6 | Mission #177: ladder 0087 + taste slice | оператор после code terminal | PR #79/#49 merged, review+master CI PASS; отдельно: GO на live 0087, rollout/settings/restart и founder dogfood |
+| 6 | Mission #177: ladder 0087 + taste slice | оператор после code terminal | PR #79/#49 merged; DB 0087 DONE (`5414632287`); отдельно: backend/static rollout, settings/restart и founder dogfood |
 | 7 | #159 Infinite favorite-mechanic stream v0 | платформа | после 2–4, приоритет оператора |
 | 8 | Labs S3 (полный Labs-control с телефона) | Mac B | после 5/по приоритету |
 | 9 | Polish единой партией (#136 c.5331552479, P3 #77 ×9, P3 #78 ×3, generator trust-path/порты; transport-polish входит в п.2) + census старых draft-PR | по путям | одна партия |
