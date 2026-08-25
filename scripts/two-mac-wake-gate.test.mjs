@@ -16,7 +16,9 @@ import {
   composeControlWakeComment,
   createControlWake,
   createMachineBinding,
+  createMachineHold,
   encodeMachineBindingMarker,
+  encodeMachineHoldMarker,
   sha256,
 } from './two-mac-bridge-contract.mjs';
 import {
@@ -39,12 +41,20 @@ import {
   validateWakeGateState,
   wakePrompt,
 } from './two-mac-wake-gate-core.mjs';
+import {
+  bootstrapMachine,
+  scanControlIssueWakes,
+} from './two-mac-bridge.mjs';
 import { parseArgs, runWakeGate } from './two-mac-wake-gate.mjs';
 
 const A_SESSION = '019fb1a2-9d68-7c63-9bb4-84c3154fe353';
 const B_SESSION = '019fb1a2-1111-7222-8333-84c3154fe353';
+const C_SESSION = '019fb1a2-2222-7333-8444-84c3154fe353';
+const D_SESSION = '019fb1a2-3333-7444-8555-84c3154fe353';
 const A_TASK = taskDigestForSession(A_SESSION);
 const B_TASK = taskDigestForSession(B_SESSION);
+const C_TASK = taskDigestForSession(C_SESSION);
+const D_TASK = taskDigestForSession(D_SESSION);
 const HEAD = 'a'.repeat(40);
 const CLOCK = () => new Date('2026-08-25T12:00:00.000Z');
 
@@ -123,6 +133,29 @@ function rawControlComments(extra = []) {
     rawComment(3, 'Exact parent receipt.'),
     ...extra,
   ];
+}
+
+function bootstrapTransport(initialComments) {
+  const issue = {
+    number: 94,
+    body: 'Phase 0 control',
+    comments: structuredClone(initialComments),
+  };
+  return {
+    async resolveRef() { return HEAD; },
+    async getRepositoryId() { return '1305418803'; },
+    async getIssue() { return structuredClone(issue); },
+    async postComment(repo, issueNumber, body) {
+      const id = String(issue.comments.length + 1);
+      issue.comments.push({
+        id,
+        body,
+        htmlUrl: `https://github.example/comments/${id}`,
+        createdAt: `2026-08-25T11:00:${id.padStart(2, '0')}.000Z`,
+      });
+      return { id };
+    },
+  };
 }
 
 function compact(raw, scanned = '0') {
@@ -222,6 +255,144 @@ test('exact session digest, machine binding and bridge head are all required', (
   }
 });
 
+test('headless replacement accepts only the immediate held owner for queued FIFO work', () => {
+  const { root, config: value } = tempConfig({ codexSessionId: B_SESSION });
+  try {
+    const stale = createMachineBinding({
+      controlIssue: 94,
+      repositoryId: '1305418803',
+      machine: 'mac-a',
+      taskDigest: A_TASK,
+      bridgeCommit: HEAD,
+      registeredAt: '2026-08-25T11:00:01.000Z',
+    });
+    const hold = createMachineHold({ binding: stale, heldAt: '2026-08-25T11:00:03.000Z' });
+    const replacement = createMachineBinding({
+      ...stale,
+      taskDigest: B_TASK,
+      registeredAt: '2026-08-25T11:00:02.000Z',
+    });
+    const wake = createControlWake({
+      controlIssue: 94,
+      parentCommentId: '4',
+      assignedMachine: 'mac-a',
+      targetTaskDigest: A_TASK,
+      callbackTaskDigest: null,
+      verdict: 'HANDOFF_READY',
+      receiptBody: 'Queued before the owner replacement.',
+      createdAt: '2026-08-25T11:00:05.000Z',
+      lineage: {
+        ticketIssue: 151,
+        lineageId: 'lin_1234567890abcdef',
+        predecessorWakeId: null,
+        supersedesWakeIds: [],
+      },
+    });
+    const comments = compact([
+      rawComment(1, encodeMachineBindingMarker(stale)),
+      rawComment(2, encodeMachineHoldMarker(hold)),
+      rawComment(3, encodeMachineBindingMarker(replacement)),
+      rawComment(4, 'Exact parent receipt.'),
+      rawComment(5, composeControlWakeComment('Queued before the owner replacement.', wake)),
+    ]);
+    const identity = assertExactBoundSession({ config: value, comments, localBridgeCommit: HEAD });
+    assert.deepEqual(identity.acceptedTaskDigests, [B_TASK, A_TASK]);
+    const observed = observeWakeGate({
+      config: value,
+      state: initialWakeGateState('mac-a', {
+        lastScannedCommentId: '4', lastConsumedWakeCommentId: '4',
+      }),
+      comments,
+      localBridgeCommit: HEAD,
+      now: CLOCK,
+    });
+    assert.equal(observed.kind, 'dispatch');
+    assert.equal(observed.scan.nextWake.wake.wakeId, wake.wakeId);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('Mac B carries one queued wake across bootstrap-produced target and callback replacement', async () => {
+  const { root, config: value } = tempConfig({ machine: 'mac-b', codexSessionId: D_SESSION });
+  try {
+    const staleA = createMachineBinding({
+      controlIssue: 94, repositoryId: '1305418803', machine: 'mac-a',
+      taskDigest: A_TASK, bridgeCommit: HEAD, registeredAt: '2026-08-25T11:00:01.000Z',
+    });
+    const staleB = createMachineBinding({
+      controlIssue: 94, repositoryId: '1305418803', machine: 'mac-b',
+      taskDigest: C_TASK, bridgeCommit: HEAD, registeredAt: '2026-08-25T11:00:02.000Z',
+    });
+    const transport = bootstrapTransport([
+      { id: '1', body: encodeMachineBindingMarker(staleA) },
+      { id: '2', body: encodeMachineBindingMarker(staleB) },
+    ]);
+    await bootstrapMachine({
+      transport, repo: 'Glera/p4g-workspace-meta', controlIssue: 94,
+      machine: 'mac-a', taskDigest: B_TASK, bridgeCommit: HEAD,
+      supersedeBindingDigest: staleA.bindingDigest, replaceOwnerTask: true, apply: true,
+      clock: () => new Date('2026-08-25T11:00:03.000Z'),
+    });
+    await bootstrapMachine({
+      transport, repo: 'Glera/p4g-workspace-meta', controlIssue: 94,
+      machine: 'mac-b', taskDigest: D_TASK, bridgeCommit: HEAD,
+      supersedeBindingDigest: staleB.bindingDigest, replaceOwnerTask: true, apply: true,
+      clock: () => new Date('2026-08-25T11:00:05.000Z'),
+    });
+    const wake = createControlWake({
+      controlIssue: 94,
+      parentCommentId: '7',
+      assignedMachine: 'mac-b',
+      targetTaskDigest: C_TASK,
+      callbackTaskDigest: A_TASK,
+      verdict: 'HANDOFF_READY',
+      receiptBody: 'Exact queued Mac B work.',
+      createdAt: '2026-08-25T11:00:08.000Z',
+      lineage: {
+        ticketIssue: 151,
+        lineageId: 'lin_1234567890abcdef',
+        predecessorWakeId: null,
+        supersedesWakeIds: [],
+      },
+    });
+    await transport.postComment(null, 94, 'Exact parent receipt.');
+    await transport.postComment(
+      null, 94, composeControlWakeComment('Exact queued Mac B work.', wake),
+    );
+    const cliScan = await scanControlIssueWakes({
+      transport,
+      repo: 'Glera/p4g-workspace-meta',
+      controlIssue: 94,
+      machine: 'mac-b',
+      lastScannedCommentId: '7',
+      lastConsumedWakeCommentId: '7',
+    });
+    assert.equal(cliScan.nextWake.wake.wakeId, wake.wakeId);
+    const issue = await transport.getIssue();
+    const comments = compact(issue.comments.map(
+      (comment) => rawComment(comment.id, comment.body),
+    ));
+    const identity = assertExactBoundSession({ config: value, comments, localBridgeCommit: HEAD });
+    assert.deepEqual(identity.acceptedTaskDigests, [D_TASK, C_TASK]);
+    assert.deepEqual(identity.acceptedCallbackTaskDigests, [B_TASK, A_TASK]);
+    const observed = observeWakeGate({
+      config: value,
+      state: initialWakeGateState('mac-b', {
+        lastScannedCommentId: '7', lastConsumedWakeCommentId: '7',
+      }),
+      comments,
+      localBridgeCommit: HEAD,
+      now: CLOCK,
+    });
+    assert.equal(observed.kind, 'dispatch');
+    assert.equal(observed.scan.nextWake.wake.wakeId, wake.wakeId);
+    assert.equal(observed.scan.nextWake.wake.wakeId, cliScan.nextWake.wake.wakeId);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('one actionable wake becomes one immutable local payload', () => {
   const { root, config: value } = tempConfig();
   try {
@@ -274,7 +445,14 @@ test('started and unknown dispatches cannot be silently retried', () => {
   }
 });
 
-function runner({ head = HEAD, codexStatus = 0, busy = false, notificationStatus = 0, calls }) {
+function runner({
+  head = HEAD,
+  codexStatus = 0,
+  busy = false,
+  desktopOwner = false,
+  notificationStatus = 0,
+  calls,
+}) {
   return (executable, args) => {
     calls.push({ executable, args });
     if (executable === '/usr/bin/git') return { status: 0, stdout: `${head}\n`, stderr: '' };
@@ -282,6 +460,15 @@ function runner({ head = HEAD, codexStatus = 0, busy = false, notificationStatus
       return busy
         ? { status: 0, stdout: '123\n', stderr: '' }
         : { status: 1, stdout: '', stderr: '' };
+    }
+    if (executable === '/bin/ps') {
+      return {
+        status: 0,
+        stdout: desktopOwner
+          ? '/Applications/ChatGPT.app/Contents/Resources/codex app-server\n'
+          : `/Applications/ChatGPT.app/Contents/Resources/codex exec resume --json ${A_SESSION} -\n`,
+        stderr: '',
+      };
     }
     if (executable === '/usr/bin/osascript') {
       return { status: notificationStatus, stdout: '', stderr: '' };
@@ -335,6 +522,31 @@ test('busy owner leaves one durable queued wake and spends zero AI calls', async
     assert.equal(state.pending.status, 'queued');
     assert.equal(state.pending.wakeId, item.wake.wakeId);
     assert.equal(calls.some((call) => call.executable.endsWith('/codex')), false);
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('Desktop-owned thread is durable attention instead of permanent owner_busy', async () => {
+  const fixture = tempConfig();
+  const calls = [];
+  try {
+    const item = wakeComment();
+    const result = await runWakeGate({
+      configPath: fixture.configPath,
+      apply: true,
+      now: CLOCK,
+      run: runner({ calls, busy: true, desktopOwner: true }),
+      listPage: async () => rawControlComments([item.raw]),
+    });
+    assert.equal(result.action, 'attention');
+    assert.equal(result.attention.code, 'headless_owner_loaded_in_desktop');
+    assert.equal(calls.some(
+      (call) => call.executable.endsWith('/codex') && call.args[0] === 'exec',
+    ), false);
+    const state = readWakeGateState(path.join(fixture.root, 'wake-gate-state.v1.json'), 'mac-a');
+    assert.equal(state.pending.status, 'queued');
+    assert.equal(state.attention.code, 'headless_owner_loaded_in_desktop');
   } finally {
     rmSync(fixture.root, { recursive: true, force: true });
   }

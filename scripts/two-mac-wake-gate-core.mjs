@@ -16,7 +16,10 @@ import {
   projectMachineBindingState,
   sha256,
 } from './two-mac-bridge-contract.mjs';
-import { scanControlWakeComments } from './two-mac-bridge.mjs';
+import {
+  acceptedMachineTaskDigests,
+  scanControlWakeComments,
+} from './two-mac-bridge.mjs';
 
 export const WAKE_GATE_CONFIG_SCHEMA = 'two-mac.wake-gate.config.v1';
 export const WAKE_GATE_STATE_SCHEMA = 'two-mac.wake-gate.state.v1';
@@ -485,13 +488,24 @@ export function assertExactBoundSession({ config, comments, localBridgeCommit })
   if (binding.bridgeCommit !== localBridgeCommit) {
     throw new Error(`exact active ${config.machine} bridge binding is required`);
   }
-  const callbackTaskDigest = config.machine === 'mac-b'
-    ? bindingState.active['mac-a']?.taskDigest ?? null
+  const acceptedTaskDigests = acceptedMachineTaskDigests(bindingState, config.machine);
+  const callbackBinding = config.machine === 'mac-b'
+    ? bindingState.active['mac-a'] ?? null
     : null;
+  const callbackTaskDigest = callbackBinding?.taskDigest ?? null;
   if (config.machine === 'mac-b' && !SHA256.test(String(callbackTaskDigest ?? ''))) {
     throw new Error('exact active mac-a callback binding is required');
   }
-  return { taskDigest: localDigest, callbackTaskDigest, binding };
+  const acceptedCallbackTaskDigests = config.machine === 'mac-b'
+    ? acceptedMachineTaskDigests(bindingState, 'mac-a')
+    : [null];
+  return {
+    taskDigest: localDigest,
+    acceptedTaskDigests,
+    callbackTaskDigest,
+    acceptedCallbackTaskDigests,
+    binding,
+  };
 }
 
 export function assertTrustedMarkerAuthors(config, comments) {
@@ -530,7 +544,9 @@ export function observeWakeGate({ config, state, comments, localBridgeCommit, no
     comments,
     machine: config.machine,
     taskDigest: identity.taskDigest,
+    acceptedTaskDigests: identity.acceptedTaskDigests,
     callbackTaskDigest: identity.callbackTaskDigest,
+    acceptedCallbackTaskDigests: identity.acceptedCallbackTaskDigests,
     lastScannedCommentId: state.lastScannedCommentId,
     lastConsumedWakeCommentId: state.lastConsumedWakeCommentId,
   });

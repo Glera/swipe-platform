@@ -56,7 +56,8 @@ const USAGE = `Usage:
     [--ticket-issue N --lineage-id lin_HEX \\
      [--predecessor-wake-id wake_HEX] [--supersedes wake_HEX,wake_HEX,...]]
   node scripts/two-mac-bridge.mjs bootstrap --machine mac-a|mac-b \\
-    [--control-issue N] [--supersede-binding-digest SHA256] [--apply]
+    [--control-issue N] [--supersede-binding-digest SHA256] \\
+    [--replace-owner-task] [--apply]
   node scripts/two-mac-bridge.mjs bind-platform --issue N --machine mac-a \\
     [--control-issue N] [--apply]
   node scripts/two-mac-bridge.mjs bind-generator --issue N --machine mac-a \\
@@ -137,6 +138,7 @@ export function parseArgs(argv) {
     afterCommentId: '0',
     afterWakeId: '0',
     supersedeBindingDigest: null,
+    replaceOwnerTask: false,
     generatorUrl: DEFAULT_GENERATOR_URL,
     apply: false,
     help: false,
@@ -194,6 +196,8 @@ export function parseArgs(argv) {
       options.afterWakeId = takeValue(rest, index, arg); index += 1;
     } else if (arg === '--supersede-binding-digest') {
       options.supersedeBindingDigest = takeValue(rest, index, arg).toLowerCase(); index += 1;
+    } else if (arg === '--replace-owner-task') {
+      options.replaceOwnerTask = true;
     } else if (arg === '--generator-url') {
       options.generatorUrl = takeValue(rest, index, arg); index += 1;
     } else if (arg === '--apply') {
@@ -227,6 +231,10 @@ export function parseArgs(argv) {
   if (options.supersedeBindingDigest !== null
       && (options.command !== 'bootstrap' || !SHA256.test(options.supersedeBindingDigest))) {
     throw new Error('--supersede-binding-digest is valid only for bootstrap and must be SHA-256');
+  }
+  if (options.replaceOwnerTask
+      && (options.command !== 'bootstrap' || options.supersedeBindingDigest === null)) {
+    throw new Error('--replace-owner-task is valid only for bootstrap with --supersede-binding-digest');
   }
   if (options.command === 'bind-platform' && options.machine !== 'mac-a') {
     throw new Error('bind-platform is a Mac A command');
@@ -539,6 +547,18 @@ function createLineageIndex() {
   };
 }
 
+export function acceptedMachineTaskDigests(bindingState, machine) {
+  if (!['mac-a', 'mac-b'].includes(machine)) {
+    throw new Error('accepted machine task identity is invalid');
+  }
+  const active = bindingState?.active?.[machine] ?? null;
+  if (!active) return [];
+  const immediateHold = bindingState.holds
+    .filter((hold) => hold.machine === machine && hold.repositoryId === active.repositoryId)
+    .at(-1) ?? null;
+  return [...new Set([active.taskDigest, immediateHold?.taskDigest].filter(Boolean))];
+}
+
 function observeLineage(lineage, wake) {
   if (!lineage.byWakeId.has(wake.wakeId)) lineage.byWakeId.set(wake.wakeId, wake);
   if (wake.schema !== CONTROL_WAKE_SCHEMA_V2) return;
@@ -586,7 +606,9 @@ export function scanControlWakeComments({
   comments,
   machine,
   taskDigest,
+  acceptedTaskDigests = [taskDigest],
   callbackTaskDigest = null,
+  acceptedCallbackTaskDigests = [callbackTaskDigest],
   lastScannedCommentId = '0',
   lastConsumedWakeCommentId = '0',
 }) {
@@ -597,12 +619,32 @@ export function scanControlWakeComments({
   if (!['mac-a', 'mac-b'].includes(machine) || !SHA256.test(String(taskDigest || ''))) {
     throw new Error('control wake scanner identity is invalid');
   }
+  if (!Array.isArray(acceptedTaskDigests)
+      || acceptedTaskDigests.length < 1
+      || acceptedTaskDigests.length > 2
+      || acceptedTaskDigests[0] !== taskDigest
+      || new Set(acceptedTaskDigests).size !== acceptedTaskDigests.length
+      || acceptedTaskDigests.some((value) => !SHA256.test(String(value || '')))) {
+    throw new Error('control wake scanner accepted task identities are invalid');
+  }
   if (machine === 'mac-b' && !SHA256.test(String(callbackTaskDigest || ''))) {
     throw new Error('Mac B control wake scanner callback binding is invalid');
   }
   if (machine === 'mac-a' && callbackTaskDigest !== null) {
     throw new Error('Mac A control wake scanner callback binding must be null');
   }
+  if (!Array.isArray(acceptedCallbackTaskDigests)
+      || acceptedCallbackTaskDigests.length < 1
+      || acceptedCallbackTaskDigests.length > 2
+      || acceptedCallbackTaskDigests[0] !== callbackTaskDigest
+      || new Set(acceptedCallbackTaskDigests).size !== acceptedCallbackTaskDigests.length
+      || acceptedCallbackTaskDigests.some((value) => (
+        machine === 'mac-a' ? value !== null : !SHA256.test(String(value || ''))
+      ))) {
+    throw new Error('control wake scanner accepted callback identities are invalid');
+  }
+  const acceptedTargets = new Set(acceptedTaskDigests);
+  const acceptedCallbacks = new Set(acceptedCallbackTaskDigests);
   validateCursor(lastScannedCommentId, 'lastScannedCommentId');
   validateCursor(lastConsumedWakeCommentId, 'lastConsumedWakeCommentId');
   if (BigInt(lastConsumedWakeCommentId) > BigInt(lastScannedCommentId)) {
@@ -675,7 +717,7 @@ export function scanControlWakeComments({
     const classification = classifyControlWake(wake, lineage);
     observeLineage(lineage, wake);
     if (wake.assignedMachine !== machine) continue;
-    if (wake.targetTaskDigest !== taskDigest) {
+    if (!acceptedTargets.has(wake.targetTaskDigest)) {
       if (afterConsumed) {
         attention.push({
           action: 'STOP',
@@ -687,7 +729,7 @@ export function scanControlWakeComments({
       }
       continue;
     }
-    if (wake.callbackTaskDigest !== callbackTaskDigest) {
+    if (!acceptedCallbacks.has(wake.callbackTaskDigest)) {
       if (afterConsumed) {
         attention.push({
           action: 'STOP',
@@ -763,12 +805,17 @@ export async function scanControlIssueWakes({
   const state = machineBindingStateFromIssue(issue);
   const target = state.active[machine];
   if (!target) throw new Error(`exact active ${machine} target binding is required`);
+  const callback = machine === 'mac-b' ? state.active['mac-a'] ?? null : null;
   return scanControlWakeComments({
     controlIssue,
     comments: issue.comments,
     machine,
     taskDigest: target.taskDigest,
-    callbackTaskDigest: machine === 'mac-b' ? state.active['mac-a']?.taskDigest ?? null : null,
+    acceptedTaskDigests: acceptedMachineTaskDigests(state, machine),
+    callbackTaskDigest: callback?.taskDigest ?? null,
+    acceptedCallbackTaskDigests: machine === 'mac-b'
+      ? acceptedMachineTaskDigests(state, 'mac-a')
+      : [null],
     lastScannedCommentId,
     lastConsumedWakeCommentId,
   });
@@ -904,6 +951,7 @@ export async function bootstrapMachine({
   taskDigest,
   bridgeCommit,
   supersedeBindingDigest = null,
+  replaceOwnerTask = false,
   apply,
   clock = () => new Date(),
 }) {
@@ -918,7 +966,14 @@ export async function bootstrapMachine({
         && existing.repositoryId === repositoryId) {
       if (supersedeBindingDigest) {
         const held = state.held[supersedeBindingDigest];
-        if (!held || held.machine !== machine || held.taskDigest !== taskDigest
+        const immediateHeldDigest = state.holds
+          .filter((item) => item.machine === machine
+            && item.repositoryId === repositoryId)
+          .at(-1)?.bindingDigest ?? null;
+        const heldTaskMatches = replaceOwnerTask
+          ? held?.taskDigest !== taskDigest && immediateHeldDigest === supersedeBindingDigest
+          : held?.taskDigest === taskDigest;
+        if (!held || held.machine !== machine || !heldTaskMatches
             || held.repositoryId !== repositoryId) {
           throw new Error(`superseded ${machine} binding is not exact durable HOLD evidence`);
         }
@@ -929,16 +984,22 @@ export async function bootstrapMachine({
       throw new Error(`active ${machine} binding requires explicit machine-readable supersession`);
     }
     if (existing.bindingDigest !== supersedeBindingDigest
-        || existing.taskDigest !== taskDigest
         || existing.repositoryId !== repositoryId) {
       throw new Error(`superseded ${machine} binding does not match the exact local task and repository`);
+    }
+    if (replaceOwnerTask ? existing.taskDigest === taskDigest : existing.taskDigest !== taskDigest) {
+      throw new Error(replaceOwnerTask
+        ? `replacement ${machine} owner task must be new`
+        : `superseded ${machine} binding does not match the exact local task and repository`);
     }
   }
   const previouslyHeld = supersedeBindingDigest ? state.held[supersedeBindingDigest] : null;
   if (!existing && supersedeBindingDigest
       && (!previouslyHeld
         || previouslyHeld.machine !== machine
-        || previouslyHeld.taskDigest !== taskDigest
+        || (replaceOwnerTask
+          ? previouslyHeld.taskDigest === taskDigest
+          : previouslyHeld.taskDigest !== taskDigest)
         || previouslyHeld.repositoryId !== repositoryId)) {
     throw new Error(`superseded ${machine} binding is not exact durable HOLD evidence`);
   }
@@ -1575,6 +1636,7 @@ export async function runCli(argv, {
         transport, repo: options.repo, controlIssue: options.controlIssue,
         machine: options.machine, taskDigest, bridgeCommit: resolveHead(),
         supersedeBindingDigest: options.supersedeBindingDigest,
+        replaceOwnerTask: options.replaceOwnerTask,
         apply: options.apply, clock,
       });
       writeOut(`${JSON.stringify(result, null, 2)}\n`);

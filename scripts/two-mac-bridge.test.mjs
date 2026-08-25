@@ -13,9 +13,11 @@ import {
   encodeEventMarker,
   encodeMachineBindingMarker,
   encodeTicketMarker,
+  projectMachineBindingState,
   sha256,
 } from './two-mac-bridge-contract.mjs';
 import {
+  acceptedMachineTaskDigests,
   bindGeneratorIssue,
   bindPlatformIssue,
   bootstrapMachine,
@@ -100,7 +102,7 @@ function nextCommentId(comments) {
   return String(maximum + 1n);
 }
 
-function memoryTransport(initialIssue, { onPost = null, control = null } = {}) {
+function memoryTransport(initialIssue, { onPost = null, control = null, resolveRef = null } = {}) {
   let current = structuredClone(initialIssue);
   let controlState = structuredClone(control ?? (initialIssue.number === 94
     ? initialIssue
@@ -131,7 +133,7 @@ function memoryTransport(initialIssue, { onPost = null, control = null } = {}) {
       if (destination === current && onPost) current = await onPost({ current, posts }) ?? current;
       return { id };
     },
-    async resolveRef() { return HEAD; },
+    async resolveRef() { return resolveRef ? resolveRef() : HEAD; },
   };
 }
 
@@ -284,6 +286,13 @@ test('CLI is dry-run by default and never accepts a task digest or command paylo
   assert.equal(parseArgs([
     'bootstrap', '--machine', 'mac-b', '--supersede-binding-digest', 'f'.repeat(64),
   ]).supersedeBindingDigest, 'f'.repeat(64));
+  assert.equal(parseArgs([
+    'bootstrap', '--machine', 'mac-b', '--supersede-binding-digest', 'f'.repeat(64),
+    '--replace-owner-task',
+  ]).replaceOwnerTask, true);
+  assert.throws(() => parseArgs([
+    'bootstrap', '--machine', 'mac-b', '--replace-owner-task',
+  ]), /with --supersede-binding-digest/u);
   assert.throws(() => parseArgs([
     'claim', '--issue', '91', '--machine', 'mac-b',
     '--supersede-binding-digest', 'f'.repeat(64),
@@ -1644,6 +1653,88 @@ test('replacement bootstrap requires explicit HOLD, preserves stale evidence, an
   });
   assert.equal(replay.status, 'REUSE');
   assert.equal(transport.posts.length, 2);
+});
+
+test('operator-authorized owner replacement binds a new headless task and retains the old task as HOLD', async () => {
+  const stale = createMachineBinding({
+    controlIssue: 94,
+    repositoryId: '123456789',
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    bridgeCommit: HEAD,
+    registeredAt: '2026-08-11T09:00:00.000Z',
+  });
+  const transport = memoryTransport(controlIssue([stale]));
+  const args = {
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    machine: 'mac-b',
+    taskDigest: A_TASK,
+    bridgeCommit: HEAD,
+    supersedeBindingDigest: stale.bindingDigest,
+    apply: true,
+    clock: () => new Date('2026-08-11T10:00:00.000Z'),
+  };
+  await assert.rejects(
+    bootstrapMachine(args),
+    /does not match the exact local task and repository/u,
+  );
+  const replacement = await bootstrapMachine({ ...args, replaceOwnerTask: true });
+  assert.equal(replacement.status, 'BOOTSTRAPPED');
+  assert.equal(replacement.binding.taskDigest, A_TASK);
+  assert.equal(replacement.held[stale.bindingDigest].taskDigest, B_TASK);
+  assert.equal(transport.posts.length, 2);
+
+  const replay = await bootstrapMachine({ ...args, replaceOwnerTask: true });
+  assert.equal(replay.status, 'REUSE');
+  assert.equal(transport.posts.length, 2);
+});
+
+test('a later ordinary bridge bump drops the retired Desktop task alias', async () => {
+  const stale = createMachineBinding({
+    controlIssue: 94,
+    repositoryId: '123456789',
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    bridgeCommit: '7'.repeat(40),
+    registeredAt: '2026-08-11T09:00:00.000Z',
+  });
+  let remoteHead = HEAD;
+  const transport = memoryTransport(controlIssue([stale]), {
+    resolveRef: () => remoteHead,
+  });
+  const bump = await bootstrapMachine({
+    transport, repo: 'Glera/p4g-workspace-meta', controlIssue: 94,
+    machine: 'mac-b', taskDigest: B_TASK, bridgeCommit: HEAD,
+    supersedeBindingDigest: stale.bindingDigest, apply: true,
+    clock: () => new Date('2026-08-11T10:00:00.000Z'),
+  });
+  const replacement = await bootstrapMachine({
+    transport, repo: 'Glera/p4g-workspace-meta', controlIssue: 94,
+    machine: 'mac-b', taskDigest: A_TASK, bridgeCommit: HEAD,
+    supersedeBindingDigest: bump.binding.bindingDigest,
+    replaceOwnerTask: true, apply: true,
+    clock: () => new Date('2026-08-11T10:01:00.000Z'),
+  });
+  const replacementState = projectMachineBindingState(
+    94,
+    (await transport.getIssue(null, 94)).comments.map((comment) => comment.body),
+  );
+  assert.deepEqual(acceptedMachineTaskDigests(replacementState, 'mac-b'), [A_TASK, B_TASK]);
+
+  remoteHead = 'e'.repeat(40);
+  await bootstrapMachine({
+    transport, repo: 'Glera/p4g-workspace-meta', controlIssue: 94,
+    machine: 'mac-b', taskDigest: A_TASK, bridgeCommit: remoteHead,
+    supersedeBindingDigest: replacement.binding.bindingDigest, apply: true,
+    clock: () => new Date('2026-08-11T10:02:00.000Z'),
+  });
+  const finalState = projectMachineBindingState(
+    94,
+    (await transport.getIssue(null, 94)).comments.map((comment) => comment.body),
+  );
+  assert.deepEqual(acceptedMachineTaskDigests(finalState, 'mac-b'), [A_TASK]);
 });
 
 test('prose HOLD cannot authorize observation or replace the machine-readable stale binding', async () => {

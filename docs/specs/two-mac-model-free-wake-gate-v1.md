@@ -19,10 +19,17 @@
    только SHA-256 task binding;
 2. сверяет exact локальный meta HEAD с active machine binding;
 3. атомарно сохраняет один bounded payload и prompt hash;
-4. проверяет Codex thread-writer lock и не будит занятую owner-сессию;
+4. проверяет Codex thread-writer lock выделенной headless owner-сессии и не
+   будит уже выполняющийся `codex exec resume`;
 5. после bounded capability-probe выполняет один
    `codex exec resume --json <session-id> -`, передавая prompt через stdin;
 6. двигает consumed cursor только после exit `0`.
+
+Owner-сессия обязана быть отдельной headless CLI-сессией и не должна открываться
+в Codex Desktop: Desktop `app-server` удерживает writer lock всё время загрузки
+thread, а не только во время активного turn. Gate различает эти процессы через
+`lsof` и полный argv владельца lock; Desktop-owner даёт durable
+`headless_owner_loaded_in_desktop`, а не бесконечный ложный `owner_busy`.
 
 Никакого periodic AI fallback нет. `STOP`, `AUTHORITY_REQUIRED`, malformed
 targeted wake, binding drift и неясный exit становятся durable attention.
@@ -70,6 +77,15 @@ Gate сам не публикует GitHub comments, не принимает п�
 Для Mac B: `machine=mac-b`, его локальный session UUID и
 `intakeDrainConfigPath=null`. Raw session UUID не попадает в git, GitHub,
 stdout или notification.
+
+При переходе со старой Desktop-owner task на выделенную headless task оператор
+один раз разрешает `bootstrap --supersede-binding-digest OLD --replace-owner-task`.
+Bridge сначала append-only переводит старый binding в HOLD, затем создаёт новый
+binding на exact merged meta HEAD. Scanner принимает только active task digest и
+непосредственный последний held predecessor той же машины; для Mac B то же
+правило отдельно применяется к callback Mac A. Благодаря этому уже сохранённый
+FIFO wake переносится без нового wake, replay или cursor rewrite. Более старые
+held-задачи не становятся aliases.
 
 Оба initial cursor задаются при bootstrap из последнего уже
 диспозиционированного control-комментария. `trustedCommentAuthorIds` содержит
@@ -128,13 +144,16 @@ Issue получает fresh exact machine bindings; затем оба лока�
 
 Этот PR не активирует ничего. После merge и отдельного операторского слова:
 
-1. на каждом Mac сделать штатный bootstrap active binding на exact merged
-   meta HEAD;
-2. создать local config с `enabled=false`, проверить default dry-run;
-3. заменить старый Mac A drain-only plist новым шаблоном; на Mac B установить
+1. на каждом Mac создать отдельную headless CLI owner-сессию; не открывать её в
+   Desktop;
+2. сделать operator-authorized replacement bootstrap active binding на exact
+   merged meta HEAD, удержав прежний binding append-only;
+3. заменить в local config только `codexSessionId`, сначала с `enabled=false`,
+   и проверить default dry-run;
+4. заменить старый Mac A drain-only plist новым шаблоном; на Mac B установить
    тот же шаблон без drain config;
-4. выставить `enabled=true`, загрузить plist один раз;
-5. dogfood: пустой тик = 0 AI; один A→B→A = один resume на каждом Mac;
+5. выставить `enabled=true`, загрузить plist один раз;
+6. dogfood: пустой тик = 0 AI; один A→B→A = один resume на каждом Mac;
    busy/power-off/outcome-unknown остаются pending/attention без retry.
 
 Откат — unload двух plist. Durable Issue и local state не удаляются.
