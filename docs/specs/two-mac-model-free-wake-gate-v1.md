@@ -19,8 +19,10 @@
    только SHA-256 task binding;
 2. сверяет exact локальный meta HEAD с active machine binding;
 3. атомарно сохраняет один bounded payload и prompt hash;
-4. проверяет Codex thread-writer lock выделенной headless owner-сессии и не
-   будит уже выполняющийся `codex exec resume`;
+4. проверяет exact локальный `0600` headless-owner receipt и Codex
+   thread-writer lock выделенной owner-сессии; отсутствие lock допустимо только
+   при совпадении receipt с session/task/active binding, а существующий lock
+   всегда классифицируется по владельцу;
 5. после bounded capability-probe выполняет один
    `codex exec resume --json <session-id> -`, передавая prompt через stdin;
 6. двигает consumed cursor только после exit `0`.
@@ -30,6 +32,18 @@ Owner-сессия обязана быть отдельной headless CLI-се�
 thread, а не только во время активного turn. Gate различает эти процессы через
 `lsof` и полный argv владельца lock; Desktop-owner даёт durable
 `headless_owner_loaded_in_desktop`, а не бесконечный ложный `owner_busy`.
+Завершённый `codex exec` штатно не обязан сохранять writer-lock: idle-доказательство
+живёт в `headless-owner-receipt.v1.json`, а не в пустом lock-файле. Receipt
+создаётся только после exact replacement binding командой
+`--run --write-headless-owner-receipt`, хранится рядом с config в mode `0600` и
+содержит exact `{machine, codexSessionId, taskDigest, bindingDigest,
+bridgeCommit}` плюс canonical digest. Missing, stale, malformed или не-`0600`
+receipt при отсутствующем lock даёт durable `headless_owner_receipt_invalid`
+до AI-вызова.
+Тот же receipt обязателен для существующего, но никем не удерживаемого
+orphaned lock; gate и receipt-writer используют одну `lsof`/`ps`
+классификацию. Default dry-run ничего не пишет и для targeted wake явно
+возвращает `headlessOwnerReceipt=exact|invalid`.
 
 Никакого periodic AI fallback нет. `STOP`, `AUTHORITY_REQUIRED`, malformed
 targeted wake, binding drift и неясный exit становятся durable attention.
@@ -148,8 +162,9 @@ Issue получает fresh exact machine bindings; затем оба лока�
    Desktop;
 2. сделать operator-authorized replacement bootstrap active binding на exact
    merged meta HEAD, удержав прежний binding append-only;
-3. заменить в local config только `codexSessionId`, сначала с `enabled=false`,
-   и проверить default dry-run;
+3. заменить в local config только `codexSessionId`, сначала с `enabled=false`;
+   записать и перечитать exact `headless-owner-receipt.v1.json` через
+   `--run --write-headless-owner-receipt`, затем проверить default dry-run;
 4. заменить старый Mac A drain-only plist новым шаблоном; на Mac B установить
    тот же шаблон без drain config;
 5. выставить `enabled=true`, загрузить plist один раз;

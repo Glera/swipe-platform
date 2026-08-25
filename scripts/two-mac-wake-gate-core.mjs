@@ -25,6 +25,7 @@ export const WAKE_GATE_CONFIG_SCHEMA = 'two-mac.wake-gate.config.v1';
 export const WAKE_GATE_STATE_SCHEMA = 'two-mac.wake-gate.state.v1';
 export const WAKE_GATE_PAYLOAD_SCHEMA = 'two-mac.wake-gate.payload.v1';
 export const WAKE_GATE_TICK_SCHEMA = 'two-mac.wake-gate.tick.v1';
+export const HEADLESS_OWNER_RECEIPT_SCHEMA = 'two-mac.headless-owner-receipt.v1';
 
 export const DEFAULT_PAGE_SIZE = 100;
 export const DEFAULT_MAX_PAGES = 10;
@@ -96,6 +97,17 @@ const PENDING_KEYS = Object.freeze([
 
 const ATTENTION_KEYS = Object.freeze([
   'code', 'commentId', 'commentUrl', 'createdAt', 'wakeId',
+].sort());
+
+const HEADLESS_OWNER_RECEIPT_KEYS = Object.freeze([
+  'bindingDigest',
+  'bridgeCommit',
+  'codexSessionId',
+  'createdAt',
+  'machine',
+  'receiptDigest',
+  'schema',
+  'taskDigest',
 ].sort());
 
 function exactKeys(value, expected, label) {
@@ -220,6 +232,88 @@ export function taskDigestForSession(sessionId) {
     throw new Error('wake gate session id is invalid');
   }
   return sha256(`codex-thread-v1\0${sessionId}`);
+}
+
+export function validateHeadlessOwnerReceipt(
+  receipt,
+  { config = null, binding = null, localBridgeCommit = null } = {},
+) {
+  exactKeys(receipt, HEADLESS_OWNER_RECEIPT_KEYS, 'headless owner receipt');
+  if (receipt.schema !== HEADLESS_OWNER_RECEIPT_SCHEMA) {
+    throw new Error('headless owner receipt schema is invalid');
+  }
+  if (!['mac-a', 'mac-b'].includes(receipt.machine)) {
+    throw new Error('headless owner receipt machine is invalid');
+  }
+  if (!UUID.test(String(receipt.codexSessionId ?? ''))) {
+    throw new Error('headless owner receipt session is invalid');
+  }
+  if (!SHA256.test(String(receipt.taskDigest ?? ''))
+      || receipt.taskDigest !== taskDigestForSession(receipt.codexSessionId)) {
+    throw new Error('headless owner receipt task digest is invalid');
+  }
+  if (!SHA256.test(String(receipt.bindingDigest ?? ''))) {
+    throw new Error('headless owner receipt binding digest is invalid');
+  }
+  if (!GIT_SHA.test(String(receipt.bridgeCommit ?? ''))) {
+    throw new Error('headless owner receipt bridge commit is invalid');
+  }
+  assertInstant(receipt.createdAt, 'headless owner receipt createdAt');
+  if (!SHA256.test(String(receipt.receiptDigest ?? ''))
+      || receipt.receiptDigest !== sha256(canonicalJson({ ...receipt, receiptDigest: '' }))) {
+    throw new Error('headless owner receipt digest is invalid');
+  }
+  if (config !== null) {
+    validateWakeGateConfig(config);
+    if (receipt.machine !== config.machine
+        || receipt.codexSessionId !== config.codexSessionId) {
+      throw new Error('headless owner receipt does not match wake gate config');
+    }
+  }
+  if (binding !== null) {
+    if (receipt.machine !== binding.machine
+        || receipt.taskDigest !== binding.taskDigest
+        || receipt.bindingDigest !== binding.bindingDigest
+        || receipt.bridgeCommit !== binding.bridgeCommit) {
+      throw new Error('headless owner receipt does not match active binding');
+    }
+  }
+  if (localBridgeCommit !== null && receipt.bridgeCommit !== localBridgeCommit) {
+    throw new Error('headless owner receipt does not match local bridge');
+  }
+  return receipt;
+}
+
+export function createHeadlessOwnerReceipt({ config, binding, localBridgeCommit, createdAt }) {
+  validateWakeGateConfig(config);
+  const receipt = {
+    schema: HEADLESS_OWNER_RECEIPT_SCHEMA,
+    machine: config.machine,
+    codexSessionId: config.codexSessionId,
+    taskDigest: taskDigestForSession(config.codexSessionId),
+    bindingDigest: binding?.bindingDigest,
+    bridgeCommit: localBridgeCommit,
+    createdAt,
+    receiptDigest: '',
+  };
+  receipt.receiptDigest = sha256(canonicalJson(receipt));
+  return validateHeadlessOwnerReceipt(receipt, { config, binding, localBridgeCommit });
+}
+
+export function readHeadlessOwnerReceipt(receiptPath, expected = {}) {
+  assertAbsolute(receiptPath, 'headless owner receipt path');
+  try {
+    assertMode0600(receiptPath, 'headless owner receipt');
+  } catch {
+    throw new Error('headless owner receipt is unavailable or not mode 0600');
+  }
+  let receipt;
+  try {
+    receipt = JSON.parse(readFileSync(receiptPath, 'utf8'));
+  } catch {
+    throw new Error('headless owner receipt is unreadable');
+  }
+  return validateHeadlessOwnerReceipt(receipt, expected);
 }
 
 export function initialWakeGateState(
@@ -581,7 +675,7 @@ export function observeWakeGate({ config, state, comments, localBridgeCommit, no
   if (state.handledWakeIds.includes(scan.nextWake.wake.wakeId)) {
     return { kind: 'deduped', attention: null, scan };
   }
-  return { kind: 'dispatch', attention: null, scan };
+  return { kind: 'dispatch', attention: null, scan, binding: identity.binding };
 }
 
 export function createWakePayload({ config, nextWake, now }) {

@@ -24,6 +24,7 @@ import {
   advanceIdleState,
   atomicWriteJson,
   compactBodiesAfterScan,
+  createHeadlessOwnerReceipt,
   fetchCompactComments,
   initialWakeGateState,
   markDispatchStarted,
@@ -31,9 +32,12 @@ import {
   markDispatchUnknown,
   observeWakeGate,
   preparePending,
+  readHeadlessOwnerReceipt,
   readWakeGateConfig,
   readWakeGateState,
   rotationDue,
+  assertExactBoundSession,
+  assertTrustedMarkerAuthors,
   validateWakeGateState,
   wakePrompt,
 } from './two-mac-wake-gate-core.mjs';
@@ -42,6 +46,7 @@ import { sha256 } from './two-mac-bridge-contract.mjs';
 const STATE_FILENAME = 'wake-gate-state.v1.json';
 const LOCK_DIRNAME = 'wake-gate.single-flight.lock';
 const ATTENTION_FILENAME = 'wake-gate-attention.v1.json';
+const HEADLESS_OWNER_RECEIPT_FILENAME = 'headless-owner-receipt.v1.json';
 
 const USAGE = `Usage:
   node scripts/two-mac-wake-gate.mjs --config ABSOLUTE_PATH [--run]
@@ -49,6 +54,8 @@ const USAGE = `Usage:
     --clear-attention COMMENT_ID
   node scripts/two-mac-wake-gate.mjs --config ABSOLUTE_PATH --run \
     --resolve-outcome WAKE_ID --resolution consumed|not-started
+  node scripts/two-mac-wake-gate.mjs --config ABSOLUTE_PATH [--run] \
+    --write-headless-owner-receipt
 
 Without --run the gate performs a read-only GitHub scan and prints what it
 would do. --run requires config.enabled=true, persists the durable cursor and
@@ -63,6 +70,7 @@ function parseArgs(argv) {
     clearAttention: null,
     resolveOutcome: null,
     resolution: null,
+    writeHeadlessOwnerReceipt: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -88,6 +96,8 @@ function parseArgs(argv) {
       if (!value || value.startsWith('--')) throw new Error('--resolution requires a value');
       result.resolution = value;
       index += 1;
+    } else if (arg === '--write-headless-owner-receipt') {
+      result.writeHeadlessOwnerReceipt = true;
     } else if (arg === '--help' || arg === '-h') {
       result.help = true;
     } else {
@@ -114,6 +124,10 @@ function parseArgs(argv) {
   }
   if (result.clearAttention !== null && result.resolveOutcome !== null) {
     throw new Error('only one local recovery action is allowed per invocation');
+  }
+  if (result.writeHeadlessOwnerReceipt
+      && (result.clearAttention !== null || result.resolveOutcome !== null)) {
+    throw new Error('headless owner receipt cannot be combined with local recovery');
   }
   return result;
 }
@@ -175,9 +189,13 @@ function codexWriterLock(config) {
   return path.join(config.codexHome, 'thread-writer-locks', `${config.codexSessionId}.lock`);
 }
 
-function sessionBusy(config, run = execute) {
+function headlessOwnerReceiptPath(configPath) {
+  return path.join(path.dirname(configPath), HEADLESS_OWNER_RECEIPT_FILENAME);
+}
+
+function writerLockBusy(config, run = execute) {
   const lockPath = codexWriterLock(config);
-  if (!existsSync(lockPath)) throw new Error('Codex writer lock is unavailable');
+  if (!existsSync(lockPath)) return false;
   const result = run('/usr/sbin/lsof', ['-t', '--', lockPath]);
   if (result.error) throw new Error('checking Codex writer lock failed');
   if (result.status === 1 && !String(result.stdout || '').trim()) return false;
@@ -199,6 +217,65 @@ function sessionBusy(config, run = execute) {
     }
   }
   return true;
+}
+
+function sessionBusy({ config, binding, localBridgeCommit, configPath }, run = execute) {
+  if (writerLockBusy(config, run)) return true;
+  readHeadlessOwnerReceipt(headlessOwnerReceiptPath(configPath), {
+    config, binding, localBridgeCommit,
+  });
+  return false;
+}
+
+function headlessOwnerReceiptStatus({ config, binding, localBridgeCommit, configPath }) {
+  try {
+    readHeadlessOwnerReceipt(headlessOwnerReceiptPath(configPath), {
+      config, binding, localBridgeCommit,
+    });
+    return 'exact';
+  } catch {
+    return 'invalid';
+  }
+}
+
+export async function writeHeadlessOwnerReceipt({
+  configPath, apply, now, run, listPage = null,
+}) {
+  const config = readWakeGateConfig(configPath);
+  if (writerLockBusy(config, run)) {
+    throw new Error('headless owner receipt requires an idle headless session');
+  }
+  const fetched = await fetchCompactComments({
+    listPage: listPage ?? githubPageReader(config, run),
+    existing: [],
+    lastFetchedAt: null,
+    lastScannedCommentId: '0',
+    pageSize: config.pageSize,
+    maxPages: config.maxPages,
+  });
+  assertTrustedMarkerAuthors(config, fetched.comments);
+  const head = localHead(config, run);
+  const identity = assertExactBoundSession({
+    config, comments: fetched.comments, localBridgeCommit: head,
+  });
+  const receipt = createHeadlessOwnerReceipt({
+    config,
+    binding: identity.binding,
+    localBridgeCommit: head,
+    createdAt: now().toISOString(),
+  });
+  const receiptPath = headlessOwnerReceiptPath(configPath);
+  if (apply) {
+    atomicWriteJson(receiptPath, receipt);
+    readHeadlessOwnerReceipt(receiptPath, {
+      config, binding: identity.binding, localBridgeCommit: head,
+    });
+  }
+  return tickResult(config, {
+    action: apply ? 'headless_owner_receipt_written' : 'would_write_headless_owner_receipt',
+    bindingDigest: receipt.bindingDigest,
+    receiptDigest: receipt.receiptDigest,
+  });
 }
 
 function notify(config, message, run = execute) {
@@ -300,6 +377,7 @@ function classifyOperationalError(error) {
   const message = String(error?.message ?? '');
   if (/task binding|bridge binding/u.test(message)) return 'binding_drift';
   if (/loaded by Codex Desktop/u.test(message)) return 'headless_owner_loaded_in_desktop';
+  if (/headless owner receipt/u.test(message)) return 'headless_owner_receipt_invalid';
   if (/unrecognized owner|writer owner/u.test(message)) return 'owner_lock_unrecognized';
   if (/writer lock/u.test(message)) return 'owner_lock_unavailable';
   if (/comment (?:changed|disappeared)/u.test(message)) return 'control_comment_changed';
@@ -457,12 +535,21 @@ export async function runWakeGate({
     }
 
     if (!apply) {
+      const receiptStatus = observation.kind === 'dispatch'
+        ? headlessOwnerReceiptStatus({
+          config,
+          binding: observation.binding,
+          localBridgeCommit: head,
+          configPath,
+        })
+        : null;
       return tickResult(config, {
         action: observation.kind === 'dispatch' ? 'would_dispatch' : observation.kind,
         commentId: observation.scan?.nextWake?.commentId ?? null,
         wakeId: observation.scan?.nextWake?.wake?.wakeId ?? null,
         pendingWakeCount: observation.scan?.pendingWakeCount ?? 0,
         rotationDue: false,
+        headlessOwnerReceipt: receiptStatus,
         intake,
       });
     }
@@ -517,7 +604,12 @@ export async function runWakeGate({
     if (sha256(prompt) !== state.pending.promptSha256) {
       throw new Error('durable pending prompt hash changed');
     }
-    if (sessionBusy(config, run)) {
+    if (sessionBusy({
+      config,
+      binding: observation.binding,
+      localBridgeCommit: head,
+      configPath,
+    }, run)) {
       return tickResult(config, {
         action: 'owner_busy',
         commentId: state.pending.commentId,
@@ -615,6 +707,16 @@ async function main() {
     args = parseArgs(process.argv.slice(2));
     if (args.help) {
       process.stdout.write(USAGE);
+      return;
+    }
+    if (args.writeHeadlessOwnerReceipt) {
+      const result = await writeHeadlessOwnerReceipt({
+        configPath: args.configPath,
+        apply: args.run,
+        now: () => new Date(),
+        run: execute,
+      });
+      process.stdout.write(`${JSON.stringify(result)}\n`);
       return;
     }
     const result = await runWakeGate({

@@ -3,10 +3,12 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import {
   chmodSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -24,8 +26,10 @@ import {
 import {
   WAKE_GATE_CONFIG_SCHEMA,
   addBoundedUnique,
+  atomicWriteJson,
   assertExactBoundSession,
   compactGitHubComment,
+  createHeadlessOwnerReceipt,
   fetchCompactComments,
   initialWakeGateState,
   markDispatchStarted,
@@ -33,6 +37,7 @@ import {
   markDispatchUnknown,
   observeWakeGate,
   preparePending,
+  readHeadlessOwnerReceipt,
   readWakeGateConfig,
   readWakeGateState,
   rotationDue,
@@ -45,7 +50,11 @@ import {
   bootstrapMachine,
   scanControlIssueWakes,
 } from './two-mac-bridge.mjs';
-import { parseArgs, runWakeGate } from './two-mac-wake-gate.mjs';
+import {
+  parseArgs,
+  runWakeGate,
+  writeHeadlessOwnerReceipt,
+} from './two-mac-wake-gate.mjs';
 
 const A_SESSION = '019fb1a2-9d68-7c63-9bb4-84c3154fe353';
 const B_SESSION = '019fb1a2-1111-7222-8333-84c3154fe353';
@@ -172,7 +181,27 @@ function tempConfig(overrides = {}) {
   const configPath = path.join(root, 'config.json');
   writeFileSync(configPath, `${JSON.stringify(value)}\n`, { mode: 0o600 });
   chmodSync(configPath, 0o600);
-  return { root, config: value, configPath };
+  const fixture = { root, config: value, configPath };
+  writeExactHeadlessOwnerReceipt(fixture);
+  return fixture;
+}
+
+function writeExactHeadlessOwnerReceipt(fixture, overrides = {}) {
+  const ownerConfig = overrides.config ?? fixture.config;
+  const ownerBinding = overrides.binding ?? binding(
+    ownerConfig.machine,
+    taskDigestForSession(ownerConfig.codexSessionId),
+    ownerConfig.machine === 'mac-a' ? 1 : 2,
+  );
+  const receipt = createHeadlessOwnerReceipt({
+    config: ownerConfig,
+    binding: ownerBinding,
+    localBridgeCommit: HEAD,
+    createdAt: '2026-08-25T11:30:00.000Z',
+  });
+  const receiptPath = path.join(fixture.root, 'headless-owner-receipt.v1.json');
+  atomicWriteJson(receiptPath, receipt);
+  return { receipt, receiptPath };
 }
 
 test('config is exact, local-only and mode 0600', () => {
@@ -191,6 +220,78 @@ test('config is exact, local-only and mode 0600', () => {
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('headless owner receipt is mode 0600 and bound to exact config and binding', () => {
+  const fixture = tempConfig();
+  try {
+    const exactBinding = binding('mac-a', A_TASK, 1);
+    const { receipt, receiptPath } = writeExactHeadlessOwnerReceipt(fixture, {
+      binding: exactBinding,
+    });
+    assert.deepEqual(readHeadlessOwnerReceipt(receiptPath, {
+      config: fixture.config,
+      binding: exactBinding,
+      localBridgeCommit: HEAD,
+    }), receipt);
+    chmodSync(receiptPath, 0o644);
+    assert.throws(
+      () => readHeadlessOwnerReceipt(receiptPath, {
+        config: fixture.config, binding: exactBinding, localBridgeCommit: HEAD,
+      }),
+      /mode 0600/u,
+    );
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('headless owner receipt writer is dry-run by default and writes once on apply', async () => {
+  const fixture = tempConfig();
+  const calls = [];
+  rmSync(path.join(
+    fixture.config.codexHome,
+    'thread-writer-locks',
+    `${fixture.config.codexSessionId}.lock`,
+  ), { force: true });
+  rmSync(path.join(fixture.root, 'headless-owner-receipt.v1.json'), { force: true });
+  try {
+    const options = {
+      configPath: fixture.configPath,
+      now: CLOCK,
+      run: runner({ calls }),
+      listPage: async ({ page }) => (page === 1 ? rawControlComments() : []),
+    };
+    const dryRun = await writeHeadlessOwnerReceipt({ ...options, apply: false });
+    assert.equal(dryRun.action, 'would_write_headless_owner_receipt');
+    const receiptPath = path.join(fixture.root, 'headless-owner-receipt.v1.json');
+    assert.equal(existsSync(receiptPath), false);
+    const applied = await writeHeadlessOwnerReceipt({ ...options, apply: true });
+    assert.equal(applied.action, 'headless_owner_receipt_written');
+    assert.equal(statSync(receiptPath).mode & 0o777, 0o600);
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('headless owner receipt writer refuses a session with a live writer-lock identity', async () => {
+  const fixture = tempConfig();
+  rmSync(path.join(fixture.root, 'headless-owner-receipt.v1.json'), { force: true });
+  try {
+    await assert.rejects(
+      writeHeadlessOwnerReceipt({
+        configPath: fixture.configPath,
+        apply: true,
+        now: CLOCK,
+        run: runner({ calls: [], busy: true }),
+        listPage: async ({ page }) => (page === 1 ? rawControlComments() : []),
+      }),
+      /requires an idle headless session/u,
+    );
+    assert.equal(existsSync(path.join(fixture.root, 'headless-owner-receipt.v1.json')), false);
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
   }
 });
 
@@ -495,6 +596,7 @@ test('dry-run performs no local state write and never calls Codex', async () => 
       listPage: async () => rawControlComments([item.raw]),
     });
     assert.equal(result.action, 'would_dispatch');
+    assert.equal(result.headlessOwnerReceipt, 'exact');
     assert.equal(result.wakeId, item.wake.wakeId);
     assert.equal(calls.some((call) => call.executable.endsWith('/codex')), false);
     assert.equal(readWakeGateState(path.join(fixture.root, 'wake-gate-state.v1.json'), 'mac-a').lastScannedCommentId, '0');
@@ -613,7 +715,7 @@ test('failed resume is outcome_unknown and the next tick never retries it', asyn
   }
 });
 
-test('missing real Codex writer lock is durable attention and spends zero AI', async () => {
+test('missing writer lock without exact headless receipt is durable attention and spends zero AI', async () => {
   const fixture = tempConfig();
   const calls = [];
   const lockPath = path.join(
@@ -622,6 +724,7 @@ test('missing real Codex writer lock is durable attention and spends zero AI', a
     `${fixture.config.codexSessionId}.lock`,
   );
   rmSync(lockPath, { force: true });
+  rmSync(path.join(fixture.root, 'headless-owner-receipt.v1.json'), { force: true });
   try {
     const item = wakeComment();
     const result = await runWakeGate({
@@ -632,13 +735,121 @@ test('missing real Codex writer lock is durable attention and spends zero AI', a
       listPage: async ({ page }) => (page === 1 ? rawControlComments([item.raw]) : []),
     });
     assert.equal(result.action, 'attention');
-    assert.equal(result.attention.code, 'owner_lock_unavailable');
+    assert.equal(result.attention.code, 'headless_owner_receipt_invalid');
     assert.equal(calls.some(
       (call) => call.executable.endsWith('/codex') && call.args[0] === 'exec',
     ), false);
     const state = readWakeGateState(path.join(fixture.root, 'wake-gate-state.v1.json'), 'mac-a');
-    assert.equal(state.attention.code, 'owner_lock_unavailable');
+    assert.equal(state.attention.code, 'headless_owner_receipt_invalid');
     assert.equal(state.pending.status, 'queued');
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('orphaned unowned writer-lock cannot bypass a missing headless receipt', async () => {
+  const fixture = tempConfig();
+  const calls = [];
+  rmSync(path.join(fixture.root, 'headless-owner-receipt.v1.json'), { force: true });
+  try {
+    const item = wakeComment();
+    const result = await runWakeGate({
+      configPath: fixture.configPath,
+      apply: true,
+      now: CLOCK,
+      run: runner({ calls }),
+      listPage: async ({ page }) => (page === 1 ? rawControlComments([item.raw]) : []),
+    });
+    assert.equal(result.action, 'attention');
+    assert.equal(result.attention.code, 'headless_owner_receipt_invalid');
+    assert.equal(calls.some(
+      (call) => call.executable.endsWith('/codex') && call.args[0] === 'exec',
+    ), false);
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('dry-run reports an invalid headless receipt without local mutation or AI', async () => {
+  const fixture = tempConfig();
+  const calls = [];
+  rmSync(path.join(fixture.root, 'headless-owner-receipt.v1.json'), { force: true });
+  try {
+    const item = wakeComment();
+    const result = await runWakeGate({
+      configPath: fixture.configPath,
+      apply: false,
+      now: CLOCK,
+      run: runner({ calls }),
+      listPage: async () => rawControlComments([item.raw]),
+    });
+    assert.equal(result.action, 'would_dispatch');
+    assert.equal(result.headlessOwnerReceipt, 'invalid');
+    assert.equal(existsSync(path.join(fixture.root, 'wake-gate-state.v1.json')), false);
+    assert.equal(calls.some(
+      (call) => call.executable.endsWith('/codex') && call.args[0] === 'exec',
+    ), false);
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('clean headless exit with absent writer lock and exact receipt resumes once', async () => {
+  const fixture = tempConfig();
+  const calls = [];
+  const lockPath = path.join(
+    fixture.config.codexHome,
+    'thread-writer-locks',
+    `${fixture.config.codexSessionId}.lock`,
+  );
+  rmSync(lockPath, { force: true });
+  writeExactHeadlessOwnerReceipt(fixture);
+  try {
+    const item = wakeComment();
+    const result = await runWakeGate({
+      configPath: fixture.configPath,
+      apply: true,
+      now: CLOCK,
+      run: runner({ calls }),
+      listPage: async ({ page }) => (page === 1 ? rawControlComments([item.raw]) : []),
+    });
+    assert.equal(result.action, 'dispatched');
+    assert.equal(calls.filter(
+      (call) => call.executable.endsWith('/codex') && call.args[0] === 'exec',
+    ).length, 1);
+  } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('absent writer lock with stale receipt cannot resume', async () => {
+  const fixture = tempConfig();
+  const calls = [];
+  const lockPath = path.join(
+    fixture.config.codexHome,
+    'thread-writer-locks',
+    `${fixture.config.codexSessionId}.lock`,
+  );
+  rmSync(lockPath, { force: true });
+  const staleConfig = { ...fixture.config, codexSessionId: C_SESSION };
+  writeExactHeadlessOwnerReceipt(fixture, {
+    config: staleConfig,
+    binding: binding('mac-a', C_TASK, 1),
+  });
+  try {
+    const item = wakeComment();
+    const result = await runWakeGate({
+      configPath: fixture.configPath,
+      apply: true,
+      now: CLOCK,
+      run: runner({ calls }),
+      listPage: async ({ page }) => (page === 1 ? rawControlComments([item.raw]) : []),
+    });
+    assert.equal(result.action, 'attention');
+    assert.equal(result.attention.code, 'headless_owner_receipt_invalid');
+    assert.equal(calls.some(
+      (call) => call.executable.endsWith('/codex') && call.args[0] === 'exec',
+    ), false);
   } finally {
     rmSync(fixture.root, { recursive: true, force: true });
   }
@@ -923,6 +1134,16 @@ test('recovery CLI requires --run and exact identities', () => {
       '--resolution', 'not-started',
     ]).resolution,
     'not-started',
+  );
+  assert.equal(parseArgs([
+    '--config', '/tmp/config', '--write-headless-owner-receipt',
+  ]).writeHeadlessOwnerReceipt, true);
+  assert.throws(
+    () => parseArgs([
+      '--config', '/tmp/config', '--run', '--write-headless-owner-receipt',
+      '--clear-attention', '1',
+    ]),
+    /cannot be combined/u,
   );
 });
 
