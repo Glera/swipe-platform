@@ -12,7 +12,8 @@
   v0, Researcher R0/R1) и frontier-эскалацию. Mac B: Codex, binding на
   meta `7808349…` (bindingDigest `ddb5b819…`).
 - Транспорт v2 (causal lineage) боевой: полный день S1/#136 прошёл через
-  wake→receipt циклы. FIFO #94 пуст, все линии терминальны.
+  wake→receipt циклы. В линии #151 один review-only wake F7 ожидает Mac B;
+  terminal receipt по нему ещё не получен.
 - Автоматики Codex PAUSED. Новый model-free слой: launchd
   `com.p4g.intake-drain-watcher` (Mac A, тик 60с, без AI) — LIVE из
   `-live/p4g-workspace-meta@16f1ec0`, грант `operator:flags:write`
