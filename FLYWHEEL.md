@@ -23,10 +23,10 @@ approved-генератор даёт бесконечный контент
 
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
-| Codex A (Mac A) | #177 MERGED: backend/Feed review+master CI PASS | live-акты вне code authority | операторский GO на 0087/rollout → founder dogfood |
-| Mac B | R2 остановлен: NEEDS_PLATFORM_CHANGE → [#188](https://github.com/Glera/p4g-workspace-meta/issues/188) (research-intake у Codex A) | ждёт handback #188; альтернатива — Queens copy #171 по GO | «Ресёрч-партия» в комнате «Создать» |
-| Fable (Mac A) | TERMINAL: mission-пакет закоммичен | — | поддержка исполнения слайса |
-| Оператор | отдельные live-акты #177 | migration 0087 и rollout не входят в code merge | GO: zero-evidence preflight+0087, затем rollout/settings/restart и founder dogfood |
+| Codex A (Mac A) | mission-бэкенд LIVE (0087, receipt #177 c.5414779410); FIFO приёмки #151: row 1 READY_FOR_APPROVAL, row 2 ждёт content-authoring | слово оператора: Feed #49 static rollout + mission enrollment | founder dogfood |
+| Mac B | READY → manual-source package для merge-timepress-v1 (row 2 FIFO #151) | — | MANUAL_SOURCE_READY → FIFO продолжается |
+| Fable (Mac A) | доска/маршруты | — | census после закрытия #151 |
+| Оператор | 3 акта | — | (1) row 1 Approve в Telegram (deep link в #151); (2) слово на Feed #49 + enrollment → dogfood; (3) GO #171 (опц.) |
 
 Порядок Mac A «mission раньше #159-сервера» принят по рекомендации
 Codex+Fable (мораторий вижена: mission — единственный новый продуктовый
@@ -125,23 +125,22 @@ standalone-генератор играется в Labs локально (unverif
   [charter](docs/specs/market-researcher-r0-r1-charter.md),
   [pack](docs/research/2026-08-25-r1-queens/README.md).
 
-## Горизонты — пересчёт на вечер 25.08 (без новых P1/P2)
+## Горизонты — пересчёт T9 (вечер 25.08, после внепланового рывка)
 
-Факт дня: волна 0 полностью live (ждёт только приёмки), mission-дизайн
-закрыт и закоммичен, #159-генератор merged с одобренным конвертом, два
-R1-пака (Queens+Bus). От приёмки #151:
+Факт: mission-бэкенд уже LIVE (0087_mission_gift_ladder в DB, rollout
+receipt #177 c.5414779410) — Codex A прошёл слайс раньше плана. #136
+p3/#140 частично в работе за кадром (fail-safe restore DONE). Осталось до
+founder dogfood сезона: Feed #49 static rollout → mission
+settings/enrollment → наигрыш. Это **дни, не неделя**.
 
-- дни 1–3: #136 p3 (hands-free, 3 перехода без оператора); параллельно
-  Mac B — Queens copy по GO #171 (1–2 дня).
-- дни 3–5: #140 → #188 (research-intake, миграция одним rollout с 0087).
-- дни 5–9: mission-слайс (0087 + вкус-слайс по канве) → **founder dogfood
-  сезона к концу следующей недели**.
-- следом: #159 сервер (+2–3 дня) → полный пилот бесконечной механики;
-  R2-поверхность Mac B (+1–2 дня после #188).
-
-Итого «пять веток в тесте» ≈ 7–10 дней; standalone-генератор и
-research-паки — уже в тесте. Bottleneck: два операторских акта
-(приёмка #151; GO #171).
+- #151: FIFO приёмки идёт — row 1 (orthogonal-link) READY_FOR_APPROVAL с
+  deep-link'ом; row 2 (merge-timepress-v1) ждёт одного manual-source
+  package от Mac B; дальше FIFO-суффикс сам.
+- Mac B: timepress-authoring (часы) → затем #188-handback → R2; Queens
+  copy #171 по GO.
+- #159 сервер: после mission-хвоста (+2–3 дня) → полный пилот.
+- «Пять веток в тесте» ≈ **4–7 дней**; две уже в тесте, mission — на
+  пороге dogfood.
 
 ## Правила доски
 
