@@ -1,6 +1,6 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 24.08.2026 (Issue #151 merge + F7 delta STOP). Не ledger;
+Обновлено: 25.08.2026 (Issue #151 F7 Tier-2 review pending). Не ledger;
 читать первым, обновлять последним; предел — 150 строк.
 **Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 
@@ -18,21 +18,20 @@
   `-live/p4g-workspace-meta@16f1ec0`, грант `operator:flags:write`
   до ~17.09.
 - Первый writer после handback append-only перепривязал Mac A transport к
-  meta `8869029…`; Issue #151 Tier-2 и delta-review завершены, terminal F7
-  receipt — `5401142497`.
+  meta `8869029…`; PR #77 Tier-2/delta завершены. F7 review-only wake
+  `5405313554` опубликован byte-exact в той же causal lineage; Mac B pending.
 
 ## Активный correction batch 24.08
 
 - **#151 Mac A F1/F2**: backend PR #77 merged as `e5348e2c…`, Feed PR #48
   merged as `9879e3d1…`; post-merge Browser/PostgreSQL/Feed CI SUCCESS.
   Migration `0085` не live; deploy/restart заморожены до отдельного слова.
-- **#151 F7**: отдельный backend package на `e5348e2c…` прошёл focused 93 и
-  full suite 1717 pass; discovery F001–F016 закрыт. Единственный Opus 5/high
-  delta-review остановил выпуск новым P1: identical blocked-report replay
-  держит request-row `FOR UPDATE`, а свежая notification-session ждёт тот же
-  lock. Typed STOP `5401142497`; commit/push/PR/CI/migration/deploy не было.
-  Следующий шаг — только явно разрешённая вторая correction-only партия с
-  PostgreSQL replay-regression, без нового discovery.
+- **#151 F7**: второй явно разрешённый correction-only пакет закрыл replay
+  lock-order P1; focused `94`, full suite `1718` pass, финальный Opus delta
+  PASS P1/P2=0. Backend PR #78 exact head `b0119200…`, draft/CLEAN/MERGEABLE;
+  image CI `32808894854` и PostgreSQL `32808894928` SUCCESS, включая
+  isolated PG16 `0086` roundtrip. Обязательный cross-Mac Tier-2 review ждёт
+  Mac B по wake `5405313554`; merge/migrations/deploy/restart запрещены.
 
 ## Production checkpoint (18.08 вечер)
 
@@ -95,7 +94,7 @@
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
 | 1 | **Mobile soak**: три оси; первый запрос — marble-sort (=первый S1 E2E); находки партией | оператор | активен |
-| 2 | #151 correction batch подтверждённых находок (без deploy до слова оператора) | **Codex A + Mac B по полосам** | backend/feed merged; F7 delta STOP, deploy frozen |
+| 2 | #151 correction batch подтверждённых находок (без deploy до слова оператора) | **Codex A + Mac B по полосам** | backend/feed merged; F7 PR #78 CI green, Tier-2 pending; deploy frozen |
 | 3 | #140 Escalation lane → #118 slice 2 → #109, последовательно | **Codex A** | после terminal #151 |
 | 4 | Researcher R0: charter + scorecard, затем первая Tier-A партия | Fable | сейчас |
 | 5 | Mission Slice v0 execution contract (draft-for-decision) | Fable | сейчас |
