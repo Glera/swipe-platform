@@ -24,7 +24,7 @@ approved-генератор даёт бесконечный контент
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
 | Codex A (Mac A) | WAITING_OPERATOR | GO `live DB migration` 0085→0086 + слово на рестарт генератора | rollout receipt → старт #136 p3 |
-| Mac B | READY → Bus A R1 (#172), пока review #159-генератора | — | Bus A pack в meta |
+| Mac B | Bus A R1: identity подтверждена, ждёт установки app на устройство | оператор: Play Store install `com.nt.games.busjam` | Bus A pack в meta |
 | Fable (Mac A) | TERMINAL: mission-пакет закоммичен | — | поддержка исполнения слайса |
 | Оператор | 1 акт | — | пятистрочная приёмка #151 в клиенте |
 
@@ -89,7 +89,7 @@ standalone-генератор играется в Labs локально (unverif
 - Схема: seed-гибрид (генератор в механике, authority на сервере); спека
   финальна: verifier, 6 условий refill, generatorVersion/envelopeConfigVersion,
   рескины, серии из seed.
-- Статус: **READY_TO_TEST (standalone)** — `sort-base-generator-v1` готов:
+- Статус: **MERGED + WAITING_OPERATOR (Approve конверта)** — review STOP→коррекция→delta-PASS, PR #36 в master `9b4f97f`, post-merge CI 5/5 (receipts в #159). Envelope — candidate до операторского Approve по итогам Seed Lab. Было:
   128/128 конструктивно сертифицированных уровней с browser-win, golden
   seed→spec_hash, Seed Lab 146 вариантов (LOCAL·UNVERIFIED, fail-closed в
   прод-сборках). Draft [playables PR #36](https://github.com/Glera/playables/pull/36),
