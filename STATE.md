@@ -90,19 +90,20 @@
 - Generator polish batch (PR #49/#50), NEEDS_HELP-диспозиции #121/#112
   (среда/flake, подтверждены rerun'ами), rebind mac-b — терминальны.
 
-## Очередь (после test-day)
+## Очередь (операторское решение 25.08: транспорт раньше экранов)
 
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
-| 1 | **Mobile soak**: три оси; первый запрос — marble-sort (=первый S1 E2E); находки партией | оператор | активен |
-| 2 | #151 correction batch подтверждённых находок (без deploy до слова оператора) | **Codex A + Mac B по полосам** | backend/feed merged; F7 PR #78 CI green, Tier-2 pending; deploy frozen |
-| 3 | #140 Escalation lane → #118 slice 2 → #109, последовательно | **Codex A** | после terminal #151 |
-| 4 | Researcher R0: charter + scorecard, затем первая Tier-A партия | Fable | сейчас |
-| 5 | Mission Slice v0 execution contract (draft-for-decision) | Fable | сейчас |
-| 6 | S1 E2E-поддержка + Labs S3; затем Research Radar R1 по frozen charter | Mac B | S3 → R1 |
-| 7 | #136 piece 3 (exactly-once AI resume + owners-available хвост) | Codex A | после 3 |
-| 8 | Polish batch единой партией (#136 c.5331552479 + новые P3) | по путям | одна партия |
-| 9 | Гранты: батч recall/read/analytics не подтверждён; flags до 16.09; watcher до ~17.09; Tier-B доступы researcher (SensorTower MCP?/AppMagic/YT/Poki — чек-лист выдан) | оператор | открыт |
+| 1 | #151 терминал: delta-review PR #78 (head 6285a076) → merge → один rollout 0085+0086 (GO-категория live DB migration) → restart генератора на 09d12fc → физическая приёмка 5 правок | Codex A + Mac B + оператор | delta-wake застрял в transport старой bound-сессии; обход — pre-sign + byte-exact relay |
+| 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | поднят операторским решением 25.08 |
+| 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
+| 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
+| 5 | Researcher: R1 Queens full pack → Bus A; затем R2 #160 (запуск партий из Labs с телефона) | Mac B | после 1 |
+| 6 | Mission-трек: приёмка альбома итер. 8 + карты (оператор) → коммит вижен-патчей/реестра в meta → #153 rework в implementation plan → ТЗ-дельта лестницы подарков | Fable + оператор | приёмка открыта |
+| 7 | #159 Infinite favorite-mechanic stream v0 | платформа | после 2–4, приоритет оператора |
+| 8 | Labs S3 (полный Labs-control с телефона) | Mac B | после 5/по приоритету |
+| 9 | Polish единой партией (#136 c.5331552479, P3 #77 ×9, P3 #78 ×3, generator trust-path/порты; transport-polish входит в п.2) + census старых draft-PR | по путям | одна партия |
+| 10 | Гранты: батч recall/read/analytics не подтверждён; flags до 16.09; watcher до ~17.09; Tier-B researcher (ST MCP?/AppMagic/Poki) | оператор | открыт |
 
 ## Действующие процессные решения 13.08 — без изменений
 
