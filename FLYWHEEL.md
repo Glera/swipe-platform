@@ -24,7 +24,7 @@ approved-генератор даёт бесконечный контент
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
 | Codex A (Mac A) | WAITING_OPERATOR | GO `live DB migration` 0085→0086 + слово на рестарт генератора | rollout receipt → старт #136 p3 |
-| Mac B | READY → #159 генератор (standalone) | — | golden seed→spec_hash + 100+ уровней в Labs |
+| Mac B | READY → Bus A R1 (#172), пока review #159-генератора | — | Bus A pack в meta |
 | Fable (Mac A) | WAITING_OPERATOR | приёмка альбома | mission-пакет: коммит трека + план |
 | Оператор | 2 акта | — | (1) GO rollout + рестарт; (2) приёмка альбома |
 
@@ -89,12 +89,15 @@ standalone-генератор играется в Labs локально (unverif
 - Схема: seed-гибрид (генератор в механике, authority на сервере); спека
   финальна: verifier, 6 условий refill, generatorVersion/envelopeConfigVersion,
   рескины, серии из seed.
-- Шаги: Mac B — конструктивный генератор в пилоте `sort/base` (рекомендация),
-  golden seed→spec_hash, 100+ уровней играбельны в Labs standalone →
-  Codex A — seed-ticket выдача + trusted verifier + врезка в ticket/rewards →
-  твой один Approve конверта.
-- Владельцы: Mac B (после Queens R1, параллельно #140), Codex A (после mission).
-- Статус: дизайн закрыт; реализация не начата.
+- Статус: **READY_TO_TEST (standalone)** — `sort-base-generator-v1` готов:
+  128/128 конструктивно сертифицированных уровней с browser-win, golden
+  seed→spec_hash, Seed Lab 146 вариантов (LOCAL·UNVERIFIED, fail-closed в
+  прод-сборках). Draft [playables PR #36](https://github.com/Glera/playables/pull/36),
+  CI 4/4; receipt [#159 c.5409668852](https://github.com/Glera/p4g-workspace-meta/issues/159#issuecomment-5409668852).
+- Ворота: blind cross-provider review PR #36 + операторский taste-наигрыш
+  Seed Lab (параллельно); Approve конверта — после review-PASS+merge
+  (диспозиция c.5409952197). Затем: Codex A — seed-tickets + trusted
+  verifier (после mission-слайса).
 - Ссылки: [#159](https://github.com/Glera/p4g-workspace-meta/issues/159),
   [спека](docs/specs/favorite-mechanic-infinite-stream-v0.md).
 
