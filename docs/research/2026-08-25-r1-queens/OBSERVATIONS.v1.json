@@ -1,0 +1,106 @@
+{
+  "schema": "p4g.reference-observations.v1",
+  "mechanicId": "queens-constraint-placement",
+  "status": "reference_ready",
+  "capturedAt": "2026-08-25",
+  "reference": {
+    "title": "ZooDoku",
+    "publisher": "Nebula Studio",
+    "package": "com.nebula.zoodoku",
+    "versionName": "1.0.7",
+    "versionCode": 1071,
+    "publicUrl": "https://play.google.com/store/apps/details?id=com.nebula.zoodoku"
+  },
+  "device": {
+    "model": "SM-A326B",
+    "android": 11,
+    "api": 30,
+    "resolutionPx": [720, 1600],
+    "densityDpi": 300,
+    "refreshHz": 60,
+    "identitySha256": "d54e29d5c32708148c45e6fc243b67424b0188a42eb5e1ee87a73cc46c7a04cc"
+  },
+  "evidence": {
+    "rawManifestSha256": "7cac1332cdb24f1133ba5c74402e3fbe04590d220d64a5b45028d3ff8acf34cb",
+    "canonicalGameplaySha256": "2bc79ecfd6ed61c4887fe0044cb8a3bb43f627ef45edff56b39ae039f91b8f69",
+    "scenarioPair": {
+      "status": "pass",
+      "cleanVideoSha256": "68e4b4f5dffe0982ec88788cbca96fc7fc84b5e825d312c209bf8788f6e23063",
+      "instrumentedVideoSha256": "0089d4d7bed22b3382f8b96a4485c0693f36657c57bcd5f3871979573bd78459",
+      "startFrameSha256": "780a357bc0378e07d810b039cc571fd6f0a476286cf4173e1c6147803edf3ec1",
+      "perceptualHash": "ffff0f000001ffff",
+      "distance": 0,
+      "threshold": 12
+    }
+  },
+  "rule": {
+    "boardShape": "square",
+    "regionCountEqualsSize": true,
+    "piecesPerRow": 1,
+    "piecesPerColumn": 1,
+    "piecesPerRegion": 1,
+    "minimumChebyshevDistance": 2,
+    "fullDiagonalExclusion": false,
+    "terminal": "exact hidden solution",
+    "grade": "R-native-clean"
+  },
+  "input": {
+    "tap": "toggle-mark",
+    "doubleTap": "place-piece",
+    "swipe": "paint-marks",
+    "capturedMappingFrozenForShipping": false,
+    "grade": "R-native-clean"
+  },
+  "failureSurface": {
+    "hearts": 3,
+    "wrongHiddenSolutionCell": "reject-with-red-x-and-spend-heart",
+    "zeroHeartActions": ["rewarded-revive", "restart"],
+    "restart": "immediate-reset-and-restore-three-hearts",
+    "coreCopyAuthority": false,
+    "grade": "R-native-clean"
+  },
+  "hints": {
+    "magnifier": {
+      "initialCount": 3,
+      "effect": "place-correct-piece",
+      "zeroBoundary": "rewarded-ad-immediate"
+    },
+    "lightbulb": {
+      "initialCount": 3,
+      "effect": "explain-highlight-then-apply",
+      "level10RewardDelta": 1
+    },
+    "grade": "R-native-clean"
+  },
+  "levelSamples": [
+    {"level": 1, "size": 4, "givens": 1, "captureWallSeconds": 36.689},
+    {"level": 2, "size": 4, "givens": 1, "captureWallSeconds": 16.421},
+    {"level": 3, "size": 6, "givens": 1, "captureWallSeconds": 29.148},
+    {"level": 4, "size": 6, "givens": 1, "captureWallSeconds": 23.566},
+    {"level": 5, "size": 8, "givens": 1, "captureWallSeconds": 40.438},
+    {"level": 6, "size": 6, "givens": 1, "captureWallSeconds": 30.237},
+    {"level": 7, "size": 6, "givens": 1, "captureWallSeconds": 22.3},
+    {"level": 8, "size": 8, "givens": 1, "captureWallSeconds": 71.388},
+    {"level": 9, "size": 8, "givens": 1, "captureWallSeconds": 33.019},
+    {"level": 10, "size": 8, "givens": 1, "captureWallSeconds": 30.185},
+    {"level": 11, "size": 6, "givens": 0, "captureWallSeconds": null},
+    {"level": 12, "size": 6, "givens": 0, "captureWallSeconds": null},
+    {"level": 13, "size": 8, "givens": 0, "captureWallSeconds": null}
+  ],
+  "timing": {
+    "canonicalVideoSeconds": 23.840056,
+    "completionTransitionPtsSeconds": 17.09,
+    "agentPlacementRunApproxSeconds": [6, 7],
+    "humanSolveTimeStatus": "blocking-for-taste-freeze",
+    "humanSolveTimeValue": null
+  },
+  "excludedFromCopy": [
+    "title-and-branding",
+    "animal-assets",
+    "exact-level-layouts",
+    "ribbon-and-leaderboard-ui",
+    "hearts-and-rewarded-ads",
+    "progression-copy-and-rewards",
+    "captured-audio"
+  ]
+}

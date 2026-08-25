@@ -1,0 +1,74 @@
+{
+  "schema": "p4g.fidelity-contract.v1",
+  "mechanicId": "queens-constraint-placement",
+  "status": "provisional-until-operator-taste",
+  "authority": "reference-replication.v3",
+  "mustMatch": [
+    {
+      "id": "QR1-MM01",
+      "projection": "rule",
+      "requirements": [
+        "one-piece-per-row",
+        "one-piece-per-column",
+        "one-piece-per-region",
+        "minimum-chebyshev-distance-2",
+        "long-diagonal-allowed"
+      ],
+      "gate": "hard"
+    },
+    {
+      "id": "QR1-MM02",
+      "projection": "input-intents",
+      "requirements": ["reversible-mark", "place", "remove", "restart"],
+      "openDecision": "feed-safe-gesture-mapping",
+      "gate": "hard"
+    },
+    {
+      "id": "QR1-MM03",
+      "projection": "terminal-causality",
+      "requirements": ["immediate-terminal-after-final-placement", "single-win-event"],
+      "timing": {
+        "referenceOnsetPtsSeconds": 17.09,
+        "uncertaintySeconds": 0.1,
+        "shippingTolerance": null
+      },
+      "gate": "hard"
+    },
+    {
+      "id": "QR1-MM04",
+      "projection": "semantic-hint",
+      "requirements": ["logical-explanation-before-or-with-application"],
+      "gate": "soft"
+    }
+  ],
+  "levelFeel": {
+    "boardSizeObserved": [4, 6, 8],
+    "earlySizePattern": [4, 4, 6, 6, 8, 6, 6, 8, 8, 8, 6, 6, 8],
+    "givens": {
+      "levels1To10": 1,
+      "levels11To13": 0
+    },
+    "shippingRequirement": "original boards with unique solutions; exact captured layouts forbidden"
+  },
+  "explicitNonRequirements": [
+    "animals-or-reference-identity",
+    "hearts",
+    "correctness-oracle",
+    "rewarded-ads",
+    "leaderboard",
+    "gameplay-timer",
+    "reference-copy-or-audio",
+    "exact-reference-motion"
+  ],
+  "blockingGaps": [
+    "operator-taste-disposition",
+    "organic-novice-duration",
+    "feed-takeover-input-witness",
+    "first-party-presentation-freeze"
+  ],
+  "productionDeny": {
+    "referencePackage": "com.nebula.zoodoku",
+    "forbiddenNamespaces": ["queens-r1-reference", "zoodoku", "nebula-studio-capture"],
+    "forbiddenContent": ["captured-layout-ids", "captured-assets", "capture-provenance"]
+  }
+}

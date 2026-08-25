@@ -1,0 +1,53 @@
+{
+  "schema": "p4g.reference-evidence-manifest.v1",
+  "mechanicId": "queens-constraint-placement",
+  "capturedAt": "2026-08-25",
+  "rawArtifactRoot": "host-local:.research-artifacts/queens-r1-20260825",
+  "rawManifestSha256": "7cac1332cdb24f1133ba5c74402e3fbe04590d220d64a5b45028d3ff8acf34cb",
+  "accepted": [
+    {
+      "id": "QR1-E01",
+      "path": "levels/level-013/gameplay-clean-scrcpy.mp4",
+      "sha256": "2bc79ecfd6ed61c4887fe0044cb8a3bb43f627ef45edff56b39ae039f91b8f69",
+      "role": "canonical-gameplay"
+    },
+    {
+      "id": "QR1-E02",
+      "path": "levels/level-013/board.png",
+      "sha256": "a4741bb140ab82fc9592f70744537af2d1c4d05e5dd8df0d5478e069b2775c05",
+      "role": "canonical-initial-board"
+    },
+    {
+      "id": "QR1-E03",
+      "path": "scenario-level11-idle-tap/clean.mp4",
+      "sha256": "68e4b4f5dffe0982ec88788cbca96fc7fc84b5e825d312c209bf8788f6e23063",
+      "role": "scenario-clean"
+    },
+    {
+      "id": "QR1-E04",
+      "path": "scenario-level11-idle-tap/instrumented.mp4",
+      "sha256": "0089d4d7bed22b3382f8b96a4485c0693f36657c57bcd5f3871979573bd78459",
+      "role": "scenario-instrumented"
+    },
+    {
+      "id": "QR1-E05",
+      "path": "scenario-level11-idle-tap/clean-start.png",
+      "sha256": "780a357bc0378e07d810b039cc571fd6f0a476286cf4173e1c6147803edf3ec1",
+      "role": "pair-start-frame"
+    },
+    {
+      "id": "QR1-E06",
+      "path": "scenario-onboarding-first-launch/clean.mp4",
+      "sha256": "10b31671498e64ca72a80a83ba9b76b9d962db2c153f83275e7f37da2ab76154",
+      "role": "onboarding-consent-boundary"
+    }
+  ],
+  "rejected": [
+    {"paths": ["initial/queens-r1-*"], "reason": "wrong-package"},
+    {"paths": ["scenario-level1-tutorial-step1/clean.mp4"], "reason": "intended-action-not-executed"},
+    {"paths": ["levels/level-012/gameplay-clean.mp4", "levels/level-012/frame-*", "levels/level-012/gameplay-contact-sheet-2fps.png"], "reason": "static-unity-screenrecord"},
+    {"paths": ["levels/level-012/completed.png"], "reason": "wrong-state-and-notification-overlay"},
+    {"paths": ["hints/magnifier-zero-gate.png"], "reason": "ad-boundary-only-not-gameplay"}
+  ],
+  "rawBytesCommitted": false
+}

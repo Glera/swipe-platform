@@ -1,0 +1,55 @@
+{
+  "schema": "p4g.presentation-profile.v1",
+  "mechanicId": "queens-constraint-placement",
+  "status": "provisional-not-implementation-authority",
+  "identity": {
+    "kind": "first-party-original-required",
+    "pieceShape": null,
+    "palette": null,
+    "typography": null,
+    "copy": null
+  },
+  "viewport": {
+    "orientation": "portrait",
+    "boardShape": "square",
+    "boardSizeBand": [4, 8],
+    "gameplayTimer": false
+  },
+  "inputIntents": ["toggle-mark", "place-piece", "remove-piece", "restart"],
+  "gestureMapping": {
+    "status": "operator-taste-required",
+    "mustNot": ["place-on-feed-takeover-swipe"]
+  },
+  "validationMode": "constraint-only",
+  "failureEconomy": {
+    "hearts": false,
+    "rewardedRevive": false,
+    "wrongSolutionOracle": false
+  },
+  "hint": {
+    "enabled": null,
+    "preferredSemantics": "explain-logically-supported-cell-before-optional-application",
+    "monetized": false
+  },
+  "terminal": {
+    "trigger": "exact-solution-after-final-placement",
+    "submitButton": false,
+    "singleEvent": true,
+    "motionProfile": null
+  },
+  "earlyLadder": {
+    "sizes": [4, 6, 8],
+    "shape": "sawtooth",
+    "givens": "one-then-zero",
+    "exactReferenceBoards": false
+  },
+  "unresolved": [
+    "piece-shape-and-theme",
+    "palette-and-type",
+    "gesture-mapping",
+    "motion-and-audio",
+    "hint-inclusion",
+    "organic-session-band"
+  ],
+  "consumerGate": "fail-closed-until-copy-ticket-and-operator-taste"
+}
