@@ -1,6 +1,6 @@
 # STATE.md — текущий контрольный экран
 
-Обновлено: 25.08.2026 (#177 live DB migration 0087 DONE; rollout не начат). Не ledger;
+Обновлено: 25.08.2026 (#177 DB 0087 + backend rollout DONE). Не ledger;
 читать первым, обновлять последним; предел — 150 строк.
 **Активна заморозка деплоев/рестартов до конца операторского mobile soak.**
 **Портфельная доска маховика: [FLYWHEEL.md](FLYWHEEL.md).**
@@ -44,13 +44,14 @@
   `c25af39e…`; blind Opus discovery→correction→delta PASS, P1/P2=0.
   Exact-master PostgreSQL/roundtrip/browser и Feed CI SUCCESS. Live DB migration
   `0087_mission_gift_ladder` выполнена один раз после zero-evidence preflight;
-  receipt `5414632287`. Deploy/static rollout/restart/settings не выполнялись.
+  receipt `5414632287`. Backend publish `32882468734` + cutover `32882800126`
+  SUCCESS; live receipt `5414779410`. Static rollout/restart/settings не выполнялись.
 
 ## Production checkpoint (25.08)
 
-- **backend**: master `00d3310d…`, live `33d147a2…`; publish `32826628556`, image
-  `sha256:e20f9514…`, manifest `9933c1b1…`; live deploy
-  `dep-da6l56qjnfac73b3ivvg`; **DB `0087_mission_gift_ladder`**
+- **backend**: master/live `00d3310d…`; publish `32882468734`, image
+  `sha256:77a4b428…`, manifest `070dee3c…`; live deploy
+  `dep-da6to8gu01pc73dop9s0`; **DB `0087_mission_gift_ladder`**
   (zero-evidence preflight + один explicit-GO upgrade). Флаги ON: ticket bridge, notifications,
   mobile review (+operator). Owners-available OFF (ждёт #136 piece 3).
   Deploy-id волатилен — истина в дашборде. Канонический LKG-digest брать
@@ -112,12 +113,12 @@
 
 | # | Работа | Владелец | Состояние |
 | --- | --- | --- | --- |
-| 1 | #151 терминал: физическая приёмка 5 правок | оператор | backend 0086, Generator 09d12fc и Feed 9879e3d1 live; receipt `5407846339` |
+| 1 | #151 терминал: физическая приёмка 5 правок | оператор | backend 00d3310d / DB 0087, Generator 09d12fc и Feed 9879e3d1 live; receipt `5407846339` |
 | 2 | **#136 piece 3 — первым после #151**: model-free scanner на обоих маках, exactly-once resume bound-сессий, durable pending, компактное постраничное чтение #94 + ротация control-Issue, ноль периодических AI-тиков | Codex A (+сканер Mac B) | PR #175/#181/#184 merged; activation STOP: GitHub parser Mac A + headless exec Mac B; нужен отдельный disposition |
 | 3 | #140 Escalation lane (отказ fast-lane → обычный тикет, один вход с телефона) | Codex A | после 2 |
 | 4 | #118 slice 2 → #109 (единый список изменений, audience/lifecycle бейджи, promotion) | Codex A | после 3 |
 | 5 | Researcher: R1 Queens full pack → Bus A; затем R2 #160 (запуск партий из Labs с телефона) | Mac B | после 1 |
-| 6 | Mission #177: ladder 0087 + taste slice | оператор после code terminal | PR #79/#49 merged; DB 0087 DONE (`5414632287`); отдельно: backend/static rollout, settings/restart и founder dogfood |
+| 6 | Mission #177: ladder 0087 + taste slice | оператор после code terminal | backend+DB DONE (`5414779410`); отдельно: static rollout, settings/restart и founder dogfood |
 | 7 | #159 Infinite favorite-mechanic stream v0 | платформа | после 2–4, приоритет оператора |
 | 8 | Labs S3 (полный Labs-control с телефона) | Mac B | после 5/по приоритету |
 | 9 | Polish единой партией (#136 c.5331552479, P3 #77 ×9, P3 #78 ×3, generator trust-path/порты; transport-polish входит в п.2) + census старых draft-PR | по путям | одна партия |
