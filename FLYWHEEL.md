@@ -23,10 +23,13 @@ approved-генератор даёт бесконечный контент
 
 | Полоса | Статус | Что блокирует | Следующий терминал |
 |---|---|---|---|
-| Codex A (Mac A) | mission-бэкенд LIVE (0087, receipt #177 c.5414779410); FIFO приёмки #151: row 1 READY_FOR_APPROVAL, row 2 ждёт content-authoring | слово оператора: Feed #49 static rollout + mission enrollment | founder dogfood |
-| Mac B | READY → manual-source package для merge-timepress-v1 (row 2 FIFO #151) | — | MANUAL_SOURCE_READY → FIFO продолжается |
-| Fable (Mac A) | доска/маршруты | — | census после закрытия #151 |
-| Оператор | 3 акта | — | (1) row 1 Approve в Telegram (deep link в #151); (2) слово на Feed #49 + enrollment → dogfood; (3) GO #171 (опц.) |
+| Codex A (Mac A) | **автономная цель запущена** (фаза 0: коррекция+активация #136 c dogfood-wake 5410446094; далее #151→#177→#140→#159→#160/#188 без промежуточных указаний) | только неделегируемые акты оператора | evidence-backed срез результата |
+| Mac B | получает wake 5410446094 (timepress manual-source) — после активации сам; до неё одна минимальная пересылка | — | MANUAL_SOURCE_READY → FIFO |
+| Fable (Mac A) | доска на терминалах; диспозиции по NEEDS_HELP/review-лестнице; taste-поддержка | — | census по завершении цели |
+| Оператор | играбельно сейчас: **Two Dots кандидат** (deep link в #151 row 1) | — | далее только неделегируемое: taste Approve, live-миграции, credentials/infra, новые P1/P2 |
+
+**На время автономного прогона:** быстрая правда операций — `STATE.md`
+(ведёт Codex A); FLYWHEEL — портфельный вид, обновляется на терминалах.
 
 Порядок Mac A «mission раньше #159-сервера» принят по рекомендации
 Codex+Fable (мораторий вижена: mission — единственный новый продуктовый
@@ -50,8 +53,13 @@ standalone-генератор играется в Labs локально (unverif
   exactly-once resume owner-сессий; durable pending; компактное чтение и
   ротация #94; ноль холостых AI-тиков.
 - «К тесту»: три настоящих перехода Mac A→B→A без ручного копирования.
-- Владелец: Codex A, сразу после #151. Оценка 1–3 дня.
-- Статус: не начат (первый в очереди).
+- Статус (census Codex A 25.08 вечер): **код merged и отревьюен; активация
+  STOP** на двух дефектах — GitHub-pagination parser Mac A и headless
+  owner-session bootstrap Mac B (`codex exec` завершился до identity).
+  Старые гейты восстановлены, Mac B = owner_busy (безопасно). Разрешена
+  одна bounded-коррекция + один review + одна активация; первый dogfood
+  wake — существующий 5410446094 (row 2 приёмки). Оценка: 0,5–1 день до
+  активации, 1–2 дня до трёх доказанных переходов.
 - Ссылки: [#136](https://github.com/Glera/p4g-workspace-meta/issues/136).
 
 ## И2 — Всё с телефона
@@ -125,22 +133,13 @@ standalone-генератор играется в Labs локально (unverif
   [charter](docs/specs/market-researcher-r0-r1-charter.md),
   [pack](docs/research/2026-08-25-r1-queens/README.md).
 
-## Горизонты — пересчёт T9 (вечер 25.08, после внепланового рывка)
+## Горизонты — census Codex A (25.08 вечер, принят как authority)
 
-Факт: mission-бэкенд уже LIVE (0087_mission_gift_ladder в DB, rollout
-receipt #177 c.5414779410) — Codex A прошёл слайс раньше плана. #136
-p3/#140 частично в работе за кадром (fail-safe restore DONE). Осталось до
-founder dogfood сезона: Feed #49 static rollout → mission
-settings/enrollment → наигрыш. Это **дни, не неделя**.
-
-- #151: FIFO приёмки идёт — row 1 (orthogonal-link) READY_FOR_APPROVAL с
-  deep-link'ом; row 2 (merge-timepress-v1) ждёт одного manual-source
-  package от Mac B; дальше FIFO-суффикс сам.
-- Mac B: timepress-authoring (часы) → затем #188-handback → R2; Queens
-  copy #171 по GO.
-- #159 сервер: после mission-хвоста (+2–3 дня) → полный пилот.
-- «Пять веток в тесте» ≈ **4–7 дней**; две уже в тесте, mission — на
-  пороге dogfood.
+- Маки без ручной пересылки + все пять кандидатов #151: **1–3 рабочих дня**.
+- Mission в founder-тесте: **1–2 дня** (сам хвост — 2–4 часа после активации).
+- Устойчивый телефонный цикл с автоэскалацией (#140): **3–5 дней**.
+- Бесконечная механика (#159 сервер) и Research из телефона (#160/#188):
+  **+1–2 недели** параллельной работы.
 
 ## Правила доски
 
