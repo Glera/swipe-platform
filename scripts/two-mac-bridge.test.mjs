@@ -284,6 +284,13 @@ test('CLI is dry-run by default and never accepts a task digest or command paylo
   assert.equal(parseArgs([
     'bootstrap', '--machine', 'mac-b', '--supersede-binding-digest', 'f'.repeat(64),
   ]).supersedeBindingDigest, 'f'.repeat(64));
+  assert.equal(parseArgs([
+    'bootstrap', '--machine', 'mac-b', '--supersede-binding-digest', 'f'.repeat(64),
+    '--replace-owner-task',
+  ]).replaceOwnerTask, true);
+  assert.throws(() => parseArgs([
+    'bootstrap', '--machine', 'mac-b', '--replace-owner-task',
+  ]), /with --supersede-binding-digest/u);
   assert.throws(() => parseArgs([
     'claim', '--issue', '91', '--machine', 'mac-b',
     '--supersede-binding-digest', 'f'.repeat(64),
@@ -1642,6 +1649,42 @@ test('replacement bootstrap requires explicit HOLD, preserves stale evidence, an
   const replay = await bootstrapMachine({
     ...args, supersedeBindingDigest: stale.bindingDigest,
   });
+  assert.equal(replay.status, 'REUSE');
+  assert.equal(transport.posts.length, 2);
+});
+
+test('operator-authorized owner replacement binds a new headless task and retains the old task as HOLD', async () => {
+  const stale = createMachineBinding({
+    controlIssue: 94,
+    repositoryId: '123456789',
+    machine: 'mac-b',
+    taskDigest: B_TASK,
+    bridgeCommit: HEAD,
+    registeredAt: '2026-08-11T09:00:00.000Z',
+  });
+  const transport = memoryTransport(controlIssue([stale]));
+  const args = {
+    transport,
+    repo: 'Glera/p4g-workspace-meta',
+    controlIssue: 94,
+    machine: 'mac-b',
+    taskDigest: A_TASK,
+    bridgeCommit: HEAD,
+    supersedeBindingDigest: stale.bindingDigest,
+    apply: true,
+    clock: () => new Date('2026-08-11T10:00:00.000Z'),
+  };
+  await assert.rejects(
+    bootstrapMachine(args),
+    /does not match the exact local task and repository/u,
+  );
+  const replacement = await bootstrapMachine({ ...args, replaceOwnerTask: true });
+  assert.equal(replacement.status, 'BOOTSTRAPPED');
+  assert.equal(replacement.binding.taskDigest, A_TASK);
+  assert.equal(replacement.held[stale.bindingDigest].taskDigest, B_TASK);
+  assert.equal(transport.posts.length, 2);
+
+  const replay = await bootstrapMachine({ ...args, replaceOwnerTask: true });
   assert.equal(replay.status, 'REUSE');
   assert.equal(transport.posts.length, 2);
 });

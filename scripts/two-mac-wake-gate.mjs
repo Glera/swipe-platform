@@ -184,7 +184,21 @@ function sessionBusy(config, run = execute) {
   if (result.status !== 0) {
     throw new Error('checking Codex writer lock failed');
   }
-  return Boolean(String(result.stdout || '').trim());
+  const pids = String(result.stdout || '').trim().split(/\s+/u).filter(Boolean);
+  if (pids.length === 0) return false;
+  for (const pid of pids) {
+    if (!/^[1-9][0-9]{0,15}$/u.test(pid)) throw new Error('Codex writer lock owner is invalid');
+    const owner = run('/bin/ps', ['-ww', '-p', pid, '-o', 'command=']);
+    if (owner.error || owner.status !== 0) throw new Error('checking Codex writer owner failed');
+    const command = String(owner.stdout || '').trim();
+    if (/\bcodex\b.*\bapp-server\b/u.test(command)) {
+      throw new Error('headless owner task is loaded by Codex Desktop app-server');
+    }
+    if (!/\bcodex\b.*\bexec\s+resume\b/u.test(command)) {
+      throw new Error('Codex writer lock has an unrecognized owner');
+    }
+  }
+  return true;
 }
 
 function notify(config, message, run = execute) {
@@ -285,6 +299,8 @@ function removeSuccessfulRunLogs(dataRoot, pending) {
 function classifyOperationalError(error) {
   const message = String(error?.message ?? '');
   if (/task binding|bridge binding/u.test(message)) return 'binding_drift';
+  if (/loaded by Codex Desktop/u.test(message)) return 'headless_owner_loaded_in_desktop';
+  if (/unrecognized owner|writer owner/u.test(message)) return 'owner_lock_unrecognized';
   if (/writer lock/u.test(message)) return 'owner_lock_unavailable';
   if (/comment (?:changed|disappeared)/u.test(message)) return 'control_comment_changed';
   if (/pagination/u.test(message)) return 'control_pagination_incomplete';

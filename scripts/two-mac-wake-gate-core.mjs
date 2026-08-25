@@ -485,13 +485,38 @@ export function assertExactBoundSession({ config, comments, localBridgeCommit })
   if (binding.bridgeCommit !== localBridgeCommit) {
     throw new Error(`exact active ${config.machine} bridge binding is required`);
   }
-  const callbackTaskDigest = config.machine === 'mac-b'
-    ? bindingState.active['mac-a']?.taskDigest ?? null
+  const immediateHeldTask = (machine, active) => {
+    const candidates = bindingState.holds
+      .filter((hold) => hold.machine === machine
+        && hold.repositoryId === active?.repositoryId
+        && Date.parse(hold.heldAt) < Date.parse(active?.registeredAt ?? ''))
+      .sort((left, right) => Date.parse(right.heldAt) - Date.parse(left.heldAt));
+    return candidates[0]?.taskDigest ?? null;
+  };
+  const acceptedTaskDigests = [...new Set([
+    localDigest,
+    immediateHeldTask(config.machine, binding),
+  ].filter(Boolean))];
+  const callbackBinding = config.machine === 'mac-b'
+    ? bindingState.active['mac-a'] ?? null
     : null;
+  const callbackTaskDigest = callbackBinding?.taskDigest ?? null;
   if (config.machine === 'mac-b' && !SHA256.test(String(callbackTaskDigest ?? ''))) {
     throw new Error('exact active mac-a callback binding is required');
   }
-  return { taskDigest: localDigest, callbackTaskDigest, binding };
+  const acceptedCallbackTaskDigests = config.machine === 'mac-b'
+    ? [...new Set([
+      callbackTaskDigest,
+      immediateHeldTask('mac-a', callbackBinding),
+    ].filter(Boolean))]
+    : [null];
+  return {
+    taskDigest: localDigest,
+    acceptedTaskDigests,
+    callbackTaskDigest,
+    acceptedCallbackTaskDigests,
+    binding,
+  };
 }
 
 export function assertTrustedMarkerAuthors(config, comments) {
@@ -530,7 +555,9 @@ export function observeWakeGate({ config, state, comments, localBridgeCommit, no
     comments,
     machine: config.machine,
     taskDigest: identity.taskDigest,
+    acceptedTaskDigests: identity.acceptedTaskDigests,
     callbackTaskDigest: identity.callbackTaskDigest,
+    acceptedCallbackTaskDigests: identity.acceptedCallbackTaskDigests,
     lastScannedCommentId: state.lastScannedCommentId,
     lastConsumedWakeCommentId: state.lastConsumedWakeCommentId,
   });
