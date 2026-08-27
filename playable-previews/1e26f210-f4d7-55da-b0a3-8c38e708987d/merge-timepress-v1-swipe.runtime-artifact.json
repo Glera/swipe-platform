@@ -1,0 +1,19 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "merge-timepress-v1-swipe",
+  "digest": "sha256:6d6318a7edd3cbf71cc0f9d314d5c75ffb1fb15d62ee88f8ae479b9e635e65ba",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "63b004ad5410ae53673e1d592c44b2f8bd835fb7",
+  "files": [
+    {
+      "path": "merge-timepress-v1-swipe.html",
+      "bytes": 2434361,
+      "sha256": "sha256:1aa24ed6e37c6ab35a042530aca1c8ea47b9001e5feebd11c5b8a7209ebdc48b"
+    },
+    {
+      "path": "merge-timepress-v1-swipe.payload.js",
+      "bytes": 1407731,
+      "sha256": "sha256:5c114158cc22353d425a0e750ed8859df0801269a2092257afc31eb2d33f1e00"
+    }
+  ]
+}
