@@ -1,0 +1,19 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "solitaire-v1-swipe",
+  "digest": "sha256:f42553286bc37b08a6567816fc8b1931d7fbedaeac753d24de30f4bd54182629",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "d9aa270c7a668a78f54f5ef334b432abdd84705f",
+  "files": [
+    {
+      "path": "solitaire-v1-swipe.html",
+      "bytes": 1099,
+      "sha256": "sha256:7810cdd0e6ebd6a304ddbf078b56f7a5afe9c0e31bb5882f553679252aabb58a"
+    },
+    {
+      "path": "solitaire-v1-swipe.payload.js",
+      "bytes": 90381,
+      "sha256": "sha256:0db7446f5c58eef94876f7d0d8cd1b538cd970eb8423463e2e887ca91df72e88"
+    }
+  ]
+}
