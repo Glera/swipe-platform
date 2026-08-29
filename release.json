@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 2,
-  "builtAt": "2026-08-28 16:44 UTC",
+  "schemaVersion": 3,
+  "builtAt": "2026-08-29 16:23 UTC",
   "feedCommit": "4b9dcd2f79c8b40add270d2943fcd715ce3b38be",
   "exportedPlayablesCommit": null,
-  "deployToolingCommit": "3856cb94873a6b23e3ee97d30f50695d67a9abe5",
+  "deployToolingCommit": "13a5b73015e1d68fe652fc7df09a9350e8559918",
   "profileName": "cohort-operator",
-  "profileFileSha256": "44298d1a7b0d0783f9bd51c82ac939b7146d9940d12b6cf2932ac03eafc5092f",
+  "profileFileSha256": "4d7f225d852a152f813238383892eb58a7dceb5441583bac3ff73b979ed0db98",
   "catalogDogfood": {
     "schema": "catalog-dogfood-release-profile.v1",
     "profile": "exact-user",
@@ -23,6 +23,12 @@
       "VITE_ISLAND_ENABLED": false,
       "VITE_ISLAND_VISIT_AWARDS_ENABLED": false,
       "VITE_ISLAND_NOTIFICATIONS_ENABLED": false
+    }
+  },
+  "mission": {
+    "schema": "mission-release-profile.v1",
+    "gates": {
+      "VITE_MISSION_ENABLED": false
     }
   }
 }
