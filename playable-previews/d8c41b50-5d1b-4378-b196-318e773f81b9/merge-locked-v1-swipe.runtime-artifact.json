@@ -1,0 +1,19 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "merge-locked-v1-swipe",
+  "digest": "sha256:4bd65a8754eb4eaf0378164e9269ebbb28e7dc01a356dddb71c0a3765d2e0729",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "0f72c5a0d774f0248192a0cdffa12774dfa3434b",
+  "files": [
+    {
+      "path": "merge-locked-v1-swipe.html",
+      "bytes": 2375357,
+      "sha256": "sha256:d134ad6b20b032b383ca0cc4eebeb0d583fa41faffaee48b051a3930efb8dae8"
+    },
+    {
+      "path": "merge-locked-v1-swipe.payload.js",
+      "bytes": 1440634,
+      "sha256": "sha256:5fee7b4e6c65a3374c0f1718c9db8f3d828f56a3456076e7eea5ded5d00d5bab"
+    }
+  ]
+}
