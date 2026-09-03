@@ -1,0 +1,19 @@
+{
+  "schema": "runtime-artifact.v1",
+  "playableId": "minesweeper-v1-swipe",
+  "digest": "sha256:7c618a6b07d35ccd16f11d11192c67e96eaf0724083e759eb62e0ba2bc93902e",
+  "digestCanonicalization": "sorted-paths+u32-path-length+u64-byte-length; embedded digest normalized to sha256:000…000",
+  "sourceCommit": "e7c97f684183eb3c43e1e0c1e4394348f9497e91",
+  "files": [
+    {
+      "path": "minesweeper-v1-swipe.html",
+      "bytes": 1091,
+      "sha256": "sha256:cd2ee510c9f196015d18b46c8de0939cd2d934589fe579d19a301099ac1b6815"
+    },
+    {
+      "path": "minesweeper-v1-swipe.payload.js",
+      "bytes": 56072,
+      "sha256": "sha256:8b4595d2127a7ffc6f4398936af87551af9080d6565552602f4132e710a6db47"
+    }
+  ]
+}
