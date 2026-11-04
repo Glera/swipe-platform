@@ -1,0 +1,126 @@
+{
+  "schema": "night.generation-campaign.v1",
+  "policyDigest": "sha256:06392e0a0635ba4b1d1327152da662323ae75d7770c89743a11e80d87f2d79c8",
+  "title": "First nightly Sort curriculum",
+  "inputManifest": [
+    {
+      "kind": "document",
+      "identity": "generator.mechanic-catalog:sort",
+      "digest": "sha256:7373ada0decc4bb724bdd0787e0ede94c14c1e1f3914a2c96581f51b10128db1"
+    },
+    {
+      "kind": "runtime_closure",
+      "identity": "sort.runtime-contract.v1",
+      "digest": "sha256:c79a84694f02dad356822fa1b3f3d039b8f056f23f1300ff536a072e54c3b625"
+    },
+    {
+      "kind": "document",
+      "identity": "sort.level-generator-source.v1",
+      "digest": "sha256:452f204dc726bac2ff46080e8b4915951ec2990484af2b968eb9bc7084a43081"
+    },
+    {
+      "kind": "recipe",
+      "identity": "sort.series-planner-contract.v1",
+      "digest": "sha256:e8ab40136bc9f71932b05281ca9ac66f320512e222f2621a8b1ede9b04178bfe"
+    }
+  ],
+  "lanes": [
+    {
+      "schema": "night.series-brief.v1",
+      "lane": "series",
+      "enabled": true,
+      "autonomy": "scheduled_deterministic",
+      "quota": {
+        "proposals": 2,
+        "morningCandidates": 2
+      },
+      "modelPlan": null,
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "identity": "generator.mechanic-catalog:sort",
+          "digest": "sha256:7373ada0decc4bb724bdd0787e0ede94c14c1e1f3914a2c96581f51b10128db1"
+        },
+        {
+          "kind": "runtime_closure",
+          "identity": "sort.runtime-contract.v1",
+          "digest": "sha256:c79a84694f02dad356822fa1b3f3d039b8f056f23f1300ff536a072e54c3b625"
+        },
+        {
+          "kind": "document",
+          "identity": "sort.level-generator-source.v1",
+          "digest": "sha256:452f204dc726bac2ff46080e8b4915951ec2990484af2b968eb9bc7084a43081"
+        },
+        {
+          "kind": "recipe",
+          "identity": "sort.series-planner-contract.v1",
+          "digest": "sha256:e8ab40136bc9f71932b05281ca9ac66f320512e222f2621a8b1ede9b04178bfe"
+        }
+      ],
+      "mechanic": "sort",
+      "seriesCount": 2,
+      "levelCount": 5,
+      "seedStart": 1001,
+      "skinReviewTargetId": null,
+      "excludedSpecHashes": [],
+      "excludedGameplayFingerprints": [],
+      "curriculum": {
+        "schema": "sort.series-curriculum.v1",
+        "hypothesis": "Introduce board size, colours, targets, and conveyor speed as one readable progression.",
+        "difficultyCurve": [
+          "easy",
+          "medium",
+          "medium",
+          "hard",
+          "hard"
+        ],
+        "startRecipe": {
+          "schema": "sort.recipe-proposal.v1",
+          "params": {
+            "gridCols": 6,
+            "gridRows": 5,
+            "colorsUsed": 3,
+            "targetRectsTotal": 6,
+            "convSpeedMul": 0.8,
+            "modifiers": []
+          }
+        },
+        "endRecipe": {
+          "schema": "sort.recipe-proposal.v1",
+          "params": {
+            "gridCols": 8,
+            "gridRows": 7,
+            "colorsUsed": 6,
+            "targetRectsTotal": 18,
+            "convSpeedMul": 1.25,
+            "modifiers": []
+          }
+        },
+        "variationAxes": [
+          "gridCols",
+          "gridRows",
+          "colorsUsed",
+          "targetRectsTotal",
+          "convSpeedMul"
+        ],
+        "maxMeasuredEffortRegressionPpm": 250000,
+        "maxMeasuredEffortStepPpm": 750000,
+        "maxRegressionCount": 1
+      }
+    }
+  ],
+  "budget": {
+    "maxWallSeconds": 3600,
+    "maxProviderInvocations": 0,
+    "maxCandidates": 10,
+    "maxOutstandingReviews": 12,
+    "maxRetriesPerPhysicalJob": 0,
+    "externalAsset": null
+  },
+  "morningPacketPolicy": {
+    "maxSeries": 2,
+    "maxSkins": 0,
+    "maxExperiments": 0,
+    "selectionPolicyDigest": "sha256:e8ab40136bc9f71932b05281ca9ac66f320512e222f2621a8b1ede9b04178bfe"
+  }
+}

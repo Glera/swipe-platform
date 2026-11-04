@@ -1,0 +1,48 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P2",
+      "file": "docs/specs/local-platform-dispatcher-runbook.md",
+      "line": 71,
+      "desc": "Changing the trusted issue actor changes profileDigest and made an existing valid scan cache reject every tick."
+    },
+    {
+      "id": "F002",
+      "severity": "P2",
+      "file": "scripts/local-platform-dispatcher.mjs",
+      "line": 319,
+      "desc": "Git upward discovery could bind a missing nested mirror to the enclosing meta repository."
+    },
+    {
+      "id": "F003",
+      "severity": "P3",
+      "file": "scripts/local-platform-dispatcher.mjs",
+      "line": 331,
+      "desc": "Retained job metadata depended permanently on the live mirror object store."
+    },
+    {
+      "id": "F004",
+      "severity": "P3",
+      "file": "scripts/local-platform-dispatcher.test.mjs",
+      "line": 671,
+      "desc": "The alternates test did not prove fetch-time use or cover invalid nested repository discovery."
+    }
+  ],
+  "dispositions": [
+    { "id": "F001", "action": "fixed" },
+    { "id": "F002", "action": "fixed" },
+    { "id": "F003", "action": "fixed" },
+    { "id": "F004", "action": "fixed" }
+  ],
+  "verify": [
+    {
+      "command": "node --test scripts/local-platform-dispatcher.test.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node --test 'scripts/*.test.mjs'",
+      "exitCode": 0
+    }
+  ]
+}

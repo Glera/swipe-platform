@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Playables — Release Status</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --line:#262b35; --txt:#e8eaed; --muted:#9aa3b2;
+    --ok:#3fb950; --warn:#d29922; --bad:#f85149; --info:#58a6ff; --chip:#21262d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:28px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 22px;font-size:13px}
+  .cards{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:26px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;min-width:130px}
+  .kpi .n{font-size:26px;font-weight:700}
+  .kpi .l{color:var(--muted);font-size:12px;margin-top:2px}
+  .kpi.ok .n{color:var(--ok)} .kpi.warn .n{color:var(--warn)} .kpi.bad .n{color:var(--bad)} .kpi.info .n{color:var(--info)}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;background:#13161c;cursor:pointer;user-select:none}
+  td.id{font-weight:600}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#1d212a}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+  .p-ready{background:rgba(63,185,80,.15);color:var(--ok)}
+  .p-near{background:rgba(210,153,34,.15);color:var(--warn)}
+  .p-early{background:rgba(88,166,255,.15);color:var(--info)}
+  .p-issue{background:rgba(248,81,73,.15);color:var(--bad)}
+  .p-none{background:var(--chip);color:var(--muted)}
+  .yes{color:var(--ok);font-weight:700}.no{color:var(--bad);font-weight:700}.dash{color:var(--muted)}
+  .bar{height:6px;border-radius:4px;background:var(--line);position:relative;width:90px;display:inline-block;vertical-align:middle;margin-right:6px}
+  .bar>i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+  .note{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:8px;padding:12px 16px;margin:22px 0;color:var(--muted)}
+  .note b{color:var(--txt)}
+  .legend{color:var(--muted);font-size:12px;margin-top:14px}
+  .legend .pill{margin-right:6px}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px}
+  a{color:var(--info)}
+</style>
+</head>
+<body>
+<h1>Playable Creatives — Release Status</h1>
+<p class="sub">Источник: <code>playables/&lt;id&gt;/release.json</code> · Бюджет размера: ≤ 5120&nbsp;KB (AppLovin) · Сгенерировано 2026-06-10</p>
+
+<div class="cards" id="kpis"></div>
+
+<table id="tbl">
+  <thead>
+    <tr>
+      <th data-k="id">Creative</th>
+      <th data-k="rank">Готовность</th>
+      <th data-k="sizeKB">Размер</th>
+      <th data-k="static">Static</th>
+      <th data-k="rtAuto">Runtime auto</th>
+      <th data-k="rt">Runtime</th>
+      <th data-k="preview">Preview ✓</th>
+      <th data-k="urlReal">Store URL</th>
+      <th data-k="buildDate">Build date</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div class="note" id="attention"></div>
+
+<div class="legend">
+  <span class="pill p-ready">Ready to ship</span> static+runtime+preview, реальный store URL ·
+  <span class="pill p-near">Near</span> остался preview-verify ·
+  <span class="pill p-early">Early</span> нужен runtime + preview ·
+  <span class="pill p-issue">Needs fix</span> placeholder URL или битый release.json ·
+  <span class="pill p-none">Not built</span> нет release.json
+</div>
+
+<script>
+const BUDGET = 5120;
+// rank: 5 ready, 4 near, 3 early, 2 issue, 1 not built
+const data = [
+  {id:"merge-timepress-v1",        sizeKB:3726, static:true, rtAuto:true,  rt:true,  preview:true,  urlReal:true,  buildDate:"2026-05-13"},
+  {id:"merge-second-board-v1",     sizeKB:3452, static:true, rtAuto:false, rt:true,  preview:true,  urlReal:true,  buildDate:"2026-05-11"},
+  {id:"merge-second-board-v1_1",   sizeKB:2273, static:true, rtAuto:false, rt:true,  preview:true,  urlReal:true,  buildDate:"2026-05-13"},
+  {id:"merge-timepress-v2",        sizeKB:3175, static:true, rtAuto:true,  rt:false, preview:false, urlReal:true,  buildDate:"2026-05-20"},
+  {id:"merge-timepress-no-orders-v1", sizeKB:2357, static:true, rtAuto:true, rt:false, preview:false, urlReal:true, buildDate:"2026-05-20"},
+  {id:"merge-timepress-no-orders-v2", sizeKB:2960, static:true, rtAuto:true, rt:false, preview:false, urlReal:true, buildDate:"2026-05-21"},
+  {id:"merge-locked-v1",           sizeKB:2665, static:true, rtAuto:true,  rt:false, preview:false, urlReal:false, buildDate:"2026-05-06"},
+  {id:"merge-mini-v1",             sizeKB:871,  static:true, rtAuto:true,  rt:false, preview:false, urlReal:false, buildDate:"2026-05-06"},
+  {id:"marble-sort",               sizeKB:107,  static:true, rtAuto:true,  rt:false, preview:false, urlReal:false, buildDate:"2026-05-06"},
+  {id:"merge-timepress-no-orders-v3", issue:"release.json — копия v2 (id, gitSha, дата от v2). Не пересобирался.", buildDate:"—"},
+  {id:"merge-locked-v2",           issue:"release.json — копия v1 (id, gitSha, дата от v1). Не пересобирался.", buildDate:"—"},
+  {id:"merge-timepress-v1-ru",     notBuilt:true, buildDate:"—"},
+  {id:"merge-timepress-v2-ru",     notBuilt:true, buildDate:"—"},
+  {id:"merge-second-board-v2",     notBuilt:true, buildDate:"—"},
+  {id:"merge-second-board-v3",     notBuilt:true, buildDate:"—"},
+];
+
+function classify(r){
+  if(r.notBuilt) return {rank:1, label:"Not built", cls:"p-none"};
+  if(r.issue)    return {rank:2, label:"Needs fix", cls:"p-issue"};
+  if(!r.urlReal) return {rank:2, label:"Needs fix", cls:"p-issue"};
+  if(r.static && r.rt && r.preview && r.urlReal) return {rank:5, label:"Ready to ship", cls:"p-ready"};
+  if(r.static && r.rtAuto && !r.preview) return {rank:4, label:"Near (preview)", cls:"p-near"};
+  return {rank:3, label:"Early", cls:"p-early"};
+}
+data.forEach(r=>{ const c=classify(r); r.rank=c.rank; r.label=c.label; r.cls=c.cls; });
+
+const tb=document.querySelector("#tbl tbody");
+function bool(v){ if(v===true) return '<span class="yes">✓</span>'; if(v===false) return '<span class="no">✕</span>'; return '<span class="dash">—</span>'; }
+function sizeCell(r){
+  if(r.sizeKB==null) return '<span class="dash">—</span>';
+  const pct=Math.min(100, r.sizeKB/BUDGET*100);
+  const col = pct>90?'var(--bad)':pct>70?'var(--warn)':'var(--ok)';
+  return `<span class="bar"><i style="width:${pct}%;background:${col}"></i></span>${r.sizeKB} KB`;
+}
+function render(){
+  tb.innerHTML="";
+  data.forEach(r=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML =
+      `<td class="id">${r.id}</td>`+
+      `<td><span class="pill ${r.cls}">${r.label}</span></td>`+
+      `<td>${sizeCell(r)}</td>`+
+      `<td>${bool(r.static)}</td>`+
+      `<td>${bool(r.rtAuto)}</td>`+
+      `<td>${bool(r.rt)}</td>`+
+      `<td>${bool(r.preview)}</td>`+
+      `<td>${r.urlReal===true?'<span class="yes">real</span>':r.urlReal===false?'<span class="no">placeholder</span>':'<span class="dash">—</span>'}</td>`+
+      `<td>${r.buildDate}</td>`;
+    tb.appendChild(tr);
+  });
+}
+// KPIs
+const kpis=[
+  {n:data.filter(r=>r.rank===5).length, l:"Ready to ship", c:"ok"},
+  {n:data.filter(r=>r.rank===4).length, l:"Near (preview)", c:"warn"},
+  {n:data.filter(r=>r.rank===3).length, l:"Early", c:"info"},
+  {n:data.filter(r=>r.rank===2).length, l:"Needs fix", c:"bad"},
+  {n:data.filter(r=>r.rank===1).length, l:"Not built", c:"info"},
+  {n:data.length, l:"Всего креативов", c:""},
+];
+document.querySelector("#kpis").innerHTML = kpis.map(k=>`<div class="kpi ${k.c}"><div class="n">${k.n}</div><div class="l">${k.l}</div></div>`).join("");
+
+// attention
+const issues=data.filter(r=>r.issue);
+document.querySelector("#attention").innerHTML =
+  `<b>⚠ Требует внимания — целостность release.json</b><br>`+
+  issues.map(r=>`• <code>${r.id}</code> — ${r.issue}`).join("<br>")+
+  `<br><br>Пересобрать: <code>npm run release ${issues.map(r=>r.id).join("</code>, <code>")}</code> (после освобождения места на диске).`;
+
+// sorting
+let sortKey="rank", asc=false;
+document.querySelectorAll("#tbl th").forEach(th=>th.addEventListener("click",()=>{
+  const k=th.dataset.k; if(k===sortKey) asc=!asc; else {sortKey=k; asc=true;}
+  data.sort((a,b)=>{ const x=a[k]??-1,y=b[k]??-1; return (x>y?1:x<y?-1:0)*(asc?1:-1); });
+  render();
+}));
+data.sort((a,b)=> b.rank-a.rank || (b.buildDate>a.buildDate?1:-1));
+render();
+</script>
+</body>
+</html>

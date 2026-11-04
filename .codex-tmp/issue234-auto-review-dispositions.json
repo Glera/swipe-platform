@@ -1,0 +1,42 @@
+{
+  "findings": [
+    {
+      "id": "F001",
+      "severity": "P3",
+      "file": "scripts/check-developer-feed-diff-browser.mjs",
+      "line": 399,
+      "desc": "The geometry assertion did not prove safe glyph leading for the compact two-line label."
+    },
+    {
+      "id": "F002",
+      "severity": "P3",
+      "file": "scripts/check-candidate-feed-preview-browser.mjs",
+      "line": 731,
+      "desc": "The replacement textContent assertion did not require both label lines to be visible."
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "F001",
+      "action": "fixed"
+    },
+    {
+      "id": "F002",
+      "action": "fixed"
+    }
+  ],
+  "verify": [
+    {
+      "command": "npm run check:candidate-feed-preview && npm run check:developer-feed-diff-browser",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "exitCode": 1
+    },
+    {
+      "command": "baseline origin/master: npm run check:mission-browser",
+      "exitCode": 1
+    }
+  ]
+}

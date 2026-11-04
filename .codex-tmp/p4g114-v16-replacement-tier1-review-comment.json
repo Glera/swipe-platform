@@ -1,0 +1,11 @@
+{
+  "commentBodySha256": "5761974b8d6faf41b5c3342ee83288e1569ca20b2279e27b87594a9df060d631",
+  "receiptBodySha256": "4b1c6c161024b42c2a0e164155dc689f2cff13f5a3f99956853ff263ff0e2e87",
+  "wakeId": "wake_cd67fe671ce536518ce78d276c65193596df1e68b113d9d89c606ccba6e43e1a",
+  "wakeDigest": "4bcafa562f3ce5ece4017f724cc43c6e2b90fa6933b8f825fc224b325741caf8",
+  "assignedMachine": "mac-b",
+  "targetTaskDigest": "be9b2496185c314369ebb101cc9e18f0a32f6bef4c8ae929556fed09f44c5983",
+  "callbackTaskDigest": "f2c0e31a9844b73c5344a19b83222b0336ab44eceaa5bb005e56efa568648967",
+  "parentCommentId": "5300803643",
+  "exactTitle": "MAC_B_ISSUE114_V16_REPLACEMENT_TIER1_REVIEW — HANDOFF_READY"
+}
