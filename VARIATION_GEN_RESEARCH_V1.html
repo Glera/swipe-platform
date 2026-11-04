@@ -1,0 +1,474 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Генерация вариаций готовой механики — Research v1</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212b; --ink:#e7ebf3; --mut:#9aa4b6;
+    --line:#2a3040; --accent:#5aa7ff; --good:#54d18c; --warn:#ffce6b; --bad:#ff7a7a;
+    --code:#0b0d12; --chip:#232937;
+    --safe:#54d18c; --mid:#ffce6b; --risk:#ff7a7a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 96px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:8px}
+  .kicker{color:var(--accent);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+  h1{font-size:30px;line-height:1.2;margin:10px 0 6px}
+  .sub{color:var(--mut);font-size:15px;max-width:70ch}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .tag{background:var(--chip);border:1px solid var(--line);color:var(--mut);
+    padding:4px 10px;border-radius:999px;font-size:12px}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:18px 20px;margin:28px 0 8px}
+  nav.toc b{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+  nav.toc ol{margin:12px 0 0;padding-left:20px;columns:2;column-gap:36px}
+  nav.toc li{margin:4px 0;break-inside:avoid}
+  nav.toc a{color:var(--ink);text-decoration:none}
+  nav.toc a:hover{color:var(--accent)}
+  section{margin-top:44px;scroll-margin-top:20px}
+  h2{font-size:22px;margin:0 0 4px;padding-top:8px;border-top:2px solid var(--line)}
+  h2 .n{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:10px}
+  h3{font-size:16px;margin:26px 0 8px;color:#cdd6e6}
+  p{margin:10px 0}
+  .lead{color:var(--mut);font-size:15px;margin:6px 0 14px}
+  ul,ol{margin:10px 0;padding-left:22px}
+  li{margin:6px 0}
+  code{background:var(--code);border:1px solid var(--line);border-radius:6px;
+    padding:1px 6px;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#d8e2f2}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;overflow:auto;margin:12px 0}
+  pre code{background:none;border:none;padding:0;color:#cfe0ff;white-space:pre}
+  .grid{display:grid;gap:14px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g3,.g2{grid-template-columns:1fr}nav.toc ol{columns:1}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card h4{margin:0 0 6px;font-size:15px}
+  .card.safe{border-left:4px solid var(--safe)}
+  .card.mid{border-left:4px solid var(--mid)}
+  .card.risk{border-left:4px solid var(--risk)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;padding:3px 8px;border-radius:6px;margin-bottom:8px}
+  .pill.safe{background:rgba(84,209,140,.15);color:var(--good)}
+  .pill.mid{background:rgba(255,206,107,.15);color:var(--warn)}
+  .pill.risk{background:rgba(255,122,122,.15);color:var(--bad)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:#cdd6e6;font-weight:600}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tbl-scroll{overflow-x:auto}
+  .callout{border-radius:12px;padding:14px 16px;margin:16px 0;border:1px solid var(--line);background:var(--panel2)}
+  .callout.key{border-left:4px solid var(--accent)}
+  .callout.win{border-left:4px solid var(--good)}
+  .callout.warn{border-left:4px solid var(--warn)}
+  .callout b{color:#fff}
+  .verdict{background:linear-gradient(90deg,rgba(90,167,255,.12),transparent);
+    border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:12px;padding:14px 16px;margin:18px 0}
+  .verdict b{color:var(--accent)}
+  .mono-note{color:var(--mut);font-size:13px}
+  .path{color:#9fd0ff}
+  footer{margin-top:60px;border-top:1px solid var(--line);padding-top:18px;color:var(--mut);font-size:13px}
+  .flow{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin:14px 0}
+  .flow .step{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;font-size:13px;flex:1;min-width:120px}
+  .flow .step .lab{color:var(--accent);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  .arrow{align-self:center;color:var(--mut);font-size:18px}
+  .kpi{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0}
+  .kpi .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:150px}
+  .kpi .big{font-size:24px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+  .kpi .cap{color:var(--mut);font-size:12px}
+  hr.soft{border:none;border-top:1px dashed var(--line);margin:22px 0}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Research · внутренний документ</div>
+  <h1>Генерация вариаций готовой механики</h1>
+  <p class="sub">Как из одной запечённой playable-механики (<code>playables/&lt;id&gt;</code>) автоматически
+  порождать множество валидных вариантов — процедурно и с помощью моделей. Отдельная тема, не связана с фичей
+  шеринга. Цель: понять что безопасно, что дорого, что гарантируемо, и с чего начинать v1.</p>
+  <div class="meta">
+    <span class="tag">v1 · 2026-07-05</span>
+    <span class="tag">scope: research, кода не трогаем</span>
+    <span class="tag">контекст: p4g-platform-workspace / playables</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <b>Содержание</b>
+  <ol>
+    <li><a href="#s1">Три пути генерации: безопасный → рискованный</a></li>
+    <li><a href="#s2">Рескин как отдельный путь</a></li>
+    <li><a href="#s3">Цены на модели и предсказуемость</a></li>
+    <li><a href="#s4">Экономика и монетизация</a></li>
+    <li><a href="#s5">Что безопасно править, а что нет</a></li>
+    <li><a href="#s6">Объективные ограничения</a></li>
+    <li><a href="#s7">Хранение вариаций</a></li>
+    <li><a href="#s8">Валидация</a></li>
+    <li><a href="#s9">Открытые вопросы и риски</a></li>
+  </ol>
+</nav>
+
+<div class="callout key">
+  <b>TL;DR.</b> Вариация = <b>данные</b> (JSON-спека параметров + id родительской механики), а не отдельный билд.
+  Параметры уже живут как данные в наших механиках (<span class="path">levels.ts</span>, module-level консты в
+  <span class="path">main.ts</span>, <span class="path">playable.config.ts</span>). Главная проблема — не
+  «как сгенерировать», а <b>«как доказать, что уровень проходим»</b>; и она уже решена — у нас есть автоплей-солверы
+  (pins, marble, shared AutoCursor), которые программно проходят уровень и служат валидатором. <b>v1 = путь 1 (чисто
+  процедурная мутация в границах) + путь 2 (модель заполняет типизированную схему)</b>. Путь 3 (модель пишет код) и
+  AI-арт — премиум с обязательным QA-гейтом. Генерация почти бесплатна; платим за валидацию и хранение.
+  Ключевая политика оплаты: <b>пользователь платит только за успешно провалидированный результат</b>.
+</div>
+
+<!-- ================= 1 ================= -->
+<section id="s1">
+  <h2><span class="n">1.</span>Три пути генерации: от безопасного к рискованному</h2>
+  <p class="lead">Три принципиально разных способа получить вариант. Различаются не «мощностью модели», а тем,
+  <b>что именно</b> модель/алгоритм трогает — и, соответственно, чем мы рискуем.</p>
+
+  <div class="grid g3">
+    <div class="card safe">
+      <span class="pill safe">Путь 1 · безопасно</span>
+      <h4>Процедурная мутация параметров</h4>
+      <p>Никакой модели. Мутируем числа/наборы <b>в жёстко заданных границах</b>: цвета, состав заказов,
+      конфиги уровней, тайминги/скорости, веса спавна, число рядов/колонок.</p>
+      <p class="mono-note">Детерминировано. Стоимость ≈ 0. Валидность гарантируется границами + автоплеем.
+      Разнообразие ограничено тем, что заранее заложено в границы.</p>
+    </div>
+    <div class="card mid">
+      <span class="pill mid">Путь 2 · управляемо</span>
+      <h4>Модель заполняет типизированную схему</h4>
+      <p>Модель (hosted API или self-hosted) отдаёт <b>только JSON по строгой схеме</b> параметров — не код.
+      Даёт «умные» комбинации, которые процедурка не придумает, но не может вылезти за схему.</p>
+      <p class="mono-note">Дёшево (короткий вывод + cap токенов). Structured outputs гарантируют форму.
+      Тот же автоплей-валидатор ловит логические провалы.</p>
+    </div>
+    <div class="card risk">
+      <span class="pill risk">Путь 3 · опасно</span>
+      <h4>Модель пишет / переписывает код механики</h4>
+      <p>Модель меняет <span class="path">main.ts</span> / логику. Максимальная мощность — можно породить
+      по сути новую механику. И максимальный риск: невалидный билд, неиграбельные/нечестные уровни, регрессии.</p>
+      <p class="mono-note">Дорого (длинный вывод), непредсказуемо, требует полного билд+автоплей+ручного гейта.
+      Не для массового self-serve.</p>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <b>Вердикт для v1:</b> пути <b>1 и 2</b>. Оба работают с параметрами-как-данными, оба валидируются
+    существующими автоплей-солверами, оба почти бесплатны. Путь 3 — исследовательский трек / внутренний
+    инструмент под контролем разработчика, не self-serve.
+  </div>
+
+  <h3>Почему это ложится на нашу архитектуру</h3>
+  <p>Механики уже устроены так, что «содержание» отделено от «движка»:</p>
+  <div class="tbl-scroll"><table>
+    <tr><th>Где живут параметры</th><th>Что там (примеры из репо)</th><th>Путь</th></tr>
+    <tr>
+      <td class="path">playables/&lt;id&gt;/src/levels.ts</td>
+      <td>Декларативный массив <code>LEVELS</code>: walls / pins / coinSpawn / target.need / physics-оверрайды /
+      spawnPolicy (pins-v1). Чистые данные, читаются в рантайме.</td>
+      <td>1, 2</td>
+    </tr>
+    <tr>
+      <td class="path">src/main.ts (module-level консты)</td>
+      <td><code>SCRIPTED_ORDERS</code> (merge: chain/level/reward), <code>COLORS</code>/<code>UNIQUE_COLORS</code>
+      и <code>STACK_RECTS_PER_COL</code> (marble), тайминги интро <code>INTRO_GEN_DROP_START/DUR</code>,
+      число стеков/колонок.</td>
+      <td>1, 2</td>
+    </tr>
+    <tr>
+      <td class="path">playable.config.ts</td>
+      <td>dprCap, orientation, sizeBudget — рамки самого билда.</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>логика: win/lose, физика, структура кода</td>
+      <td>то, что определяет <i>правила</i>, а не <i>наполнение</i></td>
+      <td>только 3</td>
+    </tr>
+  </table></div>
+  <p class="mono-note">Прецедент «параметры как данные» у нас уже отлажен: в pins-v1 есть редактор уровней,
+  который экспортирует JSON и переписывает конфиг-блоки по маркерам. Генератор вариаций — это тот же экспорт,
+  только источник спеки — алгоритм или модель, а не человек в редакторе.</p>
+</section>
+
+<!-- ================= 2 ================= -->
+<section id="s2">
+  <h2><span class="n">2.</span>Рескин как отдельный путь</h2>
+  <p class="lead">Рескин (сменить визуал, оставить механику) — заманчиво продавать как «одна кнопка → новая игра».
+  Но «гарантия» тут слабая, и слабая ровно по тем же причинам, по которым мы пять итераций перекодировали дверь.</p>
+
+  <h3>Стоимость картиночной генерации</h3>
+  <div class="tbl-scroll"><table>
+    <tr><th>Модель</th><th class="num">≈ за 1 изображение</th><th>Заметки</th></tr>
+    <tr><td>GPT Image Mini</td><td class="num">~$0.005</td><td>дёшево, но контроль альфы/размера слабый</td></tr>
+    <tr><td>Flux Schnell</td><td class="num">~$0.015</td><td>быстрый, self-host-friendly</td></tr>
+    <tr><td>Imagen 4 Fast</td><td class="num">~$0.02</td><td>качество выше, дороже</td></tr>
+    <tr><td><b>Полный набор ассетов (10–30 шт)</b></td><td class="num"><b>~$0.05–1.8</b></td>
+      <td>это стоимость <i>одной попытки</i>; с перегенерацией брака — кратно</td></tr>
+  </table></div>
+
+  <div class="callout warn">
+    <b>Почему «гарантия» слабая.</b> Генерация недетерминирована, а playable требует технически точных ассетов:
+    прозрачность/альфа (та же ловушка, что с дверью: дефолтный декодер рисует альфу чёрной), точные размеры,
+    выравнивание спрайтов в атласе, единый стиль всего набора, отсутствие артефактов на краях. Это тот же класс
+    проблем, что и <b>перекодирование двери</b> (webm 2048² с альфой → webp: равномерный квадратный даунскейл без
+    кропа/растяжения, <code>-loop 1</code>, лёгкое разрешение для плавного первого декода). Модель «нарисовала
+    красиво» ≠ «встало в механику пиксель-в-пиксель».
+  </div>
+
+  <h3>Уровни безопасности рескина</h3>
+  <div class="grid g3">
+    <div class="card safe">
+      <span class="pill safe">a · гарантировано</span>
+      <h4>Курируемые тема-паки + палитры</h4>
+      <p>Заранее нарисованные/утверждённые наборы и палитры. Детерминированно, размеры и альфа гарантированы,
+      стиль выдержан. Разнообразие ограничено числом паков.</p>
+    </div>
+    <div class="card mid">
+      <span class="pill mid">b · почти гарантировано</span>
+      <h4>Палитро-рекраска существующих спрайтов</h4>
+      <p>Меняем только цвета уже валидных спрайтов (recolor/hue-shift). Геометрия, размеры, альфа — не трогаются,
+      значит не ломаются. Дёшево, без модели.</p>
+    </div>
+    <div class="card risk">
+      <span class="pill risk">c · с гейтом</span>
+      <h4>AI-генерация по шаблонам + QA</h4>
+      <p>Модель рисует по жёсткому шаблону (размер, фон, зона). Обязательные тех-проверки (альфа/размер/края) +
+      авто-перегенерация брака. Максимум разнообразия, максимум мороки.</p>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <b>Рекомендация:</b> база v1 — <b>палитры + тема-паки (a/b)</b> как гарантированный слой; <b>AI-арт (c)</b> —
+    премиум-фича с тех-QA-гейтом и авто-перегенерацией. Продавать «гарантию» можно только на a/b; на c —
+    продавать «попытку с проверкой», а не результат.
+  </div>
+</section>
+
+<!-- ================= 3 ================= -->
+<section id="s3">
+  <h2><span class="n">3.</span>Цены на модели и предсказуемость</h2>
+  <p class="lead">Для генерации параметров вывод <b>короткий</b> — это JSON. С cap на токены расход почти нулевой
+  и предсказуемый. Дорогой не «интеллект», а объём вывода — которого у нас нет.</p>
+
+  <div class="tbl-scroll"><table>
+    <tr><th>Модель</th><th class="num">Input / 1M</th><th class="num">Output / 1M</th><th>Комментарий</th></tr>
+    <tr><td>Claude Haiku</td><td class="num">$1</td><td class="num">$5</td><td>достаточно для заполнения схемы</td></tr>
+    <tr><td>Claude Sonnet</td><td class="num">$3</td><td class="num">$15</td><td>если нужны «умнее» комбинации</td></tr>
+    <tr><td>Claude Opus</td><td class="num">$5</td><td class="num">$25</td><td>оверкилл для параметров</td></tr>
+    <tr><td>Gemini Flash-Lite</td><td class="num">$0.25</td><td class="num">$1.5</td><td>самый дешёвый платный вариант</td></tr>
+  </table></div>
+  <p class="mono-note">Ставки Claude сверены с актуальным прайсом (per 1M токенов). Скидки:
+  <b>Batch −50%</b> (генерация не латенси-критична → батчим), <b>prompt caching −90%</b> на повторяемый префикс
+  (схема + инструкция стабильны → кэшируются почти полностью).</p>
+
+  <div class="kpi">
+    <div class="box"><div class="big">≈ $0.0005</div><div class="cap">порядок цены за 1 спеку<br>(Haiku, короткий JSON, с кэшем/батчем)</div></div>
+    <div class="box"><div class="big">−90%</div><div class="cap">prompt caching на стабильный префикс схемы</div></div>
+    <div class="box"><div class="big">−50%</div><div class="cap">Batch API — генерация не в реальном времени</div></div>
+  </div>
+
+  <h3>Бесплатные опции</h3>
+  <ul>
+    <li><b>Процедурная мутация</b> — по определению бесплатна, модели нет. Это дефолт v1.</li>
+    <li><b>Gemini free tier</b> (Flash / Flash-Lite, ~1500 запросов/день, без карты) — годится для прототипа.
+      <span class="mono-note">Оговорка: на free-плане промпты могут уходить в обучение. Для <i>кода</i> механики
+      (путь 3) это неприемлемо; для генерации <i>параметров</i> — риск утечки минимален, но помнить надо.</span></li>
+    <li><b>Self-hosted</b> (напр. Flux Schnell для арта, малая open-модель для JSON) — CAPEX/инфра вместо per-call,
+      данные не покидают периметр.</li>
+  </ul>
+</section>
+
+<!-- ================= 4 ================= -->
+<section id="s4">
+  <h2><span class="n">4.</span>Экономика и монетизация</h2>
+  <p class="lead">Сама генерация почти бесплатна. Настоящие статьи расходов — <b>валидация</b> (прогон автоплея на
+  проходимость, это CPU-время) и <b>хранение</b>. Монетизируем маржу.</p>
+
+  <div class="flow">
+    <div class="step"><div class="lab">дёшево</div>генерация спеки<br>(модель/процедурка)</div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="lab">дорого</div>валидация<br>(билд + автоплей headless)</div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="lab">постоянно</div>хранение<br>(JSON + метаданные)</div>
+  </div>
+
+  <h3>Модель монетизации</h3>
+  <p>Пользователь генерирует «на лету», с <b>лимитом генераций</b>, по тарифам от free до premium. Платформа
+  зарабатывает на марже (цена тарифа &minus; реальная себестоимость попыток).</p>
+
+  <div class="callout key">
+    <b>Ключевая политика: платят только за успешно провалидированный результат.</b> Неудачные попытки
+    (непроходимый уровень, брак арта) авто-ретраятся в пределах лимита/free и <b>не тарифицируются отдельно</b>.
+    Себестоимость брака закладывается в цену тарифа. Пользователь платит за «готовый рабочий вариант», а не за
+    «попытку модели».
+  </div>
+
+  <h3>Оценка маржи (порядковая, иллюстративная)</h3>
+  <p class="mono-note">Предпосылки: параметрический путь, Haiku+batch+cache ≈ $0.0005/спека; валидация (headless
+  билд+автоплей) ≈ $0.01–0.03 CPU/успех; success-rate ~60% ⇒ на 1 успех ~1.7 попытки ⇒ себестоимость успеха
+  ≈ <b>$0.02–0.05</b>. Арт-путь дороже на порядок из-за картиночной генерации и перегенерации брака.</p>
+  <div class="tbl-scroll"><table>
+    <tr><th>Тариф</th><th class="num">Цена</th><th class="num">Вкл. генераций</th><th class="num">Себест. (парам.)</th><th class="num">Маржа</th><th>Примечание</th></tr>
+    <tr><td>Free</td><td class="num">$0</td><td class="num">3–5 / день</td><td class="num">~$0.10–0.25</td><td class="num">воронка</td><td>лимит + водяной знак, только параметрический путь</td></tr>
+    <tr><td>Plus</td><td class="num">~$5 / мес</td><td class="num">~100</td><td class="num">~$2–5</td><td class="num">≈ 60–96%</td><td>параметрика без лимита-в-день + палитро-рескин</td></tr>
+    <tr><td>Premium</td><td class="num">~$20 / мес</td><td class="num">~500 + AI-арт</td><td class="num">~$10–20*</td><td class="num">≈ 0–50%*</td><td>*зависит от доли AI-арта; арт продавать по пакам/квоте</td></tr>
+  </table></div>
+  <div class="callout warn">
+    <b>Где маржа тает — AI-арт.</b> Параметрика держит маржу 60–95% легко. AI-арт с перегенерацией брака способен
+    съесть её в ноль. Поэтому арт — либо отдельная квота/паки поверх тарифа, либо только уровни a/b (палитры/паки),
+    где себестоимость близка к нулю.
+  </div>
+</section>
+
+<!-- ================= 5 ================= -->
+<section id="s5">
+  <h2><span class="n">5.</span>Что безопасно править, а что нет</h2>
+  <div class="grid g2">
+    <div class="card safe">
+      <span class="pill safe">безопасно · content/params в границах</span>
+      <h4>Наполнение</h4>
+      <ul>
+        <li>цвета / палитры (<code>COLORS</code>, <code>UNIQUE_COLORS</code>)</li>
+        <li>состав и порядок заказов (<code>SCRIPTED_ORDERS</code>)</li>
+        <li>конфиги уровней (<code>LEVELS</code>: walls, pins, target.need, coinSpawn)</li>
+        <li>тайминги / скорости (<code>INTRO_GEN_DROP_*</code>, кадансы)</li>
+        <li>веса спавна (spawnPolicy)</li>
+        <li>число рядов / колонок / стеков (в допустимом диапазоне)</li>
+      </ul>
+      <p class="mono-note">Меняет сложность и ощущение, не меняет правил. Ломает максимум — баланс, что ловит автоплей.</p>
+    </div>
+    <div class="card risk">
+      <span class="pill risk">опасно · логика/структура</span>
+      <h4>Правила</h4>
+      <ul>
+        <li>условия win / lose</li>
+        <li>физика (гравитация, коллизии, тайминги движка)</li>
+        <li>структурный код механики</li>
+      </ul>
+      <p class="mono-note">Главный риск — <b>непроходимые уровни</b> и нечестная логика. Требует полного
+      билд+автоплей+ручного гейта. Только путь 3, только под контролем разработчика.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6 ================= -->
+<section id="s6">
+  <h2><span class="n">6.</span>Объективные ограничения</h2>
+  <ol>
+    <li><b>Проходимость — главная проблема.</b> Сгенерённый уровень может быть в принципе не решаем.
+      Решение: автоплей-солвер проходит его до победы; не прошёл → отбраковка.</li>
+    <li><b>Модель правит «вслепую».</b> Она не видит результат своих чисел. Нужен цикл
+      <code>сгенерировал → прогнал автоплей/скриншот → принял/переделал</code>, а не «доверяем выводу».</li>
+    <li><b>Новый арт без гарантий</b> (альфа/размер/стиль) — см. раздел 2. Тех-QA обязателен.</li>
+    <li><b>Headless троттлит RAF.</b> В превью-браузере <code>requestAnimationFrame</code> механики тормозится:
+      канвас-визуал/обычное интро не прокручиваются. Проверяли — DOM-оверлеи (напр. <code>&lt;img&gt;</code> двери)
+      рендерятся, а канвас — нет. Для валидатора это значит: опираться на <b>синхронные флаги состояния</b>
+      (<code>window.__introComplete</code>, «уровень пройден»), а не на визуальный прогон кадров.</li>
+    <li><b>Комбинаторный взрыв без границ.</b> Без жёстких bounds пространство параметров бесконечно и в основном
+      состоит из мусора. Границы = и качество, и управляемость стоимости.</li>
+  </ol>
+</section>
+
+<!-- ================= 7 ================= -->
+<section id="s7">
+  <h2><span class="n">7.</span>Хранение вариаций</h2>
+  <div class="callout win">
+    <b>Не дублируем билды.</b> Вариация — это <b>данные</b>: JSON-спека параметров + id родительской механики.
+    Механика читает параметры в рантайме (ровно как <code>LEVELS</code> + <code>currentLevelIdx</code> сейчас).
+  </div>
+  <pre><code>{
+  "id": "var_9f3a",
+  "parent": "pins-v1",          // id запечённой механики
+  "schemaVersion": 1,
+  "params": {                   // только то, что в границах (раздел 5)
+    "levels": [ /* LEVELS-совместимый массив */ ],
+    "palette": ["#..","#.."],
+    "timings": { "introGenDropDur": 620 }
+  },
+  "skin": { "type": "palette", "pack": null },   // или {type:"pack", pack:"neon"}
+  "validated": { "solver": "pins.autoNextPin", "reachable": true, "difficulty": 0.62 }
+}</code></pre>
+  <p>Плюсы: variant ≈ единицы КБ вместо мегабайтного билда; один движок обслуживает тысячи вариантов; апдейт
+  движка автоматически прилетает во все вариации; версия схемы (<code>schemaVersion</code>) даёт совместимость
+  при эволюции параметров.</p>
+</section>
+
+<!-- ================= 8 ================= -->
+<section id="s8">
+  <h2><span class="n">8.</span>Валидация</h2>
+
+  <h3>Параметрический путь — авто-пайплайн</h3>
+  <div class="flow">
+    <div class="step"><div class="lab">1</div>спека</div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="lab">2</div>schema-validate<br>(форма + границы)</div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="lab">3</div>build</div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="lab">4</div>автоплей-до-победы<br>(headless)</div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="lab">5</div>критерии</div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="lab">6</div>accept / reject</div>
+  </div>
+  <p>Критерии приёма (шаг 5): <b>проходимо</b> (автоплей дошёл до победы) <b>+ без ошибок</b> в консоли
+  <b>+ сложность в коридоре</b> (не тривиально и не невозможно). Не выполнил — reject, авто-ретрай.</p>
+
+  <div class="callout key">
+    <b>Валидатор у нас уже есть.</b> Автоплей-солверы написаны и работают как «прохождение уровня программой»:
+    <ul style="margin:8px 0 0">
+      <li>pins: <code>autoNextPin</code> / <code>performAutoPll</code> / <code>updateAutoPlay</code> —
+        тянет пины в settle-gated порядке до победы;</li>
+      <li>marble: <code>findBestCell</code> — выбирает лучшую ячейку;</li>
+      <li>merge: общий <code>AutoCursor</code> (constant-speed, <code>AUTO_CURSOR_MS_PER_CELL=250</code>).</li>
+    </ul>
+    Эти же солверы — headless-детектор проходимости. Изначально писались для автоплея в ленте, но идеально
+    переиспользуются как гейт «уровень решаем».
+  </div>
+
+  <h3>Арт-путь — полу-авто</h3>
+  <p>Тех-проверки автоматом (альфа присутствует, точный размер, нет обрезки/растяжения, чистые края) + выбор из
+  нескольких кандидатов. Не прошёл тех-чек → авто-перегенерация.</p>
+
+  <h3>Ручная валидация — только вкус</h3>
+  <p>Человек нужен лишь для «красиво/на бренде» — выборочно, сэмплами, не на каждый вариант. Всё
+  функциональное (проходимость, ошибки, размеры) — автоматом.</p>
+</section>
+
+<!-- ================= 9 ================= -->
+<section id="s9">
+  <h2><span class="n">9.</span>Открытые вопросы и риски</h2>
+  <ul>
+    <li><b>Метрика «сложность в коридоре».</b> Как численно мерить? Кандидаты: число ходов автоплея до победы,
+      доля неудачных «человеческих» траекторий, время. Нужен коридор per-механика — единого нет.</li>
+    <li><b>Стоимость валидации при масштабе.</b> Билд+автоплей на каждую попытку — это CPU. Нужен потолок ретраев
+      и, возможно, дешёвый предварительный отсев (schema + быстрый эвристический чек до полного билда).</li>
+    <li><b>Границы параметров — кто и как задаёт?</b> Ручная разметка bounds per-механика — разовая, но реальная
+      работа. Плохие границы = либо мусор, либо мало разнообразия.</li>
+    <li><b>Утечка в обучение на free-tier моделей.</b> Для параметров терпимо, для кода (путь 3) — нет.
+      Политика: код механики никогда не уходит во внешние free-эндпоинты.</li>
+    <li><b>RAF-троттлинг в headless.</b> Нужно убедиться, что <i>у каждой</i> механики есть синхронные флаги
+      состояния для валидатора (не у всех они сейчас есть — где-то валидатор придётся дооснастить хуками).</li>
+    <li><b>Гарантия для AI-арта.</b> Даже с QA-гейтом остаётся хвост «технически ок, но уродливо». Продавать как
+      «попытка с проверкой», не как «гарантированный результат».</li>
+    <li><b>Дедупликация вариантов.</b> Как не отдавать пользователю почти одинаковые спеки? Нужна мера «расстояния»
+      между вариациями.</li>
+    <li><b>Версионирование движка vs старые спеки.</b> <code>schemaVersion</code> заложен, но нужна политика
+      миграции, когда параметр устаревает.</li>
+  </ul>
+</section>
+
+<footer>
+  Внутренний research-документ · тема «генерация вариаций готовой механики» · v1 · 2026-07-05.
+  Обоснован реальной архитектурой репозитория (<span class="path">playables/&lt;id&gt;</span>, vite SWIPE-таргеты,
+  параметры в <span class="path">levels.ts</span> / module-консты <span class="path">main.ts</span> /
+  <span class="path">playable.config.ts</span>, автоплей-солверы как валидаторы). Кода не менялось.
+</footer>
+
+</div>

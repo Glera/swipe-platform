@@ -1,0 +1,373 @@
+[
+ {
+  "id": "N1",
+  "title": "Шаги как валюта казуального пазла (реальный мир как вход)",
+  "segment": "games",
+  "market": "Casual puzzle × Geolocation / Gyms & Fitness (Pikmin Bloom, WeWard)",
+  "claim": "Casual-пазл, в котором ходы и бустеры начисляются за реальные шаги (HealthKit / Google Fit), даст удержание и выручку на установку выше контрольного варианта без шагов: спрос на «движение за награду» ускоряется (Pikmin Bloom и WeWard растут двузначно при падающем рынке игр), а механика шагов не требует карты, AR или IP.",
+  "evidence": [
+   {
+    "metric": "Pikmin Bloom rev_cur_best_usd / rev_yoy_best / s_rev_h2_h1 / s_rev_last3m_yoy",
+    "value": "$49.7M / +66.0% / +91.6% / +114.2%",
+    "source": "leaders.csv"
+   },
+   {
+    "metric": "WeWard rev_cur_best_usd / rev_yoy_best / s_rev_last3m_yoy",
+    "value": "$10.6M / +143.1% / +163.2% (монетизация в основном вне IAP)",
+    "source": "leaders.csv"
+   },
+   {
+    "metric": "Gyms & Fitness top100_rev_yoy; Personal Health & Fitness rev_yoy / dl_yoy",
+    "value": "+9.3%; +8.2% / −6.3%",
+    "source": "niche_leaders_full_app_iq_category.csv; niche_dynamics_app_sub_category.csv"
+   },
+   {
+    "metric": "Games revenue yoy (context)",
+    "value": "−2.4%",
+    "source": "summary.json"
+   }
+  ],
+  "growth_driver": "leaders",
+  "size_cur_usd": 60300000,
+  "yoy": 0.75,
+  "accessibility": "Сборка на существующем sort/merge-движке — высокая; барьер — у лидера IP Nintendo/Niantic и карта; WeWard монетизируется партнёрами и рекламой; пермишен HealthKit снижает конверсию в онбординге.",
+  "prototype_idea": "Sort- или merge-пазл с дневным лимитом ходов, который пополняется шагами (1 000 шагов = N ходов), бустеры за 5 000/10 000 шагов, виджет шагов на экране блокировки; без карты и AR.",
+  "revenue_test": "Два playable-варианта (с «шаги = ходы» и без) → фильтр креатива 7 дней (US/CA, ~$1.5K) → софт-лонч iOS CA/AU 14 дней (~$3K). Деньги: выручка на установку к D7 (IAP + реклама) против CPI; гейт — не ниже контроля по D7-выручке и +20% D7-удержания. Итого ≤ 28 дней.",
+  "risks": "Ядро петли — привычка, а не расход; шаговые игры монетизируются слабо (WeWard — рекламой); рост Pikmin Bloom может быть событием/обновлением 2026, а не трендом категории; Android-фрагментация датчиков.",
+  "confidence": 0.35,
+  "verification": [
+   {
+    "id": "N1",
+    "lens": "data",
+    "verdict": "weakened",
+    "reasoning": "The headline numbers reproduce exactly from leaders.csv. Pikmin Bloom is at $49.69M against $29.93M prior (+66.0%), with h2/h1 +91.6% and last3m +114.2%. WeWard is at $10.64M against $4.37M (+143.1%, last3m +163.2%). Their sum, $60.3M against $34.3M, gives the stated size and +75% yoy. The claimed mechanism, that demand for movement-for-reward is accelerating, does not hold up beyond these two apps. It rests on two hand-picked apps, and WeWard's prior base is only $4.4M, so its growth is a small-base effect. A broader basket of walk and step products from leaders.csv falls from $216.3M to $178.0M (-17.7%). That basket is Dragon Quest Walk ($120.1M to $69.0M, -42.5%), Pikmin Bloom, Monster Hunter Now ($44.3M to $33.8M, -23.7%), WeWard, WalkFit ($10.9M to $7.1M), StepsApp, Sweatcoin ($1.59M to $1.19M) and Step Counter - Pedometer. The Geolocation sub-genre as a whole is -2.2% yoy ($818.5M to $800.2M), and Pokémon GO holds 73.5% of it. Its +35.9% last3m comes from a single July 2026 spike ($127.0M against about $50-65M in other months), likely an event; Disney Step, a 2025 new entrant, is already -42%. Pikmin's growth did not come from its home market: Japan fell from $15.04M to $12.78M in country_leaders.csv, and Korea dropped out of the current top list after $5.97M prior. So the growth is a single-title, ex-Japan story. It is probably update- or event-driven (peak month 2026-05), not a category trend. Personal Health & Fitness is +8.2% revenue, but it is slowing: last3m +2.5%, with downloads -6.3% yoy and -9.9% last3m. Gyms & Fitness top-100 growth (+9.3%) is driven by Strava, Runna and LADDER, not by step-reward apps. The contrast with a falling games market is also misleading: the Puzzle genre itself is +17.5% yoy (niche_dynamics_game_genre.csv), so the control arm sits in a growing genre. WeWard's mostly non-IAP monetization means its revenue is understated, but in the other direction Sweatcoin's IAP is shrinking even though it has 30.5M downloads. None of this data can test the actual product claim, a retention and revenue lift from steps-as-moves, so the test plan is still reasonable as an experiment, just not market-backed.",
+    "corrected_numbers": [
+     "Pikmin Bloom rev_cur_best_usd=49.69M, rev_prior=29.93M, rev_yoy=+66.0%, s_rev_h2_h1=+91.6%, s_rev_last3m_yoy=+114.2%, peak month 2026-05 (leaders.csv)",
+     "Pikmin Bloom JP rev 15.04M -> 12.78M (-15%); KR prior 5.97M, absent from current list (country_leaders.csv)",
+     "WeWard rev_cur_best_usd=10.64M, prior=4.37M (+143.1%, tiny base), s_rev_last3m_yoy=+163.2%; FR 2.56M -> 4.79M (country_leaders.csv)",
+     "Walk/step basket (DQ Walk, Pikmin, MH Now, WeWard, WalkFit, StepsApp, Sweatcoin, Step Counter) 216.3M -> 178.0M = -17.7% (leaders.csv)",
+     "Dragon Quest Walk 120.1M -> 69.0M (-42.5%); Monster Hunter Now 44.3M -> 33.8M (-23.7%); Sweatcoin 1.59M -> 1.19M (-25.3%) (leaders.csv)",
+     "Geolocation sub-genre rev_yoy=-2.2% (818.5M -> 800.2M); Pokémon GO share 73.5%; July 2026 month 127.0M spike drives last3m +35.9% (niche_dynamics/niche_monthly/niche_leaders_full_game_sub_genre.csv)",
+     "Personal Health & Fitness rev_yoy=+8.2%, rev_last3m_yoy=+2.5%, dl_yoy=-6.3%, dl_last3m_yoy=-9.9% (niche_dynamics_app_sub_category.csv)",
+     "Gyms & Fitness top100_rev_yoy=+9.3%, led by Strava 206.1M (+27%), Runna, LADDER (niche_leaders_full_app_iq_category.csv)",
+     "Puzzle genre rev_yoy=+17.5% vs all games -2.4% (niche_dynamics_game_genre.csv; summary.json)"
+    ],
+    "confidence_adjustment": -0.15,
+    "key_caveat": "The \"movement-for-reward\" growth signal comes from two hand-picked apps: Pikmin Bloom, which is shrinking in Japan, and WeWard, which grew from a $4.4M base. The wider basket of walk and step games and step-reward apps fell 17.7% yoy ($216M to $178M), and the Geolocation sub-genre is -2.2%. Treat this as an untested mechanic bet, not as following a growing category."
+   },
+   {
+    "id": "N1",
+    "lens": "business",
+    "verdict": "refuted",
+    "reasoning": "The claim that demand for \"movement for a reward\" is accelerating rests on two apps, not on the category. In niche_leaders_full_game_sub_genre.csv the Geolocation top-100 is down 2.2% YoY ($800.2M vs $818.5M). Pokémon GO alone holds 73.5% of it (HHI 0.553), and US publishers hold 85.5% of the top-5 mix. The 52 new entrants together take 0.22% of top-100 revenue ($1.74M), which leaves almost no room for a new entrant.\n\nOther step and walking titles fell sharply (leaders.csv): Dragon Quest Walk −$51.1M (−43%), Disney Step −42%, Monster Hunter Now −24%, Shutsujin −30%, WalkFit −34%, Sweatcoin IAP −25%. Summing the step and walking apps I checked, excluding Pokémon GO, gives −$44.8M. Pikmin Bloom (+$19.8M) and WeWard (+$6.3M) cover only part of that drop.\n\nPikmin Bloom's growth comes with Nintendo/Niantic IP, and its revenue peaked in 2026-05, so it may be one strong update rather than a trend. The Geolocation +35.9% last-3-months figure is mostly a single spike: July 2026 at $127.0M (niche_monthly_game_sub_genre.csv), the same month as Pokémon GO's peak, which looks like an event.\n\nNothing in the data shows a casual puzzle game earning more money because of a step mechanic. The mechanic also works against how puzzle games make money: giving out free moves and boosters for steps replaces the very things IAP sells.\n\nThe proposed test cannot measure money:\n- The 7-day creative filter measures CTR/IPM, i.e. clicks.\n- $3K of iOS soft launch in CA/AU buys roughly 750–1,200 installs, about 400–600 per arm. At the usual casual-puzzle payer rate of 1–2% by D7 (an industry assumption, not from our data), that is single-digit payers per arm, so the \"not below control on D7 revenue\" gate is statistical noise.\n- A habit loop does not pay back by D7 anyway.\n\nAd revenue does not rescue the case. WeWard's real monetization (partners, offerwall, ads) is invisible in IAP, and Geolocation already has ad_intensity_us_cur = 1.58. That means more of the demand is ad-monetized, which favours scale and UA budget, not a small studio's IAP puzzle.\n\nPlatform friction adds to this:\n- The HealthKit permission prompt during onboarding.\n- App Store rule 5.1.3: health data must not be used for advertising.\n- Google Fit APIs are being replaced by Health Connect, which splits Android support.\n\nAs a cheap feature experiment on the existing sort/merge engine it is buildable. As a business opportunity with a money-based test in 4 weeks, it does not hold up.",
+    "corrected_numbers": [
+     "Geolocation top100_rev_cur_usd=$800.2M vs prior $818.5M, top100_rev_yoy=-2.2% (niche_leaders_full_game_sub_genre.csv)",
+     "Geolocation top1 Pokémon GO share=73.5%, hhi_top100=0.554, top10_share=98.9% (niche_leaders_full_game_sub_genre.csv)",
+     "Geolocation new_entrants_share_of_top100=0.22% ($1.74M across 52 entrants); entrants_into_top100 rev=$0.07M (niche_leaders_full_game_sub_genre.csv)",
+     "Geolocation publisher_country_mix_top5: US 85.5%, Japan 12.3% (niche_leaders_full_game_sub_genre.csv)",
+     "Geolocation rev_last3m_yoy=+35.9% driven by Jul-2026 spike $127.0M vs $50-65M neighbouring months (niche_monthly_game_sub_genre.csv); Pokémon GO s_peak_month_rev=2026-07 (leaders.csv)",
+     "Pikmin Bloom rev_cur_best_usd=$49.7M (prior $29.9M, +$19.8M), rev_yoy_best=+66.0%, s_rev_h2_h1=+91.6%, s_rev_last3m_yoy=+114.2%, s_peak_month_rev=2026-05 (leaders.csv)",
+     "WeWard rev_cur_best_usd=$10.6M (prior $4.4M), rev_yoy_best=+143.1%, s_rev_last3m_yoy=+163.2% (leaders.csv)",
+     "Dragon Quest Walk $69.0M vs $120.1M (-43%, -$51.1M); Monster Hunter Now $33.8M vs $44.3M (-24%); WalkFit $7.1M vs $10.9M (-34%); Sweatcoin $1.2M vs $1.6M (-25%) (leaders.csv)",
+     "Sum of rev delta for checked walking/step titles excl. Pokémon GO = -$44.8M (leaders.csv)",
+     "Gyms & Fitness top100_rev_yoy=+9.3%, top1 Strava 25.8% (niche_leaders_full_app_iq_category.csv); Personal Health & Fitness rev_yoy=+8.2%, dl_yoy=-6.3% (niche_dynamics_app_sub_category.csv)",
+     "Geolocation ad_intensity_us_cur=1.58 (niche_dynamics_game_sub_genre.csv)"
+    ],
+    "confidence_adjustment": -0.3,
+    "key_caveat": "The \"growth in walk-for-reward demand\" is two apps, one of them on Nintendo IP (Pikmin Bloom +$19.8M, WeWard +$6.3M). The Geolocation category as a whole is down 2.2% YoY, new entrants hold 0.22% of it, and other step games lost about $45M. A $3K soft launch gives single-digit payers per arm, so it cannot measure D7 revenue: this is a feature experiment, not a validated market."
+   }
+  ],
+  "status": "refuted",
+  "final_confidence": 0
+ },
+ {
+  "id": "N2",
+  "title": "Литургический календарь как лайвопс: квиз/пазл по стиху дня с запуском к Адвенту",
+  "segment": "apps",
+  "market": "Religion & Spirituality (App IQ)",
+  "claim": "Категория Religion & Spirituality растёт за счёт новичков (top-100 +22.9%, 32 новых релиза с долей 23.6%, HHI 0.08), а падение H2/H1 — сезонность Великого поста (год к году за июль–сентябрь +24.5%). Игровой религиозный продукт (ежедневный квиз или пазл по чтению дня со стриком и сезонным контентом Адвент → Пост) конвертирует в подписку не хуже контентных приложений, если запущен к сезонному пику 29.11.2026.",
+  "evidence": [
+   {
+    "metric": "Religion & Spirituality rev_cur_usd / rev_yoy / rev_h2_h1 / rev_last3m_yoy",
+    "value": "$152.6M / +28.6% / −11.3% / +24.5%",
+    "source": "niche_dynamics_app_sub_category.csv"
+   },
+   {
+    "metric": "top100_rev_cur / top100_rev_yoy / n_new_entrants / new_entrants_share / hhi / top1",
+    "value": "$127.3M / +22.9% / 32 / 23.6% / 0.080 / Hallow 23.8%",
+    "source": "niche_leaders_full_app_iq_category.csv"
+   },
+   {
+    "metric": "Hallow rev_cur / rev_yoy / s_rev_h2_h1; Bible Chat rev_cur / rev_yoy / s_rev_h2_h1",
+    "value": "$30.3M / −18.8% / −32.5%; $14.0M / +81.2% / −44.5%",
+    "source": "leaders.csv"
+   },
+   {
+    "metric": "H29 (first wave) final confidence",
+    "value": "0.10, ослаблена двумя линзами в основном за H2/H1",
+    "source": "verification.json"
+   }
+  ],
+  "growth_driver": "entrants",
+  "size_cur_usd": 127300000,
+  "yoy": 0.229,
+  "accessibility": "Низкая концентрация и 32 новичка в top-100; барьер — доверие аудитории и объём контента; политика сторов к религиозному контенту мягкая; сезонность задаёт календарь тестов.",
+  "prototype_idea": "Ежедневный квиз/пазл по чтению дня (католический и протестантский лекционарии), стрик и виджет; подписка $4.99/мес с 3-дневным триалом; контент на Адвент 2026 (29.11–24.12) готов к запуску.",
+  "revenue_test": "Сборка до 20.11; трафик US iOS в первые 2 недели Адвента (~$3K, Meta + TikTok); деньги: trial → paid на $1 трафика; контроль — та же воронка в не-сезонную неделю ноября; гейт — триал ≥ 5% установок и trial→paid ≥ 30%. ≤ 28 дней.",
+  "risks": "Сезонность работает в обе стороны (провал после Пасхи); лидер Hallow падает (−18.8%); Bible Chat H2/H1 −44%; AI-собеседники перехватывают часть спроса; первая волна уже ослабила похожую H29 до 0.10.",
+  "confidence": 0.3,
+  "verification": [
+   {
+    "id": "N2",
+    "lens": "data",
+    "verdict": "weakened",
+    "reasoning": "Every headline number reproduces exactly. The Religion & Spirituality row in niche_dynamics_app_sub_category.csv shows $152.62M vs $118.64M (+28.6%), H2/H1 −11.3% and last3m +24.5%. The niche_leaders_full_app_iq_category.csv row shows top-100 $127.35M vs $103.61M (+22.9%), 32 new entrants at 23.6% share, HHI 0.080 and Hallow at 23.8%.\n\nThe mechanism is where the claim breaks. Rebuilding H2/H1 from niche_monthly_app_sub_category.csv rules out the 'it's just Lent seasonality' explanation. The same split in the prior year went the other way: Oct24–Mar25 $57.56M against Apr–Sep25 $61.07M, which is H2/H1 = +6.1%. Year over year, growth slowed from +40.5% in H1 ($80.87M vs $57.56M) to +17.5% in H2 ($71.75M vs $61.07M), and monthly YoY fell to Jul +36%, Aug +30%, Sep +10.2%. Easter moving from Apr 20, 2025 to Apr 5, 2026 explains part of the gap, but not a 40→10% slowdown.\n\nAdvent is not the seasonal peak the test is timed for. December was 8.0% of annual revenue in 2025 ($12.22M of $152.6M) and 6.8% in 2024, both below the 8.3% monthly average. November 2025 ($10.80M) fell month over month. The real peaks are January and Lent: Mar-26 $19.89M, Mar-25 $16.52M and Apr-25 $15.75M, with downloads peaking Feb-26 at 159M and Mar-25 at 171M.\n\n'Growth from newcomers' is only half true. Per growth_decomp, incumbents contributed +$14.68M, entrants +$13.97M and exits −$4.91M, so entrants are 59% of the top-100 delta and incumbents 62%. The new names are widget and AI-chat devotional apps (Bible Path UAE, Bible Widgets Spain, Duomo Cyprus, Bible Note SG, Creed), not games or quizzes. Downloads were flat at +2.4%, and growth comes from revenue per download (RPD) rising $0.101→$0.127.\n\nThe two leaders cancel out: Bible Chat +$6.26M against Hallow −$7.03M. There is no quiz or puzzle in the Religion top-100. The direct game-form analogs in the game_sub_genre top-100 lists of niche_top_apps.csv are tiny and shrinking, about $0.36M current against about $0.56M prior across five apps. That runs against the claim that a game-shaped product converts no worse than content apps, with the caveat that these analogs are probably partly ad-monetized and so undercounted in IAP-only data.",
+    "corrected_numbers": [
+     "Religion & Spirituality H1 (2025-10..2026-03)=$80.87M, H2 (2026-04..09)=$71.75M → H2/H1 −11.3%; prior-year same split $57.56M→$61.07M = +6.1% (niche_monthly_app_sub_category.csv)",
+     "Religion YoY by half: H1 +40.5%, H2 +17.5%; monthly YoY Jul +36.1%, Aug +29.9%, Sep +10.2% (niche_monthly_app_sub_category.csv)",
+     "Dec-2025 rev=$12.22M = 8.0% of 12m (avg month 8.3%); Dec-2024=$8.12M = 6.8%; peaks Mar-2026 $19.89M, Mar-2025 $16.52M, Apr-2025 $15.75M (niche_monthly_app_sub_category.csv)",
+     "Religion dl_yoy=+2.4%; RPD $0.101→$0.127 (niche_dynamics_app_sub_category.csv)",
+     "Top-100 growth_decomp: both +$14.68M, entrants +$13.97M (29 into top100), exits −$4.91M; delta $23.74M (niche_leaders_full_app_iq_category.csv)",
+     "Hallow rev_cur_best=$30.34M, yoy −18.8%, s_rev_h2_h1 −32.5%, peak 2025-04; Bible Chat $13.97M, +81.2%, s_rev_h2_h1 −44.5%, s_rev_last3m_yoy +3.1% (leaders.csv)",
+     "Game-form analogs: Daily Bible Trivia $194K→$72K; Bible Word Puzzle $274K→$176K; Bible Coloring PBN $56K→$42K; Bible Trivia Quiz $33K→$32K; Versle Daily Bible Games $35K cur (niche_top_apps.csv game_sub_genre Trivia/Word/Drawing)"
+    ],
+    "confidence_adjustment": -0.15,
+    "key_caveat": "The niche figures reproduce, but this is not just a Lent effect: the prior year's H2/H1 was +6.1%, and YoY growth slowed from +40% to +10% by September 2026. Advent is a below-average month, and the real peaks are January and Lent. The closest game-form analogs (Bible trivia, word and colouring games) earn under $0.4M IAP in total and are shrinking, so a December test should not decide whether the product converts."
+   },
+   {
+    "id": "N2",
+    "lens": "business",
+    "verdict": "refuted",
+    "reasoning": "The category numbers check out: rev_cur=$152.6M (+28.6%), top-100 +22.9%, 32 new entrants with a 23.6% share, HHI 0.080, and Hallow at 23.8% of the top-100. Getting into the category is realistic for a small studio, because the entrants are app-factory teams from the UAE, Spain, Cyprus and Singapore. The idea fails on the two claims that set it apart from H29. First, games do not monetize like content apps. None of the 100 top-grossing Religion & Spirituality apps is a quiz or puzzle. The direct comparables live in the game taxonomy and earn very little from in-app purchases, and they are shrinking: Daily Bible Trivia made $72K (down from $194K), Versle earned $35K, Bible Trivia - Bible Quiz Game made $32K on 873K downloads ($0.037 per download), and Bible Word Puzzle made $176K on 5.0M downloads (-36%). The content apps the claim measures itself against earn far more per download: Hallow $4.83, Ascension $10.90, Duomo $2.24, and even the widget apps $0.70–0.78. Second, there is no Advent peak. December 2025 was $12.22M against November's $10.80M (+13%), and December 2024 was +8% over November. The real peaks are January (New Year) and March, at $19.89M in March 2026. That March peak comes from Lent/Easter and from Ramadan: downloads peaked in February 2026 at 159M and March 2025 at 171M, driven by Quran and Athan apps. The claim already blames Lent for the weak H2/H1 (-11.3%), which contradicts calling November 29 the peak. Growth is also slowing. Year-on-year growth fell from +52% (Oct–Dec 2025 vs Oct–Dec 2024) to +24.5% (Jul–Sep), and the monthly run-rate has been flat at about $11M outside the seasonal spike. Against the high Oct–Dec 2025 base, Q4 2026 year-on-year growth is likely close to zero. The revenue test does measure money: a 3-day trial converting to paid fits inside 28 days. But $3K of US iOS traffic, at an assumed $2–3 per install, buys about 1,000–1,500 installs, so about 50–75 trials and 15–22 payers. That sample cannot separate an Advent effect of about 10% from a November control. Platform policy risk is low. The real exposure is that this genre makes its money from ads (the comparables have about 1M downloads and almost no in-app revenue), so a subscription paywall goes against what the comparables show.",
+    "corrected_numbers": [
+     "Religion & Spirituality monthly rev (niche_monthly_app_sub_category.csv): Nov-2025 $10.80M, Dec-2025 $12.22M (+13%), Jan-2026 $14.00M, Mar-2026 $19.89M (peak); Nov-2024 $7.49M -> Dec-2024 $8.12M (+8%)",
+     "Religion & Spirituality dl: Feb-2026 159.0M, Mar-2025 171.0M vs ~86-98M baseline - Ramadan/Lent spikes, not Advent (niche_monthly_app_sub_category.csv)",
+     "Religion YoY deceleration: Oct-Dec 2025 $34.09M vs Oct-Dec 2024 $22.37M = +52.4%; Jul-Sep 2026 $34.33M vs $27.57M = +24.5% (niche_monthly_app_sub_category.csv)",
+     "Religion & Spirituality top-100 (niche_top_apps.csv current revenue): 0 of 100 apps are quiz/puzzle/game formats",
+     "Daily Bible Trivia rev_cur=$72.0K (prior $194.3K), dl 118K; Versle | Daily Bible Games $35.1K; Bible Trivia - Bible Quiz Game $32.2K on 872.7K dl, RPD $0.037 (niche_top_apps.csv, Trivia)",
+     "Bible Word Puzzle - Word Games rev_cur_best_usd=$175.9K, rev_yoy_best=-35.8%, dl 5.0M; Bible Jigstory $1 on 987K dl; Bible Color $4.4K on 1.0M dl (leaders.csv / niche_top_apps.csv)",
+     "RPD of content leaders (current): Hallow $4.83 ($30.34M/6.29M dl), Ascension $10.90, Duomo $2.24, Bible Chat $0.96, Bible Path $0.70, Bible Widgets $0.78; niche rpd_cur_usd=$0.127 (niche_top_apps.csv; niche_dynamics_app_sub_category.csv)",
+     "Hallow s_rev_h2_h1=-32.4%, s_rev_last3m_yoy=-20.0%; Bible Chat s_rev_h2_h1=-44.4%, s_rev_last3m_yoy=+3.1% (leaders.csv)",
+     "Religion & Spirituality publisher_country_mix_top5: US 67.6%, UAE 5.4%, UK 4.4%, Singapore 3.5%, Spain 3.5%; growth_decomp_entrants_share_of_abs_delta=0.588 (niche_leaders_full_app_iq_category.csv)"
+    ],
+    "confidence_adjustment": -0.22,
+    "key_caveat": "The category's growth comes from devotional, widget and AI-chat subscriptions. Religious quiz and puzzle games already exist and earn tens of thousands of dollars a year in in-app purchases, mostly from ads ($0.04 per download, against $2–11 for content apps). Advent is not the seasonal peak (December is only +8–13% over November; the peaks are January and Lent/Ramadan in March). A $3K test cannot measure a seasonal effect."
+   }
+  ],
+  "status": "refuted",
+  "final_confidence": 0
+ },
+ {
+  "id": "N3",
+  "title": "Бюджет-трекер как сити-билдер (модель Fortune City)",
+  "segment": "apps",
+  "market": "Budget & Expense Tracking (App IQ)",
+  "claim": "Фрагментированная растущая категория (+20.5% по подкатегории, top-100 +17.5%, HHI 0.055, лидер Money Forward с 13.5%, всего 8 новичков) примет геймифицированный трекер расходов по подписке: игровая мета (город растёт от записей) даёт удержание выше обычных трекеров, а регуляторных барьеров при ручном вводе нет.",
+  "evidence": [
+   {
+    "metric": "Budget & Expense Tracking rev_cur_usd / rev_yoy / rev_h2_h1 / dl_yoy",
+    "value": "$136.3M / +20.5% / +0.3% / +31.3%",
+    "source": "niche_dynamics_app_sub_category.csv"
+   },
+   {
+    "metric": "top100_rev_cur / top100_rev_yoy / n_new_entrants / new_entrants_share / hhi / top1",
+    "value": "$117.9M / +17.5% / 8 / 6.2% / 0.055 / 家計簿マネーフォワード ME 13.5%",
+    "source": "niche_leaders_full_app_iq_category.csv"
+   },
+   {
+    "metric": "Fortune City presence in global top-2000",
+    "value": "отсутствует (ниже порога)",
+    "source": "leaders.csv"
+   }
+  ],
+  "growth_driver": "unknown",
+  "size_cur_usd": 117900000,
+  "yoy": 0.175,
+  "accessibility": "Нет глобального лидера, концентрация минимальная; банковские интеграции не нужны при ручном вводе; барьер — удержание привычки и дорогая UA в finance.",
+  "prototype_idea": "Ручной ввод траты за 3 секунды → здание растёт в городе; еженедельные цели экономии как квесты; подписка $4.99/мес или $29.99/год.",
+  "revenue_test": "Лендинг с реальной подпиской + TestFlight/soft launch US и DE на 2 недели (~$3K); деньги: оплаты на $1 трафика и CAC на плательщика; вторичная — записей на пользователя к D7. ≤ 28 дней.",
+  "risks": "Трекеры — рынок привычки с высоким оттоком; дорогая UA в финансах; оригинальный Fortune City (2017) не вырос до top-2000; рост подкатегории может идти от японских и корейских локальных лидеров, а не от геймификации.",
+  "confidence": 0.3,
+  "verification": [
+   {
+    "id": "N3",
+    "lens": "data",
+    "verdict": "weakened",
+    "reasoning": "The headline numbers reproduce exactly. niche_dynamics_app_sub_category.csv gives Budget & Expense Tracking rev_cur=$136.35M against prior $113.17M (+20.5%), rev_h2_h1=+0.30%, last3m_yoy=+16.8% and dl_yoy=+31.3%. niche_leaders_full_app_iq_category.csv gives top100 $117.93M against $100.34M (+17.5%), HHI 0.0556, top1 Money Forward $15.97M (13.5%) and 8 new entrants. Fortune City and every other gamified tracker are missing from leaders.csv, and the only top-100 names that hint at play are not games (Zaim, and 飞鸭AI记账, an AI chat bookkeeper). The growth mechanism does not support the thesis, though. The +$17.59M top-100 delta is concentrated: Finanzguru gains +$4.13M ($10.65M to $14.78M, a German bank- and contract-aggregation app), Splitwise +$3.18M ($4.77M to $7.95M, bill splitting), and subscription-cancel apps +$5.14M (MonoBoost +1.52, Feenko +1.88 new, Subpilot +1.00 new, Cancel Subscriptions & Refund +0.46, ReSubs +0.28). Those three groups make about $12.45M, roughly 71% of net growth, and none of them is a manual-entry expense tracker. The bank-linked US leaders grew only modestly (Monarch +1.38, YNAB +0.74, Rocket Money +0.70), and EveryDollar fell -$4.59M, which partly offsets the gains. The risk the hypothesis flags is wrong in direction: Japan adds only +$1.96M of the delta and Korea about $0. The real drivers are Germany (+$4.39M by publisher country) and Cyprus-registered subscription cancellers (+$2.88M). Momentum has stalled: the monthly series sums to H1 $68.07M and H2 $68.28M, and January 2026 ($13.0M vs $10.1M) and March ($13.3M) are New-Year/resolution spikes. Downloads +31% against falling revenue per download ($0.61 to $0.56) means install growth comes from low-monetizing trackers, which may be ad-monetized and so invisible here. Fragmentation is real only at the HHI level: top3 hold 33% and top10 62% of the top-100.",
+    "corrected_numbers": [
+     "Budget & Expense Tracking rev_cur=$136.35M, rev_prior=$113.17M, rev_yoy=+20.5%, rev_h2_h1=+0.3%, rev_last3m_yoy=+16.8%, dl_yoy=+31.3%, rpd 0.610->0.560 (niche_dynamics_app_sub_category.csv)",
+     "top100 $117.93M vs $100.34M (+17.5%), HHI 0.0556, top1 Money Forward $15.97M = 13.5%, top3 33.1%, top10 62.1% (niche_leaders_full_app_iq_category.csv)",
+     "growth decomposition: same apps +$12.67M, entrants +$8.25M (20 apps), exits -$3.33M (niche_leaders_full_app_iq_category.csv)",
+     "Finanzguru $10.65M->$14.78M (+$4.13M); Splitwise $4.77M->$7.95M (+$3.18M); EveryDollar $7.75M->$3.16M (-$4.59M) (niche_top_apps.csv)",
+     "subscription-cancel apps (MonoBoost, Feenko, Subpilot, Cancel Subscriptions & Refund, ReSubs) = +$5.14M, about 29% of the $17.59M top-100 delta (niche_top_apps.csv)",
+     "delta by publisher country: Germany +$4.39M, US +$4.34M, Cyprus +$2.88M, Japan +$1.96M, Korea ~$0 (niche_top_apps.csv)",
+     "monthly H1 (Oct25-Mar26) $68.07M vs H2 (Apr-Sep26) $68.28M; Jan26 $13.00M vs Jan25 $10.08M (niche_monthly_app_sub_category.csv)",
+     "no gamified tracker (Fortune City or similar) in leaders.csv or in the niche top-100 (niche_top_apps.csv)"
+    ],
+    "confidence_adjustment": -0.15,
+    "key_caveat": "About 71% of the category's growth comes from bank-linked aggregators (Finanzguru), bill splitting (Splitwise) and subscription-cancel apps, not manual-entry trackers. Not one gamified tracker is in the top-100, and revenue has been flat for six months (H2/H1 +0.3%). The data shows demand for automation, not for gamification."
+   },
+   {
+    "id": "N3",
+    "lens": "business",
+    "verdict": "weakened",
+    "reasoning": "The headline numbers check out (niche_dynamics_app_sub_category.csv: rev_cur $136.35M, rev_yoy +20.5%, rev_h2_h1 +0.3%, dl_yoy +31.3%; niche_leaders_full_app_iq_category.csv: top-100 $117.93M vs $100.34M, HHI 0.0556, 8 new entrants holding 6.2% of top-100 revenue). The breakdown of where that money came from is what hurts the hypothesis. Per-app top-100 deltas in niche_top_apps.csv (+$17.59M in total) show the growth came from things that are the opposite of a manual-entry gamified tracker: (1) bank-linked aggregators Finanzguru +$4.13M, MoneyForward +$1.30M, Monarch +$1.38M, YNAB +$0.74M, Rocket +$0.70M and Finary +$0.65M, together about +$8.9M; (2) UA-driven subscription-cancel utilities Feenko +$1.88M (Cyprus), MonoBoost +$1.52M, Subpilot +$1.00M (Cyprus) and Cancel Subscriptions +$0.46M, together about +$4.9M, which make up most of the 'new entrants'; (3) Splitwise +$3.18M from social bill-splitting. The model case, Fortune City: Expense Tracker, is not just 'below the top-2000'. It was #73 in the prior top-100 at $195.6K and has dropped out (the current #100 cutoff is $166.3K). The closest cute or gamified manual tracker, Money+ Cute Expense Tracker, is flat at $0.416M vs $0.407M and slipped from #39 to #50. So for this mechanic the evidence shows a ceiling of roughly $0.2-0.4M a year, not a share of the category's growth. The niche is fragmented, but new entrants got in through paid acquisition of cancel or aggregator utilities, not through retention gimmicks. Momentum has also flattened: monthly revenue peaked at $13.0M in Jan and $13.3M in Mar 2026, then ran $11.2-11.7M in Jul-Sep, and rev_h2_h1 is only +0.3%. Downloads (+31%) are rising much faster than revenue, and many top-download newcomers show $0 IAP. For example, Money Tracker - Budget Keeper has 4.9M downloads and $0 revenue (UK, released 2026-01). That points to ad-monetized or web-paywall demand that this data cannot see, so the true size of manual trackers is unclear but not proven bigger in IAP. On the test: TestFlight cannot process real IAP, so money can only come from a store soft launch or a Stripe landing page. With ~$3K at US/DE finance CPIs you get only a few hundred to ~1,000 installs and a few dozen trials. Trial-to-paid conversion does not mature within a 2-week window, and the core claim (higher retention from the city meta) needs at least D30 cohorts. The test therefore measures a noisy trial-start rate, not revenue or the retention advantage. Regulatory risk with manual entry is indeed low (no Open Banking or Plaid; only App Store finance-data privacy labels apply). I am not refuting it, because a small team can realistically ship this and earn something at the Fortune City / Money+ scale. But neither the growth nor the accessibility applies to this specific proposition.",
+    "corrected_numbers": [
+     "Budget & Expense Tracking rev_cur=$136.35M, rev_yoy=+20.5%, rev_h2_h1=+0.3%, rev_last3m_yoy=+16.8%, dl_yoy=+31.3%, rpd_cur=$0.56 (niche_dynamics_app_sub_category.csv)",
+     "top100 $117.93M vs $100.34M (+17.5%), HHI 0.0556, top1 MoneyForward ME $15.97M (13.5%), top10_share 62.1%, n_new_entrants=8 ($7.31M, 6.2%), entrants_into_top100=20 ($8.25M), exits=20 (-$3.33M) (niche_leaders_full_app_iq_category.csv)",
+     "Fortune City: Expense Tracker prior top-100 #73 rev=$195.6K (released 2017-02-09, Taiwan), absent from current top-100 whose #100 cutoff = $166.3K (niche_top_apps.csv)",
+     "Money+ Cute Expense Tracker rev_cur=$415.9K (#50) vs prior $406.7K (#39), dl 1.13M vs 1.45M (niche_top_apps.csv)",
+     "Growth drivers of the +$17.59M top-100 delta: bank-linked aggregators Finanzguru +$4.13M, Monarch +$1.38M, MoneyForward +$1.30M, YNAB +$0.74M, Rocket +$0.70M, Finary +$0.65M (≈+$8.9M); subscription-cancel apps Feenko +$1.88M, MonoBoost +$1.52M, Subpilot +$1.00M, Cancel Subscriptions & Refund +$0.46M (≈+$4.9M); Splitwise +$3.18M; EveryDollar -$4.59M (niche_top_apps.csv)",
+     "Monthly revenue: Jan-2026 $13.0M, Mar-2026 $13.3M peak, Jul-Sep 2026 $11.7/$11.5/$11.2M; Oct-2025 $10.0M (niche_monthly_app_sub_category.csv)",
+     "publisher_country_mix_top5: US 41.1%, Japan 15.8%, Germany 15.0% (niche_leaders_full_app_iq_category.csv)",
+     "Money Tracker - Budget Keeper dl_cur=4.91M, rev=$0 (released 2026-01-23, UK); Expense Planner 4.36M dl, $0 (niche_top_apps.csv)"
+    ],
+    "confidence_adjustment": -0.2,
+    "key_caveat": "The category's growth came from bank-linked aggregators, subscription-cancel utilities and Splitwise, not from manual or gamified trackers. The direct analog, Fortune City, fell out of the top-100 (prior $195.6K, below the current $166K cutoff), and Money+ Cute is flat at ~$0.4M. A 2-week, ~$3K test with no real IAP in TestFlight can measure trial starts but not trial-to-paid conversion or the retention advantage the thesis depends on."
+   }
+  ],
+  "status": "weakened",
+  "final_confidence": 0
+ },
+ {
+  "id": "N4",
+  "title": "Микро-подготовка к экзаменам с игровым циклом (соседняя с языками вертикаль)",
+  "segment": "apps",
+  "market": "Test Prep, Tutoring & Studying (App IQ)",
+  "claim": "Вертикаль Test Prep растёт (top-100 +12.3%) при концентрации втрое ниже языкового рынка (HHI 0.10 против 0.36 у Language Education, где Duolingo держит 59%) и 27 новичках (15.5%); игровой цикл (streak, лиги, микро-уровни) поверх карточек и тестов даст trial→paid не хуже Quizlet-подобных продуктов.",
+  "evidence": [
+   {
+    "metric": "Test Prep top100_rev_cur / top100_rev_yoy / n_new_entrants / new_entrants_share / hhi / top1",
+    "value": "$128.8M / +12.3% / 27 / 15.5% / 0.102 / Quizlet 29.8%",
+    "source": "niche_leaders_full_app_iq_category.csv"
+   },
+   {
+    "metric": "Language Education top100_rev_cur / yoy / hhi / top1",
+    "value": "$1 179.8M / +17.5% / 0.358 / Duolingo 59.2%",
+    "source": "niche_leaders_full_app_iq_category.csv"
+   },
+   {
+    "metric": "Education & Training rev_cur_usd / rev_yoy",
+    "value": "$1 776.6M / +9.6%",
+    "source": "niche_dynamics_app_sub_category.csv"
+   }
+  ],
+  "growth_driver": "mixed",
+  "size_cur_usd": 128800000,
+  "yoy": 0.123,
+  "accessibility": "Средняя: контент по экзаменам страновой (SAT/ACT, ЕГЭ, Abitur), Quizlet и Khan Academy бесплатны; сезонность экзаменов задаёт окна запуска.",
+  "prototype_idea": "SAT/ACT math как микро-уровни по 2 минуты со streak и лигами; 3-дневный триал; $9.99/мес или $59.99/год.",
+  "revenue_test": "Сборка 10 дней; трафик US 14 дней (~$3K, TikTok + Meta, аудитория 16–18 и родители); деньги: trial → paid на $1 трафика; гейт — триал ≥ 5% установок и trial→paid ≥ 30%. ≤ 28 дней.",
+  "risks": "Сезонность экзаменов (пики весна и осень), бесплатные конкуренты, стоимость производства контента, узкая целевая аудитория для UA.",
+  "confidence": 0.25,
+  "verification": [
+   {
+    "id": "N4",
+    "lens": "data",
+    "verdict": "weakened",
+    "reasoning": "The headline numbers check out exactly in niche_leaders_full_app_iq_category.csv. Test Prep top-100 is $128.78M against $114.65M a year earlier (+12.3%), HHI 0.1028, Quizlet holds 29.8%, and there are 27 new entrants with 15.5% of revenue. Language Education is $1,179.8M (+17.5%), HHI 0.358, Duolingo 59.2%. Education & Training is $1,776.6M (+9.6%). The way the niche grows, though, does not support the claim. growth_decomp_both_usd is only +$3.84M, entrants add +$15.61M and exits take away -$5.32M. Re-derived from niche_top_apps.csv, the 76 apps present in both years grew +3.5% ($109.33M to $113.16M). Quizlet alone (+$4.2M) covers all of that, so the other 75 incumbents went -0.5%. The niche growth is therefore mostly a few new AI homework and study tools, led by Astra AI ($0.06M to $5.49M, h2h1 +80%). It is not a broad rise in paid exam prep. The leader is slowing: Quizlet's s_rev_h2_h1 is -10.0%, s_rev_last3m_yoy +0.9% and dl_yoy -45%. Classic exam-prep titles are shrinking or tiny. Pocket Prep EMS fell $3.11M to $1.48M (-52%), Mathway -68%, and the only SAT-specific app, \"SAT Prep 2026 | Smartschool\", made $0.29M. Exam-named apps other than Astra total $5.08M now against $4.47M before. The low HHI mostly comes from country fragmentation (Chinese homework apps, Japanese, Korean and Israeli exam apps), and the tag also catches language apps (LingoTok, モチタン). It does not mean there is an open US SAT lane. Some support for the gamified loop: Prodigy Math Game grew $1.82M to $3.14M (+73%) and Knowunity +105% (s_rev_last3m_yoy +127%). Measurement caveat: these figures are store IAP only. Quizlet, Brilliant and Prodigy also sell through web and school channels, so absolute sizes are understated, while the US exam-prep pool visible here stays very small.",
+    "corrected_numbers": [
+     "Test Prep top100: cur $128.78M vs prior $114.65M = +12.3%; HHI 0.103; Quizlet 29.8% (niche_leaders_full_app_iq_category.csv), confirmed",
+     "growth_decomp: same apps +$3.84M, entrants +$15.61M, exits -$5.32M; entrants_share_of_abs_delta 1.105 (niche_leaders_full_app_iq_category.csv)",
+     "76 apps in both periods: $109.33M -> $113.16M = +3.5%; excluding Quizlet = -0.5% (niche_top_apps.csv)",
+     "Quizlet rev_cur_best_usd=38.39M (+12.3%), s_rev_h2_h1=-10.0%, s_rev_last3m_yoy=+0.9%, dl_yoy=-45.3% (leaders.csv)",
+     "Astra AI: Study & Exam Prep rev_cur=5.49M vs prior 0.06M, s_rev_h2_h1=+79.8% (leaders.csv)",
+     "SAT Prep 2026 | Smartschool rev_cur=0.29M; Pocket Prep EMS 3.11M -> 1.48M (-52%) (niche_top_apps.csv)",
+     "Exam-named apps excluding Astra: $5.08M cur vs $4.47M prior (niche_top_apps.csv keyword filter)",
+     "Prodigy Math Game 1.82M -> 3.14M (+73%); Knowunity 3.26M -> 6.67M (+105%) (niche_top_apps.csv / leaders.csv)",
+     "Education & Training rev_cur=$1,776.6M, rev_yoy=+9.6%, monthly peaks Jan-2026 $171.5M and Aug-Sep (niche_dynamics/niche_monthly_app_sub_category.csv)"
+    ],
+    "confidence_adjustment": -0.1,
+    "key_caveat": "The +12.3% comes from new AI homework apps (Astra AI alone grew from $0.06M to $5.5M). The same apps excluding Quizlet went -0.5%, Quizlet is slowing (H2/H1 -10%), and US SAT prep shows only ~$0.3M of store IAP. The low HHI reflects country fragmentation, not open demand for gamified SAT prep."
+   },
+   {
+    "id": "N4",
+    "lens": "business",
+    "verdict": "weakened",
+    "reasoning": "The headline numbers check out (niche_leaders_full_app_iq_category.csv: Test Prep top-100 $128.78M vs $114.65M, +12.3%, HHI 0.103, Quizlet 29.8%, 27 new entrants = 15.5%). The decomposition also leans toward accessibility: entrants +$15.6M, apps present in both periods only +$3.8M, exits -$5.3M. But the growth is narrow. The top-100 delta was $14.1M, and about 93% of it came from three apps: Astra AI +$5.49M (from 0, released 2025-07), Quizlet +$4.20M and Knowunity +$3.41M. The 10 new AI-named apps in the current top-100 together account for $10.84M. So the entrant growth went to AI homework and study tools, not gamified exam drill. The specific SAT/ACT bet is weak. The only SAT app in the worldwide top-100 is \"SAT Prep 2026 | Smartschool\" at $0.29M (rank 71). All exam-named apps together make $12.3M, and Astra AI alone is $5.5M of that. Exam incumbents are shrinking: Pocket Prep EMS fell from $3.11M to $1.48M and Picmonic from $0.53M to $0.26M. The one growing gamified product is Prodigy Math Game ($1.82M to $3.14M, +73%), but it sells to kids and parents, not 16–18-year-olds preparing for exams. The parent category is flat in the most recent half: Education & Training rev_h2_h1 = +0.45%, and revenue YoY +9.6% is mostly a carry-over from the prior year. The revenue_test does measure money (a 3-day trial gives first charges inside the 28 days). The gates are not realistic, though. With US teen/parent CPI around $3–5, $3K buys roughly 600–1,000 installs, so the 5% trial gate means 30–50 trials and the 30% gate means about 9–15 payers. That sample is too noisy to decide anything. Meta and TikTok also allow no interest-based targeting of under-18s, so the \"16–18\" audience can only be reached by age and location, or indirectly through parents. A 10-day build also has to produce correct items in Digital SAT format, which is the real cost. On risks: \"SAT\" and \"ACT\" are third-party trademarks (College Board and ACT, Inc.), and Khan Academy/Bluebook official prep is free. Ad-funded demand is not a big blind spot here: US ad_intensity is 0.60, but subscriptions are what this niche sells, so IAP data probably captures most of its money. Net: low concentration is real, but the data shows no sign that a gamified exam-prep wedge earns money.",
+    "corrected_numbers": [
+     "Test Prep top-100 delta = +$14.13M ($114.65M -> $128.78M); Astra AI +$5.49M, Quizlet +$4.20M ($34.19M -> $38.39M), Knowunity +$3.41M ($3.26M -> $6.67M) = ~93% of delta (niche_top_apps.csv)",
+     "growth_decomp: both-period apps +$3.84M, entrants +$15.61M, exits -$5.32M (niche_leaders_full_app_iq_category.csv)",
+     "New AI-named apps in current Test Prep top-100 (absent from prior top-100): 10 apps, $10.84M combined (niche_top_apps.csv)",
+     "SAT Prep 2026 | Smartschool rev_cur=$0.29M, rank 71 = only SAT-specific app in WW top-100 (niche_top_apps.csv)",
+     "Exam-named apps in Test Prep top-100: $12.34M combined, incl. Astra AI $5.49M; Pocket Prep EMS $3.11M -> $1.48M; Picmonic Nursing $0.53M -> $0.26M (niche_top_apps.csv)",
+     "Prodigy Math Game $1.82M -> $3.14M (+73%): the only clearly gamified grower, kids/parents audience (niche_top_apps.csv)",
+     "Education & Training rev_yoy=+9.6%, rev_h2_h1=+0.45%, rev_last3m_yoy=+13.6%, ad_intensity_us_cur=0.60 (niche_dynamics_app_sub_category.csv)"
+    ],
+    "confidence_adjustment": -0.1,
+    "key_caveat": "The growth in Test Prep went to AI homework and study tools (Astra AI, Knowunity) and to Quizlet, not to gamified exam drill. The only SAT app in the worldwide top-100 earns $0.29M a year. A $3K US test reaching teens without interest targeting would give only about 10–15 payers, too few to judge trial→paid."
+   }
+  ],
+  "status": "weakened",
+  "final_confidence": 0.04999999999999999
+ },
+ {
+  "id": "N5",
+  "title": "Impostor-режим внутри казуального пазла (пати-слой вместо отдельной пати-игры)",
+  "segment": "games",
+  "market": "Social Party / тема Imposter",
+  "claim": "Тема Imposter — самая быстрорастущая среди тем с выручкой выше $40M (+265.8% до $45.8M), Social Party +24.2% при загрузках +41.3% и US time +50.9%; пати-слой (социальная дедукция на одном устройстве или асинхронно) внутри casual-пазла даст виральность (k-factor) и удержание выше, чем отдельная пати-игра, чья монетизация слаба (H24 ослаблена до 0.15).",
+  "evidence": [
+   {
+    "metric": "game_theme Imposter rev_cur_usd / rev_yoy / rev_h2_h1 / dl_yoy",
+    "value": "$45.8M / +265.8% / +33.9% / +16.5%",
+    "source": "niche_dynamics_game_theme.csv"
+   },
+   {
+    "metric": "Social Party rev_cur_usd / rev_yoy / dl_yoy / ts_yoy / imp_delta_pp",
+    "value": "$245.3M / +24.2% / +41.3% / +50.9% / +0.08",
+    "source": "niche_dynamics_game_sub_genre.csv"
+   },
+   {
+    "metric": "Social Party top1 share; H24 final confidence",
+    "value": "WePlay 38.8%; H24 0.15 (обе линзы −0.15)",
+    "source": "niche_leaders_full_game_sub_genre.csv; verification.json"
+   }
+  ],
+  "growth_driver": "leaders",
+  "size_cur_usd": 45800000,
+  "yoy": 2.658,
+  "accessibility": "Средняя: механику можно собрать на существующем пазле; монетизация пати-формата исторически слабая; рост темы Imposter может быть одним приложением (Goose Goose Duck).",
+  "prototype_idea": "Режим «кто саботирует доску» в sort/merge-прототипе: 3–6 игроков по очереди на одном телефоне или асинхронно по ссылке; монетизация — паки ролей/скинов и сезонный пасс.",
+  "revenue_test": "Playable + TestFlight с инвайт-ссылками 14 дней после сборки 10 дней; метрики: k-factor инвайтов, D7-удержание, выручка на установку к D7; гейт — k ≥ 0.3 и D7 ≥ контроль + 20%. ≤ 28 дней.",
+  "risks": "Монетизация пати-игр слабая; тема Imposter может быть концентрирована в одном китайском хите; асинхронная социальная дедукция теряет остроту; модерация чата.",
+  "confidence": 0.25,
+  "verification": [
+   {
+    "id": "N5",
+    "lens": "data",
+    "verdict": "weakened",
+    "reasoning": "The headline numbers reproduce exactly. In niche_dynamics_game_theme.csv, Imposter has rev_cur 45.77M vs prior 12.51M (+265.8%), rev_h2_h1 +33.9% and dl_yoy +16.5%. In niche_dynamics_game_sub_genre.csv, Social Party has rev_yoy +24.2%, dl_yoy +41.3%, ts_yoy +50.9% and imp_delta_pp +0.08. The ranking claim is false: among the 83 themes above $40M, Survival - Wilderness grew faster (+298.0%, $124.7M), so Imposter is second. The trend has also turned. Monthly Imposter revenue peaked at $7.49M in 2026-04 and fell every month after that, to $2.63M in 2026-09 (−65%). Theme downloads fell too (dl_h2_h1 −19.2%). The +33.9% H2/H1 figure hides this fall inside H2, and the September run-rate is only about $31.5M a year. The growth is concentrated in one app. 鹅鸭杀 (Goose Goose Duck, mainland China, released 2021) went from $0.79M to $24.97M (+$24.18M). That equals 72.7% of the theme's +$33.25M gain, if the app carries the Imposter tag. The CSVs have no per-app theme column, so I could not confirm the tag, but its peak month (2026-04) matches the theme's peak. The app earns 99.1% of its revenue on iOS, so this looks like a China-distribution event that Android data cannot see, not demand for the mechanic. Without Goose Goose Duck, Social Party grows only +12.0%. Without it and the five Western word-imposter entrants (Fakeit, Splash, Imposter Who?, Spy Undercover, Party Edition: $18.94M current vs $2.04M prior), the genre is flat at +3.4%. Several of those entrants are already falling: H2/H1 is −48% for Spy Undercover, −21% for Party Edition and −17% for Imposter Who?. The +50.9% US time-spent growth comes almost entirely from more users; ts_per_user_yoy is only +2.9%, so it says nothing about deeper engagement or retention. The real claim is that a party layer inside a casual puzzle game lifts k-factor and D7. Nothing in this data room measures virality, retention or embedded modes, so that claim rests on analogy, not evidence. The niche itself has crowded: the Social Party app count rose from 2,562 to 4,941.",
+    "corrected_numbers": [
+     "Imposter theme rev_cur_usd=45.77M vs rev_prior_usd=12.51M, rev_yoy=+265.8%, rev_h2_h1=+33.9%, rev_last3m_yoy=+174.7%, dl_yoy=+16.5%, dl_h2_h1=-19.2%, rpd_cur=0.31 (niche_dynamics_game_theme.csv)",
+     "Imposter is the #2 grower among themes over $40M, not #1: Survival - Wilderness rev_yoy=+298.0% at $124.7M (niche_dynamics_game_theme.csv)",
+     "Imposter monthly revenue: 2026-04 = $7.49M (peak), then 5.54, 4.15, 3.09, 3.31 and 2026-09 = $2.63M (-65% from peak); Sep run-rate x12 = about $31.5M (niche_monthly_game_theme.csv)",
+     "鹅鸭杀 rev_cur_best_usd=24.97M vs prior 0.79M (+$24.18M = 72.7% of the Imposter theme's +$33.25M if tagged; 51% of Social Party's +$47.78M), ios_rev_share_cur=0.991, s_rev_h2_h1=+71.8%, peak month 2026-04 (leaders.csv; app_series_features.csv)",
+     "Social Party excluding 鹅鸭杀: 220.31M vs 196.70M = +12.0%; also excluding Fakeit, Splash, Imposter Who?, Spy Undercover and Party Edition: 201.37M vs 194.66M = +3.4% (leaders.csv)",
+     "Social Party ts_yoy=+50.9% but ts_per_user_yoy=+2.9%; total_count_cur=4941 vs prior 2562; top1 WePlay 38.8% of top-100 (niche_dynamics_game_sub_genre.csv; niche_leaders_full_game_sub_genre.csv)",
+     "Word-imposter entrants' s_rev_h2_h1: Spy Undercover -47.9%, Party Edition -20.7%, Imposter Who? -17.2%, Fakeit +8.6%, Splash +15.4% (leaders.csv)"
+    ],
+    "confidence_adjustment": -0.15,
+    "key_caveat": "The +266% for the Imposter theme is mostly one app: Goose Goose Duck's China launch, 99% iOS (up to 73% of the gain). Theme revenue has been falling since its April 2026 peak (-65% by September). No data here measures the k-factor or retention uplift of a party layer inside a puzzle game."
+   },
+   {
+    "id": "N5",
+    "lens": "business",
+    "verdict": "refuted",
+    "reasoning": "The headline figures are copied correctly, but the ranking claim is wrong. Among themes with more than $40M in revenue, Survival - Wilderness grew faster: +298.0% on $124.7M, against Imposter's +265.8% on $45.8M (niche_dynamics_game_theme.csv).\n\nThe Imposter growth is mostly one app, and the theme is already shrinking. Theme revenue rose from $12.51M to $45.77M, a gain of $33.25M. Goose Goose Duck (鹅鸭杀, China, released 2021) alone rose from $0.79M to $24.97M, a gain of $24.18M, which is about 73% of that, assuming the app carries this theme tag. It is an online voice-chat social deduction game with real-time multiplayer, which a small studio cannot match. Monthly theme revenue peaked at $7.49M in April 2026 and fell to $2.63M in September, down 65%. Theme downloads have dl_h2_h1 of -19.2%. The +174.7% last-3-months figure only reflects a tiny Jul-Sep 2025 base.\n\nNew entrants can get in, but in the opposite format to the one proposed. The small Western winners are standalone pass-the-phone word-impostor apps: Fakeit (Poland) $8.55M, Splash (Germany) $4.91M and Imposter Who? (US) $2.79M. That runs against the premise that standalone party games monetize weakly and need to sit inside a puzzle. No app in leaders.csv or niche_top_apps.csv combines a puzzle with an impostor mode. The data room also has no k-factor or retention data. So the claim that a hybrid beats a standalone party game has no evidence behind it at all.\n\nThe test cannot measure money. TestFlight in-app purchases run in the sandbox and nobody is charged, so revenue per install by D7 is zero by construction. The pass/fail gate (k ≥ 0.3 and D7 at least 20% above control) measures engagement, not revenue. The one-phone mode also creates almost no installs, because all players share one device, so k ≥ 0.3 can only come from the async link mode. That mode adds user-generated text and chat moderation, and it brings a teen/kids audience into scope.\n\nSome of the demand is ad-monetized and invisible in IAP data. Spy Undercover has 31.6M downloads but only $1.38M in revenue, about $0.04 per download. The tag count also nearly doubled, from 2,562 to 4,941 apps, which suggests a wave of clones and raises the risk of rejection under App Store guideline 4.3 (spam and copycat apps).",
+    "corrected_numbers": [
+     "Imposter theme rev_cur_usd=45.77M, rev_prior_usd=12.51M, rev_yoy=+265.8%, rev_h2_h1=+33.9%, rev_last3m_yoy=+174.7%, dl_yoy=+16.5%, dl_h2_h1=-19.2% (niche_dynamics_game_theme.csv)",
+     "Survival - Wilderness theme rev_cur_usd=124.7M, rev_yoy=+298.0% > Imposter: 'fastest-growing theme above $40M' is false (niche_dynamics_game_theme.csv)",
+     "Imposter monthly revenue peaked at 7.49M in 2026-04 and fell to 2.63M in 2026-09 (-65%); Jul-Sep 2026 total 9.02M vs Jul-Sep 2025 3.28M (niche_monthly_game_theme.csv)",
+     "鹅鸭杀 (Goose Goose Duck, China, released 2021-10): rev_prior_best_usd=0.79M -> rev_cur_best_usd=24.97M, +24.18M, about 73% of the Imposter theme delta of +33.25M, assuming it is tagged Imposter (leaders.csv)",
+     "Standalone Western impostor entrants: Fakeit 8.55M / 18.56M dl (RPD 0.46, h2h1 +8.6%); Splash 4.91M / 17.27M dl (RPD 0.28, h2h1 +15.4%); Imposter Who? 2.79M (h2h1 -17.2%); Spy Undercover 1.38M / 31.64M dl (RPD 0.04, h2h1 -47.9%); Party Edition 1.31M (h2h1 -20.7%) (leaders.csv)",
+     "Social Party top1 WePlay 38.8% of top100, HHI 0.172, new entrants 21 = 11.1% of top100 revenue, growth from entrants only 14.1% vs apps present in both periods 88.7%, tag count 2,562 -> 4,941 (niche_leaders_full_game_sub_genre.csv)"
+    ],
+    "confidence_adjustment": -0.2,
+    "key_caveat": "TestFlight purchases run in the sandbox and charge nobody, and the gate is k-factor and D7, so this test measures no revenue. The data shows money only for standalone one-phone impostor apps, now past their April 2026 peak, and has no evidence for an impostor mode inside a puzzle."
+   }
+  ],
+  "status": "refuted",
+  "final_confidence": 0
+ }
+]

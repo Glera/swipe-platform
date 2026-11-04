@@ -1,0 +1,314 @@
+diff --git a/concepts/merge-restyle/game/assets.ts b/concepts/merge-restyle/game/assets.ts
+index 9ebdcc6..1e5b48d 100644
+--- a/concepts/merge-restyle/game/assets.ts
++++ b/concepts/merge-restyle/game/assets.ts
+@@ -172,14 +172,9 @@ export const SOUNDS: Record<string, string> = {
+ 
+ export const FONT_TOBI = TOBI_FONT;
+ 
+-/** Логотип продукта — свой на локаль. */
+-const LOGOS: Record<string, Record<string, string>> = {
+-  ru: {
+-    'packshot_logo': L_RU_PACKSHOT_LOGO,
+-  },
+-  en: {
+-    'packshot_logo': L_EN_PACKSHOT_LOGO,
+-  },
+-};
+-
+-export const LOCALE_IMAGES: Record<string, string> = LOGOS[__LOCALE__] || LOGOS.en;
++/** Логотип продукта — свой на локаль. Тернарник по build-time константе
++ *  сворачивается сборщиком, и логотип чужого продукта в бандл не попадает
++ *  (тот же приём, что в granular-grid и pins). */
++export const LOCALE_IMAGES: Record<string, string> = __LOCALE__ === 'ru'
++  ? { 'packshot_logo': L_RU_PACKSHOT_LOGO }
++  : { 'packshot_logo': L_EN_PACKSHOT_LOGO };
+diff --git a/concepts/merge-restyle/game/game.ts b/concepts/merge-restyle/game/game.ts
+index 2de893d..022c1c3 100644
+--- a/concepts/merge-restyle/game/game.ts
++++ b/concepts/merge-restyle/game/game.ts
+@@ -1,5 +1,5 @@
+ import {
+-  trackEvent, emitProgress, emitCompleted,
++  trackEvent, emitProgress, emitCompleted, startGameplayTimer,
+   createCTA, showCTA,
+   openStore, getStoreUrl,
+   onPause, onResume, isPaused,
+@@ -1855,6 +1855,10 @@ C.addEventListener('pointerdown', function (e: Any) {
+ 
+   if (S.phase !== 'play') return;
+ 
++  // Воронка GAMEPLAY_5S/15S/... считается от первого игрового касания, а не от
++  // монтирования; повторные вызовы внутри shared — no-op.
++  startGameplayTimer();
++
+   pointer.down = true; pointer.id = e.pointerId;
+   pointer.sx = e.clientX; pointer.sy = e.clientY; pointer.moved = false;
+   S.lastAction = now();
+diff --git a/merge-restyle-v1-ad-applovin-en/playable.config.ts b/merge-restyle-v1-ad-applovin-en/playable.config.ts
+index 67c0384..24907a4 100644
+--- a/merge-restyle-v1-ad-applovin-en/playable.config.ts
++++ b/merge-restyle-v1-ad-applovin-en/playable.config.ts
+@@ -11,14 +11,17 @@ export default {
+   locale: 'en',
+   network: 'applovin' as const,
+   complianceMode: 'strict' as const,
+-  // Выход в стор только с пэкшота: первый тап игрока обязан быть геймплеем.
++  // Основной CTA — только на пэкшоте. В горизонтальной раскладке есть ещё кнопка на
++  // каше (surface open_store_link), она появляется после первого касания. Первый тап
++  // игрока всегда геймплей. fallback = App Store, как в таблице docs/AD_NETWORKS.md:
++  // неопознанный UA — чаще всего iPad в desktop-режиме («Macintosh»).
+   ctaPolicy: 'endcard-only' as 'endcard-only' | 'first-tap',
+   // Локаль выбирает не только язык, но и рекламируемый продукт (docs/AD_NETWORKS.md).
+   // В файле ячейки лежит ровно один продукт: чужой сюда попадать не должен.
+   storeUrls: {
+     ios: 'https://apps.apple.com/us/app/pines-peak-merge-travel-games/id6743472188',
+     android: 'https://play.google.com/store/apps/details?id=com.vizorapps.merge',
+-    fallback: 'https://play.google.com/store/apps/details?id=com.vizorapps.merge',
++    fallback: 'https://apps.apple.com/us/app/pines-peak-merge-travel-games/id6743472188',
+   },
+   ctaText: 'PLAY NOW',   // продукт локали: Pines Peak
+   analyticsEnabled: true,
+diff --git a/merge-restyle-v1-ad-applovin-en/src/main.ts b/merge-restyle-v1-ad-applovin-en/src/main.ts
+index 9d375a2..c52b29d 100644
+--- a/merge-restyle-v1-ad-applovin-en/src/main.ts
++++ b/merge-restyle-v1-ad-applovin-en/src/main.ts
+@@ -12,7 +12,7 @@
+  *                         CHALLENGE_STARTED по первому касанию;
+  *   installDebugHooks   — win/fail из консоли, в прод-бандл не попадает;
+  *   startPerfSampling   — PERF_SAMPLE каждые 5 с, сам встаёт на паузе;
+- *   startGameplayTimer  — GAMEPLAY_5S/15S/... от первого действия игрока;
++ *   startGameplayTimer  — зовётся в game.ts с первого игрового касания (GAMEPLAY_5S/15S/...);
+  *   onPause / onResume  — в game.ts: там же глушится звук и замирают ролики.
+  *
+  * Отклонение от шаблона, о котором стоит знать ревьюеру: холст создаётся в
+@@ -27,7 +27,6 @@ import {
+   bootstrap,
+   installDebugHooks,
+   startPerfSampling,
+-  startGameplayTimer,
+   trackEvent,
+   emitCompleted,
+ } from '../../shared';
+@@ -53,7 +52,6 @@ bootstrap({
+   mount(container) {
+     installFont();
+     startPerfSampling();
+-    startGameplayTimer();
+ 
+     installDebugHooks({
+       onWin: () => {
+diff --git a/merge-restyle-v1-ad-applovin-ru/playable.config.ts b/merge-restyle-v1-ad-applovin-ru/playable.config.ts
+index 9163f76..37d7824 100644
+--- a/merge-restyle-v1-ad-applovin-ru/playable.config.ts
++++ b/merge-restyle-v1-ad-applovin-ru/playable.config.ts
+@@ -11,7 +11,10 @@ export default {
+   locale: 'ru',
+   network: 'applovin' as const,
+   complianceMode: 'strict' as const,
+-  // Выход в стор только с пэкшота: первый тап игрока обязан быть геймплеем.
++  // Основной CTA — только на пэкшоте. В горизонтальной раскладке есть ещё кнопка на
++  // каше (surface open_store_link), она появляется после первого касания. Первый тап
++  // игрока всегда геймплей. fallback = App Store, как в таблице docs/AD_NETWORKS.md:
++  // неопознанный UA — чаще всего iPad в desktop-режиме («Macintosh»).
+   ctaPolicy: 'endcard-only' as 'endcard-only' | 'first-tap',
+   // Локаль выбирает не только язык, но и рекламируемый продукт (docs/AD_NETWORKS.md).
+   // В файле ячейки лежит ровно один продукт: чужой сюда попадать не должен.
+@@ -20,7 +23,7 @@ export default {
+     // Человекочитаемо: apps.apple.com/ru/app/тайны-города-merge-игра/id6784656153
+     ios: 'https://apps.apple.com/ru/app/%D1%82%D0%B0%D0%B9%D0%BD%D1%8B-%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D0%B0-merge-%D0%B8%D0%B3%D1%80%D0%B0/id6784656153',
+     android: 'https://play.google.com/store/apps/details?id=com.gg.citysecrets',
+-    fallback: 'https://play.google.com/store/apps/details?id=com.gg.citysecrets',
++    fallback: 'https://apps.apple.com/ru/app/%D1%82%D0%B0%D0%B9%D0%BD%D1%8B-%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D0%B0-merge-%D0%B8%D0%B3%D1%80%D0%B0/id6784656153',
+   },
+   ctaText: 'Играть!',   // продукт локали: Тайны Города
+   analyticsEnabled: true,
+diff --git a/merge-restyle-v1-ad-applovin-ru/src/main.ts b/merge-restyle-v1-ad-applovin-ru/src/main.ts
+index 9d375a2..c52b29d 100644
+--- a/merge-restyle-v1-ad-applovin-ru/src/main.ts
++++ b/merge-restyle-v1-ad-applovin-ru/src/main.ts
+@@ -12,7 +12,7 @@
+  *                         CHALLENGE_STARTED по первому касанию;
+  *   installDebugHooks   — win/fail из консоли, в прод-бандл не попадает;
+  *   startPerfSampling   — PERF_SAMPLE каждые 5 с, сам встаёт на паузе;
+- *   startGameplayTimer  — GAMEPLAY_5S/15S/... от первого действия игрока;
++ *   startGameplayTimer  — зовётся в game.ts с первого игрового касания (GAMEPLAY_5S/15S/...);
+  *   onPause / onResume  — в game.ts: там же глушится звук и замирают ролики.
+  *
+  * Отклонение от шаблона, о котором стоит знать ревьюеру: холст создаётся в
+@@ -27,7 +27,6 @@ import {
+   bootstrap,
+   installDebugHooks,
+   startPerfSampling,
+-  startGameplayTimer,
+   trackEvent,
+   emitCompleted,
+ } from '../../shared';
+@@ -53,7 +52,6 @@ bootstrap({
+   mount(container) {
+     installFont();
+     startPerfSampling();
+-    startGameplayTimer();
+ 
+     installDebugHooks({
+       onWin: () => {
+diff --git a/merge-restyle-v1-ad-unity-en/playable.config.ts b/merge-restyle-v1-ad-unity-en/playable.config.ts
+index 1489a51..1aee4ef 100644
+--- a/merge-restyle-v1-ad-unity-en/playable.config.ts
++++ b/merge-restyle-v1-ad-unity-en/playable.config.ts
+@@ -11,14 +11,17 @@ export default {
+   locale: 'en',
+   network: 'unity' as const,
+   complianceMode: 'strict' as const,
+-  // Выход в стор только с пэкшота: первый тап игрока обязан быть геймплеем.
++  // Основной CTA — только на пэкшоте. В горизонтальной раскладке есть ещё кнопка на
++  // каше (surface open_store_link), она появляется после первого касания. Первый тап
++  // игрока всегда геймплей. fallback = App Store, как в таблице docs/AD_NETWORKS.md:
++  // неопознанный UA — чаще всего iPad в desktop-режиме («Macintosh»).
+   ctaPolicy: 'endcard-only' as 'endcard-only' | 'first-tap',
+   // Локаль выбирает не только язык, но и рекламируемый продукт (docs/AD_NETWORKS.md).
+   // В файле ячейки лежит ровно один продукт: чужой сюда попадать не должен.
+   storeUrls: {
+     ios: 'https://apps.apple.com/us/app/pines-peak-merge-travel-games/id6743472188',
+     android: 'https://play.google.com/store/apps/details?id=com.vizorapps.merge',
+-    fallback: 'https://play.google.com/store/apps/details?id=com.vizorapps.merge',
++    fallback: 'https://apps.apple.com/us/app/pines-peak-merge-travel-games/id6743472188',
+   },
+   ctaText: 'PLAY NOW',   // продукт локали: Pines Peak
+   analyticsEnabled: true,
+diff --git a/merge-restyle-v1-ad-unity-en/src/main.ts b/merge-restyle-v1-ad-unity-en/src/main.ts
+index 9d375a2..c52b29d 100644
+--- a/merge-restyle-v1-ad-unity-en/src/main.ts
++++ b/merge-restyle-v1-ad-unity-en/src/main.ts
+@@ -12,7 +12,7 @@
+  *                         CHALLENGE_STARTED по первому касанию;
+  *   installDebugHooks   — win/fail из консоли, в прод-бандл не попадает;
+  *   startPerfSampling   — PERF_SAMPLE каждые 5 с, сам встаёт на паузе;
+- *   startGameplayTimer  — GAMEPLAY_5S/15S/... от первого действия игрока;
++ *   startGameplayTimer  — зовётся в game.ts с первого игрового касания (GAMEPLAY_5S/15S/...);
+  *   onPause / onResume  — в game.ts: там же глушится звук и замирают ролики.
+  *
+  * Отклонение от шаблона, о котором стоит знать ревьюеру: холст создаётся в
+@@ -27,7 +27,6 @@ import {
+   bootstrap,
+   installDebugHooks,
+   startPerfSampling,
+-  startGameplayTimer,
+   trackEvent,
+   emitCompleted,
+ } from '../../shared';
+@@ -53,7 +52,6 @@ bootstrap({
+   mount(container) {
+     installFont();
+     startPerfSampling();
+-    startGameplayTimer();
+ 
+     installDebugHooks({
+       onWin: () => {
+diff --git a/merge-restyle-v1-ad-unity-ru/playable.config.ts b/merge-restyle-v1-ad-unity-ru/playable.config.ts
+index 203c8d2..b515a36 100644
+--- a/merge-restyle-v1-ad-unity-ru/playable.config.ts
++++ b/merge-restyle-v1-ad-unity-ru/playable.config.ts
+@@ -11,7 +11,10 @@ export default {
+   locale: 'ru',
+   network: 'unity' as const,
+   complianceMode: 'strict' as const,
+-  // Выход в стор только с пэкшота: первый тап игрока обязан быть геймплеем.
++  // Основной CTA — только на пэкшоте. В горизонтальной раскладке есть ещё кнопка на
++  // каше (surface open_store_link), она появляется после первого касания. Первый тап
++  // игрока всегда геймплей. fallback = App Store, как в таблице docs/AD_NETWORKS.md:
++  // неопознанный UA — чаще всего iPad в desktop-режиме («Macintosh»).
+   ctaPolicy: 'endcard-only' as 'endcard-only' | 'first-tap',
+   // Локаль выбирает не только язык, но и рекламируемый продукт (docs/AD_NETWORKS.md).
+   // В файле ячейки лежит ровно один продукт: чужой сюда попадать не должен.
+@@ -20,7 +23,7 @@ export default {
+     // Человекочитаемо: apps.apple.com/ru/app/тайны-города-merge-игра/id6784656153
+     ios: 'https://apps.apple.com/ru/app/%D1%82%D0%B0%D0%B9%D0%BD%D1%8B-%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D0%B0-merge-%D0%B8%D0%B3%D1%80%D0%B0/id6784656153',
+     android: 'https://play.google.com/store/apps/details?id=com.gg.citysecrets',
+-    fallback: 'https://play.google.com/store/apps/details?id=com.gg.citysecrets',
++    fallback: 'https://apps.apple.com/ru/app/%D1%82%D0%B0%D0%B9%D0%BD%D1%8B-%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D0%B0-merge-%D0%B8%D0%B3%D1%80%D0%B0/id6784656153',
+   },
+   ctaText: 'Играть!',   // продукт локали: Тайны Города
+   analyticsEnabled: true,
+diff --git a/merge-restyle-v1-ad-unity-ru/src/main.ts b/merge-restyle-v1-ad-unity-ru/src/main.ts
+index 9d375a2..c52b29d 100644
+--- a/merge-restyle-v1-ad-unity-ru/src/main.ts
++++ b/merge-restyle-v1-ad-unity-ru/src/main.ts
+@@ -12,7 +12,7 @@
+  *                         CHALLENGE_STARTED по первому касанию;
+  *   installDebugHooks   — win/fail из консоли, в прод-бандл не попадает;
+  *   startPerfSampling   — PERF_SAMPLE каждые 5 с, сам встаёт на паузе;
+- *   startGameplayTimer  — GAMEPLAY_5S/15S/... от первого действия игрока;
++ *   startGameplayTimer  — зовётся в game.ts с первого игрового касания (GAMEPLAY_5S/15S/...);
+  *   onPause / onResume  — в game.ts: там же глушится звук и замирают ролики.
+  *
+  * Отклонение от шаблона, о котором стоит знать ревьюеру: холст создаётся в
+@@ -27,7 +27,6 @@ import {
+   bootstrap,
+   installDebugHooks,
+   startPerfSampling,
+-  startGameplayTimer,
+   trackEvent,
+   emitCompleted,
+ } from '../../shared';
+@@ -53,7 +52,6 @@ bootstrap({
+   mount(container) {
+     installFont();
+     startPerfSampling();
+-    startGameplayTimer();
+ 
+     installDebugHooks({
+       onWin: () => {
+diff --git a/merge-restyle-v1/playable.config.ts b/merge-restyle-v1/playable.config.ts
+index ad66885..0d93338 100644
+--- a/merge-restyle-v1/playable.config.ts
++++ b/merge-restyle-v1/playable.config.ts
+@@ -11,14 +11,17 @@ export default {
+   locale: 'en',
+   network: 'applovin' as const,
+   complianceMode: 'strict' as const,
+-  // Выход в стор только с пэкшота: первый тап игрока обязан быть геймплеем.
++  // Основной CTA — только на пэкшоте. В горизонтальной раскладке есть ещё кнопка на
++  // каше (surface open_store_link), она появляется после первого касания. Первый тап
++  // игрока всегда геймплей. fallback = App Store, как в таблице docs/AD_NETWORKS.md:
++  // неопознанный UA — чаще всего iPad в desktop-режиме («Macintosh»).
+   ctaPolicy: 'endcard-only' as 'endcard-only' | 'first-tap',
+   // Локаль выбирает не только язык, но и рекламируемый продукт (docs/AD_NETWORKS.md).
+   // В файле ячейки лежит ровно один продукт: чужой сюда попадать не должен.
+   storeUrls: {
+     ios: 'https://apps.apple.com/us/app/pines-peak-merge-travel-games/id6743472188',
+     android: 'https://play.google.com/store/apps/details?id=com.vizorapps.merge',
+-    fallback: 'https://play.google.com/store/apps/details?id=com.vizorapps.merge',
++    fallback: 'https://apps.apple.com/us/app/pines-peak-merge-travel-games/id6743472188',
+   },
+   ctaText: 'PLAY NOW',
+   analyticsEnabled: true,
+diff --git a/merge-restyle-v1/src/main.ts b/merge-restyle-v1/src/main.ts
+index 9d375a2..c52b29d 100644
+--- a/merge-restyle-v1/src/main.ts
++++ b/merge-restyle-v1/src/main.ts
+@@ -12,7 +12,7 @@
+  *                         CHALLENGE_STARTED по первому касанию;
+  *   installDebugHooks   — win/fail из консоли, в прод-бандл не попадает;
+  *   startPerfSampling   — PERF_SAMPLE каждые 5 с, сам встаёт на паузе;
+- *   startGameplayTimer  — GAMEPLAY_5S/15S/... от первого действия игрока;
++ *   startGameplayTimer  — зовётся в game.ts с первого игрового касания (GAMEPLAY_5S/15S/...);
+  *   onPause / onResume  — в game.ts: там же глушится звук и замирают ролики.
+  *
+  * Отклонение от шаблона, о котором стоит знать ревьюеру: холст создаётся в
+@@ -27,7 +27,6 @@ import {
+   bootstrap,
+   installDebugHooks,
+   startPerfSampling,
+-  startGameplayTimer,
+   trackEvent,
+   emitCompleted,
+ } from '../../shared';
+@@ -53,7 +52,6 @@ bootstrap({
+   mount(container) {
+     installFont();
+     startPerfSampling();
+-    startGameplayTimer();
+ 
+     installDebugHooks({
+       onWin: () => {

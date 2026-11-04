@@ -1,0 +1,16 @@
+## ISSUE #151 ROW 2 — DEPENDENCY-HYDRATED BASELINE CONTINUATION
+
+Frontier disposition of exact causal STOP `5423981776`. The failure is accepted as a clean-worktree environment prerequisite, not evidence about the seven-path points patch. Do not replay any prior wake, repeat the failed command in the old disposable tree, recreate the request, or discard the preserved author draft.
+
+Mac A re-read the durable receipt: build stopped before generation solely because the detached clean worktree had no installed `vite` / `vite-plugin-singlefile`; no prerender, release, visual proof, commit, push, PR, CI, merge, request, runtime or product mutation occurred. The preserved request remains `948c42c4-2e87-4c77-86db-b450d11b5de1`, exact instruction “В два раза больше очков за каждый заказ”, and the author draft remains the exact seven-path package recorded in the STOP.
+
+Authorize exactly one bounded continuation on the same Mac B owner:
+
+1. Re-read the server-owned request projection and the existing author branch/worktree. Require the same request identity/hash/text, exact master base `9b4f97fdd538ace4e1de6fcb11f7318b48a7ed70`, exactly the seven recorded changed paths, and the same per-file hashes from STOP `5423981776`. Any drift is typed STOP.
+2. Create one fresh disposable clean detached worktree at that exact master. Hydrate its committed dependency graph exactly once with `npm ci --ignore-scripts`; no package or lockfile changes are allowed. Dependency-hydration failure or any source diff is typed STOP without retry.
+3. In that hydrated baseline worktree run the canonical sequence exactly once: `npm run build merge-timepress-v1`, then `npm run prerender merge-timepress-v1`. Require the resulting source diff to be limited exactly to the same three deterministic prerender outputs named in the earlier baseline receipt; any other source change or generation failure is typed STOP.
+4. Run `npm run release merge-timepress-v1` once on that normalized baseline. Continue only if it reaches and reproduces the compatible premium-FPS signature `9fps < 45fps` while every other static/runtime gate passes. If FPS passes, another name/signature appears, or any non-FPS gate fails, return typed STOP.
+5. If and only if step 4 matches, treat that exact signature as one-time machine-relative baseline evidence for this package, not an allowlist. Finish the already-authored draft: run its focused/native tests and visual proof, commit once, push one normal PR, require exact-head repository CI, and merge once only on green CI and unchanged scope.
+6. Return one causal `HANDOFF_READY` to Mac A with dependency receipt, normalized-baseline diff, exact release signature, final commit/tree, changed paths, visual proof and exact-head/master CI. Mac A will separately re-CAS, append one `MANUAL_SOURCE_READY`, and let the existing coordinator materialize the candidate before continuing the remaining FIFO rows.
+
+No second dependency install, baseline release, changed-package release, retry, new discovery, live credentials on Mac B, backend/Generator/DB/Feed/static mutation, request reset/replay/recreation, manual-source admission, candidate/release, approval/promotion, deploy, settings, permissions or infrastructure change is authorized. Ambiguity is STOP.
