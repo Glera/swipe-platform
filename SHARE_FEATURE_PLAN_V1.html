@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swipe-Platform · Share/Challenge — Implementation Plan v1</title>
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b22; --panel2:#1b2230; --ink:#e6edf3; --muted:#9aa7b4;
+    --line:#2a3340; --accent:#4aa3ff; --green:#3fb950; --amber:#e3b341; --red:#f85149;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 22px 96px}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:20px;margin:40px 0 12px;padding-top:14px;border-top:2px solid var(--line)}
+  h3{font-size:16px;margin:24px 0 8px;color:var(--accent)}
+  h4{font-size:14px;margin:16px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  p{margin:8px 0}
+  code{font-family:var(--mono);font-size:.9em;background:var(--panel2);padding:1px 5px;border-radius:4px}
+  pre{font-family:var(--mono);font-size:12.5px;line-height:1.5;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:14px 16px;overflow-x:auto;white-space:pre;color:#cdd9e5}
+  .sub{color:var(--muted);font-size:14px}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--muted);margin-right:6px}
+  .pill.fe{color:#7ee787;border-color:#2a4a2f}
+  .pill.be{color:#79c0ff;border-color:#22405f}
+  .pill.tg{color:#e3b341;border-color:#5a4a1f}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:var(--ink);font-weight:600}
+  td code{font-size:.88em}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+  .flow{counter-reset:step;list-style:none;padding:0;margin:10px 0}
+  .flow li{position:relative;padding:6px 0 6px 34px;border-left:2px solid var(--line);margin-left:10px}
+  .flow li::before{counter-increment:step;content:counter(step);position:absolute;left:-13px;top:6px;
+    width:24px;height:24px;border-radius:50%;background:var(--panel2);border:1px solid var(--accent);
+    color:var(--accent);font-size:12px;font-weight:700;display:grid;place-items:center}
+  .who{font-family:var(--mono);font-size:11px;color:var(--muted);margin-right:6px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+  .risk{border-left:3px solid var(--amber);padding-left:12px;margin:10px 0}
+  .q{border-left:3px solid var(--accent);padding-left:12px;margin:10px 0}
+  .kbd{font-family:var(--mono);font-size:12px;background:#0b1a2b;border:1px solid #22405f;color:#79c0ff;padding:1px 6px;border-radius:4px}
+  .toc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px;margin:18px 0;font-size:14px}
+  .toc a{color:var(--accent);text-decoration:none} .toc a:hover{text-decoration:underline}
+  .toc ol{margin:6px 0 0;padding-left:20px}
+  .note{font-size:13px;color:var(--muted);margin-top:4px}
+  .tag-defer{color:var(--amber)} .tag-new{color:var(--green)}
+  hr{border:0;border-top:1px solid var(--line);margin:26px 0}
+  .legend span{margin-right:14px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Share / Challenge — Implementation Plan v1</h1>
+<p class="sub">Swipe-Platform (Telegram Mini App) · документ реализации. Порядок: сначала то, что вероятно будешь править (данные, контракты, потоки), инфра/рефактор — в конце.</p>
+
+<div class="card" style="margin-top:18px">
+<h4 style="margin-top:0">Зафиксированные решения (входные)</h4>
+<table>
+<tr><td>Платформа</td><td>Telegram <b>Mini App</b> (без изменений). Уже: <code>requestFullscreen</code>, <code>lockOrientation</code>, <code>disableVerticalSwipes</code>, safe-area (Bot API 8.0).</td></tr>
+<tr><td>Бэкенд</td><td>Новый сервис <b>swipe-backend</b> (FastAPI) на Render + <b>Render Postgres</b> = единственный источник правды. Redis отложен (кэш позже).</td></tr>
+<tr><td>Шеринг</td><td><code>shareMessage</code> + серверный <code>savePreparedInlineMessage</code> (8.0); фолбэк <code>t.me/share/url</code> для старых клиентов.</td></tr>
+<tr><td>Deep-link</td><td><code>startapp</code> payload (base64url) прямо на механику/уровень.</td></tr>
+<tr><td>Скрин v1</td><td>Шаблон-превью на механику (не живой скрин) + оверлей имени/результата.</td></tr>
+<tr><td>Payload вызова</td><td>механика + уровень + id/имя челленджера + его результат + реф-код.</td></tr>
+<tr><td>Награда</td><td>Двусторонняя; валюта — звёзды; <b>ledger</b> на бэкенде.</td></tr>
+<tr><td>Лидерборд</td><td>Pluggable-метрика; дефолт — время прохождения; лучший результат по ключу (игрок, механика, уровень).</td></tr>
+<tr><td>Рефералки</td><td>Отдельный модуль левелап-наград, общий граф друзей, <b>не</b> привязан к конкретному вызову.</td></tr>
+<tr><td>Auth</td><td>Слать и валидировать Telegram <code>initData</code> (HMAC по <code>BOT_TOKEN</code>). <span class="tag-new">net-new</span></td></tr>
+<tr><td>Анти-абьюз</td><td><span class="tag-defer">Осознанно отложен в v1.</span></td></tr>
+</table>
+<p class="note legend"><span>🟩 <b>FE</b> = feed-prototype (Mini App)</span><span>🟦 <b>BE</b> = swipe-backend (FastAPI)</span><span>🟨 <b>TG</b> = Telegram / BotFather</span></p>
+</div>
+
+<div class="toc">
+<b>Содержание</b>
+<ol>
+<li><a href="#s1">Данные, контракты, потоки</a> — схема Postgres · API swipe-backend · потоки A/B/auth/лидерборд</li>
+<li><a href="#s2">FE vs BE — разграничение</a></li>
+<li><a href="#s3">Настройка Telegram</a></li>
+<li><a href="#s4">Инфра/механика, риски, открытые вопросы</a></li>
+</ol>
+</div>
+
+<!-- ============================================================ 1 -->
+<h2 id="s1">1 · Данные, контракты, потоки</h2>
+
+<h3>1.1 Схема БД (Postgres — источник правды)</h3>
+<p class="note">Идентификатор игрока везде — <code>telegram_user_id</code> (bigint), берётся ТОЛЬКО из провалидированного <code>initData</code> на бэкенде. Клиент никогда не задаёт свой id.</p>
+
+<h4>users</h4>
+<pre>users
+  telegram_user_id   bigint      PRIMARY KEY          -- из initData
+  username           text        NULL
+  first_name         text        NULL
+  photo_url          text        NULL
+  language_code      text        NULL
+  ref_code           text        UNIQUE NOT NULL      -- короткий код игрока (для рефералок/вызовов)
+  created_at         timestamptz NOT NULL DEFAULT now()
+  last_seen_at       timestamptz NOT NULL DEFAULT now()
+  INDEX (ref_code)</pre>
+
+<h4>friend_edges <span class="pill">общий граф друзей</span></h4>
+<pre>friend_edges                                          -- НЕнаправленное ребро, хранится канонично
+  user_low     bigint  NOT NULL  REFERENCES users      -- LEAST(a,b)
+  user_high    bigint  NOT NULL  REFERENCES users      -- GREATEST(a,b)
+  source       text    NOT NULL                        -- 'challenge' | 'referral' | 'contact'
+  first_challenge_id  uuid NULL                         -- чем ребро появилось (аудит)
+  created_at   timestamptz NOT NULL DEFAULT now()
+  PRIMARY KEY (user_low, user_high)
+  INDEX (user_high)                                     -- обратный обход графа
+CHECK (user_low &lt; user_high)</pre>
+<p class="note">Ребро создаётся идемпотентно при принятии вызова (челленджер↔получатель) и в реферальном потоке. «Друзья игрока X» = все рёбра, где X = user_low ИЛИ user_high.</p>
+
+<h4>level_results <span class="pill">лидерборд · best-per-key</span></h4>
+<pre>level_results                                          -- ХРАНИМ ТОЛЬКО ЛУЧШИЙ результат по ключу
+  user_id       bigint  NOT NULL  REFERENCES users
+  mechanic_id   text    NOT NULL                        -- напр. 'pins-v1-swipe'
+  level         text    NOT NULL                        -- 'hg' | 'tube' | '1'... (строкой — уровни бывают именованные)
+  metric_key    text    NOT NULL                        -- pluggable: 'time_ms' (default) | 'moves' | 'score' ...
+  metric_value  numeric NOT NULL                        -- лучшее значение
+  lower_is_better boolean NOT NULL DEFAULT true         -- направление метрики (time_ms → true)
+  run           jsonb   NULL                            -- опц. детали прохождения (для будущей верификации)
+  achieved_at   timestamptz NOT NULL DEFAULT now()
+  PRIMARY KEY (user_id, mechanic_id, level, metric_key)
+  INDEX (mechanic_id, level, metric_key, metric_value) -- запрос лидерборда</pre>
+<p class="note">Апдейт по правилу «лучше» (учитывая <code>lower_is_better</code>). Лидерборд = сортировка по <code>metric_value</code> в нужную сторону в рамках (mechanic, level, metric_key). Scope friends = JOIN с <code>friend_edges</code>.</p>
+
+<h4>reward_ledger <span class="pill">append-only · звёзды</span></h4>
+<pre>reward_ledger                                          -- append-only, баланс = SUM(delta)
+  id            bigserial PRIMARY KEY
+  user_id       bigint  NOT NULL  REFERENCES users
+  delta         integer NOT NULL                        -- +/- звёзд
+  currency      text    NOT NULL DEFAULT 'stars'
+  reason        text    NOT NULL                         -- 'challenge_completed_challenger'
+                                                         -- 'challenge_completed_recipient'
+                                                         -- 'referral_levelup' | 'adjustment'
+  challenge_id  uuid    NULL     REFERENCES challenges
+  counterparty_id bigint NULL    REFERENCES users        -- вторая сторона (для двусторонней награды)
+  idempotency_key text  NOT NULL UNIQUE                  -- напр. f'{challenge_id}:{role}' → нет двойных начислений
+  created_at    timestamptz NOT NULL DEFAULT now()
+  INDEX (user_id, created_at)</pre>
+<p class="note">Баланс не денормализуем в v1 (или кэшируем позже в Redis). <code>idempotency_key</code> — единственная защита от двойного начисления (анти-абьюз шире — отложен).</p>
+
+<h4>challenges</h4>
+<pre>challenges
+  id                    uuid  PRIMARY KEY DEFAULT gen_random_uuid()
+  challenger_id         bigint NOT NULL REFERENCES users
+  mechanic_id           text   NOT NULL
+  level                 text   NOT NULL
+  metric_key            text   NOT NULL                  -- по какой метрике вызов
+  challenger_value      numeric NOT NULL                 -- результат челленджера (цель «побить»)
+  ref_code              text   NOT NULL                  -- реф-код челленджера (в payload)
+  startapp_payload      text   NOT NULL                  -- base64url, кладётся в deep-link
+  prepared_message_id   text   NULL                      -- от savePreparedInlineMessage
+  recipient_id          bigint NULL REFERENCES users     -- кто открыл/принял (заполняется в потоке B)
+  recipient_value       numeric NULL                     -- результат получателя
+  status                text   NOT NULL DEFAULT 'created'-- created→shared→opened→accepted→completed | expired
+  created_at            timestamptz NOT NULL DEFAULT now()
+  opened_at             timestamptz NULL
+  completed_at          timestamptz NULL
+  expires_at            timestamptz NULL                 -- опц. TTL
+  INDEX (challenger_id), INDEX (recipient_id), INDEX (status)</pre>
+<p class="note">Payload вызова (в БД + в deep-link) = {mechanic, level, challenger_id, challenger_name, challenger_value, ref_code}. В <code>startapp</code> кладём КОМПАКТНО (см. 1.3): либо весь payload base64url, либо только <code>challenge_id</code> и добираем через <code>GET /challenges/{id}</code>. Рекомендация: класть <code>challenge_id</code> (короче, меньше подделки), детали — с бэкенда.</p>
+
+<hr>
+<h3>1.2 Контракты API — swipe-backend <span class="pill be">FastAPI</span></h3>
+<p class="note">База <code>/api</code>. Все, кроме <code>/health</code>, требуют заголовок <span class="kbd">Authorization: tma &lt;initData&gt;</span> (сырой <code>initData</code>); бэкенд валидирует HMAC и извлекает user. Ответы JSON. Ошибки: <code>401</code> (bad initData), <code>409</code> (idемпотентный конфликт), <code>422</code> (валидация).</p>
+<table>
+<tr><th>Метод · путь</th><th>Вход</th><th>Выход</th><th>Кто зовёт / когда</th></tr>
+<tr><td><code>GET /api/health</code></td><td>—</td><td><code>{ok, ts}</code></td><td>Render/keep-alive пинг</td></tr>
+<tr><td><code>POST /api/session</code></td><td><code>initData</code> (в заголовке)</td><td><code>{user, ref_code, is_new}</code></td><td>🟩 FE при загрузке фида — upsert user, отдать ref_code</td></tr>
+<tr><td><code>POST /api/results</code></td><td><code>{mechanic_id, level, metric_key, metric_value, run?}</code></td><td><code>{is_best, best_value, rank_friends?, rank_global?}</code></td><td>🟩 FE на победе — upsert best</td></tr>
+<tr><td><code>GET /api/leaderboard</code></td><td>query: <code>mechanic_id, level, metric_key, scope=friends|global, limit</code></td><td><code>[{rank, user, metric_value, is_me}]</code></td><td>🟩 FE — победный экран / вкладка лидерборда</td></tr>
+<tr><td><code>POST /api/challenges</code></td><td><code>{mechanic_id, level, metric_key, metric_value}</code></td><td><code>{challenge_id, startapp_payload, deep_link, prepared_message_id?, share_url_fallback}</code></td><td>🟩 FE — тап «Бросить вызов» на победном экране. 🟦 создаёт запись + зовёт <code>savePreparedInlineMessage</code></td></tr>
+<tr><td><code>GET /api/challenges/{id}</code></td><td>—</td><td><code>{challenge, challenger:{name,photo}, mechanic_id, level, metric_key, challenger_value, template_preview_url, status}</code></td><td>🟩 FE — лендинг по deep-link (контекст + оверлей)</td></tr>
+<tr><td><code>POST /api/challenges/{id}/accept</code></td><td>—</td><td><code>{ok, already}</code></td><td>🟩 FE — когда друг открыл вызов: пишем recipient_id, создаём friend_edge, status→accepted</td></tr>
+<tr><td><code>POST /api/challenges/{id}/complete</code></td><td><code>{metric_key, metric_value}</code></td><td><code>{won, recipient_reward, challenger_reward, balance}</code></td><td>🟩 FE — друг прошёл уровень: 🟦 резолвит исход, пишет двусторонний ledger (идемпотентно), апдейтит best</td></tr>
+<tr><td><code>GET /api/me</code></td><td>—</td><td><code>{user, balance, currency}</code></td><td>🟩 FE — профиль/баланс звёзд</td></tr>
+<tr><td><code>GET /api/friends</code></td><td>query: <code>limit</code></td><td><code>[{user, since}]</code></td><td>🟩 FE — список друзей (для friends-лидерборда/реф-модуля)</td></tr>
+<tr><td colspan="4" style="background:var(--panel2)"><b>Реферальный модуль</b> (отдельный поток, общий граф; не привязан к вызову)</td></tr>
+<tr><td><code>POST /api/referral/attach</code></td><td><code>{ref_code}</code> (из startapp реф-ссылки)</td><td><code>{ok, edge_created}</code></td><td>🟩 FE — открытие по реф-ссылке: создаёт friend_edge(source='referral')</td></tr>
+<tr><td><code>POST /api/referral/levelup</code> <span class="tag-defer">(поток)</span></td><td><code>{new_level}</code></td><td><code>{rewards:[{user_id, delta}]}</code></td><td>🟦 внутренний резолв: при левелапе игрока наградить пригласивших (по графу); пишет ledger reason='referral_levelup'</td></tr>
+</table>
+<p class="note">Серверный вызов Telegram Bot API (не эндпоинт FE): <code>savePreparedInlineMessage(user_id, result=…)</code> → возвращает <code>prepared_message_id</code>. Требует <code>BOT_TOKEN</code> — потому токен живёт на swipe-backend.</p>
+
+<hr>
+<h3>1.3 startapp payload (base64url)</h3>
+<pre>deep_link = https://t.me/&lt;bot&gt;/&lt;app&gt;?startapp=&lt;payload&gt;
+payload   = base64url(JSON) — компактно, рекомендуется:
+            { "c": "&lt;challenge_id&gt;" }              // минимум: только id, детали с бэкенда
+   ИЛИ (референс полного контракта payload вызова, если хотим без доп. запроса):
+            { "m":"pins-v1-swipe", "l":"tube", "ci":123, "cn":"Аня",
+              "cv":41230, "mk":"time_ms", "r":"AB12" }
+Ограничение Telegram: startapp ≤ 512 символов, алфавит A-Za-z0-9_-.
+Рекомендация v1: класть { "c": challenge_id } → короче и труднее подделать; всё
+остальное — из GET /api/challenges/{id} (источник правды — БД).</pre>
+
+<hr>
+<h3>1.4 Поток A — вызов с победного экрана</h3>
+<ol class="flow">
+<li><span class="who">FE</span>Игрок выиграл механику+уровень; результат уже отправлен (<code>POST /api/results</code>) и известен лучший.</li>
+<li><span class="who">FE</span>На победном экране тап «🏆 Бросить вызов».</li>
+<li><span class="who">FE→BE</span><code>POST /api/challenges {mechanic_id, level, metric_key, metric_value}</code> (с initData).</li>
+<li><span class="who">BE</span>Создаёт <code>challenges</code> (status=created), генерит <code>startapp_payload</code> и <code>deep_link</code>.</li>
+<li><span class="who">BE→TG</span>Зовёт <code>savePreparedInlineMessage(challenger_id, result)</code>, где result = сообщение вызова: заголовок, <b>template_preview картинка механики + оверлей имени/результата</b> (см. открытый вопрос об оверлее), кнопка с <code>deep_link</code>. Получает <code>prepared_message_id</code>.</li>
+<li><span class="who">BE→FE</span>Ответ <code>{challenge_id, prepared_message_id, deep_link, share_url_fallback}</code>.</li>
+<li><span class="who">FE</span>Если <code>Telegram.WebApp.shareMessage</code> есть (8.0) → <code>shareMessage(prepared_message_id)</code> → <b>родной выбор получателя</b>. Иначе фолбэк → <code>openTelegramLink('https://t.me/share/url?url='+deep_link+'&text=…')</code>.</li>
+<li><span class="who">FE→BE</span>(опц.) отметить status→shared.</li>
+</ol>
+
+<h3>1.5 Поток B — друг открывает deep-link → лендинг → двусторонняя награда</h3>
+<ol class="flow">
+<li><span class="who">TG</span>Друг жмёт кнопку в присланном сообщении → открывает <code>t.me/&lt;bot&gt;/&lt;app&gt;?startapp=&lt;payload&gt;</code>.</li>
+<li><span class="who">FE</span>Mini App стартует; читает <code>Telegram.WebApp.initDataUnsafe.start_param</code> (он же <code>tgWebAppStartParam</code>) → base64url-decode → <code>challenge_id</code>.</li>
+<li><span class="who">FE→BE</span><code>POST /api/session</code> (initData) → user; затем <code>GET /api/challenges/{id}</code> → контекст (механика, уровень, имя+результат челленджера, template_preview).</li>
+<li><span class="who">FE</span>Лендит игрока СРАЗУ на нужную механику/уровень фида (deep-link во внутренний индекс + уровень), показывает оверлей вызова: «Аня прошла за 0:41 — побей!».</li>
+<li><span class="who">FE→BE</span><code>POST /api/challenges/{id}/accept</code> → 🟦 пишет recipient_id, создаёт <code>friend_edge(challenger, recipient, source='challenge')</code>, status→accepted (идемпотентно).</li>
+<li><span class="who">FE</span>Друг проходит уровень.</li>
+<li><span class="who">FE→BE</span><code>POST /api/challenges/{id}/complete {metric_key, metric_value}</code>.</li>
+<li><span class="who">BE</span>Резолв исхода (побил ли результат челленджера), апдейт <code>level_results</code>, запись <b>двух</b> строк <code>reward_ledger</code> (получателю и челленджеру) идемпотентно по <code>challenge_id:role</code>, status→completed. Возврат наград.</li>
+<li><span class="who">FE</span>Показывает начисленные звёзды обеим сторонам (челленджеру — при следующем заходе/через баланс).</li>
+</ol>
+<p class="note">Двусторонность: правило наград — конфигурируемое (напр. фикс. челленджеру за принятый+завершённый вызов, получателю — за прохождение, бонус за «побил»). Логика целиком на BE; FE только отображает результат.</p>
+
+<h3>1.6 Поток auth (initData)</h3>
+<ol class="flow">
+<li><span class="who">FE</span>Читает <code>window.Telegram.WebApp.initData</code> (сырая строка) при старте.</li>
+<li><span class="who">FE→BE</span>Шлёт её в заголовке <code>Authorization: tma &lt;initData&gt;</code> с каждым запросом (или обменивает на короткоживущий session-JWT — опц. в v1).</li>
+<li><span class="who">BE</span>Валидирует по спецификации Telegram: <code>secret = HMAC_SHA256("WebAppData", BOT_TOKEN)</code>; <code>hash == HMAC_SHA256(secret, data_check_string)</code>; проверка свежести <code>auth_date</code> (TTL). Извлекает <code>user.id/first_name/username/photo_url</code>. Только это — доверенный источник личности.</li>
+</ol>
+
+<h3>1.7 Поток результата/лидерборда</h3>
+<ol class="flow">
+<li><span class="who">FE→BE</span>На победе <code>POST /api/results</code> — upsert best по (user, mechanic, level, metric_key) с учётом направления метрики.</li>
+<li><span class="who">FE→BE</span>Победный экран/вкладка → <code>GET /api/leaderboard?scope=friends</code> (дефолт) → рейтинг.</li>
+<li><span class="who">BE</span>Метрика pluggable: столбец <code>metric_key</code> + <code>lower_is_better</code>; дефолт <code>time_ms</code> (меньше = лучше). Друзья = через <code>friend_edges</code>.</li>
+</ol>
+
+<!-- ============================================================ 2 -->
+<h2 id="s2">2 · FE vs BE — разграничение</h2>
+<div class="two">
+<div class="card">
+<h3 style="margin-top:0">🟩 Frontend — feed-prototype</h3>
+<p class="note">Тонкий клиент. Никаких секретов, никаких решений о доверии/наградах.</p>
+<ul>
+<li><code>telegram.ts</code>: читать <code>initData</code>; прокидывать в BE; читать <code>start_param</code>.</li>
+<li>Декодить startapp payload → лендить фид на нужную механику/уровень (внутренний роутинг по индексу манифеста + уровню).</li>
+<li>Победный экран: кнопка «Бросить вызов» → <code>POST /challenges</code> → <code>shareMessage(prepared_id)</code> / фолбэк <code>t.me/share/url</code>.</li>
+<li>Рендер оверлея вызова (имя+результат челленджера) и превью-шаблона в приложении (canvas/DOM).</li>
+<li>Слать <code>POST /results</code>, <code>/challenges/{id}/accept</code>, <code>/complete</code>; рендерить лидерборд и баланс.</li>
+<li>Фичефлаг: если не в Telegram (обычный браузер / AppLovin) — вся фича no-op (как сейчас telegram.ts).</li>
+</ul>
+</div>
+<div class="card">
+<h3 style="margin-top:0">🟦 Backend — swipe-backend</h3>
+<p class="note">Граница доверия и вся запись. Postgres — источник правды.</p>
+<ul>
+<li>Валидация <code>initData</code> HMAC (личность игрока). Держит <code>BOT_TOKEN</code>.</li>
+<li>Все записи: upsert best (<code>level_results</code>), <code>reward_ledger</code>, <code>friend_edges</code>, <code>challenges</code>.</li>
+<li><code>savePreparedInlineMessage</code> (серверный вызов Bot API) — выпуск prepared-сообщений.</li>
+<li>Резолв двусторонней награды + идемпотентность (<code>idempotency_key</code>).</li>
+<li>Запросы лидерборда (scope friends/global, направление метрики).</li>
+<li>Реферальный модуль: рёбра графа + левелап-награды (отдельный поток).</li>
+<li>(v1) template_preview_url: см. открытый вопрос — статичная картинка на механику vs динамический оверлей.</li>
+</ul>
+</div>
+</div>
+
+<!-- ============================================================ 3 -->
+<h2 id="s3">3 · Настройка Telegram <span class="pill tg">BotFather / API</span></h2>
+<table>
+<tr><th>Шаг</th><th>Что / зачем</th></tr>
+<tr><td><b>BotFather <code>/newapp</code></b></td><td>Прикрепить Mini App к боту <code>swipe-bot</code> с URL <code>https://swipe-platform.onrender.com</code>. Даёт <code>t.me/&lt;bot&gt;/&lt;app&gt;</code> и включает <code>?startapp=</code> deep-link (сейчас в README помечено как «опционально» — <b>для фичи обязательно</b>).</td></tr>
+<tr><td><b>Владелец webhook</b></td><td>Webhook у бота может быть ТОЛЬКО один. Его держит <code>swipe-bot</code> (уже зовёт <code>setWebhook</code> на старте). <b>swipe-backend НЕ должен звать setWebhook</b> — он только дергает Bot API методы (<code>savePreparedInlineMessage</code>) исходящими запросами с тем же <code>BOT_TOKEN</code>.</td></tr>
+<tr><td><b><code>allowed_updates</code></b></td><td>Сейчас <code>["message"]</code>. Поток share/deep-link работает клиент+сервер (shareMessage/savePreparedInlineMessage) и <b>доп. типов апдейтов не требует</b>. Расширять только если появятся inline-query/callback потоки. Зафиксировать в плане, чтобы случайно не сузить.</td></tr>
+<tr><td><b>Общий <code>BOT_TOKEN</code></b></td><td>Один бот → тот же токен в <code>swipe-bot</code> и <code>swipe-backend</code>. Хранить в Render env (secret), не в репо.</td></tr>
+<tr><td><b>Версия клиента</b></td><td><code>shareMessage</code>/<code>savePreparedInlineMessage</code> = Bot API 8.0. Рантайм уже юзает 8.0 (<code>requestFullscreen</code>). Обязательно проверять наличие метода и включать фолбэк <code>t.me/share/url</code>.</td></tr>
+</table>
+
+<!-- ============================================================ 4 -->
+<h2 id="s4">4 · Инфра / механика (в конец)</h2>
+
+<h3>4.1 Render — сервисы</h3>
+<pre>Текущее:
+  swipe-platform   Static Site   (feed + &lt;id&gt;.html)          repo Glera/swipe-platform
+  swipe-bot        Web (Docker)  (launcher + webhook owner)    repo Glera/swipe-bot
+
+Добавляем:
+  swipe-backend    Web Service (Docker, FastAPI/uvicorn)       repo Glera/swipe-backend (новый)
+  Render Postgres  managed DB (источник правды)                → DATABASE_URL в swipe-backend</pre>
+<p class="note">Отдельный репозиторий (чистое разделение от бота). render.yaml по образцу swipe-bot: <code>type: web, runtime: docker, plan</code>. Persistent-диск НЕ нужен (состояние в Postgres) — важно, т.к. на free-плане ФС эфемерна.</p>
+
+<h3>4.2 Env (swipe-backend)</h3>
+<pre>BOT_TOKEN          secret   — для валидации initData + savePreparedInlineMessage
+DATABASE_URL       secret   — из Render Postgres
+ALLOWED_ORIGINS    value    — https://swipe-platform.onrender.com (+ tg web origins)
+INITDATA_MAX_AGE   value    — TTL auth_date, напр. 86400
+BOT_USERNAME/APP   value    — для сборки deep-link t.me/&lt;bot&gt;/&lt;app&gt;
+PUBLIC_BASE_URL    value    — свой URL (для template_preview, health)</pre>
+
+<h3>4.3 CORS</h3>
+<p>Mini App отдаётся с <code>swipe-platform.onrender.com</code>, а API — на другом origin (<code>swipe-backend…</code>) → нужен CORS allowlist (<code>ALLOWED_ORIGINS</code>), методы GET/POST, заголовок <code>Authorization</code>. Альтернатива (позже) — проксировать <code>/api</code> через статику, чтобы был same-origin.</p>
+
+<h3>4.4 Миграции</h3>
+<p>Alembic (SQLAlchemy) или простой SQL-раннер. Запуск на деплое (Render <span class="kbd">preDeploy</span>/release command) или на старте до приёма трафика. Хранить версии в репо swipe-backend.</p>
+
+<h3>4.5 Cold-start / keep-alive</h3>
+<p>Free Render засыпает при простое (первый <code>/start</code> после сна уже лагает — отмечено в README бота). Для потока «открыл вызов» холодный старт критичен. Меры: keep-alive пинг <code>GET /api/health</code> (Render Cron / внешний аптайм-пингер) или платный инстанс на проде. Postgres free-tier ограничен/истекает — заложить переход на платный до запуска.</p>
+
+<h3>4.6 Идемпотентность и порядок внедрения</h3>
+<ul>
+<li>Идемпотентность наград: <code>reward_ledger.idempotency_key = f"{challenge_id}:{role}"</code> UNIQUE. Повтор <code>/complete</code> не задваивает.</li>
+<li>Порядок внедрения (предлагаемый): (1) swipe-backend скелет + Postgres + initData-auth + <code>/session</code>; (2) <code>/results</code>+<code>/leaderboard</code>; (3) <code>/challenges</code>+savePreparedInlineMessage+shareMessage; (4) deep-link лендинг + accept/complete + ledger; (5) реф-модуль.</li>
+</ul>
+
+<h3 style="color:var(--amber)">4.7 Риски</h3>
+<div class="risk"><b>Cold start на free-плане</b> ломает UX открытия вызова (лаг несколько секунд). → keep-alive/платный инстанс.</div>
+<div class="risk"><b>Postgres free-tier</b> ограничен по объёму/времени жизни. → бюджет на платный тариф до запуска.</div>
+<div class="risk"><b>prepared inline message</b> — короткоживущий/одноразовый; выпускать по требованию в момент шеринга, не пакетно. Возможны ограничения на типы контента/доступность получателя.</div>
+<div class="risk"><b>Анти-абьюз отложен</b> → самовызовы, повторные фарм-циклы, накрутка лидерборда возможны в v1. Осознанно; ledger/идемпотентность лишь частично сдерживают.</div>
+<div class="risk"><b>initData сейчас не шлётся фидом</b> — net-new и на FE, и на BE; без него нет доверенной личности.</div>
+<div class="risk"><b>Единый webhook</b>: если swipe-backend случайно вызовет setWebhook — перехватит апдейты у swipe-bot. Явно запретить.</div>
+
+<h3 style="color:var(--accent)">4.8 Открытые вопросы</h3>
+<div class="q"><b>Template preview с оверлеем имени/результата для ШАРИМОГО сообщения.</b> Внутри приложения оверлей легко рисуется (canvas/DOM). Но картинка в prepared inline message — это публичный URL. Варианты: (a) <b>v1-рекомендация</b>: статичная картинка на механику + имя/результат в ТЕКСТЕ сообщения (без серверного композитинга — быстрее и проще); (b) динамический эндпоинт <code>/og?mechanic&amp;name&amp;value</code> → PNG (server-side Pillow) с запечённым оверлеем — красивее, но это доп. рендер-сервис/кэш. Решить до потока A.</div>
+<div class="q"><b>Payload в deep-link</b>: только <code>challenge_id</code> (рекомендация) vs полный payload. Влияет на подделываемость и на то, нужен ли <code>GET /challenges/{id}</code> до лендинга.</div>
+<div class="q"><b>Правило двусторонней награды</b> (сколько звёзд кому: за отправку? за принятие? за прохождение? бонус за «побил»?) — точные числа не зафиксированы.</div>
+<div class="q"><b>Session model</b>: слать сырой initData в каждом запросе vs обменять на короткий JWT. v1 проще — сырой initData; JWT позже.</div>
+<div class="q"><b>Лидерборд scope/приватность</b>: friends по умолчанию; нужен ли global и как показывать чужие имена/фото (взяты из initData участников).</div>
+<div class="q"><b>Уровни как строки</b> (<code>level text</code>) — унифицировать нейминг уровней между механиками (у pins это 'hg'/'tube', у merge — числа).</div>
+
+<hr>
+<p class="sub">Документ реализации v1. Код фичи не написан — только план. Версия платформы: Telegram Mini App (без изменений).</p>
+
+</div>
+</body>
+</html>

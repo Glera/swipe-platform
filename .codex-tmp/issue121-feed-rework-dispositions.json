@@ -1,0 +1,26 @@
+{
+  "findings": [
+    {"id":"F001","severity":"P1","file":"src/candidate-feed-preview.ts","line":57,"desc":"Rework adoption sourceCommit was not rebound to immutable static evidence."},
+    {"id":"F002","severity":"P2","file":"src/candidate-feed-preview.ts","line":244,"desc":"Rework adoption required a sourceCommit without proving a truthful source for it."},
+    {"id":"F003","severity":"P2","file":"src/candidate-feed-preview.ts","line":179,"desc":"Rework adoption is consumed from the backend projection but is not produced by the source-preview adoption UI."},
+    {"id":"F004","severity":"P2","file":"scripts/check-candidate-feed-preview-browser.mjs","line":894,"desc":"The new rework branch lacked malformed-binding and provenance-drift negative tests."},
+    {"id":"F005","severity":"P3","file":"src/candidate-feed-preview.ts","line":57,"desc":"The rework request id is not duplicated in the adoption projection, and source validation differs between paths."},
+    {"id":"F006","severity":"P3","file":"src/candidate-feed-preview.ts","line":49,"desc":"The new trust-boundary predicate lacked an explanatory comment."},
+    {"id":"F007","severity":"P3","file":"scripts/check-candidate-feed-preview-browser.mjs","line":898,"desc":"A process-global fixture switch could leak a rework projection into another open browser context."},
+    {"id":"F008","severity":"P3","file":"scripts/check-candidate-feed-preview-browser.mjs","line":917,"desc":"The positive assertion could fail first on iframe path without identifying an overlay-validator rejection."}
+  ],
+  "dispositions": [
+    {"id":"F001","action":"fixed"},
+    {"id":"F002","action":"fixed"},
+    {"id":"F003","action":"rejected","reason":"The source-preview UI is deliberately source-only. Accepted rework candidates are produced by the existing candidate-review decision path and projected server-side; this Feed change only consumes that already-authorized projection."},
+    {"id":"F004","action":"fixed"},
+    {"id":"F005","action":"rejected","reason":"The immutable reviewBindingDigest already binds the exact reworkRequestId and the server decision receipt binds that digest to the exact-user adoption. Duplicating the request id in the adoption projection would expand the cross-repo schema; source-path validation is unchanged by this bounded correction."},
+    {"id":"F006","action":"fixed"},
+    {"id":"F007","action":"fixed"},
+    {"id":"F008","action":"fixed"}
+  ],
+  "verify": [
+    {"command":"npm run check:candidate-feed-preview","exitCode":0},
+    {"command":"npm run lint","exitCode":0}
+  ]
+}

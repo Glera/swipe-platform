@@ -1,0 +1,34 @@
+{
+  "findings": [
+    {"id":"F001","severity":"P2","file":"scripts/two-mac-wake-gate.mjs","line":744,"desc":"A 15-second gate would also invoke the platform intake drain four times more often."},
+    {"id":"F002","severity":"P2","file":"scripts/two-mac-wake-gate.mjs","line":758,"desc":"Outcome-unknown reconciliation would reread the complete control Issue every 15 seconds."},
+    {"id":"F003","severity":"P2","file":"scripts/two-mac-wake-gate.mjs","line":816,"desc":"Transient GitHub failures and full scans of a large control Issue could consume the API budget and create durable attention."},
+    {"id":"F004","severity":"P2","file":"scripts/two-mac-wake-gate.mjs","line":196,"desc":"A crash could leave the directory lock behind and make every later tick silently return single_flight_busy forever."},
+    {"id":"F005","severity":"P2","file":"scripts/two-mac-wake-gate.mjs","line":518,"desc":"Persisted Codex sessions lacked bounded retention and duplicated the successful run transcript."},
+    {"id":"F006","severity":"P2","file":"scripts/two-mac-wake-gate.mjs","line":518,"desc":"A persisted automation session could be manually resumed after its wake was consumed and attempt the work again."},
+    {"id":"F007","severity":"P3","file":"scripts/two-mac-wake-gate.mjs","line":518,"desc":"The implementation did not validate the visibility assumption that codexHome is the Desktop session home."},
+    {"id":"F008","severity":"P3","file":"scripts/two-mac-wake-gate.test.mjs","line":929,"desc":"The cadence test asserted literal plist bytes rather than the model-free behavior."},
+    {"id":"F009","severity":"P3","file":"scripts/two-mac-wake-gate.test.mjs","line":900,"desc":"The negative ephemeral assertion did not prove a persistent thread identity or lifecycle."},
+    {"id":"F010","severity":"P3","file":"scripts/two-mac-wake-gate.mjs","line":674,"desc":"A long synchronous AI job coalesces launchd ticks and would also block the combined intake drain."},
+    {"id":"F011","severity":"P3","file":"scripts/com.p4g.two-mac-wake-gate.plist.template","line":17,"desc":"Fifteen-second launchd stdout and stderr files had no rotation bound."},
+    {"id":"F012","severity":"P3","file":"docs/specs/two-mac-model-free-wake-gate-v1.md","line":205,"desc":"The activation checklist did not prove 15-second behavior, stale-lock handling, or IDE visibility without liveness coupling."}
+  ],
+  "dispositions": [
+    {"id":"F001","action":"fixed"},
+    {"id":"F002","action":"fixed"},
+    {"id":"F003","action":"fixed"},
+    {"id":"F004","action":"fixed"},
+    {"id":"F005","action":"fixed"},
+    {"id":"F006","action":"fixed"},
+    {"id":"F007","action":"fixed"},
+    {"id":"F008","action":"fixed"},
+    {"id":"F009","action":"fixed"},
+    {"id":"F010","action":"fixed"},
+    {"id":"F011","action":"fixed"},
+    {"id":"F012","action":"fixed"}
+  ],
+  "verify": [
+    {"command":"node --test scripts/two-mac-wake-gate.test.mjs scripts/two-mac-executor-bootstrap.test.mjs scripts/two-mac-bridge.test.mjs","exitCode":0},
+    {"command":"node --test 'scripts/*.test.mjs'","exitCode":0}
+  ]
+}

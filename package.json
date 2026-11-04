@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "workspaces": [
+    "liveops-shared",
+    "solitaire-core",
+    "treasure-hunt",
+    "dungeon-dig",
+    "mahjong-core",
+    "merge-event",
+    "p4g-platform"
+  ],
+  "scripts": {
+    "check:all": "npm run check --workspace=liveops-shared --workspace=solitaire-core --workspace=mahjong-core --workspace=treasure-hunt --workspace=dungeon-dig --workspace=rest-express",
+    "test:all": "npm test --workspace=liveops-shared --workspace=solitaire-core --workspace=mahjong-core --workspace=treasure-hunt --workspace=dungeon-dig",
+    "build:all": "npm run build --workspace=liveops-shared && npm run build --workspace=solitaire-core --workspace=mahjong-core && npm run build --workspace=treasure-hunt --workspace=dungeon-dig",
+    "contracts": "cd p4g-platform && bash scripts/check-contracts.sh && node scripts/contract-tests.mjs && node scripts/integration-tests.mjs",
+    "verify": "bash scripts/verify.sh",
+    "test:e2e:nightly": "cd p4g-platform && npx playwright test e2e/nightly/",
+    "test:e2e": "npm run test:e2e:nightly",
+    "test:all:e2e": "npm run test:e2e:nightly",
+    "test:e2e:smoke": "cd p4g-platform && npx playwright test e2e/pr-fast/"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

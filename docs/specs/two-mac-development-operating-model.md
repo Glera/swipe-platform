@@ -5,6 +5,9 @@
 универсальный автоматический dispatcher не строится до решения по метрикам
 10–20 реальных тикетов. Исполняемый handoff:
 `TWO-MAC-DEVELOPMENT-OPERATING-MODEL-HANDOFF-2026-08-09.md`.
+Первая implementation-инициатива поверх этой модели:
+`docs/specs/telegram-development-intake-v1.md`; исполняемый handoff:
+`TELEGRAM-DEVELOPMENT-INTAKE-HANDOFF-2026-08-09.md`.
 
 ## 1. Цель
 

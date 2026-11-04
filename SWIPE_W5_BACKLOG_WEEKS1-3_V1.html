@@ -1,0 +1,212 @@
+<title>Swipe · W5 — бэклог недель 1–3</title>
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b22; --panel2:#1b2230; --ink:#e6edf3; --muted:#9aa7b4;
+    --line:#2a3340; --accent:#4aa3ff; --green:#3fb950; --amber:#e3b341; --red:#f85149;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 22px 96px}
+  h1{font-size:25px;margin:0 0 4px}
+  h2{font-size:20px;margin:42px 0 10px;padding-top:14px;border-top:2px solid var(--line)}
+  h3{font-size:16px;margin:24px 0 8px;color:var(--accent)}
+  p{margin:8px 0}
+  .sub{color:var(--muted);font-size:14px;max-width:78ch}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel2);padding:1px 5px;border-radius:4px}
+  pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:14px 16px;overflow-x:auto;white-space:pre;color:#cdd9e5}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);font-weight:600}
+  .tblx{overflow-x:auto}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--muted);margin-right:6px;text-transform:uppercase;letter-spacing:.05em}
+  .pill.hot{color:var(--amber);border-color:#5a4a1f}
+  .pill.ok{color:#7ee787;border-color:#2a4a2f}
+  .decision{border-left:3px solid var(--amber);padding:2px 0 2px 14px;margin:18px 0}
+  .decision h3{margin-top:0;color:var(--amber)}
+  .note{font-size:13px;color:var(--muted)}
+  .dod{border-left:3px solid var(--green);padding-left:12px;margin:10px 0;font-size:14px}
+  .dod b{color:var(--green)}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:5px 0}
+  .q{border-left:3px solid var(--accent);padding-left:12px;margin:10px 0}
+  hr{border:0;border-top:1px solid var(--line);margin:26px 0}
+  .gate{background:linear-gradient(90deg,rgba(227,179,65,.12),transparent);border:1px solid var(--line);
+    border-left:4px solid var(--amber);border-radius:10px;padding:14px 16px;margin:16px 0}
+  .gate b{color:var(--amber)}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+</style>
+
+<div class="wrap">
+<h1>W5 · Бэклог недель 1–3 (7–27 июля)</h1>
+<p class="sub">Swipe-платформа → первый тест 13.10.2026. Впереди — решения, которые вы вероятнее всего будете править (данные, контракты, награды, UX). Механика и инфра — в конце, там доверяем исполнению. Учтены: blindspot pass по коду и TMA, ревью SHARE_FEATURE_PLAN_V1 и VARIATION_GEN_RESEARCH_V1, ответы интервью.</p>
+
+<div class="gate"><b>Гейт:</b> решения D1–D6 ревьюятся и утверждаются до начала кода. Всё остальное — делегировано, правки по ходу логируются в implementation-notes.md (раздел Deviations) без остановки работ.</div>
+
+<!-- ============ DECISIONS ============ -->
+<h2>Решения на ревью</h2>
+
+<div class="decision">
+<h3>D1 · Схема БД v1 — ключевые отличия от SHARE-плана</h3>
+<p>Три правки к исходной схеме: (1) <b>challenge_attempts</b> вместо одного recipient_id — групповые чаты как главная виральная поверхность; (2) <b>variants</b> — замороженные спеки как решение детерминизма (challenge ссылается на variant_id); (3) <b>events</b> — телеметрия в тот же Postgres.</p>
+<pre>challenges                       -- было: recipient_id/recipient_value → УДАЛЕНЫ
+  id, challenger_id, mechanic_id,
+  variant_id uuid NOT NULL REFERENCES variants,   -- замороженный конфиг уровня = честность
+  metric_key, challenger_value,
+  prepared_message_id, status, created_at, expires_at
+
+challenge_attempts               -- NEW: N участников на вызов
+  challenge_id  uuid   REFERENCES challenges
+  recipient_id  bigint REFERENCES users
+  metric_value  numeric NULL
+  beat          boolean NULL                       -- побил ли челленджера
+  status        text   'opened'→'completed'
+  opened_at, completed_at
+  PRIMARY KEY (challenge_id, recipient_id)
+  CHECK (recipient_id != challenger-владелец — на уровне API)
+
+variants                         -- NEW: спека = данные (из VARIATION-дока §7)
+  id uuid PK, parent_mechanic text, schema_version int,
+  params jsonb, skin jsonb, validated jsonb,
+  source text ('manual'|'procedural'|'model'), created_at
+
+reward_ledger                    -- reasons ДОПОЛНЕНЫ:
+  reason: 'level_win'            -- NEW: базовые звёзды ленты — иначе D1 немерим
+        | 'challenge_recipient' | 'challenge_recipient_beat_bonus'
+        | 'challenge_challenger' | 'referral_levelup' | 'adjustment'
+  idempotency_key:
+    level_win  → 'lw:{run_id}'                    -- run_id = client-uuid попытки
+    challenge  → 'ch:{challenge_id}:{recipient_id}:{role}'
+
+events                           -- NEW: append-only телеметрия
+  id bigserial, user_id bigint NULL, session_id text,
+  name text, props jsonb, client_ts timestamptz, created_at
+  INDEX (name, created_at), INDEX (session_id)</pre>
+<p class="note">users, friend_edges, level_results — как в SHARE-плане без изменений. level_results.level → variant_id (унификация нейминга уровней решается сама).</p>
+</div>
+
+<div class="decision">
+<h3>D2 · API v1 — итоговый контракт</h3>
+<div class="tblx"><table>
+<tr><th>Эндпоинт</th><th>Что делает</th><th>Неделя</th></tr>
+<tr><td><code>POST /api/session</code></td><td>upsert user из initData → {user, ref_code, balance, is_new}</td><td>1</td></tr>
+<tr><td><code>POST /api/results</code></td><td>{mechanic_id, variant_id, run_id, metric_key, metric_value} → upsert best <b>+ ledger level_win</b> → {is_best, stars_awarded, balance}</td><td>1</td></tr>
+<tr><td><code>POST /api/events</code></td><td>batch массив событий (см. D3); приним. sendBeacon</td><td>1</td></tr>
+<tr><td><code>GET /api/me</code></td><td>{user, balance}</td><td>1</td></tr>
+<tr><td><code>POST /api/challenges</code></td><td>создать вызов (variant_id фиксируется) + savePreparedInlineMessage → {challenge_id, deep_link, prepared_message_id, share_url_fallback}</td><td>2</td></tr>
+<tr><td><code>GET /api/challenges/{id}</code></td><td>контекст вызова + variant спека + челленджер</td><td>2</td></tr>
+<tr><td><code>GET /api/challenges?box=in|out</code></td><td><b>NEW</b> — листинг: out = мои вызовы + статусы попыток; in = открытые мной + новые от друзей (friend_edges). Контент stories-блока</td><td>3</td></tr>
+<tr><td><code>POST /api/challenges/{id}/attempts</code></td><td>принять вызов: attempt + friend_edge, <b>reject self-challenge</b></td><td>2</td></tr>
+<tr><td><code>POST /api/challenges/{id}/attempts/complete</code></td><td>{metric_value} → beat?, две записи ledger (идемпотентно), <b>бот-уведомление челленджеру</b> с deep-link ответного вызова</td><td>2</td></tr>
+<tr><td><code>GET /api/health</code>, <code>GET /api/stats</code></td><td>keep-alive; агрегаты для дашборда (basic-auth)</td><td>1 / 3</td></tr>
+</table></div>
+<p class="note">Auth: <code>Authorization: tma &lt;initData&gt;</code> на всём кроме health. Рефералки (attach/levelup) — за пределами недель 1–3, схема готова.</p>
+</div>
+
+<div class="decision">
+<h3>D3 · Схема событий телеметрии (метрики транса)</h3>
+<p>Конверт: <code>{session_id, run_id?, name, props, client_ts}</code>; user_id ставит сервер из initData. Клиент: очередь → батч раз в 5 с и на <code>visibilitychange</code> через sendBeacon.</p>
+<div class="tblx"><table>
+<tr><th>Событие</th><th>props</th><th>Метрика, которую питает</th></tr>
+<tr><td><code>session_start</code></td><td>entry: direct|challenge|referral, start_param</td><td>DAU, источники, D1/D7 когорты</td></tr>
+<tr><td><code>unit_shown</code></td><td>mechanic_id, variant_id, feed_pos, mode: auto|cold</td><td>знаменатель всего</td></tr>
+<tr><td><code>first_input</code></td><td>ms_since_shown</td><td><b>time-to-first-input</b></td></tr>
+<tr><td><code>takeover</code></td><td>ms_since_shown, ab_arm</td><td><b>takeover rate</b> (A/B)</td></tr>
+<tr><td><code>swipe_away</code></td><td>ms_since_shown, played:bool, state: autoplay|playing|won|lost</td><td><b>swipe-away rate</b>, swipe-after-win</td></tr>
+<tr><td><code>win / lose</code></td><td>duration_ms, metric_value, moves</td><td>win-rate, формула 5–20 с</td></tr>
+<tr><td><code>replay</code></td><td>manual:bool</td><td>replay / rage-restart</td></tr>
+<tr><td><code>loader_visible</code></td><td>ms</td><td>guard: p95 лоадера &lt; 0.5 с</td></tr>
+<tr><td><code>reward_collected / level_up</code></td><td>stars / level</td><td>ритм наград</td></tr>
+<tr><td><code>share_tap / challenge_open</code></td><td>challenge_id, context</td><td><b>share rate</b>, петля вызова</td></tr>
+</table></div>
+<p class="note">Глубина сессии (5+ механик) и «конец свежего контента» считаются из unit_shown на дашборде — отдельных событий не нужно.</p>
+</div>
+
+<div class="decision">
+<h3>D4 · Правила наград — числа на утверждение</h3>
+<div class="tblx"><table>
+<tr><th>Событие</th><th>Кому</th><th>Звёзд</th><th>Примечание</th></tr>
+<tr><td>Победа в юните</td><td>игрок</td><td>+1</td><td>как сейчас в ленте; идемпотентно по run_id</td></tr>
+<tr><td>Прошёл чужой вызов</td><td>получатель</td><td>+2</td><td>за завершение, независимо от исхода</td></tr>
+<tr><td>Побил результат</td><td>получатель</td><td>+2 бонус</td><td>итого +4 за «побил»</td></tr>
+<tr><td>Твой вызов прошли</td><td>челленджер</td><td>+2</td><td>за каждого уникального участника; в v1 без капа (закрытый тест), кап N/день — перед публичным</td></tr>
+</table></div>
+<p class="note">Логика целиком на BE, FE только рендерит. Числа — конфиг в env, меняются без деплоя фронта.</p>
+</div>
+
+<div class="decision">
+<h3>D5 · Клиентские решения</h3>
+<ul>
+<li><b>Host-джукбокс (звук).</b> AudioContext живёт на хост-странице (разблокируется первым свайпом — жесты ленты идут на хост); юниты шлют <code>{sfx:'win'|'star'|'levelup'}</code> через существующий postMessage-канал Swipe API. Решает немоту пассивной ленты: per-iframe user activation обходится легально. Win-стингер + звук звезды + свайп-свуш, всё ≤ 3 семплов в v1.</li>
+<li><b>Хаптика.</b> <code>Telegram.WebApp.HapticFeedback</code>: notificationOccurred('success') на победу, impactOccurred('light') на свайп, selectionChanged() на драг-снап. Только эти три точки — не спамить.</li>
+<li><b>Takeover A/B по экспозициям.</b> Арм на сессию: <code>auto</code> (демо играет сразу) vs <code>tap-to-start</code> (постер + кнопка). Метрики: takeover rate, swipe_away(state=autoplay), TTI. Ретеншен по армам НЕ сравниваем — выборка мала.</li>
+<li><b>Stories-зона → инбокс челленджей.</b> Хардкод-друзья удаляются. Контент: входящие вызовы (аватар челленджера + «побей 0:41»), мои вызовы со статусами («2/5 друзей прошли»). Пустое состояние: одна карточка-CTA «Брось первый вызов». Тап → лендинг юнита с оверлеем вызова.</li>
+<li><b>Challenge v1 — только pins-v1</b> (декларативные уровни = честный одинаковый конфиг). Merge-вариации подключаются после аудита геймплейного Math.random(). Оверлей вызова: имя + результат + прогресс попыток.</li>
+</ul>
+</div>
+
+<div class="decision">
+<h3>D6 · Инфраструктурные решения</h3>
+<ul>
+<li><b>Same-origin proxy</b>: Render Static rewrite <code>/api/* → swipe-backend</code> — нет CORS и preflight RTT на каждый батч событий.</li>
+<li><b>swipe-backend</b>: отдельный репо, FastAPI + SQLAlchemy/Alembic, Docker на Render; Postgres managed. BOT_TOKEN там же (savePreparedInlineMessage, sendMessage). <b>setWebhook — запрещён</b> (владелец — swipe-bot); проверка в CI grep'ом.</li>
+<li><b>Keep-alive</b> с первого дня (Render Cron → /api/health каждые 10 мин); платные инстансы BE+Postgres — решение к началу закрытого теста (сентябрь), не сейчас.</li>
+<li><b>startapp</b>: только <code>{c: challenge_id}</code>; смоук-тест лимита длины на реальном iOS/Android клиенте в неделю 2.</li>
+</ul>
+</div>
+
+<!-- ============ WEEKS ============ -->
+<h2>Недели</h2>
+
+<h3>Неделя 1 (7–13 июля) — фундамент: личность, персистентность, телеметрия</h3>
+<ul>
+<li>swipe-backend скелет: репо, Docker, Alembic, схема D1, деплой на Render + Postgres + proxy rewrite + keep-alive.</li>
+<li>initData: HMAC-валидация (TTL 24ч), <code>POST /session</code>, <code>/results</code> (+ledger level_win), <code>/me</code>, <code>/events</code>.</li>
+<li>FE: telegram.ts читает initData → Authorization header; звёзды/уровень с сервера (in-memory → серверный баланс, оптимистичный UI); телеметрия-клиент (очередь+батч+sendBeacon) и все события D3.</li>
+<li>Старый stories-мок скрыт за флагом.</li>
+</ul>
+<div class="dod"><b>DoD:</b> на реальном iPhone и Android в Telegram: закрыл → открыл — звёзды на месте; события всех типов видны в Postgres; лоадер-метрика пишется.</div>
+
+<h3>Неделя 2 (14–20 июля) — петля вызова end-to-end</h3>
+<ul>
+<li>BE: challenges create/get, attempts (+friend_edge, reject self), complete (+двусторонний ledger, идемпотентность), savePreparedInlineMessage, бот-уведомление челленджеру.</li>
+<li>FE: кнопка «Бросить вызов» на победном экране (pins) → shareMessage / t.me/share фолбэк; deep-link лендинг: start_param → challenge → фид на юнит + оверлей вызова → accept → complete.</li>
+<li>variants: таблица + ручная заливка спек текущих уровней pins (v1 «генератор» = экспорт из существующего редактора pins).</li>
+<li>Смоук startapp-лимита на реальных клиентах.</li>
+</ul>
+<div class="dod"><b>DoD:</b> полный цикл на двух реальных аккаунтах: победил → вызов в чат → друг открыл из чата → сыграл тот же конфиг → обе стороны получили звёзды → челленджеру пришло уведомление с deep-link.</div>
+
+<h3>Неделя 3 (21–27 июля) — инбокс, звук, A/B, дашборд</h3>
+<ul>
+<li>Stories-зона = инбокс челленджей (<code>GET /challenges?box=…</code>): входящие, мои со статусами, пустое состояние.</li>
+<li>Host-джукбокс + 3 семпла + хаптика (D5); юниты шлют sfx-события.</li>
+<li>Takeover A/B (арм в session, события с ab_arm).</li>
+<li>Дашборд v1 (<code>/api/stats</code> + одна страница): DAU, D1 по когортам, TTI p50/p95, swipe-away, takeover по армам, share rate, воронка вызова, p95 лоадера.</li>
+<li>Альфа-смоук: 5–10 своих человек, неделя жизни — первая проверка D1-механики измерения.</li>
+</ul>
+<div class="dod"><b>DoD:</b> дашборд отвечает на «какой TTI у pins» без ручного SQL; альфа-группа живёт в проде; из инбокса открывается и проходится вызов.</div>
+
+<!-- ============ MECHANICAL ============ -->
+<h2>Механика и гигиена <span class="pill ok">делегировано</span></h2>
+<ul>
+<li>env swipe-backend: BOT_TOKEN, DATABASE_URL, INITDATA_MAX_AGE=86400, REWARD_* числа, PUBLIC_BASE_URL, STATS_BASIC_AUTH.</li>
+<li>Alembic-миграции на preDeploy; фичефлаг «не в Telegram → соцфичи no-op» (паттерн telegram.ts сохраняется, AppLovin-таргет не трогаем).</li>
+<li><code>webglcontextlost</code>-обработчик в shared runtime юнитов (страховка).</li>
+<li>Прогон ассетов юнитов по рецепту animated-webp (iOS WebKit) — до альфа-смоука.</li>
+<li>implementation-notes.md в репо бэкенда: Deviations-лог по ходу без остановок.</li>
+</ul>
+
+<!-- ============ OPEN ============ -->
+<h2>Открытые вопросы (не блокеры недель 1–3)</h2>
+<div class="q"><b>Числа наград D4</b> — утвердить или поправить до недели 2 (конфиг, менять дёшево).</div>
+<div class="q"><b>Копирайт уведомления челленджеру</b> — одна строка + кнопка; предложу варианты в неделю 2.</div>
+<div class="q"><b>Когорта теста</b> — ресерч источников 120–200 человек: запланировать на август (не код).</div>
+<div class="q"><b>Дневной челлендж</b> — дизайн артефакта результата (W2-мокапы, 4–5 концепций) — начало недель 4–6.</div>
+<div class="q"><b>variation.bounds.ts в шаблоне новой механики</b> — войдёт в DoD механик с недели 4.</div>
+
+<hr>
+<p class="note">W5 v1 · 05.07.2026 · входы: blindspot pass код+TMA, ревью SHARE_FEATURE_PLAN_V1 / VARIATION_GEN_RESEARCH_V1, интервью. После утверждения D1–D6 — старт недели 1.</p>
+</div>

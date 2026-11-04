@@ -1,0 +1,4336 @@
+{
+  "periods": {
+    "prior_12m": [
+      "2024-10-01",
+      "2025-09-01"
+    ],
+    "current_12m": [
+      "2025-10-01",
+      "2026-09-01"
+    ],
+    "h1": [
+      "2025-10-01",
+      "2026-03-01"
+    ],
+    "h2": [
+      "2026-04-01",
+      "2026-09-01"
+    ],
+    "last3m": [
+      "2026-07-01",
+      "2026-09-01"
+    ],
+    "last3m_prior": [
+      "2025-07-01",
+      "2025-09-01"
+    ]
+  },
+  "units": {
+    "revenue": "USD (source cents / 100)",
+    "downloads": "units",
+    "usage_time": "opaque Sensor Tower units (US only), YoY ratios only"
+  },
+  "thresholds": {
+    "growing_yoy_gte": 0.1,
+    "declining_yoy_lte": -0.05,
+    "momentum_h2_h1_abs": 0.05,
+    "new_entrant_release_gte": "2024-07-01",
+    "fastest_growers_min_prior_usd": 1000000,
+    "slope_min_points": 12
+  },
+  "totals_ww": {
+    "app_category_sum_non_games_app_iq": {
+      "rev_cur_usd": 66258233491.69,
+      "rev_prior_usd": 56790926939.09,
+      "rev_yoy": 0.166705,
+      "dl_cur": 97135892627,
+      "dl_prior": 93667869393,
+      "dl_yoy": 0.037025
+    },
+    "app_sub_category_sum": {
+      "rev_cur_usd": 66258233491.69,
+      "rev_prior_usd": 56790926939.09,
+      "rev_yoy": 0.166705,
+      "dl_cur": 97135892627,
+      "dl_prior": 93667869393,
+      "dl_yoy": 0.037025
+    },
+    "game_genre_sum_games": {
+      "rev_cur_usd": 56280508215.69,
+      "rev_prior_usd": 57676003844.71,
+      "rev_yoy": -0.024195,
+      "dl_cur": 46258560185,
+      "dl_prior": 51719939784,
+      "dl_yoy": -0.105595
+    },
+    "game_sub_genre_sum": {
+      "rev_cur_usd": 56280508215.69,
+      "rev_prior_usd": 57676003844.71,
+      "rev_yoy": -0.024195,
+      "dl_cur": 46258560185,
+      "dl_prior": 51719939784,
+      "dl_yoy": -0.105595
+    },
+    "unified_app_primary_category_sum_all": {
+      "rev_cur_usd": 123138941771.81,
+      "rev_prior_usd": 114880678812.18,
+      "rev_yoy": 0.071886,
+      "dl_cur": 149150873424,
+      "dl_prior": 149322214063,
+      "dl_yoy": -0.001147
+    },
+    "unified_primary_games_6014": {
+      "rev_cur_usd": 55604717029.44,
+      "rev_prior_usd": 57059509412.34,
+      "rev_yoy": -0.025496,
+      "dl_cur": 45021835376,
+      "dl_prior": 50309422011,
+      "dl_yoy": -0.105101
+    },
+    "unified_primary_non_games": {
+      "rev_cur_usd": 67534224742.37,
+      "rev_prior_usd": 57821169399.84,
+      "rev_yoy": 0.167984,
+      "dl_cur": 104129038048,
+      "dl_prior": 99012792052,
+      "dl_yoy": 0.051673
+    },
+    "region_sum_of_countries": {
+      "rev_cur_usd": 123138942170.44,
+      "rev_prior_usd": 114877793356.59,
+      "rev_yoy": 0.071912,
+      "dl_cur": 149150874317,
+      "dl_prior": 149232735182,
+      "dl_yoy": -0.000549
+    },
+    "app_category_plus_game_genre": {
+      "rev_cur_usd": 122538741707.38,
+      "rev_prior_usd": 114466930783.8,
+      "rev_yoy": 0.070517,
+      "dl_cur": 143394452812,
+      "dl_prior": 145387809177,
+      "dl_yoy": -0.013711
+    },
+    "region_WW_total": {
+      "rev_cur_usd": 123138942170.44,
+      "rev_prior_usd": 114880687803.27,
+      "rev_yoy": 0.071885,
+      "dl_cur": 149150874317,
+      "dl_prior": 149322245963,
+      "dl_yoy": -0.001148
+    },
+    "games_share_of_rev_cur_unified_primary": 0.451561
+  },
+  "unified_primary_category_ids_seen": [
+    {
+      "id": "6000",
+      "name": "Business",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6001",
+      "name": "Weather",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6002",
+      "name": "Utilities",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6003",
+      "name": "Travel",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6004",
+      "name": "Sports",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6005",
+      "name": "Social Networking",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6006",
+      "name": "Reference",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6007",
+      "name": "Productivity",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6008",
+      "name": "Photo & Video",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6009",
+      "name": "News",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6010",
+      "name": "Navigation",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6011",
+      "name": "Music",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6012",
+      "name": "Lifestyle",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6013",
+      "name": "Health & Fitness",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6014",
+      "name": "Games",
+      "name_source": "discovery",
+      "is_games": true
+    },
+    {
+      "id": "6015",
+      "name": "Finance",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6016",
+      "name": "Entertainment",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6017",
+      "name": "Education",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6018",
+      "name": "Books",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6020",
+      "name": "Medical",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6021",
+      "name": "Newsstand",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6022",
+      "name": "Catalogs",
+      "name_source": "fallback_apple_id",
+      "is_games": false
+    },
+    {
+      "id": "6023",
+      "name": "Food & Drink",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6024",
+      "name": "Shopping",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6025",
+      "name": "Stickers",
+      "name_source": "fallback_apple_id",
+      "is_games": false
+    },
+    {
+      "id": "6026",
+      "name": "Developer Tools",
+      "name_source": "discovery",
+      "is_games": false
+    },
+    {
+      "id": "6027",
+      "name": "Graphics & Design",
+      "name_source": "discovery",
+      "is_games": false
+    }
+  ],
+  "games_definition": "unified_app_primary_category: Games = id 6014; Non-games = every other id",
+  "consistency_checks_rev_cur": {
+    "app_category_vs_app_sub_category": {
+      "rev_cur_deviation": 0.0,
+      "rev_within_2pct": true,
+      "dl_cur_deviation_info": 0.0
+    },
+    "app_category_vs_unified_primary_all": {
+      "rev_cur_deviation": -0.461923,
+      "rev_within_2pct": false,
+      "dl_cur_deviation_info": -0.348741,
+      "note": "not like-for-like: app_category (App IQ) covers non-game apps only"
+    },
+    "app_sub_category_vs_unified_primary_all": {
+      "rev_cur_deviation": -0.461923,
+      "rev_within_2pct": false,
+      "dl_cur_deviation_info": -0.348741,
+      "note": "not like-for-like: app_sub_category covers non-game apps only"
+    },
+    "app_category_vs_unified_primary_non_games": {
+      "rev_cur_deviation": -0.018894,
+      "rev_within_2pct": true,
+      "dl_cur_deviation_info": -0.067158,
+      "note": "like-for-like: App IQ non-games vs store primary category != 6014"
+    },
+    "game_genre_vs_game_sub_genre": {
+      "rev_cur_deviation": 0.0,
+      "rev_within_2pct": true,
+      "dl_cur_deviation_info": 0.0
+    },
+    "game_genre_vs_unified_primary_games_6014": {
+      "rev_cur_deviation": 0.012153,
+      "rev_within_2pct": true,
+      "dl_cur_deviation_info": 0.027469
+    },
+    "app_category_plus_game_genre_vs_unified_primary_all": {
+      "rev_cur_deviation": -0.004874,
+      "rev_within_2pct": true,
+      "dl_cur_deviation_info": -0.038595
+    },
+    "unified_primary_all_vs_region_sum": {
+      "rev_cur_deviation": -0.0,
+      "rev_within_2pct": true,
+      "dl_cur_deviation_info": -0.0
+    },
+    "region_sum_vs_region_WW_total": {
+      "rev_cur_deviation": 0.0,
+      "rev_within_2pct": true,
+      "dl_cur_deviation_info": 0.0
+    }
+  },
+  "leaders_vs_series_match": {
+    "revenue_all": {
+      "n_overlap": 3582,
+      "n_within_5pct": 3582,
+      "match_rate": 1.0,
+      "meets_90pct_target": true,
+      "median_abs_rel_diff": 0.0,
+      "worst_examples": [
+        {
+          "app_id": "53782cb5830f78a33a00003d",
+          "name": "Top Eleven Be a Soccer Manager",
+          "list": 59094101.88,
+          "series": 59094101.88,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53782e84830f782dbe000053",
+          "name": "House of Fun: Casino Slots",
+          "list": 33857882.01,
+          "series": 33857882.01,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378300c830f782dbe0000b6",
+          "name": "MLB",
+          "list": 72528039.76,
+          "series": 72528039.76,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53783014830f782dbe0000b8",
+          "name": "Family Farm Seaside®",
+          "list": 11478603.26,
+          "series": 11478603.26,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "537830b3830f782dbe0000e6",
+          "name": "Life360: Family Safety & GPS",
+          "list": 288936970.27,
+          "series": 288936970.27,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378310b830f782dbe000101",
+          "name": "Text Me - Phone Call + Texting",
+          "list": 32297383.97,
+          "series": 32297383.97,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378330e830f782dbe000189",
+          "name": "Episode - Choose Your Story",
+          "list": 13991598.67,
+          "series": 13991598.67,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53783480830f782dbe0001e1",
+          "name": "VSCO: Photo & Video Editor",
+          "list": 26814202.11,
+          "series": 26814202.11,
+          "rel_diff": 0.0
+        }
+      ]
+    },
+    "revenue_list_gte_1m_usd": {
+      "n_overlap": 2208,
+      "n_within_5pct": 2208,
+      "match_rate": 1.0,
+      "meets_90pct_target": true,
+      "median_abs_rel_diff": 0.0,
+      "worst_examples": [
+        {
+          "app_id": "53782cb5830f78a33a00003d",
+          "name": "Top Eleven Be a Soccer Manager",
+          "list": 59094101.88,
+          "series": 59094101.88,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53782e84830f782dbe000053",
+          "name": "House of Fun: Casino Slots",
+          "list": 33857882.01,
+          "series": 33857882.01,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378300c830f782dbe0000b6",
+          "name": "MLB",
+          "list": 72528039.76,
+          "series": 72528039.76,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53783014830f782dbe0000b8",
+          "name": "Family Farm Seaside®",
+          "list": 11478603.26,
+          "series": 11478603.26,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "537830b3830f782dbe0000e6",
+          "name": "Life360: Family Safety & GPS",
+          "list": 288936970.27,
+          "series": 288936970.27,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378310b830f782dbe000101",
+          "name": "Text Me - Phone Call + Texting",
+          "list": 32297383.97,
+          "series": 32297383.97,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378330e830f782dbe000189",
+          "name": "Episode - Choose Your Story",
+          "list": 13991598.67,
+          "series": 13991598.67,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53783480830f782dbe0001e1",
+          "name": "VSCO: Photo & Video Editor",
+          "list": 26814202.11,
+          "series": 26814202.11,
+          "rel_diff": 0.0
+        }
+      ]
+    },
+    "downloads_all": {
+      "n_overlap": 3582,
+      "n_within_5pct": 3582,
+      "match_rate": 1.0,
+      "meets_90pct_target": true,
+      "median_abs_rel_diff": 0.0,
+      "worst_examples": [
+        {
+          "app_id": "53782cb5830f78a33a00003d",
+          "name": "Top Eleven Be a Soccer Manager",
+          "list": 17141909,
+          "series": 17141909,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53782e84830f782dbe000053",
+          "name": "House of Fun: Casino Slots",
+          "list": 1726020,
+          "series": 1726020,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378300c830f782dbe0000b6",
+          "name": "MLB",
+          "list": 6845233,
+          "series": 6845233,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53783014830f782dbe0000b8",
+          "name": "Family Farm Seaside®",
+          "list": 2127381,
+          "series": 2127381,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "537830b3830f782dbe0000e6",
+          "name": "Life360: Family Safety & GPS",
+          "list": 63053886,
+          "series": 63053886,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378310b830f782dbe000101",
+          "name": "Text Me - Phone Call + Texting",
+          "list": 6273486,
+          "series": 6273486,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "5378330e830f782dbe000189",
+          "name": "Episode - Choose Your Story",
+          "list": 6651497,
+          "series": 6651497,
+          "rel_diff": 0.0
+        },
+        {
+          "app_id": "53783480830f782dbe0001e1",
+          "name": "VSCO: Photo & Video Editor",
+          "list": 9530953,
+          "series": 9530953,
+          "rel_diff": 0.0
+        }
+      ]
+    },
+    "tolerance": 0.05,
+    "target_rate": 0.9
+  },
+  "niche_counts_by_class": {
+    "app_category": {
+      "rev_class": {
+        "flat": 6,
+        "growing": 9
+      },
+      "rev_momentum": {
+        "accelerating": 9,
+        "decelerating": 2,
+        "steady": 4
+      },
+      "dl_class": {
+        "flat": 13,
+        "growing": 2
+      },
+      "dl_momentum": {
+        "accelerating": 5,
+        "decelerating": 1,
+        "steady": 9
+      }
+    },
+    "app_sub_category": {
+      "rev_class": {
+        "declining": 11,
+        "flat": 18,
+        "growing": 54
+      },
+      "rev_momentum": {
+        "accelerating": 41,
+        "decelerating": 23,
+        "insufficient_data": 1,
+        "steady": 18
+      },
+      "dl_class": {
+        "declining": 14,
+        "flat": 42,
+        "growing": 27
+      },
+      "dl_momentum": {
+        "accelerating": 28,
+        "decelerating": 21,
+        "steady": 34
+      }
+    },
+    "game_genre": {
+      "rev_class": {
+        "declining": 8,
+        "flat": 4,
+        "growing": 2
+      },
+      "rev_momentum": {
+        "accelerating": 4,
+        "decelerating": 7,
+        "steady": 3
+      },
+      "dl_class": {
+        "declining": 9,
+        "flat": 4,
+        "growing": 1
+      },
+      "dl_momentum": {
+        "accelerating": 3,
+        "decelerating": 8,
+        "steady": 3
+      }
+    },
+    "game_sub_genre": {
+      "rev_class": {
+        "declining": 47,
+        "flat": 29,
+        "growing": 27
+      },
+      "rev_momentum": {
+        "accelerating": 27,
+        "decelerating": 51,
+        "steady": 25
+      },
+      "dl_class": {
+        "declining": 70,
+        "flat": 19,
+        "growing": 14
+      },
+      "dl_momentum": {
+        "accelerating": 23,
+        "decelerating": 58,
+        "steady": 22
+      }
+    },
+    "unified_app_primary_category": {
+      "rev_class": {
+        "declining": 1,
+        "flat": 8,
+        "growing": 17,
+        "insufficient_data": 1
+      },
+      "rev_momentum": {
+        "accelerating": 12,
+        "decelerating": 4,
+        "insufficient_data": 1,
+        "steady": 10
+      },
+      "dl_class": {
+        "declining": 5,
+        "flat": 17,
+        "growing": 4,
+        "insufficient_data": 1
+      },
+      "dl_momentum": {
+        "accelerating": 8,
+        "decelerating": 6,
+        "insufficient_data": 1,
+        "steady": 12
+      }
+    },
+    "game_class": {
+      "rev_class": {
+        "declining": 2,
+        "flat": 2
+      },
+      "rev_momentum": {
+        "accelerating": 1,
+        "decelerating": 2,
+        "steady": 1
+      },
+      "dl_class": {
+        "declining": 3,
+        "flat": 1
+      },
+      "dl_momentum": {
+        "decelerating": 2,
+        "steady": 2
+      }
+    },
+    "game_product_model": {
+      "rev_class": {
+        "declining": 2,
+        "flat": 1,
+        "growing": 2
+      },
+      "rev_momentum": {
+        "accelerating": 1,
+        "decelerating": 2,
+        "steady": 2
+      },
+      "dl_class": {
+        "declining": 5
+      },
+      "dl_momentum": {
+        "decelerating": 3,
+        "steady": 2
+      }
+    },
+    "game_theme": {
+      "rev_class": {
+        "declining": 57,
+        "flat": 33,
+        "growing": 37
+      },
+      "rev_momentum": {
+        "accelerating": 34,
+        "decelerating": 70,
+        "steady": 23
+      },
+      "dl_class": {
+        "declining": 97,
+        "flat": 15,
+        "growing": 15
+      },
+      "dl_momentum": {
+        "accelerating": 26,
+        "decelerating": 63,
+        "steady": 38
+      }
+    },
+    "game_art_style": {
+      "rev_class": {
+        "declining": 5,
+        "flat": 7,
+        "growing": 1
+      },
+      "rev_momentum": {
+        "accelerating": 1,
+        "decelerating": 5,
+        "steady": 7
+      },
+      "dl_class": {
+        "declining": 11,
+        "flat": 2
+      },
+      "dl_momentum": {
+        "accelerating": 2,
+        "decelerating": 6,
+        "steady": 5
+      }
+    },
+    "game_setting": {
+      "rev_class": {
+        "declining": 3,
+        "flat": 3
+      },
+      "rev_momentum": {
+        "decelerating": 3,
+        "steady": 3
+      },
+      "dl_class": {
+        "declining": 6
+      },
+      "dl_momentum": {
+        "decelerating": 3,
+        "steady": 3
+      }
+    },
+    "game_camera": {
+      "rev_class": {
+        "declining": 2,
+        "flat": 3,
+        "growing": 1
+      },
+      "rev_momentum": {
+        "accelerating": 1,
+        "decelerating": 5
+      },
+      "dl_class": {
+        "declining": 6
+      },
+      "dl_momentum": {
+        "decelerating": 3,
+        "steady": 3
+      }
+    },
+    "device": {
+      "rev_class": {
+        "flat": 2,
+        "growing": 1
+      },
+      "rev_momentum": {
+        "steady": 3
+      },
+      "dl_class": {
+        "declining": 1,
+        "flat": 2
+      },
+      "dl_momentum": {
+        "decelerating": 1,
+        "steady": 2
+      }
+    },
+    "region": {
+      "rev_class": {
+        "declining": 3,
+        "flat": 27,
+        "growing": 81,
+        "insufficient_data": 1
+      },
+      "rev_momentum": {
+        "accelerating": 60,
+        "decelerating": 5,
+        "steady": 47
+      },
+      "dl_class": {
+        "declining": 26,
+        "flat": 68,
+        "growing": 17,
+        "insufficient_data": 1
+      },
+      "dl_momentum": {
+        "accelerating": 18,
+        "decelerating": 33,
+        "steady": 61
+      }
+    }
+  },
+  "dim_totals_excluded_niches": {
+    "app_category": {},
+    "app_sub_category": {},
+    "game_genre": {},
+    "game_sub_genre": {},
+    "unified_app_primary_category": {
+      "rev_cur_excluded": [
+        "6022"
+      ],
+      "rev_prior_excluded": [
+        "6022"
+      ],
+      "dl_cur_excluded": [
+        "6022"
+      ],
+      "dl_prior_excluded": [
+        "6022"
+      ]
+    },
+    "game_class": {},
+    "game_product_model": {},
+    "game_theme": {},
+    "game_art_style": {},
+    "game_setting": {},
+    "game_camera": {},
+    "device": {}
+  },
+  "leaders": {
+    "union_apps": 4455,
+    "list_sizes": {
+      "cur_rev": 2000,
+      "prior_rev": 2000,
+      "cur_dl": 2000,
+      "prior_dl": 2000
+    },
+    "entered_top_rev": 358,
+    "exited_top_rev": 358,
+    "new_entrants": 801,
+    "games": 2122,
+    "niche_leaders_game_sub_genre": {
+      "niches": 101,
+      "leader_rows_without_tag": 2333
+    },
+    "niche_leaders_app_iq_category": {
+      "niches": 158,
+      "leader_rows_without_tag": 2189
+    }
+  },
+  "app_series": {
+    "apps": 4455,
+    "apps_with_24_months": 3670,
+    "in_series_missing_in_leaders": 0,
+    "in_leaders_missing_in_series": 0
+  },
+  "local_extractions": {
+    "countries_complete": [
+      "AE",
+      "AR",
+      "AU",
+      "BR",
+      "CA",
+      "CN",
+      "CO",
+      "DE",
+      "FR",
+      "GB",
+      "HU",
+      "ID",
+      "IE",
+      "IN",
+      "JP",
+      "KR",
+      "MX",
+      "NO",
+      "PH",
+      "PK",
+      "RU",
+      "SA",
+      "TH",
+      "TR",
+      "TW",
+      "US",
+      "VN",
+      "ZA"
+    ],
+    "countries_partial": [],
+    "n_countries_with_any_local_data": 28,
+    "selected_countries": [
+      "AE",
+      "AR",
+      "AU",
+      "BR",
+      "CA",
+      "CN",
+      "CO",
+      "DE",
+      "FR",
+      "GB",
+      "HU",
+      "ID",
+      "IE",
+      "IN",
+      "JP",
+      "KR",
+      "MX",
+      "NO",
+      "PH",
+      "PK",
+      "RU",
+      "SA",
+      "TH",
+      "TR",
+      "US",
+      "VN",
+      "ZA"
+    ],
+    "selected_without_local_data": [],
+    "local_sum_vs_region_total": {
+      "AE": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 641470776.88,
+        "rev_cur_region_total": 640878778.94,
+        "rev_deviation": 0.000924,
+        "dl_cur_local_sum": 610587290,
+        "dl_cur_region_total": 630281891,
+        "dl_deviation_info": -0.031247
+      },
+      "AR": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 281519510.75,
+        "rev_cur_region_total": 283770534.12,
+        "rev_deviation": -0.007933,
+        "dl_cur_local_sum": 1642739789,
+        "dl_cur_region_total": 1716283483,
+        "dl_deviation_info": -0.042851
+      },
+      "AU": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 2639995813.16,
+        "rev_cur_region_total": 2662412394.82,
+        "rev_deviation": -0.00842,
+        "dl_cur_local_sum": 832513537,
+        "dl_cur_region_total": 859302042,
+        "dl_deviation_info": -0.031175
+      },
+      "BR": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 1937078427.31,
+        "rev_cur_region_total": 1945852826.98,
+        "rev_deviation": -0.004509,
+        "dl_cur_local_sum": 8955184637,
+        "dl_cur_region_total": 9378362348,
+        "dl_deviation_info": -0.045123
+      },
+      "CA": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 2756029265.37,
+        "rev_cur_region_total": 2771624537.62,
+        "rev_deviation": -0.005627,
+        "dl_cur_local_sum": 1083923623,
+        "dl_cur_region_total": 1120259455,
+        "dl_deviation_info": -0.032435
+      },
+      "CN": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 16119019115.49,
+        "rev_cur_region_total": 16302317559.68,
+        "rev_deviation": -0.011244,
+        "dl_cur_local_sum": 5768943239,
+        "dl_cur_region_total": 5989913343,
+        "dl_deviation_info": -0.03689
+      },
+      "CO": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 264693898.53,
+        "rev_cur_region_total": 267258739.57,
+        "rev_deviation": -0.009597,
+        "dl_cur_local_sum": 1943155257,
+        "dl_cur_region_total": 2037978341,
+        "dl_deviation_info": -0.046528
+      },
+      "DE": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 4860459477.09,
+        "rev_cur_region_total": 4876368851.23,
+        "rev_deviation": -0.003263,
+        "dl_cur_local_sum": 2354102465,
+        "dl_cur_region_total": 2421759635,
+        "dl_deviation_info": -0.027937
+      },
+      "FR": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 3094655121.51,
+        "rev_cur_region_total": 3100257059.1,
+        "rev_deviation": -0.001807,
+        "dl_cur_local_sum": 2162747577,
+        "dl_cur_region_total": 2232564801,
+        "dl_deviation_info": -0.031272
+      },
+      "GB": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 4933878522.31,
+        "rev_cur_region_total": 4958732699.29,
+        "rev_deviation": -0.005012,
+        "dl_cur_local_sum": 2313469510,
+        "dl_cur_region_total": 2392783980,
+        "dl_deviation_info": -0.033147
+      },
+      "HU": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 218846518.34,
+        "rev_cur_region_total": 220000444.6,
+        "rev_deviation": -0.005245,
+        "dl_cur_local_sum": 242846302,
+        "dl_cur_region_total": 252639562,
+        "dl_deviation_info": -0.038764
+      },
+      "ID": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 734287471.85,
+        "rev_cur_region_total": 738686846.88,
+        "rev_deviation": -0.005956,
+        "dl_cur_local_sum": 7810139943,
+        "dl_cur_region_total": 8146308419,
+        "dl_deviation_info": -0.041266
+      },
+      "IE": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 310853893.75,
+        "rev_cur_region_total": 313436987.76,
+        "rev_deviation": -0.008241,
+        "dl_cur_local_sum": 144416887,
+        "dl_cur_region_total": 150061165,
+        "dl_deviation_info": -0.037613
+      },
+      "IN": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 902298972.99,
+        "rev_cur_region_total": 905154889.92,
+        "rev_deviation": -0.003155,
+        "dl_cur_local_sum": 25134727792,
+        "dl_cur_region_total": 26056244243,
+        "dl_deviation_info": -0.035366
+      },
+      "JP": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 11834726779.37,
+        "rev_cur_region_total": 11831196118.61,
+        "rev_deviation": 0.000298,
+        "dl_cur_local_sum": 2637343230,
+        "dl_cur_region_total": 2720773762,
+        "dl_deviation_info": -0.030664
+      },
+      "KR": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 5272498639.54,
+        "rev_cur_region_total": 5281231665.35,
+        "rev_deviation": -0.001654,
+        "dl_cur_local_sum": 1786089426,
+        "dl_cur_region_total": 1848296290,
+        "dl_deviation_info": -0.033656
+      },
+      "MX": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 1620615105.26,
+        "rev_cur_region_total": 1627706781.21,
+        "rev_deviation": -0.004357,
+        "dl_cur_local_sum": 4778894970,
+        "dl_cur_region_total": 5002812838,
+        "dl_deviation_info": -0.044758
+      },
+      "NO": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 499973670.14,
+        "rev_cur_region_total": 503835033.56,
+        "rev_deviation": -0.007664,
+        "dl_cur_local_sum": 140770881,
+        "dl_cur_region_total": 145890336,
+        "dl_deviation_info": -0.035091
+      },
+      "PH": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 523721164.99,
+        "rev_cur_region_total": 525377249.77,
+        "rev_deviation": -0.003152,
+        "dl_cur_local_sum": 3408664401,
+        "dl_cur_region_total": 3591865913,
+        "dl_deviation_info": -0.051005
+      },
+      "PK": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 50678417.82,
+        "rev_cur_region_total": 50811085.26,
+        "rev_deviation": -0.002611,
+        "dl_cur_local_sum": 3539224141,
+        "dl_cur_region_total": 3677978446,
+        "dl_deviation_info": -0.037726
+      },
+      "RU": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 207160405.14,
+        "rev_cur_region_total": 207144910.63,
+        "rev_deviation": 7.5e-05,
+        "dl_cur_local_sum": 4479203196,
+        "dl_cur_region_total": 4645680906,
+        "dl_deviation_info": -0.035835
+      },
+      "SA": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 1048399848.59,
+        "rev_cur_region_total": 1038588363.29,
+        "rev_deviation": 0.009447,
+        "dl_cur_local_sum": 1908628999,
+        "dl_cur_region_total": 1973781164,
+        "dl_deviation_info": -0.033009
+      },
+      "TH": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 1188417690.19,
+        "rev_cur_region_total": 1188462781.24,
+        "rev_deviation": -3.8e-05,
+        "dl_cur_local_sum": 1977926390,
+        "dl_cur_region_total": 2052469480,
+        "dl_deviation_info": -0.036319
+      },
+      "TR": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 1118273883.91,
+        "rev_cur_region_total": 1118087453.0,
+        "rev_deviation": 0.000167,
+        "dl_cur_local_sum": 3443507457,
+        "dl_cur_region_total": 3572800686,
+        "dl_deviation_info": -0.036188
+      },
+      "TW": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 2492668436.2,
+        "rev_cur_region_total": 2487031456.86,
+        "rev_deviation": 0.002267,
+        "dl_cur_local_sum": 642961310,
+        "dl_cur_region_total": 663046760,
+        "dl_deviation_info": -0.030293
+      },
+      "US": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 40751528347.9,
+        "rev_cur_region_total": 40962242292.81,
+        "rev_deviation": -0.005144,
+        "dl_cur_local_sum": 12033681178,
+        "dl_cur_region_total": 12472497597,
+        "dl_deviation_info": -0.035183
+      },
+      "VN": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 342183108.73,
+        "rev_cur_region_total": 343843941.26,
+        "rev_deviation": -0.00483,
+        "dl_cur_local_sum": 2669387592,
+        "dl_cur_region_total": 2776331232,
+        "dl_deviation_info": -0.03852
+      },
+      "ZA": {
+        "dims_present": [
+          "app_sub_category",
+          "game_sub_genre"
+        ],
+        "rev_cur_local_sum": 359571068.89,
+        "rev_cur_region_total": 363627817.84,
+        "rev_deviation": -0.011156,
+        "dl_cur_local_sum": 1535758708,
+        "dl_cur_region_total": 1607316605,
+        "dl_deviation_info": -0.04452
+      }
+    },
+    "local_sum_note": "app_sub_category + game_sub_genre vs store_region country total; only revenue is checked against 2%, downloads deviation is informational (unclassified apps)."
+  },
+  "files_processed": {
+    "counts": {
+      "app_series": 45,
+      "country_top/AE/current_downloads": 1,
+      "country_top/AE/current_revenue": 1,
+      "country_top/AE/prior_downloads": 1,
+      "country_top/AE/prior_revenue": 1,
+      "country_top/AR/current_downloads": 1,
+      "country_top/AR/current_revenue": 1,
+      "country_top/AR/prior_downloads": 1,
+      "country_top/AR/prior_revenue": 1,
+      "country_top/AU/current_downloads": 1,
+      "country_top/AU/current_revenue": 1,
+      "country_top/AU/prior_downloads": 1,
+      "country_top/AU/prior_revenue": 1,
+      "country_top/BR/current_downloads": 1,
+      "country_top/BR/current_revenue": 1,
+      "country_top/BR/prior_downloads": 1,
+      "country_top/BR/prior_revenue": 1,
+      "country_top/CA/current_downloads": 1,
+      "country_top/CA/current_revenue": 1,
+      "country_top/CA/prior_downloads": 1,
+      "country_top/CA/prior_revenue": 1,
+      "country_top/CN/current_downloads": 1,
+      "country_top/CN/current_revenue": 1,
+      "country_top/CN/prior_downloads": 1,
+      "country_top/CN/prior_revenue": 1,
+      "country_top/CO/current_downloads": 1,
+      "country_top/CO/current_revenue": 1,
+      "country_top/CO/prior_downloads": 1,
+      "country_top/CO/prior_revenue": 1,
+      "country_top/DE/current_downloads": 1,
+      "country_top/DE/current_revenue": 1,
+      "country_top/DE/prior_downloads": 1,
+      "country_top/DE/prior_revenue": 1,
+      "country_top/FR/current_downloads": 1,
+      "country_top/FR/current_revenue": 1,
+      "country_top/FR/prior_downloads": 1,
+      "country_top/FR/prior_revenue": 1,
+      "country_top/GB/current_downloads": 1,
+      "country_top/GB/current_revenue": 1,
+      "country_top/GB/prior_downloads": 1,
+      "country_top/GB/prior_revenue": 1,
+      "country_top/HU/current_downloads": 1,
+      "country_top/HU/current_revenue": 1,
+      "country_top/HU/prior_downloads": 1,
+      "country_top/HU/prior_revenue": 1,
+      "country_top/ID/current_downloads": 1,
+      "country_top/ID/current_revenue": 1,
+      "country_top/ID/prior_downloads": 1,
+      "country_top/ID/prior_revenue": 1,
+      "country_top/IE/current_downloads": 1,
+      "country_top/IE/current_revenue": 1,
+      "country_top/IE/prior_downloads": 1,
+      "country_top/IE/prior_revenue": 1,
+      "country_top/IN/current_downloads": 1,
+      "country_top/IN/current_revenue": 1,
+      "country_top/IN/prior_downloads": 1,
+      "country_top/IN/prior_revenue": 1,
+      "country_top/JP/current_downloads": 1,
+      "country_top/JP/current_revenue": 1,
+      "country_top/JP/prior_downloads": 1,
+      "country_top/JP/prior_revenue": 1,
+      "country_top/KR/current_downloads": 1,
+      "country_top/KR/current_revenue": 1,
+      "country_top/KR/prior_downloads": 1,
+      "country_top/KR/prior_revenue": 1,
+      "country_top/MX/current_downloads": 1,
+      "country_top/MX/current_revenue": 1,
+      "country_top/MX/prior_downloads": 1,
+      "country_top/MX/prior_revenue": 1,
+      "country_top/NO/current_downloads": 1,
+      "country_top/NO/current_revenue": 1,
+      "country_top/NO/prior_downloads": 1,
+      "country_top/NO/prior_revenue": 1,
+      "country_top/PH/current_downloads": 1,
+      "country_top/PH/current_revenue": 1,
+      "country_top/PH/prior_downloads": 1,
+      "country_top/PH/prior_revenue": 1,
+      "country_top/PK/current_downloads": 1,
+      "country_top/PK/current_revenue": 1,
+      "country_top/PK/prior_downloads": 1,
+      "country_top/PK/prior_revenue": 1,
+      "country_top/RU/current_downloads": 1,
+      "country_top/RU/current_revenue": 1,
+      "country_top/RU/prior_downloads": 1,
+      "country_top/RU/prior_revenue": 1,
+      "country_top/SA/current_downloads": 1,
+      "country_top/SA/current_revenue": 1,
+      "country_top/SA/prior_downloads": 1,
+      "country_top/SA/prior_revenue": 1,
+      "country_top/TH/current_downloads": 1,
+      "country_top/TH/current_revenue": 1,
+      "country_top/TH/prior_downloads": 1,
+      "country_top/TH/prior_revenue": 1,
+      "country_top/TR/current_downloads": 1,
+      "country_top/TR/current_revenue": 1,
+      "country_top/TR/prior_downloads": 1,
+      "country_top/TR/prior_revenue": 1,
+      "country_top/US/current_downloads": 1,
+      "country_top/US/current_revenue": 1,
+      "country_top/US/prior_downloads": 1,
+      "country_top/US/prior_revenue": 1,
+      "country_top/VN/current_downloads": 1,
+      "country_top/VN/current_revenue": 1,
+      "country_top/VN/prior_downloads": 1,
+      "country_top/VN/prior_revenue": 1,
+      "country_top/ZA/current_downloads": 1,
+      "country_top/ZA/current_revenue": 1,
+      "country_top/ZA/prior_downloads": 1,
+      "country_top/ZA/prior_revenue": 1,
+      "impshare_app_category": 2,
+      "impshare_app_sub_category": 2,
+      "impshare_game_genre": 2,
+      "impshare_game_sub_genre": 2,
+      "leaders_current_downloads": 1,
+      "leaders_current_revenue": 1,
+      "leaders_prior_downloads": 1,
+      "leaders_prior_revenue": 1,
+      "local/AE/app_sub_category": 1,
+      "local/AE/game_sub_genre": 1,
+      "local/AR/app_sub_category": 1,
+      "local/AR/game_sub_genre": 1,
+      "local/AU/app_sub_category": 1,
+      "local/AU/game_sub_genre": 1,
+      "local/BR/app_sub_category": 1,
+      "local/BR/game_sub_genre": 1,
+      "local/CA/app_sub_category": 1,
+      "local/CA/game_sub_genre": 1,
+      "local/CN/app_sub_category": 1,
+      "local/CN/game_sub_genre": 1,
+      "local/CO/app_sub_category": 1,
+      "local/CO/game_sub_genre": 1,
+      "local/DE/app_sub_category": 1,
+      "local/DE/game_sub_genre": 1,
+      "local/FR/app_sub_category": 1,
+      "local/FR/game_sub_genre": 1,
+      "local/GB/app_sub_category": 1,
+      "local/GB/game_sub_genre": 1,
+      "local/HU/app_sub_category": 1,
+      "local/HU/game_sub_genre": 1,
+      "local/ID/app_sub_category": 1,
+      "local/ID/game_sub_genre": 1,
+      "local/IE/app_sub_category": 1,
+      "local/IE/game_sub_genre": 1,
+      "local/IN/app_sub_category": 1,
+      "local/IN/game_sub_genre": 1,
+      "local/JP/app_sub_category": 1,
+      "local/JP/game_sub_genre": 1,
+      "local/KR/app_sub_category": 1,
+      "local/KR/game_sub_genre": 1,
+      "local/MX/app_sub_category": 1,
+      "local/MX/game_sub_genre": 1,
+      "local/NO/app_sub_category": 1,
+      "local/NO/game_sub_genre": 1,
+      "local/PH/app_sub_category": 1,
+      "local/PH/game_sub_genre": 1,
+      "local/PK/app_sub_category": 1,
+      "local/PK/game_sub_genre": 1,
+      "local/RU/app_sub_category": 1,
+      "local/RU/game_sub_genre": 1,
+      "local/SA/app_sub_category": 1,
+      "local/SA/game_sub_genre": 1,
+      "local/TH/app_sub_category": 1,
+      "local/TH/game_sub_genre": 1,
+      "local/TR/app_sub_category": 1,
+      "local/TR/game_sub_genre": 1,
+      "local/TW/app_sub_category": 1,
+      "local/TW/game_sub_genre": 1,
+      "local/US/app_sub_category": 1,
+      "local/US/game_sub_genre": 1,
+      "local/VN/app_sub_category": 1,
+      "local/VN/game_sub_genre": 1,
+      "local/ZA/app_sub_category": 1,
+      "local/ZA/game_sub_genre": 1,
+      "niche_top/aiq": 1152,
+      "niche_top/gsg": 351,
+      "store_app_category_WW": 1,
+      "store_app_sub_category_WW": 1,
+      "store_device_WW": 1,
+      "store_game_art_style_WW": 1,
+      "store_game_camera_WW": 1,
+      "store_game_class_WW": 1,
+      "store_game_genre_WW": 1,
+      "store_game_product_model_WW": 1,
+      "store_game_setting_WW": 1,
+      "store_game_sub_genre_WW": 1,
+      "store_game_theme_WW": 1,
+      "store_region": 2,
+      "store_unified_app_primary_category_WW": 1,
+      "usage_app_category_US": 1,
+      "usage_app_sub_category_US": 1,
+      "usage_game_sub_genre_US": 1
+    },
+    "n_local_files": 56,
+    "n_app_series_files": 45,
+    "inputs": {
+      "country_top/AE/current_downloads": [
+        "country_top_AE_current_downloads-b70ff0e14832.json"
+      ],
+      "country_top/AE/current_revenue": [
+        "country_top_AE_current_revenue-24edbe5bffac.json"
+      ],
+      "country_top/AE/prior_downloads": [
+        "country_top_AE_prior_downloads-e9705e190ee5.json"
+      ],
+      "country_top/AE/prior_revenue": [
+        "country_top_AE_prior_revenue-d0e09f5afde5.json"
+      ],
+      "country_top/AR/current_downloads": [
+        "country_top_AR_current_downloads-4ef490908d63.json"
+      ],
+      "country_top/AR/current_revenue": [
+        "country_top_AR_current_revenue-e23ced6231a3.json"
+      ],
+      "country_top/AR/prior_downloads": [
+        "country_top_AR_prior_downloads-d2b88e4766d7.json"
+      ],
+      "country_top/AR/prior_revenue": [
+        "country_top_AR_prior_revenue-4374669b6dc2.json"
+      ],
+      "country_top/AU/current_downloads": [
+        "country_top_AU_current_downloads-ad226c5f0f79.json"
+      ],
+      "country_top/AU/current_revenue": [
+        "country_top_AU_current_revenue-fae1305c094e.json"
+      ],
+      "country_top/AU/prior_downloads": [
+        "country_top_AU_prior_downloads-c1178f99354d.json"
+      ],
+      "country_top/AU/prior_revenue": [
+        "country_top_AU_prior_revenue-d65a94256e16.json"
+      ],
+      "country_top/BR/current_downloads": [
+        "country_top_BR_current_downloads-6ed89eb2faa6.json"
+      ],
+      "country_top/BR/current_revenue": [
+        "country_top_BR_current_revenue-ae1931607168.json"
+      ],
+      "country_top/BR/prior_downloads": [
+        "country_top_BR_prior_downloads-aa7592ba4f08.json"
+      ],
+      "country_top/BR/prior_revenue": [
+        "country_top_BR_prior_revenue-f2dd55c74b65.json"
+      ],
+      "country_top/CA/current_downloads": [
+        "country_top_CA_current_downloads-e8ec39d1e2a2.json"
+      ],
+      "country_top/CA/current_revenue": [
+        "country_top_CA_current_revenue-bac61d7ca04a.json"
+      ],
+      "country_top/CA/prior_downloads": [
+        "country_top_CA_prior_downloads-fe4e6ec71d8f.json"
+      ],
+      "country_top/CA/prior_revenue": [
+        "country_top_CA_prior_revenue-a7ca4af9da21.json"
+      ],
+      "country_top/CN/current_downloads": [
+        "country_top_CN_current_downloads-16bf7a795130.json"
+      ],
+      "country_top/CN/current_revenue": [
+        "country_top_CN_current_revenue-15fa03e097c9.json"
+      ],
+      "country_top/CN/prior_downloads": [
+        "country_top_CN_prior_downloads-62e966f72018.json"
+      ],
+      "country_top/CN/prior_revenue": [
+        "country_top_CN_prior_revenue-c55a63279b3d.json"
+      ],
+      "country_top/CO/current_downloads": [
+        "country_top_CO_current_downloads-4bec7273844b.json"
+      ],
+      "country_top/CO/current_revenue": [
+        "country_top_CO_current_revenue-40106f1e63ee.json"
+      ],
+      "country_top/CO/prior_downloads": [
+        "country_top_CO_prior_downloads-91dd8b72353c.json"
+      ],
+      "country_top/CO/prior_revenue": [
+        "country_top_CO_prior_revenue-6d78035e8047.json"
+      ],
+      "country_top/DE/current_downloads": [
+        "country_top_DE_current_downloads-78645370b12a.json"
+      ],
+      "country_top/DE/current_revenue": [
+        "country_top_DE_current_revenue-3be100a88483.json"
+      ],
+      "country_top/DE/prior_downloads": [
+        "country_top_DE_prior_downloads-f226dd3d510d.json"
+      ],
+      "country_top/DE/prior_revenue": [
+        "country_top_DE_prior_revenue-9f3126a26d18.json"
+      ],
+      "country_top/FR/current_downloads": [
+        "country_top_FR_current_downloads-1de5b14a68a8.json"
+      ],
+      "country_top/FR/current_revenue": [
+        "country_top_FR_current_revenue-afad828a888a.json"
+      ],
+      "country_top/FR/prior_downloads": [
+        "country_top_FR_prior_downloads-f0aaeb18a91f.json"
+      ],
+      "country_top/FR/prior_revenue": [
+        "country_top_FR_prior_revenue-2e6fb8d292da.json"
+      ],
+      "country_top/GB/current_downloads": [
+        "country_top_GB_current_downloads-cecbf0e6ef5d.json"
+      ],
+      "country_top/GB/current_revenue": [
+        "country_top_GB_current_revenue-026c1c18d827.json"
+      ],
+      "country_top/GB/prior_downloads": [
+        "country_top_GB_prior_downloads-5166e5d80350.json"
+      ],
+      "country_top/GB/prior_revenue": [
+        "country_top_GB_prior_revenue-da1ab853d669.json"
+      ],
+      "country_top/HU/current_downloads": [
+        "country_top_HU_current_downloads-be9b1b9c58b5.json"
+      ],
+      "country_top/HU/current_revenue": [
+        "country_top_HU_current_revenue-95ad5281baf3.json"
+      ],
+      "country_top/HU/prior_downloads": [
+        "country_top_HU_prior_downloads-4fd5dcc6b7af.json"
+      ],
+      "country_top/HU/prior_revenue": [
+        "country_top_HU_prior_revenue-30502f8afa27.json"
+      ],
+      "country_top/ID/current_downloads": [
+        "country_top_ID_current_downloads-33ae6cc2315d.json"
+      ],
+      "country_top/ID/current_revenue": [
+        "country_top_ID_current_revenue-be137d85c756.json"
+      ],
+      "country_top/ID/prior_downloads": [
+        "country_top_ID_prior_downloads-4aa65ae08f55.json"
+      ],
+      "country_top/ID/prior_revenue": [
+        "country_top_ID_prior_revenue-dc2a9f1905c6.json"
+      ],
+      "country_top/IE/current_downloads": [
+        "country_top_IE_current_downloads-556eb32b3f58.json"
+      ],
+      "country_top/IE/current_revenue": [
+        "country_top_IE_current_revenue-2c425507c8f8.json"
+      ],
+      "country_top/IE/prior_downloads": [
+        "country_top_IE_prior_downloads-d5c27f63c40e.json"
+      ],
+      "country_top/IE/prior_revenue": [
+        "country_top_IE_prior_revenue-e1a41bf3a646.json"
+      ],
+      "country_top/IN/current_downloads": [
+        "country_top_IN_current_downloads-17e759535f44.json"
+      ],
+      "country_top/IN/current_revenue": [
+        "country_top_IN_current_revenue-2114ff01bf89.json"
+      ],
+      "country_top/IN/prior_downloads": [
+        "country_top_IN_prior_downloads-dc9cf2d498c2.json"
+      ],
+      "country_top/IN/prior_revenue": [
+        "country_top_IN_prior_revenue-a8a98dd22a6f.json"
+      ],
+      "country_top/JP/current_downloads": [
+        "country_top_JP_current_downloads-3941a76ab75f.json"
+      ],
+      "country_top/JP/current_revenue": [
+        "country_top_JP_current_revenue-5a1126a59bcc.json"
+      ],
+      "country_top/JP/prior_downloads": [
+        "country_top_JP_prior_downloads-1da93c3d087c.json"
+      ],
+      "country_top/JP/prior_revenue": [
+        "country_top_JP_prior_revenue-1ff683648293.json"
+      ],
+      "country_top/KR/current_downloads": [
+        "country_top_KR_current_downloads-36928c4c6142.json"
+      ],
+      "country_top/KR/current_revenue": [
+        "country_top_KR_current_revenue-dc6bb5a37b2c.json"
+      ],
+      "country_top/KR/prior_downloads": [
+        "country_top_KR_prior_downloads-d755c42579d1.json"
+      ],
+      "country_top/KR/prior_revenue": [
+        "country_top_KR_prior_revenue-e04a37169f54.json"
+      ],
+      "country_top/MX/current_downloads": [
+        "country_top_MX_current_downloads-398635745630.json"
+      ],
+      "country_top/MX/current_revenue": [
+        "country_top_MX_current_revenue-bae1f9487613.json"
+      ],
+      "country_top/MX/prior_downloads": [
+        "country_top_MX_prior_downloads-198f09490818.json"
+      ],
+      "country_top/MX/prior_revenue": [
+        "country_top_MX_prior_revenue-486ca6ad91de.json"
+      ],
+      "country_top/NO/current_downloads": [
+        "country_top_NO_current_downloads-941db626ae54.json"
+      ],
+      "country_top/NO/current_revenue": [
+        "country_top_NO_current_revenue-6546214da698.json"
+      ],
+      "country_top/NO/prior_downloads": [
+        "country_top_NO_prior_downloads-e95750f82e0a.json"
+      ],
+      "country_top/NO/prior_revenue": [
+        "country_top_NO_prior_revenue-11134cecd16d.json"
+      ],
+      "country_top/PH/current_downloads": [
+        "country_top_PH_current_downloads-54cc5d442f18.json"
+      ],
+      "country_top/PH/current_revenue": [
+        "country_top_PH_current_revenue-00b6028c0a21.json"
+      ],
+      "country_top/PH/prior_downloads": [
+        "country_top_PH_prior_downloads-a8cac8b7cf42.json"
+      ],
+      "country_top/PH/prior_revenue": [
+        "country_top_PH_prior_revenue-f006fa709f89.json"
+      ],
+      "country_top/PK/current_downloads": [
+        "country_top_PK_current_downloads-a60d3167a023.json"
+      ],
+      "country_top/PK/current_revenue": [
+        "country_top_PK_current_revenue-546983da89f3.json"
+      ],
+      "country_top/PK/prior_downloads": [
+        "country_top_PK_prior_downloads-f9b186ae755d.json"
+      ],
+      "country_top/PK/prior_revenue": [
+        "country_top_PK_prior_revenue-a65034918092.json"
+      ],
+      "country_top/RU/current_downloads": [
+        "country_top_RU_current_downloads-dda23982a5b3.json"
+      ],
+      "country_top/RU/current_revenue": [
+        "country_top_RU_current_revenue-32efbb4bcd61.json"
+      ],
+      "country_top/RU/prior_downloads": [
+        "country_top_RU_prior_downloads-d9c509601389.json"
+      ],
+      "country_top/RU/prior_revenue": [
+        "country_top_RU_prior_revenue-69a9fc91d986.json"
+      ],
+      "country_top/SA/current_downloads": [
+        "country_top_SA_current_downloads-696644b5558d.json"
+      ],
+      "country_top/SA/current_revenue": [
+        "country_top_SA_current_revenue-1fea7365a333.json"
+      ],
+      "country_top/SA/prior_downloads": [
+        "country_top_SA_prior_downloads-985d8811a229.json"
+      ],
+      "country_top/SA/prior_revenue": [
+        "country_top_SA_prior_revenue-65a4306f2bb7.json"
+      ],
+      "country_top/TH/current_downloads": [
+        "country_top_TH_current_downloads-cc81167370f3.json"
+      ],
+      "country_top/TH/current_revenue": [
+        "country_top_TH_current_revenue-d4364ec7201c.json"
+      ],
+      "country_top/TH/prior_downloads": [
+        "country_top_TH_prior_downloads-1eb844bbb25d.json"
+      ],
+      "country_top/TH/prior_revenue": [
+        "country_top_TH_prior_revenue-5b6ed2aa12cc.json"
+      ],
+      "country_top/TR/current_downloads": [
+        "country_top_TR_current_downloads-d2a9dccf30e1.json"
+      ],
+      "country_top/TR/current_revenue": [
+        "country_top_TR_current_revenue-24f1015dddb9.json"
+      ],
+      "country_top/TR/prior_downloads": [
+        "country_top_TR_prior_downloads-d5b5563c569d.json"
+      ],
+      "country_top/TR/prior_revenue": [
+        "country_top_TR_prior_revenue-b5bb93f6350b.json"
+      ],
+      "country_top/US/current_downloads": [
+        "country_top_US_current_downloads-7837d439bd5c.json"
+      ],
+      "country_top/US/current_revenue": [
+        "country_top_US_current_revenue-a2244fe3843b.json"
+      ],
+      "country_top/US/prior_downloads": [
+        "country_top_US_prior_downloads-121cd8e139f4.json"
+      ],
+      "country_top/US/prior_revenue": [
+        "country_top_US_prior_revenue-0b8df6254ab7.json"
+      ],
+      "country_top/VN/current_downloads": [
+        "country_top_VN_current_downloads-1d7964689071.json"
+      ],
+      "country_top/VN/current_revenue": [
+        "country_top_VN_current_revenue-6980d3c3e801.json"
+      ],
+      "country_top/VN/prior_downloads": [
+        "country_top_VN_prior_downloads-a80857b54ac7.json"
+      ],
+      "country_top/VN/prior_revenue": [
+        "country_top_VN_prior_revenue-ce0c8c14395e.json"
+      ],
+      "country_top/ZA/current_downloads": [
+        "country_top_ZA_current_downloads-0138f472fb3b.json"
+      ],
+      "country_top/ZA/current_revenue": [
+        "country_top_ZA_current_revenue-5d23855858c2.json"
+      ],
+      "country_top/ZA/prior_downloads": [
+        "country_top_ZA_prior_downloads-ea59773d21cc.json"
+      ],
+      "country_top/ZA/prior_revenue": [
+        "country_top_ZA_prior_revenue-b7cf896436cd.json"
+      ],
+      "impshare_app_category": [
+        "impshare_app_category_ios_US-merged.json",
+        "impshare_app_category_android_US-merged.json"
+      ],
+      "impshare_app_sub_category": [
+        "impshare_app_sub_category_ios_US-merged.json",
+        "impshare_app_sub_category_android_US-merged.json"
+      ],
+      "impshare_game_genre": [
+        "impshare_game_genre_ios_US-merged.json",
+        "impshare_game_genre_android_US-merged.json"
+      ],
+      "impshare_game_sub_genre": [
+        "impshare_game_sub_genre_ios_US-merged.json",
+        "impshare_game_sub_genre_android_US-merged.json"
+      ],
+      "leaders_current_downloads": [
+        "leaders_current_downloads-3e574965bef8.json"
+      ],
+      "leaders_current_revenue": [
+        "leaders_current_revenue-5f277397e806.json"
+      ],
+      "leaders_prior_downloads": [
+        "leaders_prior_downloads-535850b377c0.json"
+      ],
+      "leaders_prior_revenue": [
+        "leaders_prior_revenue-5cb7c157b55e.json"
+      ],
+      "niche_top/aiq": [
+        "niche_top_aiq_2FA_Passwords_current_downloads-60e9e1b62e79.json",
+        "niche_top_aiq_2FA_Passwords_current_revenue-5153f7a6f04d.json",
+        "niche_top_aiq_2FA_Passwords_prior_revenue-acb937f37566.json",
+        "niche_top_aiq_AI_Assistant_current_downloads-a9738ab5621a.json",
+        "niche_top_aiq_AI_Assistant_current_revenue-4faed2140a7e.json",
+        "niche_top_aiq_AI_Assistant_prior_revenue-7ff2fad92450.json",
+        "niche_top_aiq_AI_Companion_current_downloads-48df657ad6ec.json",
+        "niche_top_aiq_AI_Companion_current_revenue-394a52beda3b.json",
+        "niche_top_aiq_AI_Companion_prior_revenue-3b4b574ab475.json",
+        "niche_top_aiq_AI_Content_Generator_current_downloads-a35043127153.json",
+        "niche_top_aiq_AI_Content_Generator_current_revenue-e5dbc4aedbaa.json",
+        "niche_top_aiq_AI_Content_Generator_prior_revenue-c174900e33c5.json",
+        "niche_top_aiq_Accessories_current_downloads-8fc93ca79471.json",
+        "niche_top_aiq_Accessories_current_revenue-101d3f5b8f3e.json",
+        "niche_top_aiq_Accessories_prior_revenue-8febf9f6d39b.json",
+        "niche_top_aiq_Accommodations_current_downloads-7ccf679e7032.json",
+        "niche_top_aiq_Accommodations_current_revenue-1da0204cb063.json",
+        "niche_top_aiq_Accommodations_prior_revenue-a65876df0a31.json",
+        "niche_top_aiq_Action_Figures_current_downloads-4d0a337ca21f.json",
+        "niche_top_aiq_Action_Figures_current_revenue-78b53c72f686.json",
+        "niche_top_aiq_Action_Figures_prior_revenue-8a8e02fe1f50.json",
+        "niche_top_aiq_Adult_Learning_current_downloads-7b350a815366.json",
+        "niche_top_aiq_Adult_Learning_current_revenue-a0a08469ab10.json",
+        "niche_top_aiq_Adult_Learning_prior_revenue-52412f0c1eca.json",
+        "niche_top_aiq_Aerospace_Defense_current_downloads-80dc7c6074cc.json",
+        "niche_top_aiq_Aerospace_Defense_current_revenue-701e8a52bab0.json",
+        "niche_top_aiq_Aerospace_Defense_prior_revenue-95bd1d0a26c0.json",
+        "niche_top_aiq_Agriculture_current_downloads-4587281d2312.json",
+        "niche_top_aiq_Agriculture_current_revenue-2fae01007c7a.json",
+        "niche_top_aiq_Agriculture_prior_revenue-8a1c97b5c352.json",
+        "niche_top_aiq_Air_Purifiers_current_downloads-b62513465f75.json",
+        "niche_top_aiq_Air_Purifiers_current_revenue-927cc14f93f1.json",
+        "niche_top_aiq_Air_Purifiers_prior_revenue-bc07e3921ac6.json",
+        "niche_top_aiq_Air_Travel_current_downloads-4f496ee4b7fc.json",
+        "niche_top_aiq_Air_Travel_current_revenue-6c6049b3ac58.json",
+        "niche_top_aiq_Air_Travel_prior_revenue-09235b380378.json",
+        "niche_top_aiq_Airport_Public_Parking_current_downloads-02b6ca389ed6.json",
+        "niche_top_aiq_Airport_Public_Parking_current_revenue-e457cc69d647.json",
+        "niche_top_aiq_Airport_Public_Parking_prior_revenue-9a0c59c31e95.json",
+        "niche_top_aiq_Airports_current_downloads-e0f630041b75.json",
+        "niche_top_aiq_Airports_current_revenue-d8989ae6ba48.json",
+        "niche_top_aiq_Airports_prior_revenue-8103c8dbf5bf.json",
+        "niche_top_aiq_Anatomy_current_downloads-6f8577135292.json",
+        "niche_top_aiq_Anatomy_current_revenue-4845c5892588.json",
+        "niche_top_aiq_Anatomy_prior_revenue-87c964ad4e99.json",
+        "niche_top_aiq_Antivirus_Security_current_downloads-73f43a36d2d6.json",
+        "niche_top_aiq_Antivirus_Security_current_revenue-fd0f4ae3465e.json",
+        "niche_top_aiq_Antivirus_Security_prior_revenue-0ca26368d0e5.json",
+        "niche_top_aiq_Antivirus_VPN_current_downloads-ef5fb6f99d75.json",
+        "niche_top_aiq_Antivirus_VPN_current_revenue-a265208ed54c.json",
+        "niche_top_aiq_Antivirus_VPN_prior_revenue-32ee5d2f12b0.json",
+        "niche_top_aiq_Apparel_current_downloads-f67a9184b1b7.json",
+        "niche_top_aiq_Apparel_current_revenue-0165bfc7fe34.json",
+        "niche_top_aiq_Apparel_prior_revenue-5d067ad7f8ba.json",
+        "niche_top_aiq_Asset_Management_current_downloads-fcf24ac7797c.json",
+        "niche_top_aiq_Asset_Management_current_revenue-883899320767.json",
+        "niche_top_aiq_Asset_Management_prior_revenue-d707dc4d9deb.json",
+        "niche_top_aiq_Astrology_Apps_current_downloads-b91dac1202d8.json",
+        "niche_top_aiq_Astrology_Apps_current_revenue-ca9eb2871ed3.json",
+        "niche_top_aiq_Astrology_Apps_prior_revenue-00351c1ba295.json",
+        "niche_top_aiq_Athletic_Apparel_current_downloads-e89217a7e831.json",
+        "niche_top_aiq_Athletic_Apparel_current_revenue-4447cc62458f.json",
+        "niche_top_aiq_Athletic_Apparel_prior_revenue-e7de0db7673e.json",
+        "niche_top_aiq_Audio_current_downloads-0f878bd4dffe.json",
+        "niche_top_aiq_Audio_current_revenue-d48a2b86f1af.json",
+        "niche_top_aiq_Audio_prior_revenue-68c07b947a22.json",
+        "niche_top_aiq_Audio_Adjustment_current_downloads-2f48be869581.json",
+        "niche_top_aiq_Audio_Adjustment_current_revenue-18ab0c968597.json",
+        "niche_top_aiq_Audio_Adjustment_prior_revenue-c1235b953169.json",
+        "niche_top_aiq_Auto_current_downloads-a8c58078dca4.json",
+        "niche_top_aiq_Auto_current_revenue-78c3fdb95181.json",
+        "niche_top_aiq_Auto_prior_revenue-5977b76aee89.json",
+        "niche_top_aiq_Auto_Insurance_current_downloads-7569a70e3ede.json",
+        "niche_top_aiq_Auto_Insurance_current_revenue-f36767fc28f6.json",
+        "niche_top_aiq_Auto_Insurance_prior_revenue-80348ef3aa98.json",
+        "niche_top_aiq_Auto_Vehicle_Parts_Accessories_current_downloads-a6954c2c176f.json",
+        "niche_top_aiq_Auto_Vehicle_Parts_Accessories_current_revenue-22f0545d987d.json",
+        "niche_top_aiq_Auto_Vehicle_Parts_Accessories_prior_revenue-656d7ae2c366.json",
+        "niche_top_aiq_Automotive_Marketplaces_current_downloads-76e6ba6c7531.json",
+        "niche_top_aiq_Automotive_Marketplaces_current_revenue-039b4019ffa3.json",
+        "niche_top_aiq_Automotive_Marketplaces_prior_revenue-dd111bca37aa.json",
+        "niche_top_aiq_Automotive_Research_current_downloads-0eb371af3b15.json",
+        "niche_top_aiq_Automotive_Research_current_revenue-9c39967261a3.json",
+        "niche_top_aiq_Automotive_Research_prior_revenue-464bbaca5a72.json",
+        "niche_top_aiq_B2B_ISP_Internet_Service_Provider_current_downloads-2f99b3cfbe8d.json",
+        "niche_top_aiq_B2B_ISP_Internet_Service_Provider_current_revenue-28d19e1e69a4.json",
+        "niche_top_aiq_B2B_ISP_Internet_Service_Provider_prior_revenue-80b220d6e7ca.json",
+        "niche_top_aiq_B2B_Mobile_current_downloads-d080d46f1e9e.json",
+        "niche_top_aiq_B2B_Mobile_current_revenue-6002b1cb37a7.json",
+        "niche_top_aiq_B2B_Mobile_prior_revenue-c439b70fb320.json",
+        "niche_top_aiq_B2B_Voice_current_downloads-825c83001d1d.json",
+        "niche_top_aiq_B2B_Voice_current_revenue-00033d827aa6.json",
+        "niche_top_aiq_B2B_Voice_prior_revenue-192e3000a955.json",
+        "niche_top_aiq_Baby_Products_current_downloads-371b0121b348.json",
+        "niche_top_aiq_Baby_Products_current_revenue-84972f0dc82d.json",
+        "niche_top_aiq_Baby_Products_prior_revenue-5b1d015ad956.json",
+        "niche_top_aiq_Baby_Toddler_Toys_current_downloads-9b571681b17b.json",
+        "niche_top_aiq_Baby_Toddler_Toys_current_revenue-39b4da4229d5.json",
+        "niche_top_aiq_Baby_Toddler_Toys_prior_revenue-6a2123a1a593.json",
+        "niche_top_aiq_Bags_Wallets_current_downloads-a0e434e7880f.json",
+        "niche_top_aiq_Bags_Wallets_current_revenue-89fd90845425.json",
+        "niche_top_aiq_Bags_Wallets_prior_revenue-30cec95f087d.json",
+        "niche_top_aiq_Banking_current_downloads-ae2928f72944.json",
+        "niche_top_aiq_Banking_current_revenue-bc194cc7033c.json",
+        "niche_top_aiq_Banking_prior_revenue-b64fae0a673e.json",
+        "niche_top_aiq_Basketball_Footwear_current_downloads-860d4d757355.json",
+        "niche_top_aiq_Basketball_Footwear_current_revenue-5e08c916d9a5.json",
+        "niche_top_aiq_Basketball_Footwear_prior_revenue-d47516584cfc.json",
+        "niche_top_aiq_Beauty_Retail_current_downloads-4c22c7773408.json",
+        "niche_top_aiq_Beauty_Retail_current_revenue-5af407ba7b33.json",
+        "niche_top_aiq_Beauty_Retail_prior_revenue-492ca92f6676.json",
+        "niche_top_aiq_Beauty_Services_Spas_current_downloads-aeddf79af213.json",
+        "niche_top_aiq_Beauty_Services_Spas_current_revenue-a3aa87d952ac.json",
+        "niche_top_aiq_Beauty_Services_Spas_prior_revenue-886541011450.json",
+        "niche_top_aiq_Beauty_Skincare_Supplements_current_downloads-bdeb58eb6aaa.json",
+        "niche_top_aiq_Beauty_Skincare_Supplements_current_revenue-a855fa10ffa8.json",
+        "niche_top_aiq_Beauty_Skincare_Supplements_prior_revenue-e655e9b3c7da.json",
+        "niche_top_aiq_Bicycle_Scooter_Sharing_current_downloads-da707ab3c3b6.json",
+        "niche_top_aiq_Bicycle_Scooter_Sharing_current_revenue-51abf9306084.json",
+        "niche_top_aiq_Bicycle_Scooter_Sharing_prior_revenue-b4aaf49ebb4f.json",
+        "niche_top_aiq_Bikes_Bike_Accessories_current_downloads-771f07a8b85f.json",
+        "niche_top_aiq_Bikes_Bike_Accessories_current_revenue-1467833c749c.json",
+        "niche_top_aiq_Bikes_Bike_Accessories_prior_revenue-5ac92e5f1da9.json",
+        "niche_top_aiq_Blogs_current_downloads-58d1000ff5fa.json",
+        "niche_top_aiq_Blogs_current_revenue-6eb53a5dd4c1.json",
+        "niche_top_aiq_Blogs_prior_revenue-3fb839c8b187.json",
+        "niche_top_aiq_Boat_Watercraft_Insurance_current_downloads-6217b6c203c5.json",
+        "niche_top_aiq_Boat_Watercraft_Insurance_current_revenue-f4cc4ca44af3.json",
+        "niche_top_aiq_Boat_Watercraft_Insurance_prior_revenue-0a2476d46973.json",
+        "niche_top_aiq_Books_Comics_current_downloads-1684c994df24.json",
+        "niche_top_aiq_Books_Comics_current_revenue-a3f3676934b8.json",
+        "niche_top_aiq_Books_Comics_prior_revenue-4154e603f0f5.json",
+        "niche_top_aiq_Brain_Training_Apps_current_downloads-3dec9d4f99ff.json",
+        "niche_top_aiq_Brain_Training_Apps_current_revenue-a25fb5c16ab8.json",
+        "niche_top_aiq_Brain_Training_Apps_prior_revenue-47040882caf7.json",
+        "niche_top_aiq_Browsers_Search_Engines_current_downloads-009503e6fcdf.json",
+        "niche_top_aiq_Browsers_Search_Engines_current_revenue-56c640700a43.json",
+        "niche_top_aiq_Browsers_Search_Engines_prior_revenue-5e87a276e58e.json",
+        "niche_top_aiq_Budget_Expense_Tracking_current_downloads-d05dcc30fbac.json",
+        "niche_top_aiq_Budget_Expense_Tracking_current_revenue-85f4fca8e6c3.json",
+        "niche_top_aiq_Budget_Expense_Tracking_prior_revenue-0cd2b34bbe81.json",
+        "niche_top_aiq_Building_Products_Materials_current_downloads-f100f901959f.json",
+        "niche_top_aiq_Building_Products_Materials_current_revenue-09e8073aa384.json",
+        "niche_top_aiq_Building_Products_Materials_prior_revenue-947be7ee4167.json",
+        "niche_top_aiq_Building_Toys_current_downloads-4948658b5523.json",
+        "niche_top_aiq_Building_Toys_current_revenue-bbe7ce6c8c21.json",
+        "niche_top_aiq_Building_Toys_prior_revenue-d940e62aeea8.json",
+        "niche_top_aiq_Bus_Rail_Services_current_downloads-80ec678cda87.json",
+        "niche_top_aiq_Bus_Rail_Services_current_revenue-2468efc98641.json",
+        "niche_top_aiq_Bus_Rail_Services_prior_revenue-1161f6447aac.json",
+        "niche_top_aiq_Business_Communication_current_downloads-0a06899cce64.json",
+        "niche_top_aiq_Business_Communication_current_revenue-0dd510036ae8.json",
+        "niche_top_aiq_Business_Communication_prior_revenue-077664a896b3.json",
+        "niche_top_aiq_Business_Industrials_current_downloads-517aee7a3ec6.json",
+        "niche_top_aiq_Business_Industrials_current_revenue-3c04eaf14442.json",
+        "niche_top_aiq_Business_Industrials_prior_revenue-97e7ca5477e1.json",
+        "niche_top_aiq_Business_Networks_current_downloads-80ec243b5f65.json",
+        "niche_top_aiq_Business_Networks_current_revenue-fe489b330a3e.json",
+        "niche_top_aiq_Business_Networks_prior_revenue-5cbf71be44fb.json",
+        "niche_top_aiq_Business_Productivity_Software_current_downloads-551efcd3a75d.json",
+        "niche_top_aiq_Business_Productivity_Software_current_revenue-54254b5f57e7.json",
+        "niche_top_aiq_Business_Productivity_Software_prior_revenue-6cadd2726799.json",
+        "niche_top_aiq_Business_Purchasing_current_downloads-19b1c388f55f.json",
+        "niche_top_aiq_Business_Purchasing_current_revenue-057f0a2b16e2.json",
+        "niche_top_aiq_Business_Purchasing_prior_revenue-910e696af6d7.json",
+        "niche_top_aiq_Business_Service_Bundles_current_downloads-4f9d0c71bc7b.json",
+        "niche_top_aiq_Business_Service_Bundles_current_revenue-a17a68b90fe1.json",
+        "niche_top_aiq_Business_Service_Bundles_prior_revenue-9f91d932c8f8.json",
+        "niche_top_aiq_Buy_Now_Pay_Later_current_downloads-7e4c1bf15732.json",
+        "niche_top_aiq_Buy_Now_Pay_Later_current_revenue-feb5a676cf8a.json",
+        "niche_top_aiq_Buy_Now_Pay_Later_prior_revenue-f047338adfe7.json",
+        "niche_top_aiq_Buy_Sell_current_downloads-5016483cc24c.json",
+        "niche_top_aiq_Buy_Sell_current_revenue-5ee1a4e595fb.json",
+        "niche_top_aiq_Buy_Sell_prior_revenue-e244668294cb.json",
+        "niche_top_aiq_Calculators_current_downloads-b667a3dbca58.json",
+        "niche_top_aiq_Calculators_current_revenue-694016644cd0.json",
+        "niche_top_aiq_Calculators_prior_revenue-ffede10e0c9e.json",
+        "niche_top_aiq_Calendars_Tasks_current_downloads-f47e869c91cd.json",
+        "niche_top_aiq_Calendars_Tasks_current_revenue-d13ab3176f09.json",
+        "niche_top_aiq_Calendars_Tasks_prior_revenue-d651112603be.json",
+        "niche_top_aiq_Calling_SMS_current_downloads-4dd33568714e.json",
+        "niche_top_aiq_Calling_SMS_current_revenue-dcf2dada96e2.json",
+        "niche_top_aiq_Calling_SMS_prior_revenue-d07e70ac74c2.json",
+        "niche_top_aiq_Cameras_current_downloads-6c7ebd263ced.json",
+        "niche_top_aiq_Cameras_current_revenue-552873f76db2.json",
+        "niche_top_aiq_Cameras_prior_revenue-69529416a1a1.json",
+        "niche_top_aiq_Camping_Outdoor_Recreation_current_downloads-578fce6b969e.json",
+        "niche_top_aiq_Camping_Outdoor_Recreation_current_revenue-1577b587a034.json",
+        "niche_top_aiq_Camping_Outdoor_Recreation_prior_revenue-0f2468db4930.json",
+        "niche_top_aiq_Camping_RV_Accommodations_current_downloads-5bb143f92c7b.json",
+        "niche_top_aiq_Camping_RV_Accommodations_current_revenue-6a74b2c60f72.json",
+        "niche_top_aiq_Camping_RV_Accommodations_prior_revenue-818daf9e383c.json",
+        "niche_top_aiq_Cannabis_CBD_current_downloads-c61e334b74f3.json",
+        "niche_top_aiq_Cannabis_CBD_current_revenue-cb7af22d69fa.json",
+        "niche_top_aiq_Cannabis_CBD_prior_revenue-b794d3873d21.json",
+        "niche_top_aiq_Car_Dealer_Associations_current_downloads-f11e050f77f7.json",
+        "niche_top_aiq_Car_Dealer_Associations_current_revenue-83a8c0cdca3c.json",
+        "niche_top_aiq_Car_Dealer_Associations_prior_revenue-201b9fff29ae.json",
+        "niche_top_aiq_Car_Dealerships_current_downloads-456c0d2ae8a1.json",
+        "niche_top_aiq_Car_Dealerships_current_revenue-b39576a511b4.json",
+        "niche_top_aiq_Car_Dealerships_prior_revenue-cb3a86033b9a.json",
+        "niche_top_aiq_Car_RV_Rental_Services_current_downloads-7a21ff58b391.json",
+        "niche_top_aiq_Car_RV_Rental_Services_current_revenue-aadec0af0b0c.json",
+        "niche_top_aiq_Car_RV_Rental_Services_prior_revenue-18fcfe1c6fb8.json",
+        "niche_top_aiq_Carpooling_Ridesharing_current_downloads-a27c7870f4f2.json",
+        "niche_top_aiq_Carpooling_Ridesharing_current_revenue-4827b14e7777.json",
+        "niche_top_aiq_Carpooling_Ridesharing_prior_revenue-e0e3e918e0f4.json",
+        "niche_top_aiq_Casinos_Casino_Lodging_current_downloads-66e70c03c0ca.json",
+        "niche_top_aiq_Casinos_Casino_Lodging_current_revenue-d52fabe0f856.json",
+        "niche_top_aiq_Casinos_Casino_Lodging_prior_revenue-0642626ff291.json",
+        "niche_top_aiq_Casual_Dress_Footwear_current_downloads-071c418219cd.json",
+        "niche_top_aiq_Casual_Dress_Footwear_current_revenue-f5dd324b493b.json",
+        "niche_top_aiq_Casual_Dress_Footwear_prior_revenue-de11dc08a986.json",
+        "niche_top_aiq_Cat_Food_current_downloads-b867b980ad4f.json",
+        "niche_top_aiq_Cat_Food_current_revenue-3fb9f67599ce.json",
+        "niche_top_aiq_Cat_Food_prior_revenue-7e2f335aa40a.json",
+        "niche_top_aiq_Cat_Litter_Pet_Waste_current_downloads-58a246b56139.json",
+        "niche_top_aiq_Cat_Litter_Pet_Waste_current_revenue-5c882478384e.json",
+        "niche_top_aiq_Cat_Litter_Pet_Waste_prior_revenue-f558faae22da.json",
+        "niche_top_aiq_Cell_Phone_Accessories_current_downloads-e80415774300.json",
+        "niche_top_aiq_Cell_Phone_Accessories_current_revenue-355e62e89061.json",
+        "niche_top_aiq_Cell_Phone_Accessories_prior_revenue-c50c290778e7.json",
+        "niche_top_aiq_Cell_Phones_Accessories_current_downloads-5d111c5cce7b.json",
+        "niche_top_aiq_Cell_Phones_Accessories_current_revenue-84704d4f0bf6.json",
+        "niche_top_aiq_Cell_Phones_Accessories_prior_revenue-e487923b1923.json",
+        "niche_top_aiq_Cell_Phones_Smartphones_current_downloads-451e037b85bd.json",
+        "niche_top_aiq_Cell_Phones_Smartphones_current_revenue-21e285f6c8d1.json",
+        "niche_top_aiq_Cell_Phones_Smartphones_prior_revenue-045d204ac0e8.json",
+        "niche_top_aiq_Checking_Accounts_current_downloads-8b7f79a7f67e.json",
+        "niche_top_aiq_Checking_Accounts_current_revenue-d312f25b68b8.json",
+        "niche_top_aiq_Checking_Accounts_prior_revenue-8a720dca3984.json",
+        "niche_top_aiq_Cloud_Storage_current_downloads-eec484c00163.json",
+        "niche_top_aiq_Cloud_Storage_current_revenue-c045cb0b3bf9.json",
+        "niche_top_aiq_Cloud_Storage_prior_revenue-fe4f65d7e304.json",
+        "niche_top_aiq_Colleges_Universities_current_downloads-a164c39450b7.json",
+        "niche_top_aiq_Colleges_Universities_current_revenue-d3c9b8e61e1a.json",
+        "niche_top_aiq_Colleges_Universities_prior_revenue-c6834f7b1895.json",
+        "niche_top_aiq_Commercial_Insurance_current_downloads-f17ea50619d1.json",
+        "niche_top_aiq_Commercial_Insurance_current_revenue-0ea917ab1c66.json",
+        "niche_top_aiq_Commercial_Insurance_prior_revenue-2831a9873002.json",
+        "niche_top_aiq_Commercial_Vehicles_current_downloads-8dfb34eb60da.json",
+        "niche_top_aiq_Commercial_Vehicles_current_revenue-687ddae77060.json",
+        "niche_top_aiq_Commercial_Vehicles_prior_revenue-e6c5e87798fd.json",
+        "niche_top_aiq_Computer_Parts_Storage_current_downloads-76bfe303032f.json",
+        "niche_top_aiq_Computer_Parts_Storage_current_revenue-c7d4d3386c5a.json",
+        "niche_top_aiq_Computer_Parts_Storage_prior_revenue-8b3b84135f85.json",
+        "niche_top_aiq_Computers_Accessories_current_downloads-4753cb605a7d.json",
+        "niche_top_aiq_Computers_Accessories_current_revenue-6ccde1dba01f.json",
+        "niche_top_aiq_Computers_Accessories_prior_revenue-2995ed60cbdc.json",
+        "niche_top_aiq_Computers_Consumer_Electronics_current_downloads-38a69e146c1b.json",
+        "niche_top_aiq_Computers_Consumer_Electronics_current_revenue-7dcaf1751343.json",
+        "niche_top_aiq_Computers_Consumer_Electronics_prior_revenue-774f0281b271.json",
+        "niche_top_aiq_Consulting_current_downloads-3c336dc98dcd.json",
+        "niche_top_aiq_Consulting_current_revenue-ab2c973dab47.json",
+        "niche_top_aiq_Consulting_prior_revenue-966f92b2fa0a.json",
+        "niche_top_aiq_Consumer_3D_Printers_current_downloads-a78b91343b42.json",
+        "niche_top_aiq_Consumer_3D_Printers_current_revenue-d4666e5174b5.json",
+        "niche_top_aiq_Consumer_3D_Printers_prior_revenue-b75f37569b0c.json",
+        "niche_top_aiq_Consumer_Electronics_Retailers_current_downloads-4b8a81f02c8c.json",
+        "niche_top_aiq_Consumer_Electronics_Retailers_current_revenue-e252a00cfbdd.json",
+        "niche_top_aiq_Consumer_Electronics_Retailers_prior_revenue-d212997a7741.json",
+        "niche_top_aiq_Consumer_Networks_current_downloads-d60af9be8a14.json",
+        "niche_top_aiq_Consumer_Networks_current_revenue-3ab08713345f.json",
+        "niche_top_aiq_Consumer_Networks_prior_revenue-257cc209d0e9.json",
+        "niche_top_aiq_Consumer_Service_Bundles_current_downloads-21c83e21869f.json",
+        "niche_top_aiq_Consumer_Service_Bundles_current_revenue-253b0a24f8dc.json",
+        "niche_top_aiq_Consumer_Service_Bundles_prior_revenue-75a7a8a4bbdb.json",
+        "niche_top_aiq_Content_Downloaders_current_downloads-1b321aa385d5.json",
+        "niche_top_aiq_Content_Downloaders_current_revenue-61a98b3a4930.json",
+        "niche_top_aiq_Content_Downloaders_prior_revenue-fe39b04948b8.json",
+        "niche_top_aiq_Convenience_Stores_current_downloads-ae8abbe9feed.json",
+        "niche_top_aiq_Convenience_Stores_current_revenue-61be0237bbce.json",
+        "niche_top_aiq_Convenience_Stores_prior_revenue-0fdc2f8f0190.json",
+        "niche_top_aiq_Coupons_Rebates_current_downloads-2aa03cbfcfda.json",
+        "niche_top_aiq_Coupons_Rebates_current_revenue-dc4307c729c1.json",
+        "niche_top_aiq_Coupons_Rebates_prior_revenue-050d56ec5acf.json",
+        "niche_top_aiq_Creative_Educational_Toys_current_downloads-48709680f276.json",
+        "niche_top_aiq_Creative_Educational_Toys_current_revenue-b13232306432.json",
+        "niche_top_aiq_Creative_Educational_Toys_prior_revenue-c8c74cf6d7c4.json",
+        "niche_top_aiq_Credit_Cards_current_downloads-ec1336bd1fea.json",
+        "niche_top_aiq_Credit_Cards_current_revenue-a918d7eeea21.json",
+        "niche_top_aiq_Credit_Cards_prior_revenue-dc07f86306d0.json",
+        "niche_top_aiq_Credit_Lending_current_downloads-a0344f513ec8.json",
+        "niche_top_aiq_Credit_Lending_current_revenue-1a4451c49fcb.json",
+        "niche_top_aiq_Credit_Lending_prior_revenue-5cc42d02edb3.json",
+        "niche_top_aiq_Credit_Reports_Reporting_Services_current_downloads-722260e4953a.json",
+        "niche_top_aiq_Credit_Reports_Reporting_Services_current_revenue-f2c5be0132de.json",
+        "niche_top_aiq_Credit_Reports_Reporting_Services_prior_revenue-9c175c0f3b7b.json",
+        "niche_top_aiq_Cruises_current_downloads-fc7dbe9e3834.json",
+        "niche_top_aiq_Cruises_current_revenue-94402418cee1.json",
+        "niche_top_aiq_Cruises_prior_revenue-987499273edd.json",
+        "niche_top_aiq_Cryptocurrency_current_downloads-1babcc2744e5.json",
+        "niche_top_aiq_Cryptocurrency_current_revenue-c3625160d7a8.json",
+        "niche_top_aiq_Cryptocurrency_prior_revenue-46e93e453206.json",
+        "niche_top_aiq_Custom_Printing_Media_Services_current_downloads-df2c55244880.json",
+        "niche_top_aiq_Custom_Printing_Media_Services_current_revenue-0bdd11916300.json",
+        "niche_top_aiq_Custom_Printing_Media_Services_prior_revenue-28311b6bd1e7.json",
+        "niche_top_aiq_Customization_Ringtones_current_downloads-95b1df4af89b.json",
+        "niche_top_aiq_Customization_Ringtones_current_revenue-24c0f7b2caa5.json",
+        "niche_top_aiq_Customization_Ringtones_prior_revenue-c6ce413c8eaa.json",
+        "niche_top_aiq_Dating_current_downloads-96f2f8d50514.json",
+        "niche_top_aiq_Dating_current_revenue-75167b64ec0e.json",
+        "niche_top_aiq_Dating_prior_revenue-ca7e8b73ab53.json",
+        "niche_top_aiq_Dating_Social_Discovery_current_downloads-7fb57c835815.json",
+        "niche_top_aiq_Dating_Social_Discovery_current_revenue-2a9b2fa115f0.json",
+        "niche_top_aiq_Dating_Social_Discovery_prior_revenue-f726bd8f6fa7.json",
+        "niche_top_aiq_Delivered_Meal_Kits_Specialty_Foods_current_downloads-3cb342355bda.json",
+        "niche_top_aiq_Delivered_Meal_Kits_Specialty_Foods_current_revenue-24f7909d3fe7.json",
+        "niche_top_aiq_Delivered_Meal_Kits_Specialty_Foods_prior_revenue-4b9bfb156b7b.json",
+        "niche_top_aiq_Denim_current_downloads-904d424a54d6.json",
+        "niche_top_aiq_Denim_current_revenue-55f1eb9a35fb.json",
+        "niche_top_aiq_Denim_prior_revenue-f16851c09157.json",
+        "niche_top_aiq_Dental_Health_current_downloads-0f0daf1f11da.json",
+        "niche_top_aiq_Dental_Health_current_revenue-66bae2963205.json",
+        "niche_top_aiq_Dental_Health_prior_revenue-17a4e939978a.json",
+        "niche_top_aiq_Dictionaries_current_downloads-d51b0fa8e113.json",
+        "niche_top_aiq_Dictionaries_current_revenue-ef87290ff0b1.json",
+        "niche_top_aiq_Dictionaries_prior_revenue-e74859215e27.json",
+        "niche_top_aiq_Digital_Art_Drawing_current_downloads-42bc87a859cf.json",
+        "niche_top_aiq_Digital_Art_Drawing_current_revenue-ece6d96b5315.json",
+        "niche_top_aiq_Digital_Art_Drawing_prior_revenue-df4308bec539.json",
+        "niche_top_aiq_Digital_Wallets_P2P_Payments_current_downloads-c4216183983b.json",
+        "niche_top_aiq_Digital_Wallets_P2P_Payments_current_revenue-54ca9ccac8af.json",
+        "niche_top_aiq_Digital_Wallets_P2P_Payments_prior_revenue-7f771e250e07.json",
+        "niche_top_aiq_Dine_In_Restaurants_current_downloads-adc09cdb98ce.json",
+        "niche_top_aiq_Dine_In_Restaurants_current_revenue-87164ead5ca7.json",
+        "niche_top_aiq_Dine_In_Restaurants_prior_revenue-b96f8ea28487.json",
+        "niche_top_aiq_Dining_Listings_Reviews_Reservations_current_downloads-2cd55824eb84.json",
+        "niche_top_aiq_Dining_Listings_Reviews_Reservations_current_revenue-38bf4266d18d.json",
+        "niche_top_aiq_Dining_Listings_Reviews_Reservations_prior_revenue-4c3deb9f743e.json",
+        "niche_top_aiq_Dining_Restaurants_current_downloads-34417984e260.json",
+        "niche_top_aiq_Dining_Restaurants_current_revenue-463c5722f548.json",
+        "niche_top_aiq_Dining_Restaurants_prior_revenue-1c9a164a45d8.json",
+        "niche_top_aiq_Disaster_Insurance_current_downloads-ba4ef378e46a.json",
+        "niche_top_aiq_Disaster_Insurance_current_revenue-6eb3494c89a2.json",
+        "niche_top_aiq_Disaster_Insurance_prior_revenue-3014448b1602.json",
+        "niche_top_aiq_Doctor_Resources_current_downloads-d10c453b9fd4.json",
+        "niche_top_aiq_Doctor_Resources_current_revenue-5f1a9713c5c9.json",
+        "niche_top_aiq_Doctor_Resources_prior_revenue-6ba203ee3fb8.json",
+        "niche_top_aiq_Document_Scanners_current_downloads-6ff912227633.json",
+        "niche_top_aiq_Document_Scanners_current_revenue-40d683f426c1.json",
+        "niche_top_aiq_Document_Scanners_prior_revenue-e3c6c918d450.json",
+        "niche_top_aiq_Dog_Food_current_downloads-241c6d1fcf04.json",
+        "niche_top_aiq_Dog_Food_current_revenue-b0b3fe9870e2.json",
+        "niche_top_aiq_Dog_Food_prior_revenue-994fb6f8a7c1.json",
+        "niche_top_aiq_Dolls_current_downloads-75fd5d403106.json",
+        "niche_top_aiq_Dolls_current_revenue-84870d6c533b.json",
+        "niche_top_aiq_Dolls_prior_revenue-0a0be1f8f385.json",
+        "niche_top_aiq_Drivers_Education_current_downloads-a43e60a55503.json",
+        "niche_top_aiq_Drivers_Education_current_revenue-76a9b1955792.json",
+        "niche_top_aiq_Drivers_Education_prior_revenue-2afdcbef68d0.json",
+        "niche_top_aiq_Education_Training_current_downloads-c6b75ec508c9.json",
+        "niche_top_aiq_Education_Training_current_revenue-c7fde455a445.json",
+        "niche_top_aiq_Education_Training_prior_revenue-2ed56f1231f9.json",
+        "niche_top_aiq_Educational_Resources_current_downloads-89b890813e93.json",
+        "niche_top_aiq_Educational_Resources_current_revenue-4bc0f7fd2328.json",
+        "niche_top_aiq_Educational_Resources_prior_revenue-962f850235d5.json",
+        "niche_top_aiq_Electric_Cars_Trucks_current_downloads-e2afb7ca40ee.json",
+        "niche_top_aiq_Electric_Cars_Trucks_current_revenue-a91af14afc89.json",
+        "niche_top_aiq_Electric_Cars_Trucks_prior_revenue-c609fd44f14a.json",
+        "niche_top_aiq_Email_current_downloads-322210f35e9f.json",
+        "niche_top_aiq_Email_current_revenue-06bf63b61b77.json",
+        "niche_top_aiq_Email_prior_revenue-b49a4ab8c21e.json",
+        "niche_top_aiq_Energy_Stress_Management_Supplements_current_downloads-444257e32e1f.json",
+        "niche_top_aiq_Energy_Stress_Management_Supplements_current_revenue-285cbcb6e589.json",
+        "niche_top_aiq_Energy_Stress_Management_Supplements_prior_revenue-2d5b6e489e05.json",
+        "niche_top_aiq_Energy_Utilities_current_downloads-6f87175f9742.json",
+        "niche_top_aiq_Energy_Utilities_current_revenue-a844f3873e47.json",
+        "niche_top_aiq_Energy_Utilities_prior_revenue-157f56c17feb.json",
+        "niche_top_aiq_Experiences_Events_current_downloads-12f6a0dc82fa.json",
+        "niche_top_aiq_Experiences_Events_current_revenue-28b0c3fbd5b2.json",
+        "niche_top_aiq_Experiences_Events_prior_revenue-eb08a9537c73.json",
+        "niche_top_aiq_Eyewear_current_downloads-61faa706edfb.json",
+        "niche_top_aiq_Eyewear_current_revenue-7fa229e03c74.json",
+        "niche_top_aiq_Eyewear_prior_revenue-c3cc479b1d5d.json",
+        "niche_top_aiq_FX_Foreign_Exchange_Trading_Markets_current_downloads-9b9abea6fb53.json",
+        "niche_top_aiq_FX_Foreign_Exchange_Trading_Markets_current_revenue-516e8e9ac519.json",
+        "niche_top_aiq_FX_Foreign_Exchange_Trading_Markets_prior_revenue-50d51121b582.json",
+        "niche_top_aiq_Family_Parenting_Shopping_current_downloads-b80074353497.json",
+        "niche_top_aiq_Family_Parenting_Shopping_current_revenue-423fc1151993.json",
+        "niche_top_aiq_Family_Parenting_Shopping_prior_revenue-862b63964633.json",
+        "niche_top_aiq_Fan_Fiction_current_downloads-f8501ed4d208.json",
+        "niche_top_aiq_Fan_Fiction_current_revenue-fd044574451e.json",
+        "niche_top_aiq_Fan_Fiction_prior_revenue-b2af145ae529.json",
+        "niche_top_aiq_Fast_Food_Burgers_Fries_current_downloads-6c4277e322aa.json",
+        "niche_top_aiq_Fast_Food_Burgers_Fries_current_revenue-35fd1191bcd4.json",
+        "niche_top_aiq_Fast_Food_Burgers_Fries_prior_revenue-d0577de60b92.json",
+        "niche_top_aiq_Fast_Food_Cafes_Coffee_Shops_current_downloads-13f9cd54b6d2.json",
+        "niche_top_aiq_Fast_Food_Cafes_Coffee_Shops_current_revenue-42ae8b3215ee.json",
+        "niche_top_aiq_Fast_Food_Cafes_Coffee_Shops_prior_revenue-9a568e87ad86.json",
+        "niche_top_aiq_Fast_Food_Chicken_Shops_current_downloads-62d38bf91798.json",
+        "niche_top_aiq_Fast_Food_Chicken_Shops_current_revenue-61248b8cf678.json",
+        "niche_top_aiq_Fast_Food_Chicken_Shops_prior_revenue-2ca56136ac0a.json",
+        "niche_top_aiq_Fast_Food_Fast_Casual_Restaurants_current_downloads-0c84911c2a78.json",
+        "niche_top_aiq_Fast_Food_Fast_Casual_Restaurants_current_revenue-784d95959be5.json",
+        "niche_top_aiq_Fast_Food_Fast_Casual_Restaurants_prior_revenue-59932d216c6d.json",
+        "niche_top_aiq_Fast_Food_Ice_Cream_Sweets_Shops_Bakerie_current_downloads-9708adcdcf77.json",
+        "niche_top_aiq_Fast_Food_Ice_Cream_Sweets_Shops_Bakerie_current_revenue-e31a990b65e1.json",
+        "niche_top_aiq_Fast_Food_Ice_Cream_Sweets_Shops_Bakerie_prior_revenue-9224a9f66016.json",
+        "niche_top_aiq_Fast_Food_Juice_Smoothie_Bars_current_downloads-1196c7f140c1.json",
+        "niche_top_aiq_Fast_Food_Juice_Smoothie_Bars_current_revenue-1638cf6f4e0e.json",
+        "niche_top_aiq_Fast_Food_Juice_Smoothie_Bars_prior_revenue-2d3c98657c91.json",
+        "niche_top_aiq_Fast_Food_Mexican_Taco_current_downloads-22565049e745.json",
+        "niche_top_aiq_Fast_Food_Mexican_Taco_current_revenue-4d024c888db2.json",
+        "niche_top_aiq_Fast_Food_Mexican_Taco_prior_revenue-82c7c74ab34d.json",
+        "niche_top_aiq_Fast_Food_Pizza_current_downloads-3ba336859e70.json",
+        "niche_top_aiq_Fast_Food_Pizza_current_revenue-809d9f16855e.json",
+        "niche_top_aiq_Fast_Food_Pizza_prior_revenue-91ce2bc7ee9b.json",
+        "niche_top_aiq_Fast_Food_Sandwich_Shops_Deli_Stores_current_downloads-1b733f47eb03.json",
+        "niche_top_aiq_Fast_Food_Sandwich_Shops_Deli_Stores_current_revenue-ad791cd6e504.json",
+        "niche_top_aiq_Fast_Food_Sandwich_Shops_Deli_Stores_prior_revenue-3efcb84f77c6.json",
+        "niche_top_aiq_Ferries_current_downloads-52e6f1a2a54d.json",
+        "niche_top_aiq_Ferries_current_revenue-03a7ff1ca190.json",
+        "niche_top_aiq_Ferries_prior_revenue-d6e1614b9263.json",
+        "niche_top_aiq_File_Management_current_downloads-13e58a8898fb.json",
+        "niche_top_aiq_File_Management_current_revenue-a0125809dfd6.json",
+        "niche_top_aiq_File_Management_prior_revenue-1e6dcf6e3ad7.json",
+        "niche_top_aiq_Financial_News_current_downloads-b800852fb141.json",
+        "niche_top_aiq_Financial_News_current_revenue-43c1aabbde84.json",
+        "niche_top_aiq_Financial_News_prior_revenue-f94cf634a6e9.json",
+        "niche_top_aiq_Financial_Services_current_downloads-c60ae1b643b3.json",
+        "niche_top_aiq_Financial_Services_current_revenue-3215740fdb22.json",
+        "niche_top_aiq_Financial_Services_prior_revenue-127f3c30853e.json",
+        "niche_top_aiq_First_Aid_Home_Medical_Devices_current_downloads-068f1d021dc0.json",
+        "niche_top_aiq_First_Aid_Home_Medical_Devices_current_revenue-56101e8cd3f5.json",
+        "niche_top_aiq_First_Aid_Home_Medical_Devices_prior_revenue-06713c302b0d.json",
+        "niche_top_aiq_Fishing_current_downloads-ce7a48d0233e.json",
+        "niche_top_aiq_Fishing_current_revenue-0ffaed2b82a6.json",
+        "niche_top_aiq_Fishing_prior_revenue-aef5deda0be7.json",
+        "niche_top_aiq_Fitness_Equipment_current_downloads-df411b24b1fe.json",
+        "niche_top_aiq_Fitness_Equipment_current_revenue-001bf34f06ea.json",
+        "niche_top_aiq_Fitness_Equipment_prior_revenue-543ef93e8f83.json",
+        "niche_top_aiq_Florists_Gifts_current_downloads-f0f2a1060791.json",
+        "niche_top_aiq_Florists_Gifts_current_revenue-8836c6a3b60e.json",
+        "niche_top_aiq_Florists_Gifts_prior_revenue-052b78b275e2.json",
+        "niche_top_aiq_Food_Beverage_Associations_Councils_current_downloads-b9fb3cef8bf0.json",
+        "niche_top_aiq_Food_Beverage_Associations_Councils_current_revenue-e2c84c145dd3.json",
+        "niche_top_aiq_Food_Beverage_Associations_Councils_prior_revenue-4effbfd21885.json",
+        "niche_top_aiq_Food_Blogs_Coupons_Recipe_Resources_current_downloads-11f22d8fc1ed.json",
+        "niche_top_aiq_Food_Blogs_Coupons_Recipe_Resources_current_revenue-cd1bdbccfb03.json",
+        "niche_top_aiq_Food_Blogs_Coupons_Recipe_Resources_prior_revenue-96831fa0bd2d.json",
+        "niche_top_aiq_Food_Delivery_Services_current_downloads-35f2ab7bdfda.json",
+        "niche_top_aiq_Food_Delivery_Services_current_revenue-8662fa2aa16c.json",
+        "niche_top_aiq_Food_Delivery_Services_prior_revenue-92fab3e0adff.json",
+        "niche_top_aiq_Food_Dining_Services_current_downloads-70a175f6bf14.json",
+        "niche_top_aiq_Food_Dining_Services_current_revenue-07c3d8da985a.json",
+        "niche_top_aiq_Food_Dining_Services_prior_revenue-dca393bbae1b.json",
+        "niche_top_aiq_Footwear_current_downloads-4e4806ccce06.json",
+        "niche_top_aiq_Footwear_current_revenue-52d162cf3564.json",
+        "niche_top_aiq_Footwear_prior_revenue-e535491b7041.json",
+        "niche_top_aiq_Games_Puzzles_current_downloads-fafca068a612.json",
+        "niche_top_aiq_Games_Puzzles_current_revenue-ace1e946dc6c.json",
+        "niche_top_aiq_Games_Puzzles_prior_revenue-2efdb5d3808d.json",
+        "niche_top_aiq_Gaming_Computers_Accessories_current_downloads-65253287b513.json",
+        "niche_top_aiq_Gaming_Computers_Accessories_current_revenue-3eaa6d697f84.json",
+        "niche_top_aiq_Gaming_Computers_Accessories_prior_revenue-85550c80b303.json",
+        "niche_top_aiq_Gas_EV_Charging_Stations_current_downloads-dd6894c2e940.json",
+        "niche_top_aiq_Gas_EV_Charging_Stations_current_revenue-a6bcec16f7e4.json",
+        "niche_top_aiq_Gas_EV_Charging_Stations_prior_revenue-f1c3b8243f73.json",
+        "niche_top_aiq_Gas_Hybrid_Cars_Trucks_current_downloads-c71f8e2a3f84.json",
+        "niche_top_aiq_Gas_Hybrid_Cars_Trucks_current_revenue-171fe6e96c6e.json",
+        "niche_top_aiq_Gas_Hybrid_Cars_Trucks_prior_revenue-cd4a3e95a6db.json",
+        "niche_top_aiq_Genealogy_Ancestry_current_downloads-89182ce5ab35.json",
+        "niche_top_aiq_Genealogy_Ancestry_current_revenue-5b077ce93844.json",
+        "niche_top_aiq_Genealogy_Ancestry_prior_revenue-50f48609c48e.json",
+        "niche_top_aiq_Generative_AI_current_downloads-f634f4b2dcf2.json",
+        "niche_top_aiq_Generative_AI_current_revenue-27fdfaf80af7.json",
+        "niche_top_aiq_Generative_AI_prior_revenue-9b4c1f3129aa.json",
+        "niche_top_aiq_Gifts_Occasions_Shopping_current_downloads-d1e686dbf8c6.json",
+        "niche_top_aiq_Gifts_Occasions_Shopping_current_revenue-e5f2ed0bd902.json",
+        "niche_top_aiq_Gifts_Occasions_Shopping_prior_revenue-ee8c2d5ed5c4.json",
+        "niche_top_aiq_Golf_Apparel_current_downloads-12e5049226f7.json",
+        "niche_top_aiq_Golf_Apparel_current_revenue-3876e1c456fc.json",
+        "niche_top_aiq_Golf_Apparel_prior_revenue-809a433186ca.json",
+        "niche_top_aiq_Golf_Equipment_Accessories_current_downloads-121cb0498238.json",
+        "niche_top_aiq_Golf_Equipment_Accessories_current_revenue-1530129b5cbd.json",
+        "niche_top_aiq_Golf_Equipment_Accessories_prior_revenue-79f210e29f69.json",
+        "niche_top_aiq_Government_Agencies_Organizations_current_downloads-453874c49615.json",
+        "niche_top_aiq_Government_Agencies_Organizations_current_revenue-9731b0ecb3c6.json",
+        "niche_top_aiq_Government_Agencies_Organizations_prior_revenue-8416813c0ef4.json",
+        "niche_top_aiq_Government_Benefits_Management_Apps_current_downloads-b653ae406f29.json",
+        "niche_top_aiq_Government_Benefits_Management_Apps_current_revenue-a2dced347399.json",
+        "niche_top_aiq_Government_Benefits_Management_Apps_prior_revenue-9e48cada9176.json",
+        "niche_top_aiq_Graphic_Tees_current_downloads-0b25212680f5.json",
+        "niche_top_aiq_Graphic_Tees_current_revenue-970a0671d21c.json",
+        "niche_top_aiq_Graphic_Tees_prior_revenue-cd860ba7cfb6.json",
+        "niche_top_aiq_Grocery_Delivery_current_downloads-4c7a806d5be2.json",
+        "niche_top_aiq_Grocery_Delivery_current_revenue-0a0b549ccc54.json",
+        "niche_top_aiq_Grocery_Delivery_prior_revenue-81fc8ee52131.json",
+        "niche_top_aiq_Grocery_Stores_current_downloads-f9f56270f944.json",
+        "niche_top_aiq_Grocery_Stores_current_revenue-e338093605c1.json",
+        "niche_top_aiq_Grocery_Stores_prior_revenue-786404aa8051.json",
+        "niche_top_aiq_Gyms_Fitness_current_downloads-2409e4d2687b.json",
+        "niche_top_aiq_Gyms_Fitness_current_revenue-3413a86830af.json",
+        "niche_top_aiq_Gyms_Fitness_prior_revenue-93efab952b9b.json",
+        "niche_top_aiq_HVAC_Climate_Control_current_downloads-33df8c157e6d.json",
+        "niche_top_aiq_HVAC_Climate_Control_current_revenue-567f29b3613b.json",
+        "niche_top_aiq_HVAC_Climate_Control_prior_revenue-7f5a1848bd5e.json",
+        "niche_top_aiq_Headphones_Headsets_current_downloads-b125a48be613.json",
+        "niche_top_aiq_Headphones_Headsets_current_revenue-93f023c8576b.json",
+        "niche_top_aiq_Headphones_Headsets_prior_revenue-1eafd0d00a26.json",
+        "niche_top_aiq_Health_Associations_Organizations_Commun_current_downloads-5769a937e685.json",
+        "niche_top_aiq_Health_Associations_Organizations_Commun_current_revenue-2f6b5c44c84c.json",
+        "niche_top_aiq_Health_Associations_Organizations_Commun_prior_revenue-091e8adb401a.json",
+        "niche_top_aiq_Health_Care_Services_current_downloads-f1ee13203817.json",
+        "niche_top_aiq_Health_Care_Services_current_revenue-f6adbfcc9142.json",
+        "niche_top_aiq_Health_Care_Services_prior_revenue-0eb021755623.json",
+        "niche_top_aiq_Health_Insurance_current_downloads-3fec793b4835.json",
+        "niche_top_aiq_Health_Insurance_current_revenue-018e49fb4594.json",
+        "niche_top_aiq_Health_Insurance_prior_revenue-42b97f3f9e8f.json",
+        "niche_top_aiq_Health_Media_Publications_current_downloads-975446e7eb9d.json",
+        "niche_top_aiq_Health_Media_Publications_current_revenue-f0494693f4c7.json",
+        "niche_top_aiq_Health_Media_Publications_prior_revenue-64a49b8b6fcd.json",
+        "niche_top_aiq_Health_Wellness_current_downloads-ffd648599dab.json",
+        "niche_top_aiq_Health_Wellness_current_revenue-f92d81ed9e1f.json",
+        "niche_top_aiq_Health_Wellness_prior_revenue-3b4e4b1ad287.json",
+        "niche_top_aiq_Heavy_Machinery_current_downloads-42be0657f57c.json",
+        "niche_top_aiq_Heavy_Machinery_current_revenue-0e7fa7a72765.json",
+        "niche_top_aiq_Heavy_Machinery_prior_revenue-b4617145dea7.json",
+        "niche_top_aiq_Helicopter_Services_current_downloads-d307c8fb284b.json",
+        "niche_top_aiq_Helicopter_Services_current_revenue-912f2c579cfe.json",
+        "niche_top_aiq_Helicopter_Services_prior_revenue-470d0009ca14.json",
+        "niche_top_aiq_Hobbies_Interests_Services_current_downloads-d72299cd86fd.json",
+        "niche_top_aiq_Hobbies_Interests_Services_current_revenue-78319e4180a9.json",
+        "niche_top_aiq_Hobbies_Interests_Services_prior_revenue-1339461b1649.json",
+        "niche_top_aiq_Hobbies_Interests_Shopping_current_downloads-13959d2677f5.json",
+        "niche_top_aiq_Hobbies_Interests_Shopping_current_revenue-d0776b29a451.json",
+        "niche_top_aiq_Hobbies_Interests_Shopping_prior_revenue-55dcbaa49b7e.json",
+        "niche_top_aiq_Home_Appliances_current_downloads-357ba341b0ee.json",
+        "niche_top_aiq_Home_Appliances_current_revenue-51c18e72b4ef.json",
+        "niche_top_aiq_Home_Appliances_prior_revenue-6b1b937ab20b.json",
+        "niche_top_aiq_Home_Garden_Professional_Supplies_current_downloads-2e73d82408fa.json",
+        "niche_top_aiq_Home_Garden_Professional_Supplies_current_revenue-e831cde6ad4b.json",
+        "niche_top_aiq_Home_Garden_Professional_Supplies_prior_revenue-1de67bfff1d6.json",
+        "niche_top_aiq_Home_Garden_Services_current_downloads-210b9d36039e.json",
+        "niche_top_aiq_Home_Garden_Services_current_revenue-e84327b30124.json",
+        "niche_top_aiq_Home_Garden_Services_prior_revenue-5d508535bb35.json",
+        "niche_top_aiq_Home_Garden_Shopping_current_downloads-b20d7559bbd7.json",
+        "niche_top_aiq_Home_Garden_Shopping_current_revenue-5c722e8107a5.json",
+        "niche_top_aiq_Home_Garden_Shopping_prior_revenue-025d6860c4d7.json",
+        "niche_top_aiq_Home_Goods_Furniture_current_downloads-eef4960de218.json",
+        "niche_top_aiq_Home_Goods_Furniture_current_revenue-be12ff8d564d.json",
+        "niche_top_aiq_Home_Goods_Furniture_prior_revenue-d319ca4dc200.json",
+        "niche_top_aiq_Home_Improvement_Products_current_downloads-985548ebe6bb.json",
+        "niche_top_aiq_Home_Improvement_Products_current_revenue-3924777f0ced.json",
+        "niche_top_aiq_Home_Improvement_Products_prior_revenue-e6c3ba5f7e8b.json",
+        "niche_top_aiq_Home_Loans_Mortgages_current_downloads-68b5b654c8f7.json",
+        "niche_top_aiq_Home_Loans_Mortgages_current_revenue-16c90177d013.json",
+        "niche_top_aiq_Home_Loans_Mortgages_prior_revenue-b904a0c58ec7.json",
+        "niche_top_aiq_Home_Security_Apps_current_downloads-0cd9997005be.json",
+        "niche_top_aiq_Home_Security_Apps_current_revenue-cf032f447959.json",
+        "niche_top_aiq_Home_Security_Apps_prior_revenue-bd5eb23d15e2.json",
+        "niche_top_aiq_Home_Security_Devices_current_downloads-357f931fe878.json",
+        "niche_top_aiq_Home_Security_Devices_current_revenue-2c37b7881549.json",
+        "niche_top_aiq_Home_Security_Devices_prior_revenue-d0e5b3836d75.json",
+        "niche_top_aiq_Hospitals_Health_Clinics_current_downloads-149a601071c2.json",
+        "niche_top_aiq_Hospitals_Health_Clinics_current_revenue-74b5ad83908b.json",
+        "niche_top_aiq_Hospitals_Health_Clinics_prior_revenue-1288fab4aeb4.json",
+        "niche_top_aiq_Hotel_Loyalty_Programs_current_downloads-0f8c2740b32a.json",
+        "niche_top_aiq_Hotel_Loyalty_Programs_current_revenue-2a67618a7960.json",
+        "niche_top_aiq_Hotel_Loyalty_Programs_prior_revenue-e015cbf998e6.json",
+        "niche_top_aiq_Hotels_Motels_Resorts_current_downloads-6f1416afd22b.json",
+        "niche_top_aiq_Hotels_Motels_Resorts_current_revenue-dc255e77acec.json",
+        "niche_top_aiq_Hotels_Motels_Resorts_prior_revenue-d0aff472bb3b.json",
+        "niche_top_aiq_Hunting_Shooting_Equipment_current_downloads-b4d563c346c1.json",
+        "niche_top_aiq_Hunting_Shooting_Equipment_current_revenue-9f6d30bb34a5.json",
+        "niche_top_aiq_Hunting_Shooting_Equipment_prior_revenue-9564c1398386.json",
+        "niche_top_aiq_ISP_Internet_Service_Provider_current_downloads-5df8bc2c640c.json",
+        "niche_top_aiq_ISP_Internet_Service_Provider_current_revenue-9c849cdd6153.json",
+        "niche_top_aiq_ISP_Internet_Service_Provider_prior_revenue-6d7818a11640.json",
+        "niche_top_aiq_Industrial_Conglomerates_current_downloads-518f5b0c40ab.json",
+        "niche_top_aiq_Industrial_Conglomerates_current_revenue-2d6a326c650d.json",
+        "niche_top_aiq_Industrial_Conglomerates_prior_revenue-9a7ae49b2f5f.json",
+        "niche_top_aiq_Industrial_Supplies_current_downloads-9eee18e37458.json",
+        "niche_top_aiq_Industrial_Supplies_current_revenue-6d3d53f2a04b.json",
+        "niche_top_aiq_Industrial_Supplies_prior_revenue-63fa92a88a9d.json",
+        "niche_top_aiq_Information_Technology_IT_Computer_Servi_current_downloads-65b8e2e6b382.json",
+        "niche_top_aiq_Information_Technology_IT_Computer_Servi_current_revenue-517ccf992113.json",
+        "niche_top_aiq_Information_Technology_IT_Computer_Servi_prior_revenue-324779529aaf.json",
+        "niche_top_aiq_Insurance_current_downloads-0df864dc8d18.json",
+        "niche_top_aiq_Insurance_current_revenue-503fd24c32f0.json",
+        "niche_top_aiq_Insurance_prior_revenue-83e3d4f87f7e.json",
+        "niche_top_aiq_Investing_Financial_Management_current_downloads-e919f3261e66.json",
+        "niche_top_aiq_Investing_Financial_Management_current_revenue-4bfe3781faff.json",
+        "niche_top_aiq_Investing_Financial_Management_prior_revenue-8d9cb2f25ddd.json",
+        "niche_top_aiq_Jewelry_current_downloads-4683d2521bc7.json",
+        "niche_top_aiq_Jewelry_current_revenue-9413148d8bb6.json",
+        "niche_top_aiq_Jewelry_prior_revenue-9700e1566cb2.json",
+        "niche_top_aiq_Job_Boards_current_downloads-7f5969643881.json",
+        "niche_top_aiq_Job_Boards_current_revenue-22d7ce0458ed.json",
+        "niche_top_aiq_Job_Boards_prior_revenue-20719f228e9e.json",
+        "niche_top_aiq_Jobs_Careers_current_downloads-fc2cad6f696f.json",
+        "niche_top_aiq_Jobs_Careers_current_revenue-c0f5a71e4e0e.json",
+        "niche_top_aiq_Jobs_Careers_prior_revenue-b32ae097e972.json",
+        "niche_top_aiq_Jobs_Education_current_downloads-d61a8939dd7f.json",
+        "niche_top_aiq_Jobs_Education_current_revenue-75afc21092cc.json",
+        "niche_top_aiq_Jobs_Education_prior_revenue-036b7d899adb.json",
+        "niche_top_aiq_Karaoke_Apps_current_downloads-61c1c6b03aa1.json",
+        "niche_top_aiq_Karaoke_Apps_current_revenue-9f08240533d6.json",
+        "niche_top_aiq_Karaoke_Apps_prior_revenue-8b555e340d89.json",
+        "niche_top_aiq_Kitchenware_current_downloads-fab80ee0872d.json",
+        "niche_top_aiq_Kitchenware_current_revenue-790af5254661.json",
+        "niche_top_aiq_Kitchenware_prior_revenue-035f354484fe.json",
+        "niche_top_aiq_Language_Education_current_downloads-836b23185219.json",
+        "niche_top_aiq_Language_Education_current_revenue-ebe13f2ea546.json",
+        "niche_top_aiq_Language_Education_prior_revenue-5051375c74cb.json",
+        "niche_top_aiq_Laptops_Desktops_current_downloads-1cca0c202f90.json",
+        "niche_top_aiq_Laptops_Desktops_current_revenue-1d361761011c.json",
+        "niche_top_aiq_Laptops_Desktops_prior_revenue-701764147673.json",
+        "niche_top_aiq_Laundry_Appliances_current_downloads-68082bf8b11b.json",
+        "niche_top_aiq_Laundry_Appliances_current_revenue-2d554af13373.json",
+        "niche_top_aiq_Laundry_Appliances_prior_revenue-add2345e9bfd.json",
+        "niche_top_aiq_Law_Government_current_downloads-17b3bee6468d.json",
+        "niche_top_aiq_Law_Government_current_revenue-5dd6c6485d43.json",
+        "niche_top_aiq_Law_Government_prior_revenue-fdc52bcfe07c.json",
+        "niche_top_aiq_Law_Legal_Agencies_current_downloads-869f7f3e8b9b.json",
+        "niche_top_aiq_Law_Legal_Agencies_current_revenue-63be5a3b3ec2.json",
+        "niche_top_aiq_Law_Legal_Agencies_prior_revenue-0c847c6a674b.json",
+        "niche_top_aiq_Lawn_Garden_current_downloads-79b51c46eef4.json",
+        "niche_top_aiq_Lawn_Garden_current_revenue-135757a0d7fd.json",
+        "niche_top_aiq_Lawn_Garden_prior_revenue-fb9e7f3c4e66.json",
+        "niche_top_aiq_Life_Insurance_current_downloads-82bbd8ce0585.json",
+        "niche_top_aiq_Life_Insurance_current_revenue-949224cc9169.json",
+        "niche_top_aiq_Life_Insurance_prior_revenue-3db5e05db03e.json",
+        "niche_top_aiq_Lifestyle_Services_current_downloads-9cc15ac7b29b.json",
+        "niche_top_aiq_Lifestyle_Services_current_revenue-c168a2ff75e1.json",
+        "niche_top_aiq_Lifestyle_Services_prior_revenue-fbf15c141ea2.json",
+        "niche_top_aiq_Limousine_Services_current_downloads-29b55fa4cdde.json",
+        "niche_top_aiq_Limousine_Services_current_revenue-ab2de82dbe7e.json",
+        "niche_top_aiq_Limousine_Services_prior_revenue-5b6b3b7da865.json",
+        "niche_top_aiq_Live_Streaming_current_downloads-f6dacbe77e11.json",
+        "niche_top_aiq_Live_Streaming_current_revenue-26900716b800.json",
+        "niche_top_aiq_Live_Streaming_prior_revenue-cc4fdfce14a8.json",
+        "niche_top_aiq_Loans_current_downloads-d596484d2380.json",
+        "niche_top_aiq_Loans_current_revenue-6e1d7fd91e15.json",
+        "niche_top_aiq_Loans_prior_revenue-3c6edb9647d7.json",
+        "niche_top_aiq_Location_Trackers_current_downloads-8ac825dfd687.json",
+        "niche_top_aiq_Location_Trackers_current_revenue-bc53b27adb67.json",
+        "niche_top_aiq_Location_Trackers_prior_revenue-c3368ea27604.json",
+        "niche_top_aiq_Luggage_Travel_Accessories_current_downloads-d4e6a1393abe.json",
+        "niche_top_aiq_Luggage_Travel_Accessories_current_revenue-a1723af889d6.json",
+        "niche_top_aiq_Luggage_Travel_Accessories_prior_revenue-4dc2cdc2ec5d.json",
+        "niche_top_aiq_Magazines_current_downloads-942e3ab4a8ec.json",
+        "niche_top_aiq_Magazines_current_revenue-6ddfb24fe2f0.json",
+        "niche_top_aiq_Magazines_prior_revenue-a0ea04ed3e93.json",
+        "niche_top_aiq_Major_Domestic_Appliances_current_downloads-83177eba4b06.json",
+        "niche_top_aiq_Major_Domestic_Appliances_current_revenue-e4f40d469404.json",
+        "niche_top_aiq_Major_Domestic_Appliances_prior_revenue-e90e0c058e03.json",
+        "niche_top_aiq_Major_Kitchen_Appliances_current_downloads-c26580a63777.json",
+        "niche_top_aiq_Major_Kitchen_Appliances_current_revenue-da466476d87d.json",
+        "niche_top_aiq_Major_Kitchen_Appliances_prior_revenue-0d89e775a592.json",
+        "niche_top_aiq_Malls_Shopping_Centers_current_downloads-abfc345a6dad.json",
+        "niche_top_aiq_Malls_Shopping_Centers_current_revenue-bb4402112943.json",
+        "niche_top_aiq_Malls_Shopping_Centers_prior_revenue-1447ff264d63.json",
+        "niche_top_aiq_Maternity_Nursing_current_downloads-69002da4db5e.json",
+        "niche_top_aiq_Maternity_Nursing_current_revenue-d998caa71d7d.json",
+        "niche_top_aiq_Maternity_Nursing_prior_revenue-124912c09b2c.json",
+        "niche_top_aiq_Mattresses_current_downloads-60acda5a96d0.json",
+        "niche_top_aiq_Mattresses_current_revenue-167def67fb2d.json",
+        "niche_top_aiq_Mattresses_prior_revenue-92338b022a3c.json",
+        "niche_top_aiq_Media_Entertainment_current_downloads-7daeae64cf86.json",
+        "niche_top_aiq_Media_Entertainment_current_revenue-95ade4f32a0f.json",
+        "niche_top_aiq_Media_Entertainment_prior_revenue-01b0cc62fdd5.json",
+        "niche_top_aiq_Media_Players_current_downloads-cb61cb8be503.json",
+        "niche_top_aiq_Media_Players_current_revenue-272fc3cb9f0a.json",
+        "niche_top_aiq_Media_Players_prior_revenue-86a8e7d895da.json",
+        "niche_top_aiq_Medical_Equipment_current_downloads-14835a842df1.json",
+        "niche_top_aiq_Medical_Equipment_current_revenue-26f308802641.json",
+        "niche_top_aiq_Medical_Equipment_prior_revenue-0c9da629110e.json",
+        "niche_top_aiq_Medical_Procedures_current_downloads-940d691ee4c3.json",
+        "niche_top_aiq_Medical_Procedures_current_revenue-ab593a780898.json",
+        "niche_top_aiq_Medical_Procedures_prior_revenue-fb05240db9a4.json",
+        "niche_top_aiq_Medical_Schools_Teaching_Hospitals_current_downloads-57b4f1b6fc21.json",
+        "niche_top_aiq_Medical_Schools_Teaching_Hospitals_current_revenue-578773e7f279.json",
+        "niche_top_aiq_Medical_Schools_Teaching_Hospitals_prior_revenue-a56cc96a8047.json",
+        "niche_top_aiq_Medical_Software_current_downloads-f45d3606d18e.json",
+        "niche_top_aiq_Medical_Software_current_revenue-b06d76549468.json",
+        "niche_top_aiq_Medical_Software_prior_revenue-0304041504c8.json",
+        "niche_top_aiq_Medical_Tracking_Apps_current_downloads-a9de29d71c49.json",
+        "niche_top_aiq_Medical_Tracking_Apps_current_revenue-32319f50a558.json",
+        "niche_top_aiq_Medical_Tracking_Apps_prior_revenue-17ac96f89aa2.json",
+        "niche_top_aiq_Meditation_Sleep_Trackers_current_downloads-5997878aa8d8.json",
+        "niche_top_aiq_Meditation_Sleep_Trackers_current_revenue-56d6b4520343.json",
+        "niche_top_aiq_Meditation_Sleep_Trackers_prior_revenue-43cf3f03ebf6.json",
+        "niche_top_aiq_Mobile_Cellular_Network_current_downloads-7ca372240cf7.json",
+        "niche_top_aiq_Mobile_Cellular_Network_current_revenue-5f264f41c4bc.json",
+        "niche_top_aiq_Mobile_Cellular_Network_prior_revenue-8467d06a02f9.json",
+        "niche_top_aiq_Motorcycle_Insurance_current_downloads-6340da80017e.json",
+        "niche_top_aiq_Motorcycle_Insurance_current_revenue-ce32e428f9de.json",
+        "niche_top_aiq_Motorcycle_Insurance_prior_revenue-33d3b8880fc6.json",
+        "niche_top_aiq_Motorcycles_Scooters_Mopeds_current_downloads-7c31999b1205.json",
+        "niche_top_aiq_Motorcycles_Scooters_Mopeds_current_revenue-505dadece472.json",
+        "niche_top_aiq_Motorcycles_Scooters_Mopeds_prior_revenue-d4060f862850.json",
+        "niche_top_aiq_Motorsport_current_downloads-49c47f382c27.json",
+        "niche_top_aiq_Motorsport_current_revenue-3a64b7920933.json",
+        "niche_top_aiq_Motorsport_prior_revenue-2da207b2e9b0.json",
+        "niche_top_aiq_Movie_Theatres_current_downloads-131da2f09868.json",
+        "niche_top_aiq_Movie_Theatres_current_revenue-33d0345e0023.json",
+        "niche_top_aiq_Movie_Theatres_prior_revenue-974b72370d9a.json",
+        "niche_top_aiq_Movies_current_downloads-51fbe396c7ea.json",
+        "niche_top_aiq_Movies_current_revenue-7e11cbca90e5.json",
+        "niche_top_aiq_Movies_prior_revenue-527e5e7e7f11.json",
+        "niche_top_aiq_Movies_TV_Shows_current_downloads-5373fc236c4e.json",
+        "niche_top_aiq_Movies_TV_Shows_current_revenue-4a1e24b92a47.json",
+        "niche_top_aiq_Movies_TV_Shows_prior_revenue-7ee8706a9688.json",
+        "niche_top_aiq_Moving_Storage_current_downloads-71865855593a.json",
+        "niche_top_aiq_Moving_Storage_current_revenue-72ddc83da19f.json",
+        "niche_top_aiq_Moving_Storage_prior_revenue-edf14fce1c74.json",
+        "niche_top_aiq_Multimedia_Design_Software_current_downloads-fe6267cc4c19.json",
+        "niche_top_aiq_Multimedia_Design_Software_current_revenue-f209d4611981.json",
+        "niche_top_aiq_Multimedia_Design_Software_prior_revenue-3ab1655ee728.json",
+        "niche_top_aiq_Multivitamins_General_Health_Supplements_current_downloads-ce75bdc4b913.json",
+        "niche_top_aiq_Multivitamins_General_Health_Supplements_current_revenue-81896713ab87.json",
+        "niche_top_aiq_Multivitamins_General_Health_Supplements_prior_revenue-6c359e6d082d.json",
+        "niche_top_aiq_Music_Podcasts_current_downloads-0d26c42de227.json",
+        "niche_top_aiq_Music_Podcasts_current_revenue-e24f1108cd1c.json",
+        "niche_top_aiq_Music_Podcasts_prior_revenue-a9b2ce28a211.json",
+        "niche_top_aiq_Musical_Instrument_Apps_current_downloads-8551939da641.json",
+        "niche_top_aiq_Musical_Instrument_Apps_current_revenue-c637bc2c75fc.json",
+        "niche_top_aiq_Musical_Instrument_Apps_prior_revenue-bd9d39f60971.json",
+        "niche_top_aiq_National_Medical_Service_current_downloads-566fb1da6825.json",
+        "niche_top_aiq_National_Medical_Service_current_revenue-6f29dbab2117.json",
+        "niche_top_aiq_National_Medical_Service_prior_revenue-1d0c1a87fa9b.json",
+        "niche_top_aiq_Navigation_Maps_current_downloads-59efec4fdd1f.json",
+        "niche_top_aiq_Navigation_Maps_current_revenue-fce8b93c16d4.json",
+        "niche_top_aiq_Navigation_Maps_prior_revenue-e95cc6ff9dde.json",
+        "niche_top_aiq_News_current_downloads-cafe2bf17768.json",
+        "niche_top_aiq_News_current_revenue-cb53ae7c892c.json",
+        "niche_top_aiq_News_prior_revenue-76d31f50da22.json",
+        "niche_top_aiq_News_Magazines_current_downloads-85c198e13661.json",
+        "niche_top_aiq_News_Magazines_current_revenue-d9a6fe76a371.json",
+        "niche_top_aiq_News_Magazines_prior_revenue-33dc524619c0.json",
+        "niche_top_aiq_Note_Taking_current_downloads-91129998ae41.json",
+        "niche_top_aiq_Note_Taking_current_revenue-2cf9fb33725d.json",
+        "niche_top_aiq_Note_Taking_prior_revenue-6c8842502830.json",
+        "niche_top_aiq_Novelty_Collectible_Toys_current_downloads-b92cba77b743.json",
+        "niche_top_aiq_Novelty_Collectible_Toys_current_revenue-2974fe59d9ce.json",
+        "niche_top_aiq_Novelty_Collectible_Toys_prior_revenue-1e0a6450a5da.json",
+        "niche_top_aiq_Nutrition_Diet_current_downloads-1f3818722c69.json",
+        "niche_top_aiq_Nutrition_Diet_current_revenue-87623be3cfa9.json",
+        "niche_top_aiq_Nutrition_Diet_prior_revenue-c6c4500d0c9a.json",
+        "niche_top_aiq_OTC_Drugs_current_downloads-75c548febb3a.json",
+        "niche_top_aiq_OTC_Drugs_current_revenue-0491d368b8c4.json",
+        "niche_top_aiq_OTC_Drugs_prior_revenue-209511d6d68d.json",
+        "niche_top_aiq_OTT_Streaming_current_downloads-3335aab5c8d4.json",
+        "niche_top_aiq_OTT_Streaming_current_revenue-a0dbbc9d0385.json",
+        "niche_top_aiq_OTT_Streaming_prior_revenue-d2b034d94bec.json",
+        "niche_top_aiq_OTT_Streaming_Devices_Video_Players_current_downloads-29272b36eb65.json",
+        "niche_top_aiq_OTT_Streaming_Devices_Video_Players_current_revenue-788aca7359b4.json",
+        "niche_top_aiq_OTT_Streaming_Devices_Video_Players_prior_revenue-f7c5352338a0.json",
+        "niche_top_aiq_Object_Identification_Apps_current_downloads-2424bb7a2e51.json",
+        "niche_top_aiq_Object_Identification_Apps_current_revenue-e1da66855959.json",
+        "niche_top_aiq_Object_Identification_Apps_prior_revenue-b5efd04bffce.json",
+        "niche_top_aiq_Off_Road_Vehicles_current_downloads-64f47d0b7ce2.json",
+        "niche_top_aiq_Off_Road_Vehicles_current_revenue-87a922fd5234.json",
+        "niche_top_aiq_Off_Road_Vehicles_prior_revenue-c52e48e8b945.json",
+        "niche_top_aiq_Office_Suites_current_downloads-a6cc0d20f024.json",
+        "niche_top_aiq_Office_Suites_current_revenue-74453af3b98b.json",
+        "niche_top_aiq_Office_Suites_prior_revenue-ba80f729dd01.json",
+        "niche_top_aiq_Operating_Systems_current_downloads-93eceb02a7bf.json",
+        "niche_top_aiq_Operating_Systems_current_revenue-0b2dda520199.json",
+        "niche_top_aiq_Operating_Systems_prior_revenue-4a2fbaa109f0.json",
+        "niche_top_aiq_Optometry_Vision_current_downloads-781a3223560d.json",
+        "niche_top_aiq_Optometry_Vision_current_revenue-c8c9c2b50cea.json",
+        "niche_top_aiq_Optometry_Vision_prior_revenue-7fd9f6e2cc27.json",
+        "niche_top_aiq_Outdoor_Grills_Barbecues_Pizza_Ovens_current_downloads-85d0c452d2ed.json",
+        "niche_top_aiq_Outdoor_Grills_Barbecues_Pizza_Ovens_current_revenue-ab33637bb5cd.json",
+        "niche_top_aiq_Outdoor_Grills_Barbecues_Pizza_Ovens_prior_revenue-832e74a77fd3.json",
+        "niche_top_aiq_Outdoor_Sports_current_downloads-3d06dc40391e.json",
+        "niche_top_aiq_Outdoor_Sports_current_revenue-cc22e638c16d.json",
+        "niche_top_aiq_Outdoor_Sports_prior_revenue-dc42877992f1.json",
+        "niche_top_aiq_Outdoor_Toys_current_downloads-92ce16ab1718.json",
+        "niche_top_aiq_Outdoor_Toys_current_revenue-dc70c9ea64a2.json",
+        "niche_top_aiq_Outdoor_Toys_prior_revenue-300a04e4e19d.json",
+        "niche_top_aiq_Outerwear_current_downloads-dd8856ea922e.json",
+        "niche_top_aiq_Outerwear_current_revenue-900d203abe1c.json",
+        "niche_top_aiq_Outerwear_prior_revenue-312ae9bf0584.json",
+        "niche_top_aiq_PDF_Editors_Docusign_current_downloads-56f1cd9f3fdc.json",
+        "niche_top_aiq_PDF_Editors_Docusign_current_revenue-ec96fb0329ec.json",
+        "niche_top_aiq_PDF_Editors_Docusign_prior_revenue-59aa6d809fe2.json",
+        "niche_top_aiq_POS_Point_of_sale_Solutions_current_downloads-2b5e2fba91b3.json",
+        "niche_top_aiq_POS_Point_of_sale_Solutions_current_revenue-97734daf876f.json",
+        "niche_top_aiq_POS_Point_of_sale_Solutions_prior_revenue-7cd8cd671d97.json",
+        "niche_top_aiq_Package_Tracking_Apps_current_downloads-518f15c7b963.json",
+        "niche_top_aiq_Package_Tracking_Apps_current_revenue-c1bef58d7939.json",
+        "niche_top_aiq_Package_Tracking_Apps_prior_revenue-997273f1012c.json",
+        "niche_top_aiq_Parenting_Resources_current_downloads-cb55f344a843.json",
+        "niche_top_aiq_Parenting_Resources_current_revenue-ca1c6af5854e.json",
+        "niche_top_aiq_Parenting_Resources_prior_revenue-a842e76c6da3.json",
+        "niche_top_aiq_Passenger_Cars_Trucks_current_downloads-6faae3ca7a32.json",
+        "niche_top_aiq_Passenger_Cars_Trucks_current_revenue-4d07e9aac719.json",
+        "niche_top_aiq_Passenger_Cars_Trucks_prior_revenue-94cd176f2f44.json",
+        "niche_top_aiq_Payday_Loans_current_downloads-3ceeb808f6b3.json",
+        "niche_top_aiq_Payday_Loans_current_revenue-7a890a44bb98.json",
+        "niche_top_aiq_Payday_Loans_prior_revenue-ab5deeaaeb88.json",
+        "niche_top_aiq_Payroll_Services_current_downloads-6b50e8019834.json",
+        "niche_top_aiq_Payroll_Services_current_revenue-97e884ac3b01.json",
+        "niche_top_aiq_Payroll_Services_prior_revenue-42297aa0d5d2.json",
+        "niche_top_aiq_Pensions_Retirement_current_downloads-c2bf90af4489.json",
+        "niche_top_aiq_Pensions_Retirement_current_revenue-37d6f7a21054.json",
+        "niche_top_aiq_Pensions_Retirement_prior_revenue-58ecc9994375.json",
+        "niche_top_aiq_Period_Tracking_current_downloads-b62a823ee47a.json",
+        "niche_top_aiq_Period_Tracking_current_revenue-d11938f1c6da.json",
+        "niche_top_aiq_Period_Tracking_prior_revenue-18aa50689f60.json",
+        "niche_top_aiq_Personal_Health_Fitness_current_downloads-e3200c8358e8.json",
+        "niche_top_aiq_Personal_Health_Fitness_current_revenue-2e30173249c5.json",
+        "niche_top_aiq_Personal_Health_Fitness_prior_revenue-bbc55150c6b3.json",
+        "niche_top_aiq_Pet_Care_Services_current_downloads-1e4c75388bd4.json",
+        "niche_top_aiq_Pet_Care_Services_current_revenue-34b431a20582.json",
+        "niche_top_aiq_Pet_Care_Services_prior_revenue-7b94581e6696.json",
+        "niche_top_aiq_Pet_Food_current_downloads-39ec4b7677bd.json",
+        "niche_top_aiq_Pet_Food_current_revenue-26e4fe46f040.json",
+        "niche_top_aiq_Pet_Food_prior_revenue-8e83932eae5b.json",
+        "niche_top_aiq_Pet_Gear_Accessories_current_downloads-1ee3e31817db.json",
+        "niche_top_aiq_Pet_Gear_Accessories_current_revenue-4246dbe3d8b2.json",
+        "niche_top_aiq_Pet_Gear_Accessories_prior_revenue-e277c660a38f.json",
+        "niche_top_aiq_Pet_Health_Supplements_current_downloads-59f6e4991735.json",
+        "niche_top_aiq_Pet_Health_Supplements_current_revenue-f06ecf26e056.json",
+        "niche_top_aiq_Pet_Health_Supplements_prior_revenue-4b69795cdec1.json",
+        "niche_top_aiq_Pet_Insurance_current_downloads-4a671d09d29a.json",
+        "niche_top_aiq_Pet_Insurance_current_revenue-6f5120fa9746.json",
+        "niche_top_aiq_Pet_Insurance_prior_revenue-259dd438daa1.json",
+        "niche_top_aiq_Pet_Supplies_current_downloads-f33bef22c812.json",
+        "niche_top_aiq_Pet_Supplies_current_revenue-91d4660d6a2d.json",
+        "niche_top_aiq_Pet_Supplies_prior_revenue-0384c597e1bc.json",
+        "niche_top_aiq_Pet_Supplies_Retail_current_downloads-93205d336e14.json",
+        "niche_top_aiq_Pet_Supplies_Retail_current_revenue-a14e724fd7f2.json",
+        "niche_top_aiq_Pet_Supplies_Retail_prior_revenue-a3058018fb67.json",
+        "niche_top_aiq_Pet_Treats_current_downloads-05e10b655b6a.json",
+        "niche_top_aiq_Pet_Treats_current_revenue-c10eb4bcaa57.json",
+        "niche_top_aiq_Pet_Treats_prior_revenue-c7c7c757e5c2.json",
+        "niche_top_aiq_Pharmaceuticals_current_downloads-835d241fd75b.json",
+        "niche_top_aiq_Pharmaceuticals_current_revenue-21241986e560.json",
+        "niche_top_aiq_Pharmaceuticals_prior_revenue-73d2bdda9728.json",
+        "niche_top_aiq_Pharmaceuticals_Research_Development_R_D_current_downloads-bb853cbc9582.json",
+        "niche_top_aiq_Pharmaceuticals_Research_Development_R_D_current_revenue-327803d6b4f0.json",
+        "niche_top_aiq_Pharmaceuticals_Research_Development_R_D_prior_revenue-97b91e48021a.json",
+        "niche_top_aiq_Pharmacies_current_downloads-f104490240dc.json",
+        "niche_top_aiq_Pharmacies_current_revenue-46378578ac60.json",
+        "niche_top_aiq_Pharmacies_prior_revenue-4045568cd535.json",
+        "niche_top_aiq_Photo_Editing_current_downloads-82b3f881aaa4.json",
+        "niche_top_aiq_Photo_Editing_current_revenue-f19e25a96f82.json",
+        "niche_top_aiq_Photo_Editing_prior_revenue-c44b5e90cab3.json",
+        "niche_top_aiq_Photo_Galleries_current_downloads-66c933aa7493.json",
+        "niche_top_aiq_Photo_Galleries_current_revenue-25487a276a54.json",
+        "niche_top_aiq_Photo_Galleries_prior_revenue-6c0ed592165b.json",
+        "niche_top_aiq_Plasma_Blood_Donation_current_downloads-3f1480582ee5.json",
+        "niche_top_aiq_Plasma_Blood_Donation_current_revenue-f603dd2fb005.json",
+        "niche_top_aiq_Plasma_Blood_Donation_prior_revenue-fb3a1f3a887c.json",
+        "niche_top_aiq_Plumbing_Fixtures_current_downloads-a89af451861b.json",
+        "niche_top_aiq_Plumbing_Fixtures_current_revenue-ce6261c98a4d.json",
+        "niche_top_aiq_Plumbing_Fixtures_prior_revenue-a0c2580ece16.json",
+        "niche_top_aiq_Plush_Toys_current_downloads-08dc74f706dd.json",
+        "niche_top_aiq_Plush_Toys_current_revenue-defcc2e3ad0f.json",
+        "niche_top_aiq_Plush_Toys_prior_revenue-d171876bc3f2.json",
+        "niche_top_aiq_Pools_Spas_current_downloads-188487b93fdf.json",
+        "niche_top_aiq_Pools_Spas_current_revenue-eb0a84e038d6.json",
+        "niche_top_aiq_Pools_Spas_prior_revenue-f6eb1459fcd7.json",
+        "niche_top_aiq_Poster_Card_Design_current_downloads-b16d56d015b6.json",
+        "niche_top_aiq_Poster_Card_Design_current_revenue-4d1c484fb4e3.json",
+        "niche_top_aiq_Poster_Card_Design_prior_revenue-30864df21542.json",
+        "niche_top_aiq_Postpaid_Mobile_Plans_current_downloads-015796bd4bb4.json",
+        "niche_top_aiq_Postpaid_Mobile_Plans_current_revenue-45c3ca5a4f64.json",
+        "niche_top_aiq_Postpaid_Mobile_Plans_prior_revenue-3c1ae5a9308d.json",
+        "niche_top_aiq_Prank_Humor_Apps_current_downloads-f1f9feff2699.json",
+        "niche_top_aiq_Prank_Humor_Apps_current_revenue-f7459327226d.json",
+        "niche_top_aiq_Prank_Humor_Apps_prior_revenue-3de8d162ff0e.json",
+        "niche_top_aiq_Prepaid_Mobile_Plans_current_downloads-a9add724198c.json",
+        "niche_top_aiq_Prepaid_Mobile_Plans_current_revenue-b1322ab0bc72.json",
+        "niche_top_aiq_Prepaid_Mobile_Plans_prior_revenue-37103d16feee.json",
+        "niche_top_aiq_Prescription_Drugs_current_downloads-1fa22c685ece.json",
+        "niche_top_aiq_Prescription_Drugs_current_revenue-2b5e2769593d.json",
+        "niche_top_aiq_Prescription_Drugs_prior_revenue-a76cb6119501.json",
+        "niche_top_aiq_Pretend_Playsets_Dress_Up_current_downloads-0a6355ed732a.json",
+        "niche_top_aiq_Pretend_Playsets_Dress_Up_current_revenue-70102e9e9825.json",
+        "niche_top_aiq_Pretend_Playsets_Dress_Up_prior_revenue-5d3e7fe8e829.json",
+        "niche_top_aiq_Primary_Secondary_Education_K_12_current_downloads-2ee523170c2c.json",
+        "niche_top_aiq_Primary_Secondary_Education_K_12_current_revenue-deb4ed3f5e46.json",
+        "niche_top_aiq_Primary_Secondary_Education_K_12_prior_revenue-66920e967e1c.json",
+        "niche_top_aiq_Printers_Scanners_Supplies_current_downloads-64a780499cf2.json",
+        "niche_top_aiq_Printers_Scanners_Supplies_current_revenue-b703ac88d2bd.json",
+        "niche_top_aiq_Printers_Scanners_Supplies_prior_revenue-3a8325043ac8.json",
+        "niche_top_aiq_Professional_Networking_Resources_current_downloads-2a150839861a.json",
+        "niche_top_aiq_Professional_Networking_Resources_current_revenue-4ed0662d75fe.json",
+        "niche_top_aiq_Professional_Networking_Resources_prior_revenue-a7706c03b9af.json",
+        "niche_top_aiq_Professional_Sports_Teams_current_downloads-2f639a8ee5d3.json",
+        "niche_top_aiq_Professional_Sports_Teams_current_revenue-ab37a6110af8.json",
+        "niche_top_aiq_Professional_Sports_Teams_prior_revenue-fc94be535f94.json",
+        "niche_top_aiq_Programming_Developer_Software_current_downloads-d4373b79a6d1.json",
+        "niche_top_aiq_Programming_Developer_Software_current_revenue-172685e65884.json",
+        "niche_top_aiq_Programming_Developer_Software_prior_revenue-4d390420b906.json",
+        "niche_top_aiq_Property_Insurance_current_downloads-ed2fb9cf372e.json",
+        "niche_top_aiq_Property_Insurance_current_revenue-6da691a870bb.json",
+        "niche_top_aiq_Property_Insurance_prior_revenue-2236b94b6458.json",
+        "niche_top_aiq_Property_Management_current_downloads-31f666f5101b.json",
+        "niche_top_aiq_Property_Management_current_revenue-f99482ed5f0b.json",
+        "niche_top_aiq_Property_Management_prior_revenue-5cd8224e30b8.json",
+        "niche_top_aiq_QR_Scanners_current_downloads-871d4031ba8d.json",
+        "niche_top_aiq_QR_Scanners_current_revenue-fc7f5a5de307.json",
+        "niche_top_aiq_QR_Scanners_prior_revenue-7da7614ab9b6.json",
+        "niche_top_aiq_RV_Insurance_current_downloads-afb6ff1a92f5.json",
+        "niche_top_aiq_RV_Insurance_current_revenue-98776b1b230c.json",
+        "niche_top_aiq_RV_Insurance_prior_revenue-a41da35bd235.json",
+        "niche_top_aiq_Real_Estate_current_downloads-91195b895fd0.json",
+        "niche_top_aiq_Real_Estate_current_revenue-9ff6349e1772.json",
+        "niche_top_aiq_Real_Estate_prior_revenue-76c326926cfe.json",
+        "niche_top_aiq_Real_Estate_Trading_Leasing_current_downloads-72e1e7562801.json",
+        "niche_top_aiq_Real_Estate_Trading_Leasing_current_revenue-c3a7d576fb02.json",
+        "niche_top_aiq_Real_Estate_Trading_Leasing_prior_revenue-be66c01f27c1.json",
+        "niche_top_aiq_Religion_Spirituality_current_downloads-fc3a4bdb800f.json",
+        "niche_top_aiq_Religion_Spirituality_current_revenue-2c5c330679e9.json",
+        "niche_top_aiq_Religion_Spirituality_prior_revenue-b927c3653440.json",
+        "niche_top_aiq_Restaurant_Ordering_Delivery_current_downloads-61836e094830.json",
+        "niche_top_aiq_Restaurant_Ordering_Delivery_current_revenue-8c81c31da7dd.json",
+        "niche_top_aiq_Restaurant_Ordering_Delivery_prior_revenue-a5b343a2caf9.json",
+        "niche_top_aiq_Running_Footwear_current_downloads-3fab7fcbf64a.json",
+        "niche_top_aiq_Running_Footwear_current_revenue-34d227e245b3.json",
+        "niche_top_aiq_Running_Footwear_prior_revenue-dc98ccd578fe.json",
+        "niche_top_aiq_Savings_Accounts_current_downloads-976d1541ccbd.json",
+        "niche_top_aiq_Savings_Accounts_current_revenue-742e71e35b31.json",
+        "niche_top_aiq_Savings_Accounts_prior_revenue-28190a37bc8b.json",
+        "niche_top_aiq_Screen_Casting_current_downloads-dd921096b18d.json",
+        "niche_top_aiq_Screen_Casting_current_revenue-fe311fbf35e2.json",
+        "niche_top_aiq_Screen_Casting_prior_revenue-9a5cfbed16d3.json",
+        "niche_top_aiq_Screen_Voice_Recorders_current_downloads-89d9250f4ede.json",
+        "niche_top_aiq_Screen_Voice_Recorders_current_revenue-6a6bdfcecf71.json",
+        "niche_top_aiq_Screen_Voice_Recorders_prior_revenue-f3fc3bc3e14d.json",
+        "niche_top_aiq_Selfie_Beauty_Editors_current_downloads-c15918848125.json",
+        "niche_top_aiq_Selfie_Beauty_Editors_current_revenue-5c51b4d60238.json",
+        "niche_top_aiq_Selfie_Beauty_Editors_prior_revenue-6c36d81da895.json",
+        "niche_top_aiq_Senior_Care_current_downloads-8c9dda1ac1ca.json",
+        "niche_top_aiq_Senior_Care_current_revenue-8ad1f9394c6e.json",
+        "niche_top_aiq_Senior_Care_prior_revenue-27565218bcd2.json",
+        "niche_top_aiq_Shipping_Fleet_Management_Apps_current_downloads-fd25b462c37c.json",
+        "niche_top_aiq_Shipping_Fleet_Management_Apps_current_revenue-6b18b0937e5d.json",
+        "niche_top_aiq_Shipping_Fleet_Management_Apps_prior_revenue-3cee84f37d49.json",
+        "niche_top_aiq_Shipping_Logistics_current_downloads-983ed57366bf.json",
+        "niche_top_aiq_Shipping_Logistics_current_revenue-85835f401467.json",
+        "niche_top_aiq_Shipping_Logistics_prior_revenue-35ea76c3bf2a.json",
+        "niche_top_aiq_Shopping_current_downloads-ee0cc26c28d3.json",
+        "niche_top_aiq_Shopping_current_revenue-1c01b42de6a3.json",
+        "niche_top_aiq_Shopping_prior_revenue-0d3000ebdeee.json",
+        "niche_top_aiq_Short_Drama_current_downloads-0ed4a8264076.json",
+        "niche_top_aiq_Short_Drama_current_revenue-dbcf932a8ee7.json",
+        "niche_top_aiq_Short_Drama_prior_revenue-b1c66589075d.json",
+        "niche_top_aiq_Ski_Resorts_current_downloads-df68b49b31c9.json",
+        "niche_top_aiq_Ski_Resorts_current_revenue-c24a7a70d00b.json",
+        "niche_top_aiq_Ski_Resorts_prior_revenue-328dcf0d4597.json",
+        "niche_top_aiq_Sleep_Aid_Supplements_current_downloads-35bb0153f0f3.json",
+        "niche_top_aiq_Sleep_Aid_Supplements_current_revenue-510db05387cb.json",
+        "niche_top_aiq_Sleep_Aid_Supplements_prior_revenue-f3cb36604298.json",
+        "niche_top_aiq_Small_Domestic_Appliances_current_downloads-d304a7aa667b.json",
+        "niche_top_aiq_Small_Domestic_Appliances_current_revenue-c018ab0efef9.json",
+        "niche_top_aiq_Small_Domestic_Appliances_prior_revenue-0f8a1d56d23d.json",
+        "niche_top_aiq_Small_Kitchen_Appliances_current_downloads-19a287235f02.json",
+        "niche_top_aiq_Small_Kitchen_Appliances_current_revenue-8d8c6b5a4ac3.json",
+        "niche_top_aiq_Small_Kitchen_Appliances_prior_revenue-2ec79f5fec9f.json",
+        "niche_top_aiq_Smart_Home_Apps_current_downloads-6a7d745e85ff.json",
+        "niche_top_aiq_Smart_Home_Apps_current_revenue-eaac5fc1dc0c.json",
+        "niche_top_aiq_Smart_Home_Apps_prior_revenue-affefa963b9d.json",
+        "niche_top_aiq_Sneakers_Athletic_Footwear_current_downloads-d60b00ebadb6.json",
+        "niche_top_aiq_Sneakers_Athletic_Footwear_current_revenue-b50750f9652f.json",
+        "niche_top_aiq_Sneakers_Athletic_Footwear_prior_revenue-7d014a54eb32.json",
+        "niche_top_aiq_Social_Discovery_current_downloads-f5dd70df75d9.json",
+        "niche_top_aiq_Social_Discovery_current_revenue-6d7349acf80d.json",
+        "niche_top_aiq_Social_Discovery_prior_revenue-f2162bb84e58.json",
+        "niche_top_aiq_Social_Media_current_downloads-d29b5463537f.json",
+        "niche_top_aiq_Social_Media_current_revenue-9ca4493b5670.json",
+        "niche_top_aiq_Social_Media_prior_revenue-9403fc548b11.json",
+        "niche_top_aiq_Social_Messaging_current_downloads-7d193c864fc9.json",
+        "niche_top_aiq_Social_Messaging_current_revenue-e85977c4107e.json",
+        "niche_top_aiq_Social_Messaging_prior_revenue-3a9881dbf40a.json",
+        "niche_top_aiq_Software_current_downloads-39dc4fa44914.json",
+        "niche_top_aiq_Software_current_revenue-7495f3533ab4.json",
+        "niche_top_aiq_Software_prior_revenue-6d3c36eb963c.json",
+        "niche_top_aiq_Speakers_Home_Audio_current_downloads-af595171fdc1.json",
+        "niche_top_aiq_Speakers_Home_Audio_current_revenue-25d23d31a306.json",
+        "niche_top_aiq_Speakers_Home_Audio_prior_revenue-8f59a1909849.json",
+        "niche_top_aiq_Sporting_Goods_current_downloads-ba4422d6ace2.json",
+        "niche_top_aiq_Sporting_Goods_current_revenue-f2c12063bc28.json",
+        "niche_top_aiq_Sporting_Goods_prior_revenue-6bbe16a26a00.json",
+        "niche_top_aiq_Sports_Entertainment_current_downloads-485081339fb5.json",
+        "niche_top_aiq_Sports_Entertainment_current_revenue-e05d7e87e8cd.json",
+        "niche_top_aiq_Sports_Entertainment_prior_revenue-7401de1faf26.json",
+        "niche_top_aiq_Sports_News_Statistics_Live_Scores_current_downloads-c113cc7706d0.json",
+        "niche_top_aiq_Sports_News_Statistics_Live_Scores_current_revenue-236bbc098db5.json",
+        "niche_top_aiq_Sports_News_Statistics_Live_Scores_prior_revenue-cf8f2e0cd15c.json",
+        "niche_top_aiq_Sports_Nutrition_Supplements_current_downloads-6e370f96aa0d.json",
+        "niche_top_aiq_Sports_Nutrition_Supplements_current_revenue-dc8f6d540842.json",
+        "niche_top_aiq_Sports_Nutrition_Supplements_prior_revenue-1b37aeb82625.json",
+        "niche_top_aiq_Sports_Outdoors_current_downloads-dc324c2259d5.json",
+        "niche_top_aiq_Sports_Outdoors_current_revenue-d931e9065c17.json",
+        "niche_top_aiq_Sports_Outdoors_prior_revenue-5814a9637ff3.json",
+        "niche_top_aiq_Sports_Streaming_current_downloads-1cd958939478.json",
+        "niche_top_aiq_Sports_Streaming_current_revenue-689b44660c8a.json",
+        "niche_top_aiq_Sports_Streaming_prior_revenue-b6ff7945e023.json",
+        "niche_top_aiq_State_Lotteries_current_downloads-37348bed3b50.json",
+        "niche_top_aiq_State_Lotteries_current_revenue-c9dd25c05925.json",
+        "niche_top_aiq_State_Lotteries_prior_revenue-5c55c8b1b1e9.json",
+        "niche_top_aiq_Stress_Management_Mental_Health_Apps_current_downloads-f3718b7f435f.json",
+        "niche_top_aiq_Stress_Management_Mental_Health_Apps_current_revenue-17abd243ff67.json",
+        "niche_top_aiq_Stress_Management_Mental_Health_Apps_prior_revenue-2ef1d940c096.json",
+        "niche_top_aiq_Superfoods_Meal_Replacement_Powders_current_downloads-90cdc7b3891a.json",
+        "niche_top_aiq_Superfoods_Meal_Replacement_Powders_current_revenue-777fb16d4850.json",
+        "niche_top_aiq_Superfoods_Meal_Replacement_Powders_prior_revenue-dff9c025dd3c.json",
+        "niche_top_aiq_TV_Services_current_downloads-864273ddc9e1.json",
+        "niche_top_aiq_TV_Services_current_revenue-49788a86135e.json",
+        "niche_top_aiq_TV_Services_prior_revenue-ca8ccba97f44.json",
+        "niche_top_aiq_TV_Shows_current_downloads-5fa36293abc4.json",
+        "niche_top_aiq_TV_Shows_current_revenue-5e7cbcfc3d56.json",
+        "niche_top_aiq_TV_Shows_prior_revenue-330f2db8c7bf.json",
+        "niche_top_aiq_TV_Video_current_downloads-83d588e07e4d.json",
+        "niche_top_aiq_TV_Video_current_revenue-193312960c5c.json",
+        "niche_top_aiq_TV_Video_prior_revenue-98a25b02e757.json",
+        "niche_top_aiq_TVs_current_downloads-21883a9925e3.json",
+        "niche_top_aiq_TVs_current_revenue-a67ecb3ddc87.json",
+        "niche_top_aiq_TVs_prior_revenue-4a234f45c27e.json",
+        "niche_top_aiq_Tablets_current_downloads-10e8d8a0a8f9.json",
+        "niche_top_aiq_Tablets_current_revenue-9319c8061d47.json",
+        "niche_top_aiq_Tablets_prior_revenue-d418deb9ab3b.json",
+        "niche_top_aiq_Tax_Preparation_Accounting_current_downloads-b2531b4cd65c.json",
+        "niche_top_aiq_Tax_Preparation_Accounting_current_revenue-d1ec7a1c4b55.json",
+        "niche_top_aiq_Tax_Preparation_Accounting_prior_revenue-bac5d2137709.json",
+        "niche_top_aiq_Taxi_Shuttle_Services_current_downloads-b8a35af973a3.json",
+        "niche_top_aiq_Taxi_Shuttle_Services_current_revenue-4e9d8c4d3645.json",
+        "niche_top_aiq_Taxi_Shuttle_Services_prior_revenue-3d0ebb7c3fa3.json",
+        "niche_top_aiq_Teaching_Classroom_Resources_current_downloads-350c0604ba3b.json",
+        "niche_top_aiq_Teaching_Classroom_Resources_current_revenue-4b2eac626095.json",
+        "niche_top_aiq_Teaching_Classroom_Resources_prior_revenue-3b7ced061c4b.json",
+        "niche_top_aiq_Team_Sports_Outdoor_Recreation_current_downloads-c0fcbced117f.json",
+        "niche_top_aiq_Team_Sports_Outdoor_Recreation_current_revenue-f48e700ff23a.json",
+        "niche_top_aiq_Team_Sports_Outdoor_Recreation_prior_revenue-b2fe4177a73b.json",
+        "niche_top_aiq_Telecom_current_downloads-6199cc361ebf.json",
+        "niche_top_aiq_Telecom_current_revenue-b4c5eff669a7.json",
+        "niche_top_aiq_Telecom_prior_revenue-1c26d6042f83.json",
+        "niche_top_aiq_Telehealth_current_downloads-2d8000d8b00c.json",
+        "niche_top_aiq_Telehealth_current_revenue-b35d33c3210f.json",
+        "niche_top_aiq_Telehealth_prior_revenue-1da3333a32cf.json",
+        "niche_top_aiq_Test_Prep_Tutoring_Studying_current_downloads-5af8e3ca8264.json",
+        "niche_top_aiq_Test_Prep_Tutoring_Studying_current_revenue-b45d2d0ef782.json",
+        "niche_top_aiq_Test_Prep_Tutoring_Studying_prior_revenue-88709463f0d4.json",
+        "niche_top_aiq_Theme_Parks_current_downloads-7d1965e2ec38.json",
+        "niche_top_aiq_Theme_Parks_current_revenue-3538ef6f3667.json",
+        "niche_top_aiq_Theme_Parks_prior_revenue-e60f94e2223a.json",
+        "niche_top_aiq_Tools_Equipment_current_downloads-5e1b2c662067.json",
+        "niche_top_aiq_Tools_Equipment_current_revenue-eb530caae8a4.json",
+        "niche_top_aiq_Tools_Equipment_prior_revenue-2f09a999ec91.json",
+        "niche_top_aiq_Tour_Operators_Specialty_Travel_current_downloads-b2023f594a1f.json",
+        "niche_top_aiq_Tour_Operators_Specialty_Travel_current_revenue-614908ad1b1c.json",
+        "niche_top_aiq_Tour_Operators_Specialty_Travel_prior_revenue-9599bf701922.json",
+        "niche_top_aiq_Tourist_Attractions_Destinations_current_downloads-7ede65e9465d.json",
+        "niche_top_aiq_Tourist_Attractions_Destinations_current_revenue-82ea170d24b0.json",
+        "niche_top_aiq_Tourist_Attractions_Destinations_prior_revenue-539bc5d42fe7.json",
+        "niche_top_aiq_Tourist_Authorities_CVBs_current_downloads-24c5d4560bed.json",
+        "niche_top_aiq_Tourist_Authorities_CVBs_current_revenue-8ac0a11985e1.json",
+        "niche_top_aiq_Tourist_Authorities_CVBs_prior_revenue-e4b0ef16cb7f.json",
+        "niche_top_aiq_Toy_Vehicles_current_downloads-2819c0cd69db.json",
+        "niche_top_aiq_Toy_Vehicles_current_revenue-4552c11f5cc3.json",
+        "niche_top_aiq_Toy_Vehicles_prior_revenue-32bc1907d649.json",
+        "niche_top_aiq_Toys_Games_current_downloads-9b3536ca632f.json",
+        "niche_top_aiq_Toys_Games_current_revenue-975f00819802.json",
+        "niche_top_aiq_Toys_Games_prior_revenue-6a029a3cbae3.json",
+        "niche_top_aiq_Translation_current_downloads-205fd7e70649.json",
+        "niche_top_aiq_Translation_current_revenue-6f7aa292e778.json",
+        "niche_top_aiq_Translation_prior_revenue-f138d2a7e28b.json",
+        "niche_top_aiq_Transportation_current_downloads-6c12cc30d04c.json",
+        "niche_top_aiq_Transportation_current_revenue-5c4b7d00981b.json",
+        "niche_top_aiq_Transportation_prior_revenue-9467d726c501.json",
+        "niche_top_aiq_Travel_Booking_Services_current_downloads-2cc8eb78638e.json",
+        "niche_top_aiq_Travel_Booking_Services_current_revenue-29be55ebd855.json",
+        "niche_top_aiq_Travel_Booking_Services_prior_revenue-a02d2d3f3d2c.json",
+        "niche_top_aiq_Travel_Media_Publications_current_downloads-a1eb4453e671.json",
+        "niche_top_aiq_Travel_Media_Publications_current_revenue-6ac942f06f22.json",
+        "niche_top_aiq_Travel_Media_Publications_prior_revenue-89c34803fc86.json",
+        "niche_top_aiq_Travel_Tourism_current_downloads-9302451e27c0.json",
+        "niche_top_aiq_Travel_Tourism_current_revenue-7b8ae9407ce8.json",
+        "niche_top_aiq_Travel_Tourism_prior_revenue-0f89e06f80b5.json",
+        "niche_top_aiq_Undergarments_current_downloads-879d4d31dea6.json",
+        "niche_top_aiq_Undergarments_current_revenue-1a6de5996295.json",
+        "niche_top_aiq_Undergarments_prior_revenue-b239398c06ec.json",
+        "niche_top_aiq_Used_Car_Retailers_current_downloads-927c75bcf9af.json",
+        "niche_top_aiq_Used_Car_Retailers_current_revenue-afe1042eac8b.json",
+        "niche_top_aiq_Used_Car_Retailers_prior_revenue-115a2f7fa162.json",
+        "niche_top_aiq_Utilities_current_downloads-6ceffca682a3.json",
+        "niche_top_aiq_Utilities_current_revenue-f09929ba9312.json",
+        "niche_top_aiq_Utilities_prior_revenue-c766c65013c8.json",
+        "niche_top_aiq_Vacation_Rentals_Homestays_current_downloads-c39745dc8254.json",
+        "niche_top_aiq_Vacation_Rentals_Homestays_current_revenue-7433fab895bf.json",
+        "niche_top_aiq_Vacation_Rentals_Homestays_prior_revenue-8538ef905055.json",
+        "niche_top_aiq_Vacuum_Cleaners_Floorcare_current_downloads-1809ae1cbaef.json",
+        "niche_top_aiq_Vacuum_Cleaners_Floorcare_current_revenue-488c053f864b.json",
+        "niche_top_aiq_Vacuum_Cleaners_Floorcare_prior_revenue-f4dd3ab0c8f2.json",
+        "niche_top_aiq_Vehicle_Connect_current_downloads-350ce87701b2.json",
+        "niche_top_aiq_Vehicle_Connect_current_revenue-67b42d296f30.json",
+        "niche_top_aiq_Vehicle_Connect_prior_revenue-a1dd1e75f4b9.json",
+        "niche_top_aiq_Vehicle_Fluids_current_downloads-df819b4e48d1.json",
+        "niche_top_aiq_Vehicle_Fluids_current_revenue-fe9b606a3fd3.json",
+        "niche_top_aiq_Vehicle_Fluids_prior_revenue-372777ad8e72.json",
+        "niche_top_aiq_Vehicle_Maintenance_Services_current_downloads-60d2c1f06947.json",
+        "niche_top_aiq_Vehicle_Maintenance_Services_current_revenue-f180b0fd68c8.json",
+        "niche_top_aiq_Vehicle_Maintenance_Services_prior_revenue-aa923d7b414b.json",
+        "niche_top_aiq_Vehicle_Parts_Accessories_current_downloads-105556be9ba9.json",
+        "niche_top_aiq_Vehicle_Parts_Accessories_current_revenue-deb1c0643d11.json",
+        "niche_top_aiq_Vehicle_Parts_Accessories_prior_revenue-438336aef1a7.json",
+        "niche_top_aiq_Vehicle_Parts_Maintenance_current_downloads-f5b1c19ed400.json",
+        "niche_top_aiq_Vehicle_Parts_Maintenance_current_revenue-7c1e65c61b88.json",
+        "niche_top_aiq_Vehicle_Parts_Maintenance_prior_revenue-ecc9e00febcd.json",
+        "niche_top_aiq_Video_Editing_current_downloads-7c80986845e4.json",
+        "niche_top_aiq_Video_Editing_current_revenue-7426f3bf8acb.json",
+        "niche_top_aiq_Video_Editing_prior_revenue-01a2e55c7e2f.json",
+        "niche_top_aiq_Virtual_TV_Remotes_current_downloads-144bc68af5e0.json",
+        "niche_top_aiq_Virtual_TV_Remotes_current_revenue-82695651083b.json",
+        "niche_top_aiq_Virtual_TV_Remotes_prior_revenue-1b23ee89b01d.json",
+        "niche_top_aiq_Virtual_World_current_downloads-aa526b53b799.json",
+        "niche_top_aiq_Virtual_World_current_revenue-9031c3e2d8ec.json",
+        "niche_top_aiq_Virtual_World_prior_revenue-ebb02a0525f1.json",
+        "niche_top_aiq_Vitamins_Supplements_current_downloads-1361aa56eac4.json",
+        "niche_top_aiq_Vitamins_Supplements_current_revenue-0c76fa67c215.json",
+        "niche_top_aiq_Vitamins_Supplements_prior_revenue-45eead957264.json",
+        "niche_top_aiq_Vocational_Training_Trade_Schools_current_downloads-443e1e6ab77a.json",
+        "niche_top_aiq_Vocational_Training_Trade_Schools_current_revenue-b8349e564678.json",
+        "niche_top_aiq_Vocational_Training_Trade_Schools_prior_revenue-62782891e305.json",
+        "niche_top_aiq_Watches_current_downloads-50a5458088cf.json",
+        "niche_top_aiq_Watches_current_revenue-57e490008f19.json",
+        "niche_top_aiq_Watches_prior_revenue-72d1fac7168a.json",
+        "niche_top_aiq_Watercraft_Accessories_current_downloads-fe2b0e7899ad.json",
+        "niche_top_aiq_Watercraft_Accessories_current_revenue-9d8fcf606752.json",
+        "niche_top_aiq_Watercraft_Accessories_prior_revenue-a39f9005ab6b.json",
+        "niche_top_aiq_Wealth_Management_current_downloads-35051452a8e7.json",
+        "niche_top_aiq_Wealth_Management_current_revenue-9977659dd28e.json",
+        "niche_top_aiq_Wealth_Management_prior_revenue-d2e61b68ff26.json",
+        "niche_top_aiq_Wearable_Technology_current_downloads-d50bf7775cec.json",
+        "niche_top_aiq_Wearable_Technology_current_revenue-be0fa95c3578.json",
+        "niche_top_aiq_Wearable_Technology_prior_revenue-aea3e30b485a.json",
+        "niche_top_aiq_Weather_current_downloads-f55127a123d3.json",
+        "niche_top_aiq_Weather_current_revenue-6b5e8ab04524.json",
+        "niche_top_aiq_Weather_prior_revenue-f4e891e97cd4.json",
+        "niche_top_aiq_Web_Development_current_downloads-570358857bf6.json",
+        "niche_top_aiq_Web_Development_current_revenue-cff631cb6038.json",
+        "niche_top_aiq_Web_Development_prior_revenue-9115c975e12e.json",
+        "niche_top_aiq_Weddings_Event_Planning_current_downloads-19e89e459265.json",
+        "niche_top_aiq_Weddings_Event_Planning_current_revenue-018de23d5acc.json",
+        "niche_top_aiq_Weddings_Event_Planning_prior_revenue-c5b3effc1fed.json",
+        "niche_top_aiq_Weight_Management_Supplements_current_downloads-6f7237d0453b.json",
+        "niche_top_aiq_Weight_Management_Supplements_current_revenue-b4de86238550.json",
+        "niche_top_aiq_Weight_Management_Supplements_prior_revenue-f058ce740bc3.json",
+        "niche_top_aiq_Winter_Sports_Equipment_current_downloads-7a5b243ee494.json",
+        "niche_top_aiq_Winter_Sports_Equipment_current_revenue-ba9cfe9240e0.json",
+        "niche_top_aiq_Winter_Sports_Equipment_prior_revenue-873173877d3b.json",
+        "niche_top_aiq_Yoga_Apparel_current_downloads-4550882aec75.json",
+        "niche_top_aiq_Yoga_Apparel_current_revenue-9400a4a5235e.json",
+        "niche_top_aiq_Yoga_Apparel_prior_revenue-a7e8e1a50093.json"
+      ],
+      "niche_top/gsg": [
+        "niche_top_gsg_4X_Strategy_current_downloads-9da4d695e10c.json",
+        "niche_top_gsg_4X_Strategy_current_revenue-232d36afdd73.json",
+        "niche_top_gsg_4X_Strategy_prior_revenue-029874b4f57e.json",
+        "niche_top_gsg_Action_RPG_current_downloads-8b930bda8e48.json",
+        "niche_top_gsg_Action_RPG_current_revenue-0a324e20b5aa.json",
+        "niche_top_gsg_Action_RPG_prior_revenue-8f0aaec9a7a6.json",
+        "niche_top_gsg_Action_Sandbox_current_downloads-dd2d82744993.json",
+        "niche_top_gsg_Action_Sandbox_current_revenue-661b50cf4c16.json",
+        "niche_top_gsg_Action_Sandbox_prior_revenue-8bb9fa27e9d2.json",
+        "niche_top_gsg_Adventure_current_downloads-4e6b83ee9b55.json",
+        "niche_top_gsg_Adventure_current_revenue-d35ca61f41a4.json",
+        "niche_top_gsg_Adventure_prior_revenue-f6e98fbc640d.json",
+        "niche_top_gsg_Arcade_Combat_current_downloads-9f995d3e9091.json",
+        "niche_top_gsg_Arcade_Combat_current_revenue-8bf61e0429d1.json",
+        "niche_top_gsg_Arcade_Combat_prior_revenue-b35b01d13311.json",
+        "niche_top_gsg_Arcade_Driving_current_downloads-bd70d823a665.json",
+        "niche_top_gsg_Arcade_Driving_current_revenue-65d0df644017.json",
+        "niche_top_gsg_Arcade_Driving_prior_revenue-267689f156de.json",
+        "niche_top_gsg_Arcade_Racing_current_downloads-edfed6f0620f.json",
+        "niche_top_gsg_Arcade_Racing_current_revenue-97910f42a331.json",
+        "niche_top_gsg_Arcade_Racing_prior_revenue-318aa9818fc6.json",
+        "niche_top_gsg_Arcade_Sports_current_downloads-929f37544903.json",
+        "niche_top_gsg_Arcade_Sports_current_revenue-59cd8406d0b7.json",
+        "niche_top_gsg_Arcade_Sports_prior_revenue-38d4c31fa95e.json",
+        "niche_top_gsg_Artillery_Shooter_current_downloads-5100d1f492a4.json",
+        "niche_top_gsg_Artillery_Shooter_current_revenue-6098a468c324.json",
+        "niche_top_gsg_Artillery_Shooter_prior_revenue-97572e027e5c.json",
+        "niche_top_gsg_Asymmetric_Battle_current_downloads-f6790ef007c4.json",
+        "niche_top_gsg_Asymmetric_Battle_current_revenue-d4e80c675523.json",
+        "niche_top_gsg_Asymmetric_Battle_prior_revenue-0641cd890cca.json",
+        "niche_top_gsg_Auto_Chess_current_downloads-a11f451035fe.json",
+        "niche_top_gsg_Auto_Chess_current_revenue-06f1a7503044.json",
+        "niche_top_gsg_Auto_Chess_prior_revenue-0accc0620b64.json",
+        "niche_top_gsg_Avatar_Life_current_downloads-9bc7be5cfce1.json",
+        "niche_top_gsg_Avatar_Life_current_revenue-6628c7776bb0.json",
+        "niche_top_gsg_Avatar_Life_prior_revenue-d41bfc0e153e.json",
+        "niche_top_gsg_Battle_Royale_current_downloads-b20a8ca98252.json",
+        "niche_top_gsg_Battle_Royale_current_revenue-a2980355563b.json",
+        "niche_top_gsg_Battle_Royale_prior_revenue-94fb161cd23b.json",
+        "niche_top_gsg_Beat_em_Up_current_downloads-8a4229ba5169.json",
+        "niche_top_gsg_Beat_em_Up_current_revenue-27a018854fd4.json",
+        "niche_top_gsg_Beat_em_Up_prior_revenue-36decc204e5b.json",
+        "niche_top_gsg_Bingo_current_downloads-40acd122386f.json",
+        "niche_top_gsg_Bingo_current_revenue-56f98102dde0.json",
+        "niche_top_gsg_Bingo_prior_revenue-c5c0b2da61d1.json",
+        "niche_top_gsg_Blast_current_downloads-8a4e00da99d9.json",
+        "niche_top_gsg_Blast_current_revenue-f2d997c23f15.json",
+        "niche_top_gsg_Blast_prior_revenue-4f8654670101.json",
+        "niche_top_gsg_Block_current_downloads-11de132a3ceb.json",
+        "niche_top_gsg_Block_current_revenue-71aa38517f21.json",
+        "niche_top_gsg_Block_prior_revenue-b1bf34ce40f2.json",
+        "niche_top_gsg_Board_current_downloads-2af66e63ab08.json",
+        "niche_top_gsg_Board_current_revenue-db0627f0ad1e.json",
+        "niche_top_gsg_Board_prior_revenue-2aa1b1047ff0.json",
+        "niche_top_gsg_Brawl_current_downloads-ed5d7b1a4d1e.json",
+        "niche_top_gsg_Brawl_current_revenue-7bb39c06d814.json",
+        "niche_top_gsg_Brawl_prior_revenue-48f5102b934e.json",
+        "niche_top_gsg_Breeding_current_downloads-398a5931f3f4.json",
+        "niche_top_gsg_Breeding_current_revenue-c938f86fc60a.json",
+        "niche_top_gsg_Breeding_prior_revenue-fe096dd9e238.json",
+        "niche_top_gsg_Bubble_Shooter_current_downloads-4084d9995e52.json",
+        "niche_top_gsg_Bubble_Shooter_current_revenue-eda8b324329e.json",
+        "niche_top_gsg_Bubble_Shooter_prior_revenue-80d4d4eefc79.json",
+        "niche_top_gsg_Build_Battle_current_downloads-0a43d45566ee.json",
+        "niche_top_gsg_Build_Battle_current_revenue-9fa8736c3b3d.json",
+        "niche_top_gsg_Build_Battle_prior_revenue-fe40939b2dae.json",
+        "niche_top_gsg_Card_current_downloads-47a2843e289b.json",
+        "niche_top_gsg_Card_current_revenue-1494a25f6d50.json",
+        "niche_top_gsg_Card_prior_revenue-1ab6313723fb.json",
+        "niche_top_gsg_Card_Battler_current_downloads-2026a62987a2.json",
+        "niche_top_gsg_Card_Battler_current_revenue-c71e0224ae35.json",
+        "niche_top_gsg_Card_Battler_prior_revenue-681f5045a61d.json",
+        "niche_top_gsg_Card_Games_current_downloads-485286bf5284.json",
+        "niche_top_gsg_Card_Games_current_revenue-acfc2e92f524.json",
+        "niche_top_gsg_Card_Games_prior_revenue-5993a8ee4f57.json",
+        "niche_top_gsg_Cards_current_downloads-34bea9f27059.json",
+        "niche_top_gsg_Cards_current_revenue-7d28348887a0.json",
+        "niche_top_gsg_Cards_prior_revenue-b92fafb7d9b6.json",
+        "niche_top_gsg_Casino_Cards_current_downloads-b2035e53c9dc.json",
+        "niche_top_gsg_Casino_Cards_current_revenue-a690eaee993d.json",
+        "niche_top_gsg_Casino_Cards_prior_revenue-09124074389e.json",
+        "niche_top_gsg_Chain_current_downloads-928d3fac8480.json",
+        "niche_top_gsg_Chain_current_revenue-ebd0c165425f.json",
+        "niche_top_gsg_Chain_prior_revenue-ba3d474025e3.json",
+        "niche_top_gsg_Claw_Machine_current_downloads-064859e74cbd.json",
+        "niche_top_gsg_Claw_Machine_current_revenue-764ba05cedb8.json",
+        "niche_top_gsg_Claw_Machine_prior_revenue-5b461b2c8edc.json",
+        "niche_top_gsg_Coin_Looters_current_downloads-8ff4fce71148.json",
+        "niche_top_gsg_Coin_Looters_current_revenue-ce1fef7442a0.json",
+        "niche_top_gsg_Coin_Looters_prior_revenue-e9c8f7e6bcfd.json",
+        "niche_top_gsg_Coin_Pusher_current_downloads-8a0ecf69c45e.json",
+        "niche_top_gsg_Coin_Pusher_current_revenue-07542f0f55ba.json",
+        "niche_top_gsg_Coin_Pusher_prior_revenue-2ec0b950d997.json",
+        "niche_top_gsg_Customization_current_downloads-3c40d802596d.json",
+        "niche_top_gsg_Customization_current_revenue-79776653eb5b.json",
+        "niche_top_gsg_Customization_prior_revenue-bfbbf59b3013.json",
+        "niche_top_gsg_Dominoes_current_downloads-e7fcd3ea28fd.json",
+        "niche_top_gsg_Dominoes_current_revenue-7f2461df6e30.json",
+        "niche_top_gsg_Dominoes_prior_revenue-744885bd89e5.json",
+        "niche_top_gsg_Drag_Racing_current_downloads-6499f0ffa21b.json",
+        "niche_top_gsg_Drag_Racing_current_revenue-a09eeca6e15f.json",
+        "niche_top_gsg_Drag_Racing_prior_revenue-66c08d92504a.json",
+        "niche_top_gsg_Drawing_Coloring_current_downloads-58fcffaa2d45.json",
+        "niche_top_gsg_Drawing_Coloring_current_revenue-e6b1c0d7b004.json",
+        "niche_top_gsg_Drawing_Coloring_prior_revenue-f7e28eb5a6dd.json",
+        "niche_top_gsg_Driving_Flight_Simulator_current_downloads-90298b0a051f.json",
+        "niche_top_gsg_Driving_Flight_Simulator_current_revenue-30d2a19ac464.json",
+        "niche_top_gsg_Driving_Flight_Simulator_prior_revenue-611caacfb306.json",
+        "niche_top_gsg_Eat_Grow_current_downloads-c11038a733de.json",
+        "niche_top_gsg_Eat_Grow_current_revenue-9a3857537792.json",
+        "niche_top_gsg_Eat_Grow_prior_revenue-daa499936bfd.json",
+        "niche_top_gsg_Empire_Simulation_current_downloads-6f858c06ee67.json",
+        "niche_top_gsg_Empire_Simulation_current_revenue-74a8f4a325f7.json",
+        "niche_top_gsg_Empire_Simulation_prior_revenue-8220ca3133ed.json",
+        "niche_top_gsg_Environmental_current_downloads-ace1f9cfd586.json",
+        "niche_top_gsg_Environmental_current_revenue-4ada26c53100.json",
+        "niche_top_gsg_Environmental_prior_revenue-746e916ecc50.json",
+        "niche_top_gsg_FPS_3PS_current_downloads-097a60f26b26.json",
+        "niche_top_gsg_FPS_3PS_current_revenue-d36ed713ce6b.json",
+        "niche_top_gsg_FPS_3PS_prior_revenue-eb29ab72a5ad.json",
+        "niche_top_gsg_Fighting_current_downloads-2fad1f1f5c77.json",
+        "niche_top_gsg_Fighting_current_revenue-a0d8b6f8c2f2.json",
+        "niche_top_gsg_Fighting_prior_revenue-40551e32212c.json",
+        "niche_top_gsg_Fish_Shooting_current_downloads-79dfc8e46dcc.json",
+        "niche_top_gsg_Fish_Shooting_current_revenue-d2789a82f634.json",
+        "niche_top_gsg_Fish_Shooting_prior_revenue-6d48407ac22e.json",
+        "niche_top_gsg_Geolocation_current_downloads-26fe44bdddf7.json",
+        "niche_top_gsg_Geolocation_current_revenue-5576ada42bec.json",
+        "niche_top_gsg_Geolocation_prior_revenue-e4b7daa04469.json",
+        "niche_top_gsg_Geolocation_AR_current_downloads-6ecf85083c02.json",
+        "niche_top_gsg_Geolocation_AR_current_revenue-03a7e0c74535.json",
+        "niche_top_gsg_Geolocation_AR_prior_revenue-d6f900d8f056.json",
+        "niche_top_gsg_Hack_and_Slash_current_downloads-8a61e555dc6e.json",
+        "niche_top_gsg_Hack_and_Slash_current_revenue-7cb15c1bb513.json",
+        "niche_top_gsg_Hack_and_Slash_prior_revenue-ba6931bf03f3.json",
+        "niche_top_gsg_Hidden_Objects_current_downloads-335fd2d6fb3b.json",
+        "niche_top_gsg_Hidden_Objects_current_revenue-41718a4ac9d7.json",
+        "niche_top_gsg_Hidden_Objects_prior_revenue-c08503d26ba8.json",
+        "niche_top_gsg_Idle_RPG_current_downloads-fd0513afb595.json",
+        "niche_top_gsg_Idle_RPG_current_revenue-77d42db0b9bf.json",
+        "niche_top_gsg_Idle_RPG_prior_revenue-c6acff66cf0f.json",
+        "niche_top_gsg_Idler_current_downloads-9429a4df0035.json",
+        "niche_top_gsg_Idler_current_revenue-5b1c659b6244.json",
+        "niche_top_gsg_Idler_prior_revenue-6cf8491c9c33.json",
+        "niche_top_gsg_Interactive_Story_current_downloads-4ff9b948213c.json",
+        "niche_top_gsg_Interactive_Story_current_revenue-53dea6773210.json",
+        "niche_top_gsg_Interactive_Story_prior_revenue-9ac694bc3586.json",
+        "niche_top_gsg_Jigsaw_current_downloads-b14dfdfa988f.json",
+        "niche_top_gsg_Jigsaw_current_revenue-4cd048db8ae7.json",
+        "niche_top_gsg_Jigsaw_prior_revenue-29940d8dbc2e.json",
+        "niche_top_gsg_Kart_Racing_current_downloads-b081cb701331.json",
+        "niche_top_gsg_Kart_Racing_current_revenue-26844bd88487.json",
+        "niche_top_gsg_Kart_Racing_prior_revenue-f22193e44520.json",
+        "niche_top_gsg_Landlord_current_downloads-a41ac4d03a9b.json",
+        "niche_top_gsg_Landlord_current_revenue-9c789f854e89.json",
+        "niche_top_gsg_Landlord_prior_revenue-bedfb26eea59.json",
+        "niche_top_gsg_Lifestyle_Simulator_current_downloads-4a7b6c02b1ec.json",
+        "niche_top_gsg_Lifestyle_Simulator_current_revenue-27197e665e8c.json",
+        "niche_top_gsg_Lifestyle_Simulator_prior_revenue-af7054472413.json",
+        "niche_top_gsg_MMORPG_current_downloads-0a37c755a9a3.json",
+        "niche_top_gsg_MMORPG_current_revenue-b37149e5806d.json",
+        "niche_top_gsg_MMORPG_prior_revenue-124864ba5c18.json",
+        "niche_top_gsg_MOBA_current_downloads-02a34c17abbd.json",
+        "niche_top_gsg_MOBA_current_revenue-2232c2b8836e.json",
+        "niche_top_gsg_MOBA_prior_revenue-f68257143f81.json",
+        "niche_top_gsg_Mahjong_current_downloads-df40728ab1ef.json",
+        "niche_top_gsg_Mahjong_current_revenue-d2bd0ed76e6b.json",
+        "niche_top_gsg_Mahjong_prior_revenue-5e038338657b.json",
+        "niche_top_gsg_Match_Blast_current_downloads-5a49a3959399.json",
+        "niche_top_gsg_Match_Blast_current_revenue-af91f0556608.json",
+        "niche_top_gsg_Match_Blast_prior_revenue-4a375afb1363.json",
+        "niche_top_gsg_Match_Chain_current_downloads-be2d634cbdcc.json",
+        "niche_top_gsg_Match_Chain_current_revenue-be0f1d7581d9.json",
+        "niche_top_gsg_Match_Chain_prior_revenue-5a59b2bd7992.json",
+        "niche_top_gsg_Match_Merge_current_downloads-12a2e1ef3177.json",
+        "niche_top_gsg_Match_Merge_current_revenue-aab5cb4d8638.json",
+        "niche_top_gsg_Match_Merge_prior_revenue-07e2baf4b9d8.json",
+        "niche_top_gsg_Match_Merge_2_current_downloads-d9c2907dd2a7.json",
+        "niche_top_gsg_Match_Merge_2_current_revenue-369038ba492b.json",
+        "niche_top_gsg_Match_Merge_2_prior_revenue-e1adea58f501.json",
+        "niche_top_gsg_Match_Merge_3_current_downloads-2c58267edf1e.json",
+        "niche_top_gsg_Match_Merge_3_current_revenue-a5be0925c0c0.json",
+        "niche_top_gsg_Match_Merge_3_prior_revenue-1a04d14525b3.json",
+        "niche_top_gsg_Match_Pair_current_downloads-25ae0b285472.json",
+        "niche_top_gsg_Match_Pair_current_revenue-52b77df15eff.json",
+        "niche_top_gsg_Match_Pair_prior_revenue-e6977fa64195.json",
+        "niche_top_gsg_Match_Swap_current_downloads-d5c065b64a0e.json",
+        "niche_top_gsg_Match_Swap_current_revenue-b08f6e0dd3bf.json",
+        "niche_top_gsg_Match_Swap_prior_revenue-31cbcd907d6f.json",
+        "niche_top_gsg_Maze_current_downloads-62124362d8ab.json",
+        "niche_top_gsg_Maze_current_revenue-7ccdd063599d.json",
+        "niche_top_gsg_Maze_prior_revenue-60bf81ad7d63.json",
+        "niche_top_gsg_Mini_game_Hub_current_downloads-19088d58ab3c.json",
+        "niche_top_gsg_Mini_game_Hub_current_revenue-15dbda099ebe.json",
+        "niche_top_gsg_Mini_game_Hub_prior_revenue-39b1c2c67669.json",
+        "niche_top_gsg_Music_Rhythm_current_downloads-ab0d8bde1c71.json",
+        "niche_top_gsg_Music_Rhythm_current_revenue-4c7e72fb0db2.json",
+        "niche_top_gsg_Music_Rhythm_prior_revenue-ff0e5d5e9ba8.json",
+        "niche_top_gsg_Numbers_current_downloads-586dc098f775.json",
+        "niche_top_gsg_Numbers_current_revenue-2abd5a066ec0.json",
+        "niche_top_gsg_Numbers_prior_revenue-9765b33dfaea.json",
+        "niche_top_gsg_Okey_current_downloads-3f1728767577.json",
+        "niche_top_gsg_Okey_current_revenue-e496ea1e58f7.json",
+        "niche_top_gsg_Okey_prior_revenue-7b89627d18da.json",
+        "niche_top_gsg_Open_World_Adventure_current_downloads-1f0d33006a1f.json",
+        "niche_top_gsg_Open_World_Adventure_current_revenue-3c078043937a.json",
+        "niche_top_gsg_Open_World_Adventure_prior_revenue-3841cd1215ef.json",
+        "niche_top_gsg_Other_Arcade_current_downloads-3142b7c4f3db.json",
+        "niche_top_gsg_Other_Arcade_current_revenue-13f5c977b7ac.json",
+        "niche_top_gsg_Other_Arcade_prior_revenue-22a91f44dff1.json",
+        "niche_top_gsg_Other_Casino_current_downloads-096ac66aee1b.json",
+        "niche_top_gsg_Other_Casino_current_revenue-7c090899fbd8.json",
+        "niche_top_gsg_Other_Casino_prior_revenue-5f0e89fc041f.json",
+        "niche_top_gsg_Other_Puzzle_current_downloads-78e3342466f9.json",
+        "niche_top_gsg_Other_Puzzle_current_revenue-152d8babcc94.json",
+        "niche_top_gsg_Other_Puzzle_prior_revenue-3bc0d8093aba.json",
+        "niche_top_gsg_Other_Strategy_current_downloads-0805738a1032.json",
+        "niche_top_gsg_Other_Strategy_current_revenue-32b38a75eb1c.json",
+        "niche_top_gsg_Other_Strategy_prior_revenue-b520adaf4693.json",
+        "niche_top_gsg_Pachinko_current_downloads-e273fce760fe.json",
+        "niche_top_gsg_Pachinko_current_revenue-1007219cf2ec.json",
+        "niche_top_gsg_Pachinko_prior_revenue-9f0486a967b1.json",
+        "niche_top_gsg_Pair_current_downloads-5d7c26dd9fa5.json",
+        "niche_top_gsg_Pair_current_revenue-c09f15de3353.json",
+        "niche_top_gsg_Pair_prior_revenue-2e7bca027851.json",
+        "niche_top_gsg_Party_Royale_current_downloads-986075464cd4.json",
+        "niche_top_gsg_Party_Royale_current_revenue-8ffe123c62e2.json",
+        "niche_top_gsg_Party_Royale_prior_revenue-5092afac3fe3.json",
+        "niche_top_gsg_Physics_current_downloads-0bf112c0e827.json",
+        "niche_top_gsg_Physics_current_revenue-4a362938e5cc.json",
+        "niche_top_gsg_Physics_prior_revenue-013e49e95d68.json",
+        "niche_top_gsg_Pinball_Brick_Breaker_current_downloads-b66378187e5c.json",
+        "niche_top_gsg_Pinball_Brick_Breaker_current_revenue-7f5f642b9a36.json",
+        "niche_top_gsg_Pinball_Brick_Breaker_prior_revenue-4560eda01969.json",
+        "niche_top_gsg_Platformer_Runner_current_downloads-559df898c92e.json",
+        "niche_top_gsg_Platformer_Runner_current_revenue-5e9a8497881b.json",
+        "niche_top_gsg_Platformer_Runner_prior_revenue-17432c7f26ea.json",
+        "niche_top_gsg_Poker_current_downloads-d5709fb7cf37.json",
+        "niche_top_gsg_Poker_current_revenue-249d2539792c.json",
+        "niche_top_gsg_Poker_prior_revenue-87d0ce865894.json",
+        "niche_top_gsg_Puzzle_RPG_current_downloads-1aa3f98a8ec7.json",
+        "niche_top_gsg_Puzzle_RPG_current_revenue-ef5fc19d22b8.json",
+        "niche_top_gsg_Puzzle_RPG_prior_revenue-85fe9aa9e91a.json",
+        "niche_top_gsg_Racing_Simulator_current_downloads-fad0b50922cc.json",
+        "niche_top_gsg_Racing_Simulator_current_revenue-63bd51228525.json",
+        "niche_top_gsg_Racing_Simulator_prior_revenue-2bd56d33a9e0.json",
+        "niche_top_gsg_Real_Time_current_downloads-92ec2b9f735d.json",
+        "niche_top_gsg_Real_Time_current_revenue-616385b0f0d1.json",
+        "niche_top_gsg_Real_Time_prior_revenue-7ebb39a021fe.json",
+        "niche_top_gsg_Real_Time_Puzzle_current_downloads-fa0f7e813de3.json",
+        "niche_top_gsg_Real_Time_Puzzle_current_revenue-e96451f685f8.json",
+        "niche_top_gsg_Real_Time_Puzzle_prior_revenue-646dbc000517.json",
+        "niche_top_gsg_Real_Time_Strategy_current_downloads-987febf5c141.json",
+        "niche_top_gsg_Real_Time_Strategy_current_revenue-cb5b04460bcb.json",
+        "niche_top_gsg_Real_Time_Strategy_prior_revenue-5d12006ff9c8.json",
+        "niche_top_gsg_Realistic_Racing_current_downloads-caae7fbc2a15.json",
+        "niche_top_gsg_Realistic_Racing_current_revenue-c02f6d685c44.json",
+        "niche_top_gsg_Realistic_Racing_prior_revenue-9162a8d8426a.json",
+        "niche_top_gsg_Realistic_Sports_current_downloads-bb9b4d3e304a.json",
+        "niche_top_gsg_Realistic_Sports_current_revenue-c99460fd1bd3.json",
+        "niche_top_gsg_Realistic_Sports_prior_revenue-108f01e11a33.json",
+        "niche_top_gsg_Riddle_current_downloads-748932f1b4a3.json",
+        "niche_top_gsg_Riddle_current_revenue-23c2fbbd10b0.json",
+        "niche_top_gsg_Riddle_prior_revenue-52d41c118720.json",
+        "niche_top_gsg_Sandbox_current_downloads-3917300b06de.json",
+        "niche_top_gsg_Sandbox_current_revenue-fdd626d734a6.json",
+        "niche_top_gsg_Sandbox_prior_revenue-f7658d968661.json",
+        "niche_top_gsg_Screw_current_downloads-5fea387e13f5.json",
+        "niche_top_gsg_Screw_current_revenue-3b317300b96e.json",
+        "niche_top_gsg_Screw_prior_revenue-e150b35c864a.json",
+        "niche_top_gsg_Shoot_em_Up_current_downloads-1442f4e1795e.json",
+        "niche_top_gsg_Shoot_em_Up_current_downloads-27bc0df7eb0b.json",
+        "niche_top_gsg_Shoot_em_Up_current_revenue-92a6454d75ce.json",
+        "niche_top_gsg_Shoot_em_Up_current_revenue-4aa5fa69a40f.json",
+        "niche_top_gsg_Shoot_em_Up_prior_revenue-6f0de16a18cf.json",
+        "niche_top_gsg_Shoot_em_Up_prior_revenue-f43e6af65bec.json",
+        "niche_top_gsg_Simulator_current_downloads-0ab8a6c445bd.json",
+        "niche_top_gsg_Simulator_current_revenue-1af75a46a517.json",
+        "niche_top_gsg_Simulator_prior_revenue-a4ed5774f553.json",
+        "niche_top_gsg_Slots_current_downloads-c43ce0f8211f.json",
+        "niche_top_gsg_Slots_current_revenue-0aabedb0e66a.json",
+        "niche_top_gsg_Slots_prior_revenue-45440903b221.json",
+        "niche_top_gsg_Sniper_current_downloads-c66a9a3340fa.json",
+        "niche_top_gsg_Sniper_current_revenue-a0fe98bdf939.json",
+        "niche_top_gsg_Sniper_prior_revenue-3213dc0fe832.json",
+        "niche_top_gsg_Social_Party_current_downloads-f8a23e60103a.json",
+        "niche_top_gsg_Social_Party_current_revenue-26a11fbf77f4.json",
+        "niche_top_gsg_Social_Party_prior_revenue-5862d9b12b2f.json",
+        "niche_top_gsg_Solitaire_current_downloads-1ed13a09d52a.json",
+        "niche_top_gsg_Solitaire_current_revenue-064f1d814116.json",
+        "niche_top_gsg_Solitaire_prior_revenue-bdef0dc5540d.json",
+        "niche_top_gsg_Solitaire_Mahjong_current_downloads-14104115876b.json",
+        "niche_top_gsg_Solitaire_Mahjong_current_revenue-283bef6aa402.json",
+        "niche_top_gsg_Solitaire_Mahjong_prior_revenue-c6bf56c02bcf.json",
+        "niche_top_gsg_Sort_current_downloads-11e08fef27cd.json",
+        "niche_top_gsg_Sort_current_revenue-0884e0a0e7e5.json",
+        "niche_top_gsg_Sort_prior_revenue-7672a82ccbfe.json",
+        "niche_top_gsg_Sports_Manager_current_downloads-e0ab991d2ccd.json",
+        "niche_top_gsg_Sports_Manager_current_revenue-db8890152ee2.json",
+        "niche_top_gsg_Sports_Manager_prior_revenue-9472b306048e.json",
+        "niche_top_gsg_Squad_RPG_current_downloads-cce9abb2f705.json",
+        "niche_top_gsg_Squad_RPG_current_revenue-f1da398159a6.json",
+        "niche_top_gsg_Squad_RPG_prior_revenue-4a50ab1d0c01.json",
+        "niche_top_gsg_Survival_current_downloads-f5d24e707c30.json",
+        "niche_top_gsg_Survival_current_revenue-d7d4e5cc09ff.json",
+        "niche_top_gsg_Survival_prior_revenue-6001a37ce80e.json",
+        "niche_top_gsg_Swap_current_downloads-ef4b70cd3a5b.json",
+        "niche_top_gsg_Swap_current_revenue-f63072002c75.json",
+        "niche_top_gsg_Swap_prior_revenue-f5a12fc8e0b3.json",
+        "niche_top_gsg_Tabletop_Cards_current_downloads-a54b13989a7f.json",
+        "niche_top_gsg_Tabletop_Cards_current_revenue-7415fbebd9d1.json",
+        "niche_top_gsg_Tabletop_Cards_prior_revenue-2bbdfb90f376.json",
+        "niche_top_gsg_Teen_Patti_current_downloads-83ebeea876a5.json",
+        "niche_top_gsg_Teen_Patti_current_revenue-59566490501e.json",
+        "niche_top_gsg_Teen_Patti_prior_revenue-c52510a04286.json",
+        "niche_top_gsg_Time_Management_current_downloads-62eb9fc82aba.json",
+        "niche_top_gsg_Time_Management_current_revenue-74ba53820d13.json",
+        "niche_top_gsg_Time_Management_prior_revenue-9d560310e8e8.json",
+        "niche_top_gsg_Tower_Defense_current_downloads-ee2ad960c790.json",
+        "niche_top_gsg_Tower_Defense_current_revenue-e4eb2fa5265c.json",
+        "niche_top_gsg_Tower_Defense_prior_revenue-028660a03cb4.json",
+        "niche_top_gsg_Trivia_current_downloads-7653cf535e03.json",
+        "niche_top_gsg_Trivia_current_revenue-05c7b6673587.json",
+        "niche_top_gsg_Trivia_prior_revenue-5ff2b1bf0c81.json",
+        "niche_top_gsg_Turn_Based_Tactics_current_downloads-f53b0488d060.json",
+        "niche_top_gsg_Turn_Based_Tactics_current_revenue-dfb23292a837.json",
+        "niche_top_gsg_Turn_Based_Tactics_prior_revenue-387190fef42b.json",
+        "niche_top_gsg_Turn_based_RPG_current_downloads-0cdf4f4ba1a0.json",
+        "niche_top_gsg_Turn_based_RPG_current_revenue-129ab985290b.json",
+        "niche_top_gsg_Turn_based_RPG_prior_revenue-54e28fd9cf3c.json",
+        "niche_top_gsg_Tycoon_Crafting_current_downloads-c86bdcec1cf6.json",
+        "niche_top_gsg_Tycoon_Crafting_current_revenue-945c049e3ac3.json",
+        "niche_top_gsg_Tycoon_Crafting_prior_revenue-899064f57646.json",
+        "niche_top_gsg_Ultracasual_current_downloads-3a7144321655.json",
+        "niche_top_gsg_Ultracasual_current_revenue-4812e137f2ee.json",
+        "niche_top_gsg_Ultracasual_prior_revenue-68e5a1355a6a.json",
+        "niche_top_gsg_Vehicular_Shooter_current_downloads-5d5b02208a73.json",
+        "niche_top_gsg_Vehicular_Shooter_current_revenue-8b077b3a7027.json",
+        "niche_top_gsg_Vehicular_Shooter_prior_revenue-51bfa509fbb6.json",
+        "niche_top_gsg_Virtual_Casino_current_downloads-0ed55aac8ada.json",
+        "niche_top_gsg_Virtual_Casino_current_revenue-7a560ab489ad.json",
+        "niche_top_gsg_Virtual_Casino_prior_revenue-e7b75d967287.json",
+        "niche_top_gsg_Virtual_Pet_current_downloads-9c2af1d48dd6.json",
+        "niche_top_gsg_Virtual_Pet_current_revenue-c8c3164ef634.json",
+        "niche_top_gsg_Virtual_Pet_prior_revenue-60ff151825da.json",
+        "niche_top_gsg_Word_current_downloads-7c64f2e22928.json",
+        "niche_top_gsg_Word_current_revenue-f6a2aee45da2.json",
+        "niche_top_gsg_Word_prior_revenue-de20b7aeaf35.json",
+        "niche_top_gsg_io_current_downloads-329c095bc9ff.json",
+        "niche_top_gsg_io_current_revenue-c2196ff69fd5.json",
+        "niche_top_gsg_io_prior_revenue-c6bf43aa19da.json"
+      ],
+      "store_app_category_WW": [
+        "store_app_category_WW-9b37f4d322fa.json"
+      ],
+      "store_app_sub_category_WW": [
+        "store_app_sub_category_WW-0a58e6fbd22a.json"
+      ],
+      "store_device_WW": [
+        "store_device_WW-f82125e5f2b4.json"
+      ],
+      "store_game_art_style_WW": [
+        "store_game_art_style_WW-8d75b2ca5ba2.json"
+      ],
+      "store_game_camera_WW": [
+        "store_game_camera_WW-6684b1147b4e.json"
+      ],
+      "store_game_class_WW": [
+        "store_game_class_WW-8a74dfc6d476.json"
+      ],
+      "store_game_genre_WW": [
+        "store_game_genre_WW-90f0bb76fa81.json"
+      ],
+      "store_game_product_model_WW": [
+        "store_game_product_model_WW-d4ac55d8579d.json"
+      ],
+      "store_game_setting_WW": [
+        "store_game_setting_WW-1551abccd888.json"
+      ],
+      "store_game_sub_genre_WW": [
+        "store_game_sub_genre_WW-995490baa1be.json"
+      ],
+      "store_game_theme_WW": [
+        "store_game_theme_WW-ce050fd82e52.json"
+      ],
+      "store_region": [
+        "store_region_AE_AO_AR_AT_AU_AZ_BD_BE_BF_BG_BH_BJ_BO_BR_BY_CA_CG_CH_CI_CL_CM_CN_CO_CR_CY_CZ_DE_DK_DO_-6f4307376415.json",
+        "store_region_WW-92379e2d8a23.json"
+      ],
+      "store_unified_app_primary_category_WW": [
+        "store_unified_app_primary_category_WW-005756e012ec.json"
+      ],
+      "usage_app_category_US": [
+        "usage_app_category_US-7b7b6f4b5e48.json"
+      ],
+      "usage_app_sub_category_US": [
+        "usage_app_sub_category_US-1b31b0079166.json"
+      ],
+      "usage_game_sub_genre_US": [
+        "usage_game_sub_genre_US-68fc8564a7d1.json"
+      ]
+    }
+  },
+  "extra_ww_dims_vs_reference_info": {
+    "game_class": {
+      "rev_cur_usd": 56280508215.69,
+      "rev_prior_usd": 57676003844.71,
+      "rev_yoy": -0.024195,
+      "dl_cur": 46258560185,
+      "dl_prior": 51719939784,
+      "dl_yoy": -0.105595,
+      "niches": 4,
+      "reference": "game_genre_sum_games",
+      "rev_cur_deviation_vs_reference": 0.0
+    },
+    "game_product_model": {
+      "rev_cur_usd": 56280508215.69,
+      "rev_prior_usd": 57676003844.71,
+      "rev_yoy": -0.024195,
+      "dl_cur": 46258560185,
+      "dl_prior": 51719939784,
+      "dl_yoy": -0.105595,
+      "niches": 5,
+      "reference": "game_genre_sum_games",
+      "rev_cur_deviation_vs_reference": 0.0
+    },
+    "game_theme": {
+      "rev_cur_usd": 56280507589.75,
+      "rev_prior_usd": 57676003844.71,
+      "rev_yoy": -0.024195,
+      "dl_cur": 46258556914,
+      "dl_prior": 51719939784,
+      "dl_yoy": -0.105595,
+      "niches": 127,
+      "reference": "game_genre_sum_games",
+      "rev_cur_deviation_vs_reference": -0.0
+    },
+    "game_art_style": {
+      "rev_cur_usd": 56280507589.75,
+      "rev_prior_usd": 57676003844.71,
+      "rev_yoy": -0.024195,
+      "dl_cur": 46258556914,
+      "dl_prior": 51719939784,
+      "dl_yoy": -0.105595,
+      "niches": 13,
+      "reference": "game_genre_sum_games",
+      "rev_cur_deviation_vs_reference": -0.0
+    },
+    "game_setting": {
+      "rev_cur_usd": 56280071437.96,
+      "rev_prior_usd": 57676003057.08,
+      "rev_yoy": -0.024203,
+      "dl_cur": 46235698095,
+      "dl_prior": 51719905199,
+      "dl_yoy": -0.106037,
+      "niches": 6,
+      "reference": "game_genre_sum_games",
+      "rev_cur_deviation_vs_reference": -8e-06
+    },
+    "game_camera": {
+      "rev_cur_usd": 56280507589.75,
+      "rev_prior_usd": 57676003844.71,
+      "rev_yoy": -0.024195,
+      "dl_cur": 46258556914,
+      "dl_prior": 51719939784,
+      "dl_yoy": -0.105595,
+      "niches": 6,
+      "reference": "game_genre_sum_games",
+      "rev_cur_deviation_vs_reference": -0.0
+    },
+    "device": {
+      "rev_cur_usd": 123138942170.44,
+      "rev_prior_usd": 114880687803.27,
+      "rev_yoy": 0.071885,
+      "dl_cur": 149150874317,
+      "dl_prior": 149322245963,
+      "dl_yoy": -0.001148,
+      "niches": 3,
+      "reference": "unified_app_primary_category_sum_all",
+      "rev_cur_deviation_vs_reference": 0.0
+    }
+  },
+  "country_leaders": {
+    "countries_processed": [
+      "AE",
+      "AR",
+      "AU",
+      "BR",
+      "CA",
+      "CN",
+      "CO",
+      "DE",
+      "FR",
+      "GB",
+      "HU",
+      "ID",
+      "IE",
+      "IN",
+      "JP",
+      "KR",
+      "MX",
+      "NO",
+      "PH",
+      "PK",
+      "RU",
+      "SA",
+      "TH",
+      "TR",
+      "US",
+      "VN",
+      "ZA"
+    ],
+    "n_countries": 27,
+    "lists_per_country": {
+      "AE": 4,
+      "AR": 4,
+      "AU": 4,
+      "BR": 4,
+      "CA": 4,
+      "CN": 4,
+      "CO": 4,
+      "DE": 4,
+      "FR": 4,
+      "GB": 4,
+      "HU": 4,
+      "ID": 4,
+      "IE": 4,
+      "IN": 4,
+      "JP": 4,
+      "KR": 4,
+      "MX": 4,
+      "NO": 4,
+      "PH": 4,
+      "PK": 4,
+      "RU": 4,
+      "SA": 4,
+      "TH": 4,
+      "TR": 4,
+      "US": 4,
+      "VN": 4,
+      "ZA": 4
+    },
+    "selected_without_country_leaders": [],
+    "fastest_growers_min_prior_usd": 500000
+  },
+  "niche_top100": {
+    "game_sub_genre": {
+      "expected_values": 117,
+      "files_found": 351,
+      "files_processed": 351,
+      "niches_found": 117,
+      "niches_complete": 103,
+      "niches_partial": 0,
+      "niches_zero_rows": 14,
+      "niches_pending": 0,
+      "zero_row_niches": [
+        "Blast",
+        "Card",
+        "Card Games",
+        "Cards",
+        "Chain",
+        "Geolocation AR",
+        "Lifestyle Simulator",
+        "Match Merge",
+        "Pair",
+        "Racing Simulator",
+        "Real-Time",
+        "Shoot’em Up",
+        "Solitaire / Mahjong",
+        "Swap"
+      ],
+      "partial_niches": [],
+      "label_sources": {
+        "custom_fields_slug": 1,
+        "manifest": 116
+      },
+      "found_not_in_expected_values": []
+    },
+    "app_iq_category": {
+      "expected_values": 384,
+      "files_found": 1152,
+      "files_processed": 1152,
+      "niches_found": 384,
+      "niches_complete": 197,
+      "niches_partial": 0,
+      "niches_zero_rows": 187,
+      "niches_pending": 0,
+      "zero_row_niches": [
+        "Accessories",
+        "Action Figures",
+        "Aerospace & Defense",
+        "Air Purifiers",
+        "Asset Management",
+        "Athletic Apparel",
+        "Audio",
+        "Auto Insurance",
+        "Auto Vehicle Parts & Accessories",
+        "B2B ISP (Internet Service Provider)",
+        "B2B Mobile",
+        "B2B Voice",
+        "Baby & Toddler Toys",
+        "Baby Products",
+        "Bags & Wallets",
+        "Basketball Footwear",
+        "Beauty & Skincare Supplements",
+        "Bikes & Bike Accessories",
+        "Blogs",
+        "Boat & Watercraft Insurance",
+        "Building Toys",
+        "Business Networks",
+        "Business Purchasing",
+        "Business Service Bundles",
+        "Cameras",
+        "Camping & Outdoor Recreation",
+        "Cannabis & CBD",
+        "Car Dealer Associations",
+        "Car Dealerships",
+        "Casual & Dress Footwear",
+        "Cat Food",
+        "Cat Litter & Pet Waste",
+        "Cell Phone Accessories",
+        "Cell Phones & Accessories",
+        "Cell Phones & Smartphones",
+        "Checking Accounts",
+        "Colleges & Universities",
+        "Commercial Insurance",
+        "Commercial Vehicles",
+        "Computer Parts & Storage",
+        "Computers & Accessories",
+        "Consulting",
+        "Consumer 3D Printers",
+        "Consumer Electronics Retailers",
+        "Consumer Networks",
+        "Consumer Service Bundles",
+        "Creative & Educational Toys",
+        "Custom Printing & Media Services",
+        "Denim",
+        "Dental Health",
+        "Disaster Insurance",
+        "Dog Food",
+        "Dolls",
+        "Educational Resources",
+        "Electric Cars & Trucks",
+        "Energy & Stress Management Supplements",
+        "Energy & Utilities",
+        "Eyewear",
+        "Fan Fiction",
+        "Ferries",
+        "First Aid & Home Medical Devices",
+        "Fishing",
+        "Fitness Equipment",
+        "Florists & Gifts",
+        "Food & Beverage Associations & Councils",
+        "Games & Puzzles",
+        "Gas & Hybrid Cars & Trucks",
+        "Gifts & Occasions Shopping",
+        "Golf Apparel",
+        "Government Agencies & Organizations",
+        "Government Benefits Management Apps",
+        "Graphic Tees",
+        "HVAC & Climate Control",
+        "Headphones & Headsets",
+        "Health Associations, Organizations & Communities",
+        "Heavy Machinery",
+        "Helicopter Services",
+        "Home & Garden Professional Supplies",
+        "Home Appliances",
+        "Home Goods & Furniture",
+        "Home Improvement Products",
+        "Home Loans & Mortgages",
+        "Home Security Devices",
+        "Hotel Loyalty Programs",
+        "Hunting & Shooting Equipment",
+        "ISP (Internet Service Provider)",
+        "Industrial Conglomerates",
+        "Industrial Supplies",
+        "Information Technology (IT) & Computer Services",
+        "Jewelry",
+        "Jobs & Careers",
+        "Kitchenware",
+        "Laptops & Desktops",
+        "Laundry Appliances",
+        "Law & Legal Agencies",
+        "Lawn & Garden",
+        "Life Insurance",
+        "Limousine Services",
+        "Luggage & Travel Accessories",
+        "Magazines",
+        "Major Domestic Appliances",
+        "Major Kitchen Appliances",
+        "Maternity & Nursing",
+        "Mattresses",
+        "Medical Equipment",
+        "Medical Procedures",
+        "Medical Schools & Teaching Hospitals",
+        "Medical Software",
+        "Mobile / Cellular Network",
+        "Motorcycle Insurance",
+        "Movies",
+        "Moving & Storage",
+        "Multivitamins & General Health Supplements",
+        "News",
+        "Novelty & Collectible Toys",
+        "OTC Drugs",
+        "OTT Streaming Devices & Video Players",
+        "Off-Road Vehicles",
+        "Operating Systems",
+        "Optometry & Vision",
+        "Outdoor Grills, Barbecues & Pizza Ovens",
+        "Outdoor Sports",
+        "Outdoor Toys",
+        "Outerwear",
+        "Passenger Cars & Trucks",
+        "Pensions & Retirement",
+        "Pet Food",
+        "Pet Gear & Accessories",
+        "Pet Health & Supplements",
+        "Pet Insurance",
+        "Pet Supplies Retail",
+        "Pet Treats",
+        "Pharmaceuticals",
+        "Pharmaceuticals Research & Development (R&D)",
+        "Plasma & Blood Donation",
+        "Plumbing Fixtures",
+        "Plush Toys",
+        "Pools & Spas",
+        "Postpaid Mobile Plans",
+        "Prepaid Mobile Plans",
+        "Prescription Drugs",
+        "Pretend Playsets & Dress Up",
+        "Primary & Secondary Education (K-12)",
+        "Printers, Scanners & Supplies",
+        "Professional Networking Resources",
+        "Programming & Developer Software",
+        "Property Insurance",
+        "RV Insurance",
+        "Running Footwear",
+        "Savings Accounts",
+        "Senior Care",
+        "Ski Resorts",
+        "Sleep Aid Supplements",
+        "Small Domestic Appliances",
+        "Small Kitchen Appliances",
+        "Speakers & Home Audio",
+        "Sporting Goods",
+        "Sports Nutrition Supplements",
+        "State Lotteries",
+        "Superfoods & Meal Replacement Powders",
+        "TV & Video",
+        "TV Services",
+        "TV Shows",
+        "TVs",
+        "Tablets",
+        "Tools & Equipment",
+        "Tourist Authorities & CVBs",
+        "Toy Vehicles",
+        "Toys & Games",
+        "Travel Media & Publications",
+        "Undergarments",
+        "Used Car Retailers",
+        "Vacuum Cleaners & Floorcare",
+        "Vehicle Fluids",
+        "Vehicle Maintenance Services",
+        "Vehicle Parts & Accessories",
+        "Vitamins & Supplements",
+        "Vocational Training & Trade Schools",
+        "Watches",
+        "Watercraft & Accessories",
+        "Wealth Management",
+        "Wearable Technology",
+        "Web Development",
+        "Weddings & Event Planning",
+        "Weight Management Supplements",
+        "Winter Sports Equipment",
+        "Yoga Apparel"
+      ],
+      "partial_niches": [],
+      "label_sources": {
+        "manifest": 384
+      },
+      "found_not_in_expected_values": []
+    },
+    "manifest_entries": 500,
+    "growth_decomposition_identity": {
+      "niches_checked": 501,
+      "max_abs_residual_cents": 0,
+      "violations": [],
+      "holds": true
+    }
+  },
+  "us_impression_share_checks": {
+    "game_sub_genre/ios": {
+      "months": 24,
+      "min_monthly_sum": 1.0,
+      "max_monthly_sum": 1.0,
+      "max_abs_deviation": 0.0,
+      "within_1pct": true,
+      "niches": 103,
+      "niches_with_missing_months": [
+        "Kart Racing",
+        "Teen Patti"
+      ],
+      "in_impshare_not_in_store": [],
+      "in_store_not_in_impshare": []
+    },
+    "game_sub_genre/android": {
+      "months": 24,
+      "min_monthly_sum": 1.0,
+      "max_monthly_sum": 1.0,
+      "max_abs_deviation": 0.0,
+      "within_1pct": true,
+      "niches": 103,
+      "niches_with_missing_months": [
+        "Coin Pusher",
+        "Fish Shooting",
+        "Kart Racing",
+        "Landlord",
+        "Mahjong",
+        "Okey",
+        "Teen Patti"
+      ],
+      "in_impshare_not_in_store": [],
+      "in_store_not_in_impshare": []
+    },
+    "app_sub_category/ios": {
+      "months": 24,
+      "min_monthly_sum": 1.0,
+      "max_monthly_sum": 1.0,
+      "max_abs_deviation": 0.0,
+      "within_1pct": true,
+      "niches": 83,
+      "niches_with_missing_months": [
+        "Cruises",
+        "Malls & Shopping Centers",
+        "Motorcycles, Scooters & Mopeds",
+        "National Medical Service",
+        "Real Estate"
+      ],
+      "in_impshare_not_in_store": [],
+      "in_store_not_in_impshare": []
+    },
+    "app_sub_category/android": {
+      "months": 24,
+      "min_monthly_sum": 1.0,
+      "max_monthly_sum": 1.0,
+      "max_abs_deviation": 0.0,
+      "within_1pct": true,
+      "niches": 82,
+      "niches_with_missing_months": [
+        "Agriculture",
+        "Business & Industrials",
+        "Cruises",
+        "Genealogy & Ancestry",
+        "Malls & Shopping Centers",
+        "Motorcycles, Scooters & Mopeds",
+        "Motorsport",
+        "National Medical Service",
+        "POS (Point-of-sale) Solutions",
+        "Payroll Services",
+        "Real Estate"
+      ],
+      "in_impshare_not_in_store": [],
+      "in_store_not_in_impshare": [
+        "Hobbies & Interests Shopping"
+      ]
+    },
+    "game_genre/ios": {
+      "months": 24,
+      "min_monthly_sum": 1.0,
+      "max_monthly_sum": 1.0,
+      "max_abs_deviation": 0.0,
+      "within_1pct": true,
+      "niches": 14,
+      "niches_with_missing_months": [],
+      "in_impshare_not_in_store": [],
+      "in_store_not_in_impshare": []
+    },
+    "game_genre/android": {
+      "months": 24,
+      "min_monthly_sum": 1.0,
+      "max_monthly_sum": 1.0,
+      "max_abs_deviation": 0.0,
+      "within_1pct": true,
+      "niches": 14,
+      "niches_with_missing_months": [],
+      "in_impshare_not_in_store": [],
+      "in_store_not_in_impshare": []
+    },
+    "app_category/ios": {
+      "months": 24,
+      "min_monthly_sum": 1.0,
+      "max_monthly_sum": 1.0,
+      "max_abs_deviation": 0.0,
+      "within_1pct": true,
+      "niches": 15,
+      "niches_with_missing_months": [],
+      "in_impshare_not_in_store": [],
+      "in_store_not_in_impshare": []
+    },
+    "app_category/android": {
+      "months": 24,
+      "min_monthly_sum": 1.0,
+      "max_monthly_sum": 1.0,
+      "max_abs_deviation": 0.0,
+      "within_1pct": true,
+      "niches": 15,
+      "niches_with_missing_months": [],
+      "in_impshare_not_in_store": [],
+      "in_store_not_in_impshare": []
+    }
+  },
+  "publisher_country_unmatched": [
+    {
+      "value": "Armenia",
+      "rows": 123,
+      "sources": {
+        "country_leaders": 5,
+        "global_leaders": 3,
+        "niche_top100": 115
+      }
+    },
+    {
+      "value": "British Virgin Islands",
+      "rows": 59,
+      "sources": {
+        "country_leaders": 3,
+        "global_leaders": 1,
+        "niche_top100": 55
+      }
+    },
+    {
+      "value": "Moldova",
+      "rows": 58,
+      "sources": {
+        "country_leaders": 4,
+        "global_leaders": 3,
+        "niche_top100": 51
+      }
+    },
+    {
+      "value": "Nepal",
+      "rows": 26,
+      "sources": {
+        "country_leaders": 2,
+        "global_leaders": 1,
+        "niche_top100": 23
+      }
+    },
+    {
+      "value": "Seychelles",
+      "rows": 21,
+      "sources": {
+        "niche_top100": 21
+      }
+    },
+    {
+      "value": "Kyrgyzstan",
+      "rows": 20,
+      "sources": {
+        "country_leaders": 3,
+        "niche_top100": 17
+      }
+    },
+    {
+      "value": "Iceland",
+      "rows": 14,
+      "sources": {
+        "country_leaders": 2,
+        "niche_top100": 12
+      }
+    },
+    {
+      "value": "Mauritius",
+      "rows": 14,
+      "sources": {
+        "niche_top100": 14
+      }
+    },
+    {
+      "value": "Puerto Rico",
+      "rows": 14,
+      "sources": {
+        "global_leaders": 1,
+        "niche_top100": 13
+      }
+    },
+    {
+      "value": "Albania",
+      "rows": 13,
+      "sources": {
+        "niche_top100": 13
+      }
+    },
+    {
+      "value": "Andorra",
+      "rows": 13,
+      "sources": {
+        "niche_top100": 13
+      }
+    },
+    {
+      "value": "Gibraltar",
+      "rows": 13,
+      "sources": {
+        "niche_top100": 13
+      }
+    },
+    {
+      "value": "Cayman Islands",
+      "rows": 10,
+      "sources": {
+        "country_leaders": 2,
+        "global_leaders": 1,
+        "niche_top100": 7
+      }
+    },
+    {
+      "value": "Macedonia",
+      "rows": 7,
+      "sources": {
+        "niche_top100": 7
+      }
+    },
+    {
+      "value": "Belize",
+      "rows": 6,
+      "sources": {
+        "country_leaders": 4,
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Bosnia and Herzegovina",
+      "rows": 6,
+      "sources": {
+        "niche_top100": 6
+      }
+    },
+    {
+      "value": "St Vincent The Grenadines",
+      "rows": 6,
+      "sources": {
+        "niche_top100": 6
+      }
+    },
+    {
+      "value": "Tajikistan",
+      "rows": 5,
+      "sources": {
+        "niche_top100": 5
+      }
+    },
+    {
+      "value": "Martinique",
+      "rows": 4,
+      "sources": {
+        "niche_top100": 4
+      }
+    },
+    {
+      "value": "Ethiopia",
+      "rows": 3,
+      "sources": {
+        "niche_top100": 3
+      }
+    },
+    {
+      "value": "Fiji",
+      "rows": 3,
+      "sources": {
+        "niche_top100": 3
+      }
+    },
+    {
+      "value": "Mongolia",
+      "rows": 3,
+      "sources": {
+        "niche_top100": 3
+      }
+    },
+    {
+      "value": "Réunion",
+      "rows": 3,
+      "sources": {
+        "niche_top100": 3
+      }
+    },
+    {
+      "value": "Vanuatu",
+      "rows": 3,
+      "sources": {
+        "country_leaders": 1,
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Bermuda",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Guadeloupe",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Guernsey",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Honduras",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Isle of Man",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Jersey",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Mauritania",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Monaco",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Montenegro",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Turks Caicos",
+      "rows": 2,
+      "sources": {
+        "niche_top100": 2
+      }
+    },
+    {
+      "value": "Afghanistan",
+      "rows": 1,
+      "sources": {
+        "niche_top100": 1
+      }
+    },
+    {
+      "value": "Antigua Barbuda",
+      "rows": 1,
+      "sources": {
+        "niche_top100": 1
+      }
+    },
+    {
+      "value": "Guam",
+      "rows": 1,
+      "sources": {
+        "niche_top100": 1
+      }
+    },
+    {
+      "value": "Liechtenstein",
+      "rows": 1,
+      "sources": {
+        "niche_top100": 1
+      }
+    },
+    {
+      "value": "Rwanda",
+      "rows": 1,
+      "sources": {
+        "niche_top100": 1
+      }
+    },
+    {
+      "value": "St Lucia",
+      "rows": 1,
+      "sources": {
+        "niche_top100": 1
+      }
+    },
+    {
+      "value": "The Bahamas",
+      "rows": 1,
+      "sources": {
+        "niche_top100": 1
+      }
+    },
+    {
+      "value": "Turkmenistan",
+      "rows": 1,
+      "sources": {
+        "niche_top100": 1
+      }
+    }
+  ],
+  "publisher_country_aliases_extra": {
+    "US": [
+      "us",
+      "usa",
+      "u.s.",
+      "united states",
+      "united states of america"
+    ],
+    "GB": [
+      "uk",
+      "gb",
+      "united kingdom",
+      "great britain",
+      "england"
+    ],
+    "KR": [
+      "korea",
+      "south korea",
+      "republic of korea",
+      "korea, republic of",
+      "korea (south)"
+    ],
+    "RU": [
+      "russia",
+      "russian federation"
+    ],
+    "VN": [
+      "vietnam",
+      "viet nam"
+    ],
+    "TR": [
+      "turkey",
+      "türkiye",
+      "turkiye"
+    ],
+    "AE": [
+      "uae",
+      "united arab emirates"
+    ],
+    "TW": [
+      "taiwan",
+      "taiwan, province of china"
+    ],
+    "HK": [
+      "hong kong",
+      "hong kong sar",
+      "hong kong sar china"
+    ],
+    "CZ": [
+      "czechia",
+      "czech republic"
+    ],
+    "CN": [
+      "china",
+      "mainland china",
+      "people's republic of china"
+    ],
+    "CI": [
+      "cote d'ivoire",
+      "côte d'ivoire",
+      "ivory coast"
+    ]
+  },
+  "output_row_counts": {
+    "app_series_features.csv": 4455,
+    "country_dynamics.csv": 112,
+    "country_leader_summary.csv": 27,
+    "country_leaders.csv": 32400,
+    "country_niche_dynamics.csv": 5207,
+    "impression_share_monthly.csv": 10296,
+    "leaders.csv": 4455,
+    "niche_dynamics_app_category.csv": 15,
+    "niche_dynamics_app_sub_category.csv": 83,
+    "niche_dynamics_device.csv": 3,
+    "niche_dynamics_game_art_style.csv": 13,
+    "niche_dynamics_game_camera.csv": 6,
+    "niche_dynamics_game_class.csv": 4,
+    "niche_dynamics_game_genre.csv": 14,
+    "niche_dynamics_game_product_model.csv": 5,
+    "niche_dynamics_game_setting.csv": 6,
+    "niche_dynamics_game_sub_genre.csv": 103,
+    "niche_dynamics_game_theme.csv": 127,
+    "niche_dynamics_unified_app_primary_category.csv": 27,
+    "niche_leaders_app_iq_category.csv": 158,
+    "niche_leaders_full_app_iq_category.csv": 384,
+    "niche_leaders_full_game_sub_genre.csv": 117,
+    "niche_leaders_game_sub_genre.csv": 101,
+    "niche_monthly_app_category.csv": 360,
+    "niche_monthly_app_sub_category.csv": 1992,
+    "niche_monthly_device.csv": 72,
+    "niche_monthly_game_art_style.csv": 312,
+    "niche_monthly_game_camera.csv": 144,
+    "niche_monthly_game_class.csv": 96,
+    "niche_monthly_game_genre.csv": 336,
+    "niche_monthly_game_product_model.csv": 120,
+    "niche_monthly_game_setting.csv": 144,
+    "niche_monthly_game_sub_genre.csv": 2472,
+    "niche_monthly_game_theme.csv": 3048,
+    "niche_monthly_unified_app_primary_category.csv": 648,
+    "niche_top_apps.csv": 85506
+  },
+  "warnings": {
+    "app_series_incomplete_months": {
+      "count": 1,
+      "examples": [
+        "785 of 4455 apps have < 24 months (missing months kept empty)"
+      ]
+    },
+    "category_id_not_in_discovery": {
+      "count": 2,
+      "examples": [
+        "6022 -> Catalogs (fallback_apple_id)",
+        "6025 -> Stickers (fallback_apple_id)"
+      ]
+    },
+    "incomplete_niche": {
+      "count": 45,
+      "examples": [
+        "unified_app_primary_category/WW/6022: months_observed=1/24 missing=2024-10,2024-11,2024-12,2025-01,2025-02,2025-03,2025-04,2025-05,2025-06,2025-07,2025-08,2025-09,2025-10,2025-12,2026-01,2026-02,2026-03,2026-04,2026-05,2026-06,2026-07,2026-08,2026-09",
+        "region/LA: months_observed=21/24 missing=2024-10,2024-11,2024-12",
+        "app_sub_category/AE/Real Estate: months_observed=13/24 missing=2024-10,2024-11,2024-12,2025-01,2025-02,2025-03,2025-04,2025-05,2025-06,2025-07,2025-08",
+        "app_sub_category/AR/Real Estate: months_observed=6/24 missing=2024-10,2024-11,2024-12,2025-01,2025-02,2025-03,2025-04,2025-05,2025-06,2025-07,2025-08,2025-09,2025-11,2025-12,2026-05,2026-07,2026-08,2026-09",
+        "app_sub_category/AU/Real Estate: months_observed=18/24 missing=2024-11,2024-12,2025-01,2025-04,2025-05,2025-07",
+        "app_sub_category/BR/Real Estate: months_observed=21/24 missing=2024-10,2024-12,2025-01",
+        "app_sub_category/CA/Real Estate: months_observed=23/24 missing=2025-07",
+        "app_sub_category/CN/Payroll Services: months_observed=17/24 missing=2025-09,2025-10,2026-02,2026-05,2026-07,2026-08,2026-09",
+        "app_sub_category/CN/Pet Supplies: months_observed=15/24 missing=2024-10,2024-11,2024-12,2025-02,2025-11,2025-12,2026-02,2026-06,2026-09",
+        "app_sub_category/CN/Real Estate: months_observed=1/24 missing=2024-10,2024-11,2024-12,2025-01,2025-02,2025-03,2025-04,2025-05,2025-06,2025-07,2025-08,2025-09,2025-10,2025-11,2025-12,2026-01,2026-02,2026-03,2026-04,2026-05,2026-07,2026-08,2026-09"
+      ]
+    },
+    "niche_slug_collision": {
+      "count": 1,
+      "examples": [
+        "gsg_Shoot_em_Up: 2 filter ids -> [\"Shoot 'em Up\", 'Shoot’em Up']"
+      ]
+    },
+    "store_niche_without_usage": {
+      "count": 1,
+      "examples": [
+        "app_sub_category: Real Estate"
+      ]
+    }
+  }
+}
