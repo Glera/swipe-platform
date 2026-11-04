@@ -1,3 +1,14 @@
+# Актуальный старт workspace
+
+Этот локальный файл сохраняет исторический ledger и пользовательские правки;
+его старые очереди и процессные правила не определяют текущую работу.
+Сначала прочитай [AGENTS.md](AGENTS.md) в этом каталоге: это локальный bootstrap
+к актуальному `Glera/p4g-workspace-meta`. По его инструкции прочитай canonical
+`STATE.md`, `AGENTS.md` и `CLAUDE.md` из одного свежего SHA. Их относительные
+ссылки относятся к canonical meta, не к историческим копиям здесь.
+При недоступности свежих правил не возвращай старым receipt authority.
+Ниже ничего не удалено; это архив, а не дублирующая действующая инструкция.
+
 # Режим разработки: два контура (операторское решение 04.08.2026)
 
 - Калибровка планки: у платформы ноль живых пользователей, вижен активно
@@ -413,3 +424,21 @@
   The PG replay/idempotency/fencing/E2E/dogfood closure this
   decision requires is a coverage contract (run status with CI, not here);
   `capabilities.levelSeries=false` is unchanged.
+
+## Неделя продукта и режимы ревью (операторское решение 28.08.2026)
+
+- Топология one-Mac-per-domain постоянна: Mac A — Platform/Backend/Feed/
+  Mission; Mac B — Generator/Playables/Labs/Researcher; обычная задача
+  целиком живёт на одном Mac, auto-wake между маками не восстанавливается.
+- Мораторий на архитектуру по 04.09: никаких transport/dispatcher/pool
+  инициатив.
+- Ревью-режимы: Tier 0 — владелец сам (targeted tests + visual smoke, без
+  model-review); Tier 1 — локальный автор + blind Opus на том же Mac (до 3
+  циклов); Tier 2 — только реальное изменение контракта/runtime/authority
+  второго домена, cross-Mac одной партией ≤1/нед., блокирует один PR, не
+  цель. Миграции/credentials/public/taste — операторские акты.
+- Fast-lane механики: READY ≤30 мин; отказ без оракула → dev-only
+  unverified candidate (метка, только dev-лента, без наград/public);
+  60 мин тишины → локальный authoring, не STOP.
+- Гигиена целей: доменная цель = только очередь владельца; blocked PR не
+  блокирует цель. Полный пакет: meta `docs/specs/product-week-2026-08-28.md`.

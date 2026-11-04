@@ -1,5 +1,6 @@
 # Workspace meta-repo: отслеживает ТОЛЬКО workspace tooling/docs
-# (scripts/, docs/, VISION.md, AGENTS.md, CLAUDE.md, README.md, .claude/skills/).
+# (scripts/, docs/, .github/, VISION.md, AGENTS.md, CLAUDE.md, README.md,
+# .claude/skills/).
 # Вложенные репозитории игнорируются ЯВНЫМ списком (не glob-ом «всё»),
 # чтобы новый tooling-файл в корне был виден как untracked, а не терялся молча.
 # Спецификация: docs/specs/dev-loop.md (WS0).

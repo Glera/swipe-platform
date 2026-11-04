@@ -1,0 +1,26 @@
+{
+  "findings": [
+    {"id":"F001","severity":"P1","file":"scripts/two-mac-bridge.mjs","line":846,"desc":"Automatic causal-successor post-pass allowed model-authored content to silence a blocking STOP."},
+    {"id":"F002","severity":"P2","file":"scripts/two-mac-bridge.mjs","line":758,"desc":"Automatic continuation rule was fail-open for v1 predecessors during staged adoption."},
+    {"id":"F003","severity":"P2","file":"scripts/two-mac-bridge.mjs","line":760,"desc":"A historical-noop successor could be treated as proof that an earlier STOP was disposed."},
+    {"id":"F004","severity":"P2","file":"scripts/two-mac-bridge.mjs","line":761,"desc":"Continuation evidence was collected before target and callback binding checks."},
+    {"id":"F005","severity":"P2","file":"docs/specs/two-mac-model-free-wake-gate-v1.md","line":178,"desc":"The proposed automatic STOP resolution contradicted the unchanged fail-closed STOP contract."},
+    {"id":"F006","severity":"P2","file":"scripts/two-mac-wake-gate.test.mjs","line":993,"desc":"The first patch lacked a regression proving STOP remains blocking and recovery terminates idempotently."},
+    {"id":"F007","severity":"P3","file":"scripts/two-mac-wake-gate.mjs","line":887,"desc":"Automatic resolved-STOP evidence was not surfaced in tick output."},
+    {"id":"F008","severity":"P3","file":"docs/dev-loop-guide.md","line":201,"desc":"The operator guide would become stale if STOP were automatically hidden as idle."}
+  ],
+  "dispositions": [
+    {"id":"F001","action":"fixed"},
+    {"id":"F002","action":"fixed"},
+    {"id":"F003","action":"fixed"},
+    {"id":"F004","action":"fixed"},
+    {"id":"F005","action":"fixed"},
+    {"id":"F006","action":"fixed"},
+    {"id":"F007","action":"fixed"},
+    {"id":"F008","action":"fixed"}
+  ],
+  "verify": [
+    {"command":"node --test scripts/two-mac-bridge.test.mjs scripts/two-mac-wake-gate.test.mjs","exitCode":0},
+    {"command":"node --test 'scripts/*.test.mjs'","exitCode":0}
+  ]
+}

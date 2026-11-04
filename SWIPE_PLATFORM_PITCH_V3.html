@@ -1,0 +1,442 @@
+<title>Swipe — социальная лента playable-контента</title>
+<style>
+  :root{
+    --bg:#101418; --card:#1a2028; --raised:#222a33; --ink:#e9edf2; --muted:#93a0ae;
+    --amber:#f2a93b; --cyan:#5bb8e8; --green:#67c587; --red:#e15b5b;
+    --hair:rgba(147,160,174,.18);
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;font-size:16px}
+  .wrap{max-width:740px;margin:0 auto;padding:48px 20px 80px}
+  a{color:var(--cyan);text-decoration:none}
+  a:hover,a:focus-visible{text-decoration:underline}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:2px}
+
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber)}
+  h1{font-family:var(--serif);font-weight:700;font-size:clamp(30px,6vw,44px);line-height:1.12;margin:14px 0 18px;text-wrap:balance}
+  h1 em{font-style:italic;color:var(--amber)}
+  .lede{font-size:18px;color:var(--ink);max-width:60ch}
+  .lede b{color:var(--amber);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{font-family:var(--mono);font-size:12px;padding:6px 12px;border:1px solid var(--hair);border-radius:100px;color:var(--muted)}
+  .chip.hot{border-color:rgba(242,169,59,.5);color:var(--amber)}
+
+  .formula{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:12px;overflow:hidden;margin:44px 0 8px}
+  .f-cell{background:var(--card);padding:16px 14px}
+  .f-num{font-family:var(--serif);font-size:26px;color:var(--amber);font-variant-numeric:tabular-nums}
+  .f-lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+  .f-note{font-family:var(--mono);font-size:11px;color:var(--muted);margin:10px 2px 0}
+  @media(max-width:560px){.formula{grid-template-columns:repeat(2,1fr)}}
+
+  section{margin-top:56px}
+  h2{font-family:var(--serif);font-size:26px;font-weight:700;line-height:1.2;margin-bottom:6px;text-wrap:balance}
+  .sec-sub{color:var(--muted);margin-bottom:18px;max-width:62ch}
+  .sec-idx{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+
+  details{background:var(--card);border:1px solid var(--hair);border-radius:12px;margin-bottom:10px}
+  details summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:12px;padding:15px 18px;font-weight:600;font-size:15.5px}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:'+';font-family:var(--mono);color:var(--amber);font-size:17px;flex:0 0 14px;transition:transform .15s}
+  details[open] summary::before{content:'–'}
+  @media (prefers-reduced-motion:reduce){details summary::before{transition:none}}
+  .d-body{padding:2px 18px 18px 44px;color:#c6cfd9;font-size:15px}
+  .d-body p{margin-bottom:10px}
+  .d-body ul{margin:0 0 10px 18px}
+  .d-body li{margin-bottom:6px}
+  .d-body b{color:var(--ink)}
+  .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:2px 8px;border-radius:100px;margin-left:auto;flex:0 0 auto;align-self:center}
+  .tag.v{background:rgba(103,197,135,.12);color:var(--green)}
+  .tag.p{background:rgba(91,184,232,.12);color:var(--cyan)}
+  .tag.w{background:rgba(225,91,91,.12);color:var(--red)}
+  sup a{font-family:var(--mono);font-size:11px;color:var(--cyan)}
+
+  .callout{border-left:3px solid var(--amber);background:var(--card);border-radius:0 12px 12px 0;padding:16px 18px;margin:18px 0}
+  .callout .eyebrow{color:var(--amber)}
+  .callout p{margin-top:6px;color:#c6cfd9;font-size:15px}
+  .callout.cool{border-left-color:var(--cyan)}
+  .callout.cool .eyebrow{color:var(--cyan)}
+
+  .modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px;margin:14px 0 4px}
+  .mode{background:var(--raised);border-radius:10px;padding:12px}
+  .mode .m-t{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+  .mode .m-d{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.45}
+
+  .risk{display:flex;gap:12px;padding:13px 16px;background:var(--card);border:1px solid var(--hair);border-radius:12px;margin-bottom:8px;font-size:14.5px;color:#c6cfd9}
+  .risk .r-n{font-family:var(--mono);color:var(--red);flex:0 0 22px;font-size:12px;padding-top:3px}
+  .risk b{color:var(--ink)}
+  .risk .r-fix{display:block;color:var(--muted);font-size:13.5px;margin-top:3px}
+  .risk .r-fix::before{content:'→ ';color:var(--green)}
+
+  .tl{border-left:2px solid var(--hair);margin-left:8px;padding-left:22px}
+  .tl-item{position:relative;padding-bottom:22px}
+  .tl-item::before{content:'';position:absolute;left:-28px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--amber)}
+  .tl-item.final::before{background:var(--amber)}
+  .tl-when{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
+  .tl-what{font-weight:600;margin:3px 0 2px}
+  .tl-det{color:var(--muted);font-size:14px;max-width:58ch}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--hair);border-radius:12px}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 14px;border-bottom:1px solid var(--hair);background:var(--card)}
+  td{padding:10px 14px;border-bottom:1px solid var(--hair);color:#c6cfd9;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td:first-child{font-family:var(--mono);font-size:12.5px;color:var(--ink);white-space:nowrap}
+
+  .ctrl{display:flex;justify-content:flex-end;margin-bottom:10px}
+  button.xall{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);background:none;border:1px solid var(--hair);border-radius:100px;padding:6px 14px;cursor:pointer}
+  button.xall:hover{color:var(--ink);border-color:var(--muted)}
+
+  .src{font-size:13px;color:var(--muted)}
+  .src li{margin-bottom:6px}
+  .src ol{margin-left:18px}
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--hair)}
+  footer .eyebrow{color:var(--muted)}
+  footer p{font-size:13px;color:var(--muted);margin-top:8px;max-width:64ch}
+  .hair-rule{border:none;border-top:1px solid var(--hair);margin:44px 0 0}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Swipe · питч + рабочий документ · июль 2026</div>
+    <h1>Социальная лента <em>playable</em>-контента</h1>
+    <p class="lede">Не «лента мини-игр», а <b>«AppLovin наоборот»</b>: самый конверсионный рекламный формат в истории мобайла — плейбл — становится самим контентом. Один и тот же артефакт привлекает, удерживает и монетизирует. Смотришь как ролик — перехватываешь управление как игру — отправляешь другу как вызов.</p>
+    <div class="chips">
+      <span class="chip hot">тест до 13.10.2026</span>
+      <span class="chip">Telegram-first · web-instant</span>
+      <span class="chip">прототип ленты работает: 3 механики, 9 юнитов</span>
+      <span class="chip">ресерч + blindspot pass по коду и TMA</span>
+    </div>
+  </header>
+
+  <div class="formula" role="list" aria-label="Формула ощущения">
+    <div class="f-cell" role="listitem"><div class="f-num">1 с</div><div class="f-lbl">понять, что делать</div></div>
+    <div class="f-cell" role="listitem"><div class="f-num">5–20 с</div><div class="f-lbl">получить исход</div></div>
+    <div class="f-cell" role="listitem"><div class="f-num">0.5 с</div><div class="f-lbl">сочная награда</div></div>
+    <div class="f-cell" role="listitem"><div class="f-num">∞</div><div class="f-lbl">любопытство к свайпу</div></div>
+  </div>
+  <p class="f-note">Формула ощущения: если любое звено рвётся — Reels-магия ломается, пользователь свайпает.</p>
+
+  <section id="idea">
+    <div class="sec-idx">01 — идея</div>
+    <h2>Пять режимов прокрастинации в одной ленте</h2>
+    <p class="sec-sub">Reels закрывает один режим — пассивный. Плейбл-лента закрывает пять, и переключение между ними — один тап.</p>
+    <div class="modes">
+      <div class="mode"><div class="m-t">Пассивный</div><div class="m-d">Autoplay: механика играет сама, ты смотришь как ролик</div></div>
+      <div class="mode"><div class="m-t">Активный</div><div class="m-d">Тап — перехватил управление, доиграл руками</div></div>
+      <div class="mode"><div class="m-t">Социальный</div><div class="m-d">Отправил другу challenge-ссылку</div></div>
+      <div class="mode"><div class="m-t">Соревновательный</div><div class="m-d">Лучшее время, меньше ходов, perfect win</div></div>
+      <div class="mode"><div class="m-t">Творческий</div><div class="m-d">Ремикс механики: параметры, скин, свои уровни</div></div>
+    </div>
+
+    <div class="callout">
+      <div class="eyebrow">Флагманская фича</div>
+      <p><b>Autoplay-on-arrival с перехватом.</b> Каждая механика при попадании в вьюпорт демо-играет сама («игра сама себя проходит — но ты можешь перехватить»). Это снимает главный проигрыш игр против видео — цену входа — и оставляет главное преимущество: агентность. Момент перехвата — то, чего видео не может физически. Технология уже есть: AutoCursor-автоплей из рекламного пайплайна, а перехват уже реализован в прототипе ленты (<code style="font-family:var(--mono);font-size:.85em">?takeover=continue|restart</code>) — A/B двух UX-вариантов почти бесплатен.</p>
+    </div>
+
+    <details>
+      <summary>Почему это решает центральное противоречие ресерча <span class="tag v">верифицировано</span></summary>
+      <div class="d-body">
+        <p>fMRI-данные: активная игра активирует контур вознаграждения значимо сильнее пассивного просмотра <b>того же контента</b>, и эффект даёт именно участие, а не картинка<sup><a href="#s1">[1]</a></sup>. Но у видео нулевая цена входа в каждую единицу — видео «не может не получиться». Autoplay-режим даёт видео-профиль по умолчанию (ноль усилия, обучение наблюдением, мгновенный дофамин), перехват — игровой пик по желанию. Первая сессия может быть чистым «смотрю» — и это валидный пользователь, а не отвал.</p>
+        <p>Встречное подтверждение: Roblox в сентябре 2025 сам пришёл к этому с другой стороны — лента Moments (30-сек клипы геймплея с кнопкой Join, 240M записанных видео за 2 месяца)<sup><a href="#s5">[5]</a></sup>. Мы стартуем сразу из точки, к которой они идут: у нас единица ленты изначально playable.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Структура сессии: серии уровней, дейлики, стрики</summary>
+      <div class="d-body">
+        <p>Единица контента — микро, но <b>система вокруг единиц — глубокая</b>. Рынок подтверждает: гиперкэжуал не «упростился дальше», а оброс метой (hybrid-casual: загрузки казуалок −18%, выручка −0.2%)<sup><a href="#s8">[8]</a></sup>. У TikTok та же схема: единица проста, система вокруг — нет.</p>
+        <ul>
+          <li><b>Серия ×5 уровней</b> на механику: дешёвый продакшен, пространство под стрик и переигрывание, мини-цель «пройди серию — получи суперприз». Структурирует сессию: ищем любимую механику → проходим серию → закрываем дейлики.</li>
+          <li><b>Дневной челлендж</b>: одна конфигурация на всех + шерибельный артефакт результата (модель Wordle<sup><a href="#s6">[6]</a></sup>).</li>
+          <li><b>Variable reward в геймплее</b>: редкая двойная звезда, perfect win, комбо за серию, сюрприз-скин — с умной редкостью, не постоянно. Важно: в геймплее и ленте, но <b>не в монетизации</b> (регуляторный периметр, см. риски).</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <section id="why">
+    <div class="sec-idx">02 — почему сейчас и почему мы</div>
+    <h2>Категория финансируется, позиция свободна</h2>
+    <p class="sec-sub">«TikTok для игр» уже валидирован деньгами профильных инвесторов — и ещё никем не доказан. Окно открыто.</p>
+    <details>
+      <summary>Рынок: деньги пришли, победителя нет <span class="tag v">верифицировано</span></summary>
+      <div class="d-body">
+        <p>Minit Games — $2M pre-seed от LVP и Sony Innovation Fund (март 2026) ровно под тезис «игроки живут в алгоритмических лентах, а игры заперты в app store»; продукт в закрытой альфе<sup><a href="#s3">[3]</a></sup>. HypeHype (Supercell) — годы в soft-launch. Smirk — не вышел из soft-launch. Playbyte — мёртв. <b>Никто из них не делает кастомизацию механик как соцмеханику</b> — вторая половина нашей гипотезы не занята.</p>
+        <p>При этом готовая дистрибуция не спасает: Netflix Games (&lt;1% DAU от 247M подписчиков), Snap Games, Facebook Gaming — все закрыты<sup><a href="#s2">[2]</a></sup>. Проигрывает не дистрибуция, а формат «игры рядом с лентой». Значит, лента и должна быть игрой.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Наше несправедливое преимущество</summary>
+      <div class="d-body">
+        <ul>
+          <li><b>Себестоимость единицы ленты — минимальная в категории.</b> Готовый конвейер плейбл-механик (3 таргета, warm staged-boot, автоплей, телеметрия) — то, что убивает всех «TikTok для игр»: контентная экономика.</li>
+          <li><b>Лента уже архитектурно решена</b> (подтверждено blindspot-проходом по коду): iframe на юнит, ring-buffer, всегда только 2 живых фрейма (текущий + прогретый) — лимит WebGL-контекстов WebKit, убивающий наивные ленты игр, обойдён by design. Новая механика ≈ день работы (контракт Swipe API v1).</li>
+          <li><b>Instant-web как козырь.</b> Каждая шеринг-ссылка открывает конкретную механику мгновенно, без регистрации и установки. Обычным играм это недоступно.</li>
+          <li><b>Опыт геймдева + насмотренность × вайбкодинг + AI</b> — скорость итераций одного человека сегодня равна маленькой студии.</li>
+          <li><b>Синергия с основным бизнесом:</b> креативный продакшен питает механики; лента — полигон для креативов и, в перспективе, канал («реклама» = промо-плейблы чужих игр, нативные как контент).</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Честно о встречном ветре <span class="tag w">трезвость</span></summary>
+      <div class="d-body">
+        <p>Внимание — игра с нулевой суммой: мобильное время упёрлось в ~3.6 ч/день, соцсети съедают &gt;60%<sup><a href="#s9">[9]</a></sup> — минуты придётся отбирать у Reels. Гипотеза «упрощение продолжится» рынком не подтверждается — выигрывает глубина при простой единице. И гиганты движутся в нашу точку: Roblox Moments, TikTok Growth Max for Mini Games. Ставка — скорость и незанятая связка «лента + ремикс механик».</p>
+      </div>
+    </details>
+  </section>
+
+  <section id="engine">
+    <div class="sec-idx">03 — контент-движок</div>
+    <h2>Маховик: AI, игроки и разработчики кормят ленту</h2>
+    <p class="sec-sub">Supply — риск №1 всей категории. Ответ — не «больше механик руками», а комбинаторика: механика × параметры × уровни × скины × seed.</p>
+    <details open>
+      <summary>Три этапа маховика</summary>
+      <div class="d-body">
+        <ul>
+          <li><b>Этап 1 — сейчас.</b> Портфель топ-механик рынка (раздел 04) + параметрические вариации (layout, цель, ограничение, скин, seeded challenge). 12 механик × ~25 юнитов = ~300 единиц ленты. Полуавтоматический рескин плейблов с рынка; веб-порталы (Poki/CrazyGames) как рефы того, что заходит.</li>
+          <li><b>Этап 2.</b> Генерация уровней как продукт: 5 уровней бесплатно → продолжение любимой механики за токены/рекламу. Плейбл создаёт импульс — импульс и монетизируем (вместо «переходи к следующей»). AI-генерация позиционируется явно: «создай свой уникальный уровень».</li>
+          <li><b>Этап 3.</b> Разработчики-вайбкодеры: обучение, AI-модерация + ручная финальная, публикация в ленту, рев-шара с генерации уровней к их механикам. Они же двигают свои механики шерингом — растят аудиторию платформы. Продажа токенов с маржой на обе стороны.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Что говорит ресерч про UGC-порог и мотивацию <span class="tag p">первичные источники</span></summary>
+      <div class="d-body">
+        <p><b>Правило 90-9-1</b>: 1% создаёт почти всё, и это нормально — экономика контента должна сходиться на 1%, а не на «все будут кастомизировать». Рекомендованный способ снизить порог — <b>ремикс шаблонов, а не создание с нуля</b><sup><a href="#s4">[4]</a></sup> — ровно наша параметрическая модель, а не полноценный редактор.</p>
+        <p><b>Roblox Cube «4D generation»</b> (генерация работающих интерактивных объектов из промпта): игроки сгенерировали 160k+ объектов, у создающих +64% playtime (метрика самого Roblox — с поправкой)<sup><a href="#s5">[5]</a></sup>. «Audience-as-creator» работает, AI радикально снижает порог.</p>
+        <p><b>Осторожность:</b> экономика создателей чудовищно top-heavy (Roblox: топ-10 в среднем $33.9M/год, медианный участник DevEx — $1,575)<sup><a href="#s5">[5]</a></sup>. Разработчикам ранней волны продаём статус, фан и социальный отклик, не обещание дохода.</p>
+      </div>
+    </details>
+    <div class="callout cool">
+      <div class="eyebrow">Решение по монетизации</div>
+      <p>До 13 октября монетизация <b>выключена</b>. Сначала retention и виралка. Потребление в ленте остаётся бесплатным всегда (пейволл ленты = ломает zero-friction принцип и повторяет ошибку ad wall); платными становятся генерация, продолжение серий и статус.</p>
+    </div>
+  </section>
+
+  <section id="mech">
+    <div class="sec-idx">04 — механики и валидность теста</div>
+    <h2>Дюжина механик, проверенных рынком</h2>
+    <p class="sec-sub">Сегодня в ленте 9 юнитов, но честно — 3 механики: мерж (×7 вариаций), пин-пулл и сортировка. Для выводов о ретеншене этого мало: тест измерит усталость от мержа, а не аппетит к ленте. Берём топ мирового рынка по загрузкам — спрос провалидирован миллиардами инсталлов; наша работа — рескин, вариации и формула-бар.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Механика</th><th>Референс рынка</th><th>Статус</th><th>Волна</th></tr></thead>
+      <tbody>
+        <tr><td>Мерж</td><td>EverMerge, merge-жанр</td><td>в ленте (×7 вариаций)</td><td>есть</td></tr>
+        <tr><td>Пин-пулл</td><td>Pull the Pin, Hero Rescue</td><td>в ленте; декларативные уровни — база challenge v1</td><td>есть</td></tr>
+        <tr><td>Сортировка</td><td>Water / Marble Sort</td><td>в ленте</td><td>есть</td></tr>
+        <tr><td>Блочный пазл</td><td>Block Blast — топ-1 загрузок казуалок</td><td>новая</td><td>нед 4–5</td></tr>
+        <tr><td>Тайл-матч ×3</td><td>Zen Match, Triple Tile</td><td>новая</td><td>нед 4–5</td></tr>
+        <tr><td>Дроп-мердж</td><td>Suika Game, 2048 Drop</td><td>новая</td><td>нед 5–6</td></tr>
+        <tr><td>Болты и гайки</td><td>Screw Jam, Nuts &amp; Bolts</td><td>новая</td><td>нед 6–7</td></tr>
+        <tr><td>Bubble shooter</td><td>классика, стабильный топ</td><td>новая</td><td>нед 6–7</td></tr>
+        <tr><td>Дыра-поглотитель</td><td>Attack Hole, Hole.io</td><td>новая</td><td>нед 7–8</td></tr>
+        <tr><td>Нарисуй линию</td><td>Draw to Save, Brain Line</td><td>новая</td><td>нед 7–8</td></tr>
+        <tr><td>Кар-джем</td><td>Car Jam, Parking Jam</td><td>резерв</td><td>дроп в тесте</td></tr>
+        <tr><td>Слайс / тайминг</td><td>Knife Hit, Perfect Cut</td><td>резерв</td><td>дроп в тесте</td></tr>
+      </tbody>
+    </table></div>
+    <details style="margin-top:10px">
+      <summary>Критерии отбора и каденс производства</summary>
+      <div class="d-body">
+        <ul>
+          <li><b>Топ загрузок 2024–2026</b> — спрос доказан рынком: валидируем ленту, а не геймдизайн.</li>
+          <li>Читается за 1 с; свайп/тап без обучения; <b>автоплеится AutoCursor</b>; лёгкий рантайм под warm boot.</li>
+          <li>Большое пространство вариаций — генерация уровней даёт десятки юнитов на механику.</li>
+          <li>Каденс: <b>~2 новые механики в неделю</b> на общей платформе (рантайм, инпут, звёзды, автоплей — общие; пишется только кор-логика + арт). Резервные — недельные дропы закрытого теста: «новая механика в четверг» как событие и причина возврата.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Контент-математика: сколько юнитов нужно</summary>
+      <div class="d-body">
+        <p>Модель вовлечённого пользователя: экспозиция ~30 с (50% свайп за 5 с, 35% игра ~45 с, 15% реплей) → 13–16 экспозиций за сессию 6–8 мин → 40–50 в день → <b>250–350 за неделю жизни D7-когорты</b>. Сыгранный уровень не повторяется; новый уровень знакомой механики — валидная новизна (модель гиперкэжуала).</p>
+        <ul>
+          <li><b>~25–30 юнитов на механику</b> (5–6 серий по 5 уровней), различимых блайнд-тестом: игрок опознаёт новую задачу, а не тот же уровень с другим сидом.</li>
+          <li><b>~150 юнитов на старте теста + дрип 15–20/день</b> (~500 за тест): дрип имитирует живую ленту и даёт ежедневную новизну.</li>
+          <li>35 дневных челленджей preprod — на каждый день теста с запасом.</li>
+          <li>QA дёшев: AutoCursor — бесплатный автотест проходимости каждого уровня; руками — только читаемость (~5 мин/юнит).</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>7 обязательных фич — без них метрики лгут</summary>
+      <div class="d-body">
+        <ul>
+          <li><b>Формула-бар на 100% механик</b> — одна механика без автоплея загрязняет takeover rate.</li>
+          <li><b>Эвристики ленты</b>: сыгранное не повторять, механику не дважды подряд, буст реплеенного. Иначе depth меряет раздражение от повторов, а не аппетит.</li>
+          <li><b>Телеметрия транса</b> с первого дня — без неё тест даёт вайбы, а не решение.</li>
+          <li><b>Шеринг end-to-end</b>: ссылка открывает конкретный юнит мгновенно (startapp-параметр) → артефакт результата → «ответь своим». Лишний экран у получателя — и share rate покажет ноль из-за недоделанности, а не гипотезы.</li>
+          <li><b>Дневной челлендж + лёгкий стрик + опт-ин пинг бота</b> — без триггера возврата D1 заведомо провален; честно меряем retention системы, не «органическую память».</li>
+          <li><b>Звук + хаптика минимум</b>: win-стингер, вибро на звезду (Telegram HapticFeedback). Важная находка blindspot-прохода: user activation в iOS — per-iframe, пассивная лента была бы немой; решение — host-джукбокс (AudioContext на хост-странице, разблокируется первым свайпом, юниты шлют sfx-события через postMessage).</li>
+          <li><b>Звёзды / учёт наград</b> — есть.</li>
+        </ul>
+        <p><b>Сознательно вне скоупа:</b> токены и монетизация, программа разработчиков, полный редактор, глобальные лидерборды, мета-коллекции. Stories-зона (решение 05.07): мок-друзья удаляются, зона становится <b>инбоксом челленджей</b> — входящие вызовы друзей и статусы своих. Ремикс-лайт — стретч: при нехватке времени выносится в отдельный тест и ничего не ломает.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Validity guards: когда цифрам можно верить</summary>
+      <div class="d-body">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>KPI</th><th>Порог go</th><th>Валиден, только если</th></tr></thead>
+          <tbody>
+            <tr><td>D1</td><td>&gt; 25–30%</td><td>&lt;10% сессий упёрлись в конец контента; p95 лоадера &lt;0.5 с</td></tr>
+            <tr><td>Share rate</td><td>&gt; 15% сессий</td><td>Открытий ссылки &gt;90%; TTI получателя &lt;2 с</td></tr>
+            <tr><td>Takeover</td><td>&gt; 30%</td><td>Автоплей на 100% юнитов</td></tr>
+            <tr><td>Глубина</td><td>5+ механик (медиана)</td><td>Supply-guard зелёный, эвристики повторов работают</td></tr>
+            <tr><td>Swipe-after-win</td><td>—</td><td>Звук/хаптика активны у &gt;95% пользователей</td></tr>
+          </tbody>
+        </table></div>
+        <p style="margin-top:10px">Guard красный → KPI не интерпретируем: это сигнал «доделай», а не «гипотеза мертва». Когорта: 120–200 живых людей из чатов, где знают друг друга; ≥30% пришли по challenge-ссылке — иначе соцпетля не тестируется. A/B autoplay — по экспозициям (их тысячи), не по retention (шум на такой выборке). Отдельно: прогнать все ассеты через рецепт перекодирования animated-webp — iOS-клиент Telegram это WebKit.</p>
+      </div>
+    </details>
+  </section>
+
+  <section id="viral">
+    <div class="sec-idx">05 — виральность</div>
+    <h2>Каждая ссылка — конкретный вызов, открывающийся мгновенно</h2>
+    <p class="sec-sub">Web-first, не app-first. Установка — после первой победы и социального крючка, не до.</p>
+    <details>
+      <summary>Клинья (wedges) шеринга</summary>
+      <div class="d-body">
+        <ul>
+          <li>«Я прошёл за 14 секунд — сможешь быстрее?» (challenge deep link, асинхронный PvP, ghost replay)</li>
+          <li>«Эта игра сама себя проходит, но ты можешь перехватить» (autoplay как крючок в нарезках)</li>
+          <li>«Сгенерировал challenge специально для тебя» / «Победи механику друга»</li>
+          <li>Аватарка друга внутри механики — место под хохму в каждой хорошей механике</li>
+          <li>TikTok/Reels/Shorts-нарезки: auto-play, fail/win, impossible-looking решения → deep link</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Уроки Wordle и Hamster Kombat <span class="tag p">первичные источники</span></summary>
+      <div class="d-body">
+        <p><b>Wordle</b><sup><a href="#s6">[6]</a></sup>: виральную механику (emoji-сетку) придумал игрок, автор лишь встроил её — дай игрокам материал для шеринга и смотри, что они сделают сами. Шеринг — чистый текст <b>без URL и кнопки</b>: ссылка ощущается как спам. Ядро — общая точка отсчёта (одно слово на всех) + дефицит (раз в день). Наш дневной челлендж строится по этому чертежу.</p>
+        <p><b>Hamster Kombat</b><sup><a href="#s7">[7]</a></sup>: 110M+ MAU за полгода внутри Telegram; мини-игра драйвила загрузки самого Telegram (+45% м/м). Урок: гостевая экосистема с соцграфом даёт виральность, недоступную standalone-приложению. Оговорка: в Telegram <b>нет friends-API</b> — «друзья, кто играет» собираются через шеринг в чаты, групповые лидерборды и реферальные ссылки, не из коробки.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Почему Telegram, а не App Store</summary>
+      <div class="d-body">
+        <ul>
+          <li>Техстек совпадает буквально: HTML5, мгновенная загрузка, deep links — наш пайплайн уже это умеет; TMA-интеграция (fullscreen, safe-area, Bot API 8.0) уже в прототипе.</li>
+          <li>Нулевая цена дистрибуции теста: свои каналы и чаты вместо закупки UA.</li>
+          <li>Никаких ревью-циклов и Apple 4.7 на этапе валидации (для будущего iOS-хаба правило 4.7.5 требует age-assurance — закладываем архитектурно, но не сейчас)<sup><a href="#s10">[10]</a></sup>.</li>
+          <li>Шеринг-петля внутри мессенджера — самая короткая из существующих: увидел → тапнул → сыграл → ответил своим результатом в тот же чат.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Что уточнил blindspot pass по TMA-домену <span class="tag p">июль 2026</span></summary>
+      <div class="d-body">
+        <ul>
+          <li><b>Stars обязательны</b> для цифровых товаров: эффективная комиссия ~32% (сторы + спред Fragment, холд 21 день), но реинвест Stars в Telegram Ads субсидируется до ~0% — будущая выручка эффективнее всего конвертируется в трафик, а не выводится.</li>
+          <li><b>startapp ≤ 64 base64url-символов</b> — в диплинк влезает только короткий id; challenge-ссылки работают через серверный резолвер (challenge_id → контент).</li>
+          <li><b>Сейвы только на своём бэкенде</b>: localStorage не переживает memory pressure iOS и не переносится между клиентами; CloudStorage — 4КБ/ключ.</li>
+          <li><b>Канал пингов бесплатный, но одноразовый</b>: блокировка бота = 403 навсегда. Каденс консервативный, событийные уведомления («друг побил рекорд») вместо календарных; bot block rate — в дашборд.</li>
+          <li><b>Каталоги не канал</b> (tapps.center требует TON), рост = шеринг в чаты + Telegram Ads. Аудитория выжжена tap-to-earn — позиционируем как развлечение, не заработок.</li>
+          <li><b>Регуляторный бонус:</b> Telegram ToS 18+ в ЕС — детская аудитория структурно ограничена, COPPA-риск в TMA-фазе ниже, чем в App Store.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <section id="risks">
+    <div class="sec-idx">06 — риски</div>
+    <h2>Что может убить проект</h2>
+    <p class="sec-sub">По убыванию опасности. У каждого — контрмера, зашитая в план.</p>
+    <div class="risk"><div class="r-n">R1</div><div><b>Цена усилия.</b> Думать дольше 2–3 секунд до первого действия — свайп. <span class="r-fix">Autoplay-режим по умолчанию + формула 1с/5–20с/0.5с как жёсткий продакшен-бар каждой механики; метрики транса ловят нарушения.</span></div></div>
+    <div class="risk"><div class="r-n">R2</div><div><b>Supply.</b> Без сотен вариаций лента предсказуема; одна кор-механика (мерж) сегодня — главный дефицит. Категорийный риск №1: возможно, все «TikTok для игр» застряли именно здесь. <span class="r-fix">Дюжина проверенных рынком механик (раздел 04), комбинаторика (механика × параметры × seed × скин), серии уровней, дрип 15–20 юнитов/день.</span></div></div>
+    <div class="risk"><div class="r-n">R3</div><div><b>Social cold start.</b> Без реальных людей социальный слой — декор. <span class="r-fix">Stories-зона = инбокс челленджей (реальный контент вместо мок-друзей); challenge с N участниками — один вызов в групповой чат работает на 30 человек; тест в живых чатах.</span></div></div>
+    <div class="risk"><div class="r-n">R4</div><div><b>Перформанс.</b> Полсекунды белого экрана в прокрастинационной ленте — вечность. <span class="r-fix">Warm-boot уже работает в ленте (подтверждено кодом: 2 живых фрейма, ring-buffer, prefetch на 4 вперёд); телеметрия лоадера в проде.</span></div></div>
+    <div class="risk"><div class="r-n">R8</div><div><b>Персистентность.</b> Сейчас всё состояние in-memory: звёзды обнуляются на reload — D1 физически неизмерим. <span class="r-fix">swipe-backend в критическом пути недели 1: initData, серверный баланс (ledger), телеметрия событий. См. W5-бэклог.</span></div></div>
+    <div class="risk"><div class="r-n">R5</div><div><b>Ad wall.</b> Слишком явная продажа трафика превращает ленту в стену рекламы. <span class="r-fix">Промо-игры = обычные плейблы в ленте, неотличимые от контента по качеству; монетизация выключена до валидации ретеншена.</span></div></div>
+    <div class="risk"><div class="r-n">R6</div><div><b>Регуляторика.</b> FTC v. HoYoverse ($20M): продажа loot box <16 лет без согласия родителей запрещена, раскрытие шансов обязательно; Apple 4.7.5 требует age-assurance для хабов мини-игр<sup><a href="#s10">[10]</a></sup>. <span class="r-fix">Variable reward — только в геймплее, никогда в платных механиках; возрастная архитектура с первого дня.</span></div></div>
+    <div class="risk"><div class="r-n">R7</div><div><b>Гиганты сверху.</b> Roblox Moments и TikTok mini-games движутся в ту же точку. <span class="r-fix">Скорость + незанятая связка «лента + ремикс механик»; Telegram — фланг, где гиганты слабы.</span></div></div>
+  </section>
+
+  <section id="metrics">
+    <div class="sec-idx">07 — метрики</div>
+    <h2>Аналитика транса вместо watch time</h2>
+    <p class="sec-sub">Отраслевых бенчмарков для игровых лент не существует — все в soft-launch. Устанавливаем свои.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Метрика</th><th>Что ловит</th><th>Сигнал тревоги</th></tr></thead>
+      <tbody>
+        <tr><td>time-to-first-input</td><td>Цена входа в механику</td><td>&gt; 2–3 с → механика на доработку</td></tr>
+        <tr><td>loader-on-screen</td><td>Перформанс в проде</td><td>Любой видимый лоадер</td></tr>
+        <tr><td>swipe-away rate</td><td>Аналог skip rate — топливо для feed engine</td><td>Свайп до первого действия</td></tr>
+        <tr><td>swipe-after-win</td><td>Держит ли ритм награда</td><td>Уход сразу после победы без любопытства</td></tr>
+        <tr><td>replay / rage-restart</td><td>Залипание vs фрустрация</td><td>Рестарты без прогресса</td></tr>
+        <tr><td>механик за сессию</td><td>Глубина ленты</td><td>Выход &lt; 3 механик</td></tr>
+        <tr><td>share rate</td><td>Прокси K-factor</td><td>Норма-звезда всего теста</td></tr>
+        <tr><td>takeover rate</td><td>Конверсия просмотра в игру</td><td>Ключ к autoplay-гипотезе</td></tr>
+        <tr><td>bot block rate</td><td>Здоровье канала re-engagement</td><td>Блокировка бота = пинги потеряны навсегда</td></tr>
+      </tbody>
+    </table></div>
+    <details style="margin-top:10px">
+      <summary>Личный тест-нельзя-провалить</summary>
+      <div class="d-body">
+        <p>Цель платформы — вернуть в игры самого себя: чтобы в момент прокрастинации рука тянулась к своей ленте, а не к Instagram. Это самый честный ежедневный тест продукта — основатель как нулевой ретеншен-когортный пользователь. Если самому не тянет — фичи не помогут.</p>
+      </div>
+    </details>
+  </section>
+
+  <section id="plan">
+    <div class="sec-idx">08 — план</div>
+    <h2>14 недель до 13 октября</h2>
+    <p class="sec-sub">Дедлайн — день рождения. Каждую неделю — одна фальсифицируемая гипотеза; сжигать токены подписок ежедневно — норма усилия, гипотеза в неделю — норма результата.</p>
+    <div class="tl">
+      <div class="tl-item"><div class="tl-when">Июль · нед 1–3</div><div class="tl-what">Бэкенд + challenge-петля + инбокс + телеметрия (W5)</div><div class="tl-det">По W5-бэклогу: swipe-backend (initData HMAC, серверные звёзды/ledger, батч-телеметрия), challenge-петля end-to-end на pins (создать → shareMessage в чат → друг сыграл тот же variant → двусторонняя награда → бот-уведомление), stories-зона = инбокс челленджей, host-джукбокс + хаптика, takeover A/B, дашборд v1, альфа на 5–10 своих.</div></div>
+      <div class="tl-item"><div class="tl-when">Август · нед 4–6</div><div class="tl-what">Дневной челлендж + challenge-ссылки + вариации</div><div class="tl-det">Wordle-контур: одна конфигурация (variant) на всех, copy-paste артефакт без URL (W2-мокапы дизайна артефакта). +2 новые механики в неделю с variation.bounds в DoD (блочный пазл, тайл-матч, дроп-мердж, болты) — к концу августа 6–7 механик, генератор вариаций как внутренний контент-конвейер, серии ×5 уровней.</div></div>
+      <div class="tl-item"><div class="tl-when">Сентябрь · нед 7–9</div><div class="tl-what">Закрытый тест, 50–200 человек</div><div class="tl-det">Свои чаты и каналы, 120–200 человек. Итерации по swipe-away и takeover rate. Ещё +2 механики в неделю — к старту теста 10+; дрип контента 15–20 юнитов/день.</div></div>
+      <div class="tl-item"><div class="tl-when">Сентябрь · нед 10–12</div><div class="tl-what">Вторая волна вовлечения</div><div class="tl-det">Variable rewards в геймплее, стрики и дейлики, групповые лидерборды чатов, недельные дропы резервных механик («новая механика в четверг»), ремикс-лайт как стретч.</div></div>
+      <div class="tl-item final"><div class="tl-when">13 октября</div><div class="tl-what">Публичный тест — go / no-go</div><div class="tl-det">Критерии: D1 &gt; 25–30%, share rate &gt; 15% сессий, takeover rate &gt; 30%, медиана 5+ механик за сессию. Ниже — разбираемся какое звено формулы рвётся, а не хороним идею.</div></div>
+    </div>
+  </section>
+
+  <section id="open">
+    <div class="sec-idx">09 — открытые вопросы</div>
+    <h2>Что узнаем только тестом</h2>
+    <details>
+      <summary>Четыре вопроса без ответа в ресерче</summary>
+      <div class="d-body">
+        <ul>
+          <li>Почему <b>все</b> «TikTok для игр» застряли в soft-launch — retention ленты системно ниже видео или контентная экономика? Публичных данных нет.</li>
+          <li>Реальный takeover rate: сколько «зрителей» конвертируется в «игроков» и достаточно ли этого для игрового профиля удержания.</li>
+          <li>Ремикс как соцмеханика: пересылаются ли кастомные версии и конвертируют ли получателя в ответный ремикс (ядро гипотезы о новом жанре).</li>
+          <li>Свайп нижней компонентой vs всем экраном: теряем ли «трансовость» — и компенсирует ли autoplay.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <hr class="hair-rule">
+  <footer>
+    <div class="ctrl" style="margin:18px 0 14px"><button class="xall" id="xall" type="button">Развернуть всё</button></div>
+    <div class="eyebrow">Источники и методология</div>
+    <p>Deep-research, июль 2026: 2 раунда, ~50 источников, 240+ утверждений. Раунд 1 прошёл адверсариальную верификацию (3 голоса на утверждение; 23 подтверждено, 2 опровергнуто). Раунд 2 (UGC, виральность, регуляторика) — первичные источники без адверсариальной верификации. Дополнено (05.07): blindspot pass по кодбазе прототипа и домену Telegram Mini Apps, ревью внутренних документов SHARE_FEATURE_PLAN_V1 и VARIATION_GEN_RESEARCH_V1, интервью основателя; детальный бэклог недель 1–3 — отдельный W5-документ.</p>
+    <ol class="src" style="margin-top:10px">
+      <li id="s1">fMRI: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3680713/">Kätsyri et al., 2013</a> · <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3307771/">Cole, Yoo &amp; Knutson, 2012</a></li>
+      <li id="s2">Кладбище платформ: <a href="https://www.fastcompany.com/91214197/netflix-video-game-studio-shut-down-what-happened">Netflix (Fast Company)</a> · <a href="https://gamerant.com/snapchat-snap-games-suspension-layoffs/">Snap Games</a> · <a href="https://techcrunch.com/2022/08/30/meta-shutting-down-facebook-gaming-app/">Facebook Gaming (TechCrunch)</a></li>
+      <li id="s3">Категория: <a href="https://mobilegamer.biz/new-tiktok-for-games-firm-minit-lands-2m/">Minit $2M — LVP + Sony (mobilegamer.biz)</a></li>
+      <li id="s4">90-9-1 и ремикс: <a href="https://www.nngroup.com/articles/participation-inequality/">Nielsen Norman Group</a></li>
+      <li id="s5">Roblox: <a href="https://about.roblox.com/newsroom/2026/02/accelerating-creation-powered-roblox-cube-foundation-model">Cube 4D generation</a> · <a href="https://about.roblox.com/newsroom/2025/09/roblox-moments-user-generated-discovery">Moments</a> · <a href="https://about.roblox.com/newsroom/2025/09/roblox-annual-economic-impact-report">Economic Impact Report</a></li>
+      <li id="s6">Wordle: <a href="https://slate.com/culture/2022/01/wordle-game-creator-wardle-twitter-scores-strategy-stats.html">интервью Wardle (Slate)</a></li>
+      <li id="s7">Hamster Kombat: <a href="https://appmagic.rocks/blog/hamster-kombat-telegram">AppMagic</a></li>
+      <li id="s8">Hybrid-casual: <a href="https://www.pocketgamer.biz/what-happened-to-hypercasual-the-markets-evolution-over-the-past-year/">PocketGamer.biz / Sensor Tower</a></li>
+      <li id="s9">Потолок внимания: <a href="https://www.deconstructoroffun.com/blog/2026/2/2/state-of-mobile-2026">Sensor Tower State of Mobile 2026</a></li>
+      <li id="s10">Регуляторика: <a href="https://developer.apple.com/news/?id=ey6d8onl">Apple 4.7 (нояб 2025)</a> · <a href="https://www.ftc.gov/news-events/news/press-releases/2025/01/genshin-impact-game-developer-will-be-banned-selling-lootboxes-teens-under-16-without-parental">FTC v. HoYoverse</a></li>
+    </ol>
+  </footer>
+</div>
+
+<script>
+  const btn = document.getElementById('xall');
+  btn.addEventListener('click', () => {
+    const all = [...document.querySelectorAll('details')];
+    const anyClosed = all.some(d => !d.open);
+    all.forEach(d => d.open = anyClosed);
+    btn.textContent = anyClosed ? 'Свернуть всё' : 'Развернуть всё';
+  });
+</script>

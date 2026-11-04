@@ -1,0 +1,11 @@
+{
+  "commentBodySha256": "adb85a9e5bce30c1923564b70dea7e471654287398faa978f25e19926912728c",
+  "receiptBodySha256": "814d9e65832ee111df46e0649d74d043dee4872875fbcf423d2a3e6b7ee69b5c",
+  "wakeId": "wake_dcc0fb767c301787ea5a08e85c645c8ee423c24d6a776fd66f78857b81ce459c",
+  "wakeDigest": "ef31ce5f3a527550c52659516f76d2f594252198302e5d7721b82b6a93aa9798",
+  "assignedMachine": "mac-b",
+  "targetTaskDigest": "be9b2496185c314369ebb101cc9e18f0a32f6bef4c8ae929556fed09f44c5983",
+  "callbackTaskDigest": "f2c0e31a9844b73c5344a19b83222b0336ab44eceaa5bb005e56efa568648967",
+  "parentCommentId": "5301028428",
+  "exactTitle": "MAC_B_ISSUE114_V16_P1P2_CORRECTION — HANDOFF_READY"
+}

@@ -8,6 +8,10 @@ Authority: `docs/specs/two-mac-development-operating-model.md`
 
 Статус: модель зафиксирована; реализация автоматического контура не начата.
 
+Первый отдельный implementation-handoff после операторского запуска цели:
+`TELEGRAM-DEVELOPMENT-INTAKE-HANDOFF-2026-08-09.md`. Он не заменяет этот
+документ и не меняет замороженные ownership/review-решения.
+
 ## Цель одной фразой
 
 Дать оператору mobile-first путь `тикет → работа одной из двух ячеек →
