@@ -30,7 +30,8 @@ function git(root, args) {
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r1-evidence-scan-'));
-  git(root, ['init', '--initial-branch=master']);
+  git(root, ['init']);
+  git(root, ['symbolic-ref', 'HEAD', 'refs/heads/master']);
   fs.writeFileSync(path.join(root, 'README.md'), 'fixture baseline\n');
   git(root, ['add', 'README.md']);
   git(root, [
@@ -42,7 +43,7 @@ function fixture() {
     '-m',
     'fixture baseline',
   ]);
-  git(root, ['switch', '--create', 'evidence']);
+  git(root, ['checkout', '-b', 'evidence']);
 
   for (const filename of REQUIRED_EVIDENCE_FILES) {
     const content = filename.endsWith('.json')
